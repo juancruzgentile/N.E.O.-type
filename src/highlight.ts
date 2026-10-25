@@ -9,11 +9,19 @@ const KW: Record<LangId, string[]> = {
   java: ["public", "private", "protected", "static", "final", "return", "if", "else", "for", "while", "new", "class", "record", "interface", "enum", "implements", "extends", "throw", "throws", "try", "catch", "this", "true", "false", "null", "void", "int", "long", "double", "boolean", "char"],
   csharp: ["public", "private", "static", "return", "if", "else", "for", "foreach", "while", "in", "new", "class", "record", "interface", "enum", "throw", "try", "catch", "this", "true", "false", "null", "void", "int", "long", "double", "decimal", "bool", "string", "var", "async", "await", "override", "get", "set", "with", "is", "or", "switch", "nameof"],
   go: ["func", "return", "if", "else", "for", "range", "var", "const", "type", "struct", "interface", "map", "make", "append", "len", "nil", "true", "false", "defer", "switch", "case", "default", "iota", "int", "float64", "string", "bool", "error", "rune", "min", "max"],
+  sql: [
+    "SELECT", "FROM", "WHERE", "AND", "OR", "NOT", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE",
+    "INDEX", "UNIQUE", "ON", "AS", "JOIN", "LEFT", "GROUP", "BY", "HAVING", "ORDER", "ASC", "DESC", "LIMIT", "PRIMARY", "KEY",
+    "DEFAULT", "NULL", "TRUE", "FALSE", "WITH", "OVER", "PARTITION", "RETURNING", "BEGIN", "COMMIT", "START", "TRANSACTION",
+    "ALTER", "ADD", "COLUMN", "CONFLICT", "DO", "DUPLICATE", "LIKE", "ILIKE", "AUTOINCREMENT", "AUTO_INCREMENT", "GENERATED",
+    "ALWAYS", "IDENTITY", "INTEGER", "INT", "TEXT", "REAL", "VARCHAR", "DECIMAL", "NUMERIC", "BOOLEAN", "DATETIME",
+    "TIMESTAMPTZ", "SERIAL", "ENGINE", "db", "true", "false", "const",
+  ],
   rust: ["fn", "let", "mut", "return", "if", "else", "for", "in", "while", "match", "impl", "struct", "enum", "trait", "pub", "use", "self", "Self", "true", "false", "as", "async", "await", "move", "ref", "where", "i32", "u32", "u64", "f64", "usize", "bool", "str"],
 };
 
 const COMMENT: Record<LangId, string> = {
-  python: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
+  python: "#", sql: "--", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
 };
 
 /** Clase de token para cada carácter del texto. */

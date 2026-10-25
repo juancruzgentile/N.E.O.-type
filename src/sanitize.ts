@@ -4,13 +4,16 @@
 // (__proto__, constructor), meter URLs externas ni valores que rompan la interfaz.
 
 import type {
-  AppState, ChallengeRecord, ErrorMode, KeyStat, LangId, LayoutId, LessonResult, Mode, Profile, Settings, ThemeId,
+  AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, KeyStat, LangId, LayoutId, LessonResult, Mode, Profile, Settings,
+  StepStat, ThemeId,
 } from "./types";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 export const MAX_AVATAR_CHARS = 400_000;
 
-const LANG_IDS: LangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust"];
+const LANG_IDS: LangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "sql"];
+const DISTRO_IDS: DistroId[] = ["ubuntu", "debian", "mint", "cachyos", "arch", "fedora"];
+const DB_IDS: DbEngineId[] = ["sqlite", "mysql", "postgresql", "mongodb"];
 const LAYOUT_IDS: LayoutId[] = ["it", "us", "es", "latam"];
 const THEME_IDS: ThemeId[] = ["cyber", "neon", "synthwave", "matrix", "tokyo", "light"];
 const ERROR_MODES: ErrorMode[] = ["block", "advance", "strict"];
@@ -75,6 +78,8 @@ function sanitizeSettings(v: unknown, defaults: Settings): Settings {
     musicStation: int(s.musicStation, 0, 6, defaults.musicStation),
     avatar: has(s, "avatar") ? safeAvatar(s.avatar) : defaults.avatar,
     showSplash: bool(s.showSplash, defaults.showSplash),
+    distro: oneOf(s.distro, DISTRO_IDS, defaults.distro),
+    dbEngine: oneOf(s.dbEngine, DB_IDS, defaults.dbEngine),
   };
 }
 
@@ -89,6 +94,20 @@ function sanitizeKeyStat(v: unknown): KeyStat | null {
     misses: int(v.misses, 0, 1e9, 0),
     recent,
   };
+}
+
+/** Lista corta de números finitos dentro de un rango (descarta el resto). */
+const nums = (v: unknown, min: number, max: number, keep: number) =>
+  Array.isArray(v)
+    ? v.filter((x): x is number => typeof x === "number" && Number.isFinite(x)).slice(-keep).map((x) => Math.min(max, Math.max(min, x)))
+    : [];
+
+function sanitizeStepStat(v: unknown): StepStat | null {
+  if (!isObj(v) || typeof v.n !== "number") return null;
+  const w = nums(v.w, 0, 1000, 5);
+  const a = nums(v.a, 0, 1, 5);
+  const len = Math.min(w.length, a.length);
+  return { n: int(v.n, 0, 1e9, 0), w: w.slice(w.length - len), a: a.slice(a.length - len) };
 }
 
 function sanitizeLesson(v: unknown): LessonResult | null {
@@ -118,8 +137,14 @@ function sanitizeProfile(v: unknown, maxStage: number): Profile {
   const lessons = Array.isArray(p.lessons)
     ? p.lessons.slice(-500).map(sanitizeLesson).filter((l): l is LessonResult => l !== null)
     : [];
+  const steps: Record<string, StepStat> = {};
+  for (const [k, raw] of entries(p.steps, /^[a-z0-9-]{1,24}$/, 50)) {
+    const st = sanitizeStepStat(raw);
+    if (st) steps[k] = st;
+  }
   return {
     stage: int(p.stage, 0, maxStage, 0),
+    steps,
     keys,
     lessons,
     score: int(p.score, 0, 1e12, 0),

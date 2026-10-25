@@ -51,7 +51,10 @@ function contentSecurityPolicy(): Plugin {
 
 // El build genera un único index.html autocontenido (JS, CSS y fuentes
 // incrustados) que se abre con doble clic, sin servidor ni internet.
+const pkg = JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf8")) as { version: string };
+
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   base: "./",
   plugins: [react(), viteSingleFile(), contentSecurityPolicy()],
   build: {

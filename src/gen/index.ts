@@ -1,4 +1,4 @@
-import type { LangId, Lesson } from "../types";
+import type { CodeLangId as LangId, Lesson } from "../types";
 import { LANGS } from "../data/curriculum";
 import { type Rng, pick } from "./base";
 import { CONCEPTS, type ConceptId, type LangImpls, makeFullCtx } from "./concepts";

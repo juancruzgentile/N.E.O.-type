@@ -1,7 +1,7 @@
 import { type ReactNode, useState } from "react";
 import { createPortal } from "react-dom";
 import type { AppState, LangId, View } from "../types";
-import { LANGS } from "../data/curriculum";
+import { LANGS, isTrack, stageCount } from "../data/curriculum";
 import { progressToNext } from "../engine/stats";
 import { getProfile, today } from "../store";
 import {
@@ -80,7 +80,7 @@ export function Header({ state, saved, onToggleMode, onPickLang, challengeLabel 
           <>
             <LangBadge lang={lang} />
             {LANGS[lang].name} <span style={{ color: "var(--dim)" }}>•</span>{" "}
-            <span className="accent">Nivel {String(stage + 1).padStart(2, "0")}</span>
+            <span className="accent">{isTrack(lang) ? "Escalón" : "Nivel"} {String(stage + 1).padStart(2, "0")}</span>
           </>
         ) : (
           "Elegí un lenguaje"
@@ -119,7 +119,7 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
   const lang = state.lang;
   const profile = lang ? getProfile(state, lang) : null;
   const prog = lang && profile ? progressToNext(lang, profile, state.settings) : { mastered: 0, total: 0 };
-  const maxStage = lang ? LANGS[lang].stages.length : 1;
+  const maxStage = lang ? stageCount(lang) : 1;
   const pct = prog.total ? (prog.mastered / prog.total) * 100 : 0;
   const mins = Math.floor((state.days[today()] ?? 0) / 60);
   const goal = state.settings.dailyGoalMin;
@@ -140,12 +140,12 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
       </div>
       <div className="lvl">
         <div className="lvl-head">
-          NIVEL <b>{profile ? String(profile.stage + 1).padStart(2, "0") : "--"}</b>
+          {lang && isTrack(lang) ? "ESCALÓN" : "NIVEL"} <b>{profile ? String(profile.stage + 1).padStart(2, "0") : "--"}</b>
           <span style={{ color: "var(--dim)", fontSize: 13 }}> / {String(maxStage).padStart(2, "0")}</span>
         </div>
         <div className="progress"><span style={{ width: `${pct}%` }} /></div>
         <div className="lvl-sub">
-          {lang ? `${prog.mastered} / ${prog.total} símbolos dominados` : "Elegí un lenguaje para empezar"}
+          {lang ? `${prog.mastered} / ${prog.total} ${isTrack(lang) ? "escalones" : "símbolos"} dominados` : "Elegí un lenguaje para empezar"}
         </div>
       </div>
       <nav className="nav">
@@ -179,7 +179,7 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
       </div>
       <MusicPlayer update={update} />
       {editing && <ProfileModal state={state} update={update} onClose={() => setEditing(false)} />}
-      <div className="version">v1.0.0</div>
+      <div className="version">v{__APP_VERSION__}</div>
     </aside>
   );
 }

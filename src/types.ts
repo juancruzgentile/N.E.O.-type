@@ -1,4 +1,10 @@
-export type LangId = "python" | "javascript" | "typescript" | "java" | "csharp" | "go" | "rust";
+/** Lenguajes de programación (ruta por símbolos). */
+export type CodeLangId = "python" | "javascript" | "typescript" | "java" | "csharp" | "go" | "rust";
+/** Rutas Trainee (progreso por escalones de temas). */
+export type TrackId = "sql";
+export type LangId = CodeLangId | TrackId;
+export type DistroId = "ubuntu" | "debian" | "mint" | "cachyos" | "arch" | "fedora";
+export type DbEngineId = "sqlite" | "mysql" | "postgresql" | "mongodb";
 export type LayoutId = "it" | "us" | "es" | "latam";
 export type ErrorMode = "block" | "advance" | "strict";
 export type Mode = "guided" | "free";
@@ -23,6 +29,10 @@ export interface Settings {
   /** "" iniciales · "preset:<id>" · "img:<dataURL>" */
   avatar: string;
   showSplash: boolean;
+  /** distribución para la práctica libre de la terminal */
+  distro: DistroId;
+  /** motor para la práctica libre de bases de datos */
+  dbEngine: DbEngineId;
 }
 
 /** Estadística de una tecla (un carácter). */
@@ -47,8 +57,20 @@ export interface LessonResult {
   kind: "drill" | "code" | "sprint" | "perfect";
 }
 
+/** Rendimiento de un escalón de una ruta Trainee (últimas lecciones). */
+export interface StepStat {
+  /** lecciones completadas en el escalón */
+  n: number;
+  /** WPM de las últimas lecciones (máx. 5) */
+  w: number[];
+  /** precisión 0..1 de las últimas lecciones (máx. 5) */
+  a: number[];
+}
+
 export interface Profile {
   stage: number;
+  /** solo rutas Trainee: id de escalón → rendimiento */
+  steps: Record<string, StepStat>;
   keys: Record<string, KeyStat>;
   lessons: LessonResult[];
   score: number;
@@ -79,6 +101,10 @@ export interface Lesson {
   tags: string[];
   text: string;
   focus: string | null;
+  /** rutas Trainee: escalón al que suma la lección */
+  step?: string;
+  /** rótulo del tipo de fragmento (FUNCIÓN, CONSULTA, COMANDO…) */
+  label?: string;
 }
 
 /** Una muestra registrada al teclear un carácter. */

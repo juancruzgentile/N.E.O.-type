@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AppState, LangId, Lesson, LessonResult, Profile, Sample } from "../types";
-import { LANGS, SYMBOL_INFO } from "../data/curriculum";
+import { LANGS, SYMBOL_INFO, isTrack, stageCount } from "../data/curriculum";
+import { TRACKS } from "../tracks/index";
+import type { Step } from "../tracks/types";
 import { LAYOUTS, comboMap, comboText } from "../data/layouts";
 import { dropSymbol, keyHit, spark, wave } from "../fx/fx";
 import { makeRng } from "../gen/base";
 import { TypingSession } from "../engine/session";
 import {
-  applySamples, buildLesson, canUnlock, lessonScore, nextStage, pickFocus, playableChars, stageInfos,
+  applySamples, applyStep, buildLesson, canUnlock, lessonScore, nextStage, pickFocus, playableChars, stageInfos,
 } from "../engine/stats";
 import { getProfile, profileKey, streakDays, today } from "../store";
 import { sound } from "../sound";
@@ -50,7 +52,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       lastConcept.current = l.title;
       return l;
     },
-    [lang, settings.layout, settings.excludeMissing, settings.minSamples, settings.targetWpm, settings.minAccuracy, mode],
+    [lang, settings.layout, settings.excludeMissing, settings.minSamples, settings.targetWpm, settings.minAccuracy, settings.distro, settings.dbEngine, mode],
   );
 
   const [lesson, setLesson] = useState<Lesson>(() => make(profile));
@@ -60,6 +62,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
   const [shake, setShake] = useState(false);
   const [lastRes, setLastRes] = useState<LessonResult | null>(null);
   const [unlock, setUnlock] = useState<string[] | null>(null);
+  const [unlockStep, setUnlockStep] = useState<Step | null>(null);
   const [finished, setFinished] = useState<Finished | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [perfectFails, setPerfectFails] = useState(0);
@@ -103,14 +106,19 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
 
   /** Guarda muestras y resultado en el perfil; devuelve el perfil nuevo. */
   const commit = useCallback(
-    (samples: Sample[], result: LessonResult | null, allowUnlock: boolean): { profile: Profile; unlocked: string[] | null } => {
+    (
+      samples: Sample[], result: LessonResult | null, allowUnlock: boolean, step?: string,
+    ): { profile: Profile; unlocked: string[] | null; newStep: Step | null } => {
       const p = profileRef.current;
       let np: Profile = { ...p, keys: applySamples(p.keys, samples) };
       if (result) np = { ...np, lessons: [...p.lessons, result].slice(-500), score: p.score + result.score };
+      if (result && step) np = { ...np, steps: applyStep(np.steps, step, result.wpm, result.acc) };
       let unlocked: string[] | null = null;
+      let newStep: Step | null = null;
       if (allowUnlock && canUnlock(lang, np, settings)) {
         const st = nextStage(lang, np.stage, settings);
-        unlocked = playableChars(LANGS[lang].stages.slice(np.stage + 1, st + 1).flat(), settings);
+        if (isTrack(lang)) newStep = TRACKS[lang].steps[st];
+        else unlocked = playableChars(LANGS[lang].stages.slice(np.stage + 1, st + 1).flat(), settings);
         np = { ...np, stage: st };
       }
       const key = profileKey(lang, settings.layout);
@@ -121,7 +129,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
         days: secs ? { ...s.days, [today()]: (s.days[today()] ?? 0) + secs } : s.days,
       }));
       profileRef.current = np;
-      return { profile: np, unlocked };
+      return { profile: np, unlocked, newStep };
     },
     [lang, settings, update],
   );
@@ -193,7 +201,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       return;
     }
 
-    const { profile: np, unlocked } = commit(samples, res, !challenge);
+    const { profile: np, unlocked, newStep } = commit(samples, res, !challenge, challenge ? undefined : lesson.step);
     setLastRes(res);
 
     if (challenge?.kind === "perfect") {
@@ -207,7 +215,12 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       return;
     }
 
-    if (unlocked && unlocked.length) {
+    if (newStep) {
+      if (settings.sound) sound.unlock();
+      wave();
+      taRef.current?.blur();
+      setUnlockStep(newStep);
+    } else if (unlocked && unlocked.length) {
       if (settings.sound) sound.unlock();
       dropping.current = true;
       setIsDropping(true);
@@ -222,11 +235,11 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       wave();
     }
     loadLesson(make(np));
-  }, [challenge, combos, commit, lang, lesson.kind, loadLesson, make, settings.sound, state.challenges, update]);
+  }, [challenge, combos, commit, lang, lesson.kind, lesson.step, loadLesson, make, settings.sound, state.challenges, update]);
 
   const handleChar = useCallback(
     (ch: string) => {
-      if (unlock || finished || dropping.current) return;
+      if (unlock || unlockStep || finished || dropping.current) return;
       const s = session.current;
       const expected = s.text[s.pos];
       if (challenge?.kind === "sprint" && !sprint.current.running) {
@@ -255,7 +268,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       setVersion((v) => v + 1);
       if (res === "done") onLessonDone();
     },
-    [challenge, combos, finished, onLessonDone, settings.errorMode, settings.sound, unlock],
+    [challenge, combos, finished, onLessonDone, settings.errorMode, settings.sound, unlock, unlockStep],
   );
 
   const restart = useCallback(() => {
@@ -282,9 +295,10 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
   // Enter fuera del área de escritura enfoca; Enter en el modal lo cierra
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (unlock && (e.key === "Enter" || e.key === "Escape")) {
+      if ((unlock || unlockStep) && (e.key === "Enter" || e.key === "Escape")) {
         e.preventDefault();
         setUnlock(null);
+        setUnlockStep(null);
         setTimeout(focusInput, 0);
         return;
       }
@@ -299,7 +313,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, focusInput, unlock]);
+  }, [finished, focusInput, unlock, unlockStep]);
 
   useEffect(() => {
     const t = setTimeout(focusInput, 50);
@@ -343,12 +357,14 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
   const s = session.current;
   const next = s.done ? null : s.text[s.pos];
   const infos = useMemo(
-    () => stageInfos(lang, mode === "free" ? { ...profile, stage: LANGS[lang].stages.length - 1 } : profile, settings),
+    () => stageInfos(lang, mode === "free" ? { ...profile, stage: stageCount(lang) - 1 } : profile, settings),
     [lang, mode, profile, settings],
   );
   const focus = lesson.focus ?? pickFocus(lang, profile, settings);
   const streak = streakDays(state.days);
   const langInfo = LANGS[lang];
+  const track = isTrack(lang) ? TRACKS[lang] : null;
+  const freeSetting = track?.freeSetting && mode === "free" && !challenge ? track.freeSetting : null;
 
   return (
     <>
@@ -358,6 +374,19 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
         <div className="code-head">
           <span style={{ color: "var(--cyan)" }}><IconCode size={30} /></span>
           <span className="ttl">ESCRIBE EL CÓDIGO</span>
+          {freeSetting && track && (
+            <select
+              className="variant-select"
+              aria-label="Variante para la práctica libre"
+              value={settings[freeSetting]}
+              onChange={(e) => {
+                const v = e.target.value;
+                update((st) => ({ ...st, settings: { ...st.settings, [freeSetting]: v } }));
+              }}
+            >
+              {track.variants.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
+            </select>
+          )}
           {timeLeft !== null && <span className="timer">{timeLeft}s</span>}
           {challenge?.kind === "perfect" && <span className="timer">Fallos: {perfectFails}</span>}
           <div className="tags">
@@ -365,7 +394,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
           </div>
         </div>
         <div className="snippet-title">
-          <span className="kind">{lesson.kind === "drill" ? "EJERCICIO" : "FUNCIÓN"}</span>
+          <span className="kind">{lesson.label ?? (lesson.kind === "drill" ? "EJERCICIO" : "FUNCIÓN")}</span>
           {lesson.title}
         </div>
         <div data-text={lesson.text} className={"code-box" + (focused ? " typing" : "")} onMouseDown={(e) => { e.preventDefault(); focusInput(); }}>
@@ -384,7 +413,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
             onBlur={() => setFocused(false)}
           />
           <CodeView session={s} lang={lesson.kind === "drill" ? null : lang} focus={focus} version={version} shake={shake} />
-          {!focused && !unlock && !finished && !isDropping && (
+          {!focused && !unlock && !unlockStep && !finished && !isDropping && (
             <div className="overlay">
               <div className="start-hint">
                 Pulsa <b>ENTER</b> o hacé clic para {s.startTs === null ? "comenzar" : "continuar"}
@@ -426,6 +455,22 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
             <p style={{ fontSize: 15, marginTop: 14 }}>Las próximas lecciones te van a entrenar este símbolo hasta que lo domines.</p>
             <div className="actions">
               <button className="btn primary" onClick={() => { setUnlock(null); focusInput(); }}>Continuar (Enter)</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {unlockStep && (
+        <div className="modal-back" onClick={() => { setUnlockStep(null); focusInput(); }}>
+          <div className="frame glow modal" onClick={(e) => e.stopPropagation()}>
+            <div className="kicker">NUEVO ESCALÓN DESBLOQUEADO</div>
+            <div className="big" style={{ fontSize: 44, letterSpacing: 2 }}>{unlockStep.name}</div>
+            <p>{unlockStep.desc}</p>
+            <p style={{ fontSize: 15, marginTop: 14 }}>
+              Las próximas lecciones se enfocan en este escalón y lo mezclan con lo que ya dominás.
+            </p>
+            <div className="actions">
+              <button className="btn primary" onClick={() => { setUnlockStep(null); focusInput(); }}>Continuar (Enter)</button>
             </div>
           </div>
         </div>

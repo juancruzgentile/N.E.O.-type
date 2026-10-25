@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AppState, LangId, Profile, Settings } from "./types";
 import { emptyProfile } from "./engine/stats";
-import { LANGS } from "./data/curriculum";
+import { stageCount } from "./data/curriculum";
 import { MAX_IMPORT_BYTES, sanitizeState } from "./sanitize";
 
 const KEY = "neontype:v1";
@@ -23,6 +23,8 @@ export const DEFAULT_SETTINGS: Settings = {
   musicStation: 0,
   avatar: "",
   showSplash: true,
+  distro: "ubuntu",
+  dbEngine: "sqlite",
 };
 
 export const initialState = (): AppState => ({
@@ -36,7 +38,7 @@ export const initialState = (): AppState => ({
   achievements: {},
 });
 
-const stagesOf = (l: LangId) => LANGS[l].stages.length;
+const stagesOf = (l: LangId) => stageCount(l);
 const clean = (raw: unknown) => sanitizeState(raw, initialState(), stagesOf);
 
 function load(): AppState {

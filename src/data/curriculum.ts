@@ -1,48 +1,59 @@
-import type { LangId } from "../types";
+import type { CodeLangId, LangId } from "../types";
+import { TRACKS, TRACK_ORDER, isTrack } from "../tracks/index";
 
 export interface LangInfo {
   id: LangId;
   name: string;
   badge: string;
   color: string;
-  /** Orden en que se desbloquean los símbolos. Cada etapa añade uno o más caracteres. */
+  /** "code": ruta por símbolos · "track": ruta Trainee por escalones */
+  kind: "code" | "track";
+  /** Orden en que se desbloquean los símbolos. Cada etapa añade uno o más caracteres (vacío en las rutas Trainee). */
   stages: string[][];
 }
 
 const DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 export const LANGS: Record<LangId, LangInfo> = {
+  sql: { id: "sql", name: "Bases de datos", badge: "DB", color: "#ffb547", kind: "track", stages: [] },
   python: {
-    id: "python", name: "Python", badge: "Py", color: "#4f9cff",
+    id: "python", name: "Python", badge: "Py", color: "#4f9cff", kind: "code",
     stages: [["(", ")"], ["="], [":"], ["."], [","], ['"'], ["_"], ["[", "]"], DIGITS, ["-", ">"], ["+"], ["*"], ["<"], ["{", "}"], ["/"], ["%"], ["#"], ["'"], ["!"], ["@"], ["|"], ["&"], ["\\"], ["^"], ["~"], ["`"]],
   },
   javascript: {
-    id: "javascript", name: "JavaScript", badge: "JS", color: "#f7df1e",
+    id: "javascript", name: "JavaScript", badge: "JS", color: "#f7df1e", kind: "code",
     stages: [["(", ")"], ["."], ["="], [";"], ["{", "}"], [","], ['"'], [">"], ["[", "]"], DIGITS, ["+"], ["!"], ["-"], ["<"], [":"], ["?"], ["`"], ["$"], ["*"], ["&"], ["|"], ["/"], ["%"], ["_"], ["'"], ["\\"], ["#"], ["@"], ["^"], ["~"]],
   },
   typescript: {
-    id: "typescript", name: "TypeScript", badge: "TS", color: "#3b82f6",
+    id: "typescript", name: "TypeScript", badge: "TS", color: "#3b82f6", kind: "code",
     stages: [["(", ")"], [":"], ["."], ["="], [";"], ["{", "}"], [","], ['"'], ["[", "]"], [">"], ["<"], DIGITS, ["|"], ["!"], ["?"], ["+"], ["-"], ["`"], ["$"], ["*"], ["&"], ["/"], ["%"], ["_"], ["'"], ["\\"], ["#"], ["@"], ["^"], ["~"]],
   },
   java: {
-    id: "java", name: "Java", badge: "Jv", color: "#f89820",
+    id: "java", name: "Java", badge: "Jv", color: "#f89820", kind: "code",
     stages: [["(", ")"], ["."], [";"], ["{", "}"], ["="], ['"'], [","], ["<", ">"], ["[", "]"], DIGITS, ["+"], ["-"], [":"], ["!"], ["&"], ["|"], ["?"], ["*"], ["/"], ["%"], ["_"], ["'"], ["@"], ["\\"], ["#"], ["^"], ["~"]],
   },
   csharp: {
-    id: "csharp", name: "C#", badge: "C#", color: "#a179dc",
+    id: "csharp", name: "C#", badge: "C#", color: "#a179dc", kind: "code",
     stages: [["(", ")"], ["."], [";"], ["{", "}"], ["="], ['"'], [","], [">"], ["<"], ["[", "]"], DIGITS, ["?"], ["!"], ["+"], ["-"], ["&"], ["|"], ["$"], [":"], ["*"], ["/"], ["%"], ["_"], ["'"], ["@"], ["\\"], ["#"], ["^"], ["~"]],
   },
   go: {
-    id: "go", name: "Go", badge: "Go", color: "#00add8",
+    id: "go", name: "Go", badge: "Go", color: "#00add8", kind: "code",
     stages: [["(", ")"], ["{", "}"], ["."], ["="], [":"], [","], ['"'], ["[", "]"], DIGITS, ["*"], ["&"], ["!"], ["<"], [">"], ["+"], ["-"], ["%"], ["_"], ["|"], ["/"], ["`"], ["'"], [";"], ["\\"], ["^"], ["#"], ["~"]],
   },
   rust: {
-    id: "rust", name: "Rust", badge: "Rs", color: "#f46623",
+    id: "rust", name: "Rust", badge: "Rs", color: "#f46623", kind: "code",
     stages: [["(", ")"], ["_"], [":"], ["{", "}"], ["."], ["&"], ["[", "]"], ["-", ">"], ["|"], [";"], [","], ["="], ["<"], ['"'], ["!"], DIGITS, ["?"], ["'"], ["#"], ["+"], ["*"], ["/"], ["%"], ["@"], ["$"], ["\\"], ["^"], ["`"], ["~"]],
   },
 };
 
-export const LANG_ORDER: LangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust"];
+/** Lenguajes de programación (ruta por símbolos). */
+export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust"];
+export { TRACK_ORDER, isTrack };
+
+/** Cantidad de niveles: etapas de símbolos o escalones de la ruta Trainee. */
+export function stageCount(lang: LangId): number {
+  return isTrack(lang) ? TRACKS[lang].steps.length : LANGS[lang].stages.length;
+}
 
 /** Para qué sirve cada símbolo en código (se muestra al desbloquearlo). */
 export const SYMBOL_INFO: Record<string, string> = {
@@ -83,9 +94,10 @@ export const SYMBOL_INFO: Record<string, string> = {
 };
 
 export function allChars(lang: LangId): string[] {
-  return LANGS[lang].stages.flat();
+  return isTrack(lang) ? TRACKS[lang].symbols : LANGS[lang].stages.flat();
 }
 
+/** En las rutas Trainee todos los símbolos están disponibles desde el principio. */
 export function unlockedChars(lang: LangId, stage: number): string[] {
-  return LANGS[lang].stages.slice(0, stage + 1).flat();
+  return isTrack(lang) ? TRACKS[lang].symbols : LANGS[lang].stages.slice(0, stage + 1).flat();
 }

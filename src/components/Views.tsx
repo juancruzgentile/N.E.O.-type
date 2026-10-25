@@ -2,9 +2,10 @@ import { type CSSProperties, useMemo, useRef, useState } from "react";
 import type { AppState, ErrorMode, LangId, LayoutId, Settings, ThemeId } from "../types";
 import { ACHIEVEMENTS } from "../engine/achievements";
 import { AchBadge } from "./AchBadge";
-import { LANGS, LANG_ORDER, SYMBOL_INFO } from "../data/curriculum";
+import { LANGS, LANG_ORDER, SYMBOL_INFO, TRACK_ORDER, isTrack, stageCount } from "../data/curriculum";
+import { TRACKS } from "../tracks/index";
 import { LAYOUTS, comboText, isTypeable } from "../data/layouts";
-import { type KeyInfo, msToWpm, playableChars, progressToNext, stageInfos } from "../engine/stats";
+import { type KeyInfo, STEP_WINDOW, msToWpm, playableChars, progressToNext, stageInfos, stepInfos } from "../engine/stats";
 import { DEFAULT_SETTINGS, getProfile, profileKey, today } from "../store";
 import { LangEmblem } from "./LangEmblem";
 import { AvatarPicker } from "./Avatar";
@@ -16,42 +17,59 @@ type Update = (fn: (s: AppState) => AppState) => void;
 
 // ─────────────────────────── Lenguajes ───────────────────────────
 
+function LangCard({ state, id, onPick }: { state: AppState; id: LangId; onPick: (l: LangId) => void }) {
+  const p = getProfile(state, id);
+  const prog = progressToNext(id, p, state.settings);
+  const best = p.lessons.reduce((m, l) => Math.max(m, l.wpm), 0);
+  const started = p.lessons.length > 0;
+  const total = stageCount(id);
+  const track = isTrack(id);
+  const pct = track
+    ? prog.mastered / total
+    : (p.stage + (prog.total ? prog.mastered / prog.total : 0)) / total;
+  return (
+    <button className="lang-card" onClick={() => onPick(id)} style={{ "--lc": LANGS[id].color } as CSSProperties}>
+      <div className="top">
+        <LangEmblem lang={id} size={64} />
+        <div>
+          <div className="nm">{LANGS[id].name}</div>
+          <div style={{ color: "var(--muted)", fontSize: 15 }}>
+            {track ? `Escalón ${p.stage + 1} de ${total}` : `Nivel ${p.stage + 1} de ${total}`}
+          </div>
+        </div>
+      </div>
+      {track && <div className="lang-steps">{TRACKS[id].steps.map((st) => st.name).join(" → ")}</div>}
+      <div className="progress">
+        <span style={{ width: `${pct * 100}%` }} />
+      </div>
+      <div className="meta">
+        <span>{p.lessons.length} lecciones</span>
+        <span>récord {Math.round(best)} WPM</span>
+      </div>
+      <div className="go">{started ? "CONTINUAR →" : "EMPEZAR →"}</div>
+    </button>
+  );
+}
+
 export function LanguagesView({ state, onPick }: { state: AppState; onPick: (l: LangId) => void }) {
   return (
     <div className="frame view">
-      <h2>ELEGÍ TU LENGUAJE</h2>
+      <h2>ELEGÍ TU RUTA</h2>
       <div className="sub">
         Cada lenguaje tiene su propia ruta de símbolos y su propio progreso. Empezás con pocos símbolos y se van
         desbloqueando a medida que demostrás velocidad y precisión.
       </div>
+      <div className="section">LENGUAJES DE PROGRAMACIÓN</div>
       <div className="grid-langs">
-        {LANG_ORDER.map((id) => {
-          const p = getProfile(state, id);
-          const prog = progressToNext(id, p, state.settings);
-          const best = p.lessons.reduce((m, l) => Math.max(m, l.wpm), 0);
-          const started = p.lessons.length > 0;
-          return (
-            <button key={id} className="lang-card" onClick={() => onPick(id)} style={{ "--lc": LANGS[id].color } as CSSProperties}>
-              <div className="top">
-                <LangEmblem lang={id} size={64} />
-                <div>
-                  <div className="nm">{LANGS[id].name}</div>
-                  <div style={{ color: "var(--muted)", fontSize: 15 }}>
-                    Nivel {p.stage + 1} de {LANGS[id].stages.length}
-                  </div>
-                </div>
-              </div>
-              <div className="progress">
-                <span style={{ width: `${((p.stage + (prog.total ? prog.mastered / prog.total : 0)) / LANGS[id].stages.length) * 100}%` }} />
-              </div>
-              <div className="meta">
-                <span>{p.lessons.length} lecciones</span>
-                <span>récord {Math.round(best)} WPM</span>
-              </div>
-              <div className="go">{started ? "CONTINUAR →" : "EMPEZAR →"}</div>
-            </button>
-          );
-        })}
+        {LANG_ORDER.map((id) => <LangCard key={id} state={state} id={id} onPick={onPick} />)}
+      </div>
+      <div className="section">RUTAS TRAINEE</div>
+      <div className="sub">
+        Herramientas de todos los días, por escalones de dificultad. Cada escalón nuevo se mezcla con los anteriores y
+        las lecciones se enfocan en el que tengas más flojo.
+      </div>
+      <div className="grid-langs">
+        {TRACK_ORDER.map((id) => <LangCard key={id} state={state} id={id} onPick={onPick} />)}
       </div>
     </div>
   );
@@ -59,7 +77,45 @@ export function LanguagesView({ state, onPick }: { state: AppState; onPick: (l: 
 
 // ─────────────────────────── Rutas ───────────────────────────
 
+function TrackRoute({ state, lang }: { state: AppState; lang: LangId }) {
+  const s = state.settings;
+  if (!isTrack(lang)) return null;
+  const infos = stepInfos(lang, getProfile(state, lang), s);
+  return (
+    <div className="frame view">
+      <h2>RUTA DE {LANGS[lang].name.toUpperCase()}</h2>
+      <div className="sub">
+        Escalones en orden de dificultad. Cada uno suma temas nuevos y se mezcla con los anteriores. Para pasar al
+        siguiente, todos los escalones desbloqueados tienen que estar en verde: tus últimas {STEP_WINDOW} lecciones de
+        cada uno tienen que promediar {s.targetWpm} WPM y {s.minAccuracy}% de precisión.
+      </div>
+      <div className="route">
+        {infos.map((x) => (
+          <div key={x.id} className={`route-row step-row ${x.state === "locked" ? "locked" : ""} ${x.index === getProfile(state, lang).stage ? "current" : ""}`}>
+            <span className="n">{String(x.index + 1).padStart(2, "0")}</span>
+            <span className="syms step-name">{x.name}</span>
+            <span className="desc">{x.desc}</span>
+            <span className="combo">
+              {x.state === "locked"
+                ? "—"
+                : x.wpm === null
+                  ? `${x.lessons} / ${STEP_WINDOW} lecciones para calibrar`
+                  : `${Math.round(x.wpm)} WPM · ${Math.round((x.acc ?? 0) * 100)}% · ${x.lessons} lecciones`}
+            </span>
+            <span>
+              <span className={`state ${x.state}`}>
+                {x.state === "locked" ? "bloqueado" : x.state === "mastered" ? "dominado" : x.state === "new" ? "calibrando" : "aprendiendo"}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function RoutesView({ state, lang }: { state: AppState; lang: LangId }) {
+  if (isTrack(lang)) return <TrackRoute state={state} lang={lang} />;
   const s = state.settings;
   const layout = LAYOUTS[s.layout];
   const profile = getProfile(state, lang);

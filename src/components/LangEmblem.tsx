@@ -1,5 +1,5 @@
 import type { LangId } from "../types";
-import { LANGS, LANG_ORDER } from "../data/curriculum";
+import { LANGS, LANG_ORDER, TRACK_ORDER } from "../data/curriculum";
 
 /**
  * Emblema de lenguaje con forma de "datashard": placa angular con el monograma
@@ -7,7 +7,7 @@ import { LANGS, LANG_ORDER } from "../data/curriculum";
  * Es un diseño propio: no usa los logos oficiales, que son marcas registradas.
  */
 
-const MONO: Record<LangId, string> = { python: "PY", javascript: "JS", typescript: "TS", java: "JV", csharp: "C#", go: "GO", rust: "RS" };
+const MONO: Record<LangId, string> = { python: "PY", javascript: "JS", typescript: "TS", java: "JV", csharp: "C#", go: "GO", rust: "RS", sql: "DB" };
 
 /** código de barras determinístico por lenguaje */
 function bars(lang: LangId): [number, number][] {
@@ -27,7 +27,7 @@ export function LangEmblem({ lang, size = 56 }: { lang: LangId; size?: number })
   const color = LANGS[lang].color;
   const mono = MONO[lang];
   const small = size < 40;
-  const serial = `0x${String(LANG_ORDER.indexOf(lang) + 1).padStart(2, "0")}`;
+  const serial = `0x${String([...LANG_ORDER, ...TRACK_ORDER].indexOf(lang) + 1).padStart(2, "0")}`;
   return (
     <svg className="lang-emblem" width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={LANGS[lang].name}>
       {/* placa con esquinas cortadas */}
