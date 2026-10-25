@@ -17,11 +17,16 @@ const KW: Record<LangId, string[]> = {
     "ALWAYS", "IDENTITY", "INTEGER", "INT", "TEXT", "REAL", "VARCHAR", "DECIMAL", "NUMERIC", "BOOLEAN", "DATETIME",
     "TIMESTAMPTZ", "SERIAL", "ENGINE", "db", "true", "false", "const",
   ],
+  linux: [
+    "sudo", "apt", "dnf", "pacman", "paru", "systemctl", "journalctl", "if", "then", "else", "fi", "for", "in", "do", "done",
+    "echo", "set", "source", "export", "cd", "ls", "mkdir", "rm", "cp", "mv", "cat", "grep", "find", "chmod", "chown", "ssh",
+    "tar", "curl", "awk", "sed", "git", "make", "makepkg",
+  ],
   rust: ["fn", "let", "mut", "return", "if", "else", "for", "in", "while", "match", "impl", "struct", "enum", "trait", "pub", "use", "self", "Self", "true", "false", "as", "async", "await", "move", "ref", "where", "i32", "u32", "u64", "f64", "usize", "bool", "str"],
 };
 
 const COMMENT: Record<LangId, string> = {
-  python: "#", sql: "--", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
+  python: "#", sql: "--", linux: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
 };
 
 /** Clase de token para cada carácter del texto. */

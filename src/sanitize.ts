@@ -11,7 +11,7 @@ import type {
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 export const MAX_AVATAR_CHARS = 400_000;
 
-const LANG_IDS: LangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "sql"];
+const LANG_IDS: LangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "sql", "linux"];
 const DISTRO_IDS: DistroId[] = ["ubuntu", "debian", "mint", "cachyos", "arch", "fedora"];
 const DB_IDS: DbEngineId[] = ["sqlite", "mysql", "postgresql", "mongodb"];
 const LAYOUT_IDS: LayoutId[] = ["it", "us", "es", "latam"];

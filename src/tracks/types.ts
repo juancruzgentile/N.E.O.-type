@@ -46,6 +46,8 @@ export interface Track {
   cumulative: boolean;
   /** variantes disponibles (selector de la práctica libre) */
   variants: Variant[];
+  /** ejercicios por lección (los comandos sueltos son cortos: se juntan varios) */
+  batch?: number;
   /** ajuste que guarda la variante elegida para la práctica libre */
   freeSetting?: "distro" | "dbEngine";
 }

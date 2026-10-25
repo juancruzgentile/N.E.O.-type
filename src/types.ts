@@ -1,7 +1,7 @@
 /** Lenguajes de programación (ruta por símbolos). */
 export type CodeLangId = "python" | "javascript" | "typescript" | "java" | "csharp" | "go" | "rust";
 /** Rutas Trainee (progreso por escalones de temas). */
-export type TrackId = "sql";
+export type TrackId = "sql" | "linux";
 export type LangId = CodeLangId | TrackId;
 export type DistroId = "ubuntu" | "debian" | "mint" | "cachyos" | "arch" | "fedora";
 export type DbEngineId = "sqlite" | "mysql" | "postgresql" | "mongodb";
