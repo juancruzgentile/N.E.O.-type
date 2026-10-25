@@ -5,6 +5,7 @@ import { setFxEnabled } from "./fx/fx";
 import { ACHIEVEMENTS, newAchievements } from "./engine/achievements";
 import { sound } from "./sound";
 import { Background } from "./components/Background";
+import { Splash } from "./components/Splash";
 import { Footer, Header, Sidebar } from "./components/Chrome";
 import { useMusicInit } from "./components/MusicPlayer";
 import { type Challenge, PracticeView } from "./components/PracticeView";
@@ -17,6 +18,7 @@ export default function App() {
   const [view, setView] = useState<View>(state.lang ? "practice" : "languages");
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [toasts, setToasts] = useState<{ id: string; key: number }[]>([]);
+  const [splash, setSplash] = useState(() => state.settings.showSplash || !state.settings.userName.trim());
   useMusicInit(state);
 
   const { theme, animations } = state.settings;
@@ -61,10 +63,26 @@ export default function App() {
     ? challenge.kind === "sprint" ? `Sprint ${challenge.seconds}s` : "Precisión perfecta"
     : null;
 
+  if (splash) {
+    return (
+      <>
+        <Background enabled={animations} theme={theme} />
+        <Splash
+          name={state.settings.userName}
+          avatar={state.settings.avatar}
+          onEnter={(name, avatar) => {
+            update((s) => ({ ...s, settings: { ...s.settings, userName: name || s.settings.userName, avatar } }));
+            setSplash(false);
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <Background enabled={animations} theme={theme} />
-      <div className="app">
+      <div className="app app-in">
         <Header
           state={state}
           saved={saved}

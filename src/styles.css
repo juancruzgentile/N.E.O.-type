@@ -600,3 +600,97 @@ html.calm .bg-canvas { display: none; }
     linear-gradient(rgba(0, 60, 120, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 60, 120, 0.04) 1px, transparent 1px);
   background-size: auto, 36px 36px, 36px 36px; }
+
+/* ───────── pantalla de inicio ───────── */
+.splash {
+  position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; overflow: auto;
+  background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--bg2) 70%, transparent), var(--bg) 75%);
+  transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease;
+}
+.splash.leaving { opacity: 0; transform: scale(1.08); filter: blur(6px); }
+.splash-grid {
+  position: absolute; inset: -50% -50% 0; pointer-events: none;
+  background-image: linear-gradient(color-mix(in srgb, var(--cyan) 14%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--cyan) 14%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px; transform: perspective(500px) rotateX(62deg) translateY(30%);
+  mask-image: linear-gradient(to top, black 10%, transparent 70%); animation: gridMove 4.3s linear infinite;
+}
+@keyframes gridMove { to { background-position: 0 48px, 0 0; } }
+.splash-inner { position: relative; text-align: center; padding: 40px 20px; }
+.neon-logo { margin: 0; font-family: var(--brand); font-weight: 800; font-size: clamp(44px, 8vw, 110px); letter-spacing: 4px; white-space: pre; color: var(--strong); }
+.neon-logo .nl {
+  display: inline-block; opacity: 0.08; color: var(--strong);
+  text-shadow: none; animation-name: neonOn; animation-fill-mode: forwards; animation-timing-function: linear;
+}
+.neon-logo .nl.prompt, .neon-logo .nl.type { --glow: var(--cyan); color: var(--cyan); }
+.neon-logo .nl { --glow: var(--strong); }
+/* encendido de tubo de neón: parpadeos irregulares y luego queda prendido */
+@keyframes neonOn {
+  0% { opacity: 0.08; text-shadow: none; }
+  8% { opacity: 1; text-shadow: 0 0 12px var(--glow), 0 0 40px var(--glow); }
+  12% { opacity: 0.1; text-shadow: none; }
+  22% { opacity: 0.9; text-shadow: 0 0 10px var(--glow); }
+  26% { opacity: 0.15; text-shadow: none; }
+  40% { opacity: 0.12; }
+  44% { opacity: 1; text-shadow: 0 0 14px var(--glow), 0 0 44px var(--glow); }
+  52% { opacity: 0.35; }
+  56%, 100% { opacity: 1; text-shadow: 0 0 10px var(--glow), 0 0 28px var(--glow), 0 0 70px color-mix(in srgb, var(--glow) 50%, transparent); }
+}
+.splash-tag { margin-top: 10px; font-family: var(--mono); letter-spacing: 8px; color: var(--muted); opacity: 0; animation: fadeUp 0.8s ease 1.5s forwards; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.splash-body { margin-top: 34px; opacity: 0; transform: translateY(10px); transition: opacity 0.6s ease, transform 0.6s ease; pointer-events: none; }
+.splash-body.show { opacity: 1; transform: none; pointer-events: auto; }
+.splash-form { display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 640px; margin: 0 auto; }
+.splash-form label { font-family: var(--brand); font-size: 20px; letter-spacing: 2px; color: var(--cyan); }
+.splash-form input {
+  width: min(420px, 90vw); text-align: center; padding: 12px 16px; font-family: var(--mono); font-size: 22px;
+  background: var(--input-bg); color: var(--strong); border: 1px solid var(--cyan); outline: none;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--cyan) 30%, transparent);
+}
+.splash-sub { color: var(--muted); margin-top: 6px; }
+.splash-form .btn { margin-top: 8px; padding: 12px 40px; font-size: 18px; letter-spacing: 3px; }
+.splash-form .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.splash-welcome { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.splash-hello { font-size: 24px; }
+.splash-hello b { color: var(--cyan); }
+.splash-press { font-family: var(--mono); letter-spacing: 2px; color: var(--muted); animation: blink 1.4s steps(2) infinite; }
+.splash-press b { color: var(--cyan); }
+.app-in { animation: appIn 0.6s ease both; }
+@keyframes appIn { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+html.calm .neon-logo .nl { animation-duration: 0.01s !important; animation-delay: 0s !important; }
+html.calm .splash-grid { animation: none; }
+
+/* ───────── avatares ───────── */
+.avatar { overflow: hidden; flex-shrink: 0; }
+.avatar img, .avatar svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.avatar .online { z-index: 1; }
+.avatar-btn { background: none; border: none; padding: 0; position: relative; display: inline-block; border-radius: 50%; }
+.avatar-btn .avatar { margin: 0; }
+.avatar-edit {
+  position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 2px 8px; background: var(--cyan); color: var(--on-accent); opacity: 0; transition: opacity 0.2s;
+}
+.avatar-btn:hover .avatar-edit, .avatar-btn:focus-visible .avatar-edit { opacity: 1; }
+.av-picker { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.av-opt {
+  width: 56px; height: 56px; border-radius: 50%; overflow: hidden; padding: 0; border: 2px solid var(--line2); background: var(--key-bg);
+  display: grid; place-items: center; cursor: pointer; position: relative; font-family: var(--brand); font-weight: 800; color: var(--strong);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.av-opt svg, .av-opt img { width: 100%; height: 100%; object-fit: cover; }
+.av-opt:hover { transform: translateY(-2px); border-color: var(--cyan); }
+.av-opt.on { border-color: var(--yellow); box-shadow: 0 0 14px color-mix(in srgb, var(--yellow) 60%, transparent); }
+.av-opt.upload span { font-size: 12px; font-family: var(--ui); color: var(--cyan); }
+.profile-modal { display: flex; flex-direction: column; align-items: center; gap: 12px; width: min(620px, 94vw); }
+.pm-label { color: var(--muted); font-weight: 700; letter-spacing: 1px; }
+.pm-input { width: min(360px, 80vw); text-align: center; padding: 10px; font-family: var(--mono); font-size: 18px; background: var(--input-bg); color: var(--strong); border: 1px solid var(--line2); }
+
+/* ───────── tarjetas de lenguaje ───────── */
+.lang-card { position: relative; --lc: var(--cyan); transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s; }
+.lang-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--lc), transparent); opacity: 0.8; }
+.lang-card:hover { transform: translateY(-3px); border-color: var(--lc); box-shadow: inset 0 0 40px color-mix(in srgb, var(--lc) 14%, transparent); }
+.lang-card .lang-emblem { flex-shrink: 0; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--lc) 45%, transparent)); transition: transform 0.4s ease; }
+.lang-card:hover .lang-emblem { transform: rotate(-6deg) scale(1.08); }
+.lang-card .progress > span { background: linear-gradient(90deg, color-mix(in srgb, var(--lc) 60%, transparent), var(--lc)); box-shadow: 0 0 10px var(--lc); }
+.lang-card .go { color: var(--lc); }
+.pill .lang-emblem { flex-shrink: 0; }

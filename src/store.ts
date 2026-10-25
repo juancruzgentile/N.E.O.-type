@@ -14,11 +14,13 @@ export const DEFAULT_SETTINGS: Settings = {
   showKeyboard: true,
   excludeMissing: true,
   dailyGoalMin: 20,
-  userName: "Juan Dev",
+  userName: "",
   theme: "neon",
   animations: true,
-  musicVolume: 0.5,
+  musicVolume: 0.7,
   musicStation: 0,
+  avatar: "",
+  showSplash: true,
 };
 
 export const initialState = (): AppState => ({
@@ -38,7 +40,10 @@ function load(): AppState {
     if (!raw) return initialState();
     const parsed = JSON.parse(raw) as AppState;
     if (parsed.version !== 1) return initialState();
-    return { ...initialState(), ...parsed, settings: { ...DEFAULT_SETTINGS, ...parsed.settings } };
+    const settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
+    // "Juan Dev" era el nombre por defecto de versiones anteriores: se pide uno real
+    if (settings.userName === "Juan Dev") settings.userName = "";
+    return { ...initialState(), ...parsed, settings };
   } catch {
     return initialState();
   }

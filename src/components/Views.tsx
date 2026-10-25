@@ -1,11 +1,12 @@
-import { useMemo, useRef, useState } from "react";
+import { type CSSProperties, useMemo, useRef, useState } from "react";
 import type { AppState, ErrorMode, LangId, LayoutId, Settings, ThemeId } from "../types";
 import { ACHIEVEMENTS } from "../engine/achievements";
 import { LANGS, LANG_ORDER, SYMBOL_INFO } from "../data/curriculum";
 import { LAYOUTS, comboText, isTypeable } from "../data/layouts";
 import { type KeyInfo, msToWpm, playableChars, progressToNext, stageInfos } from "../engine/stats";
 import { DEFAULT_SETTINGS, getProfile, profileKey, today } from "../store";
-import { LangBadge } from "./Chrome";
+import { LangEmblem } from "./LangEmblem";
+import { AvatarPicker } from "./Avatar";
 import { Keyboard, heatColor } from "./Keyboard";
 import type { Challenge } from "./PracticeView";
 
@@ -28,9 +29,9 @@ export function LanguagesView({ state, onPick }: { state: AppState; onPick: (l: 
           const best = p.lessons.reduce((m, l) => Math.max(m, l.wpm), 0);
           const started = p.lessons.length > 0;
           return (
-            <button key={id} className="lang-card" onClick={() => onPick(id)}>
+            <button key={id} className="lang-card" onClick={() => onPick(id)} style={{ "--lc": LANGS[id].color } as CSSProperties}>
               <div className="top">
-                <LangBadge lang={id} />
+                <LangEmblem lang={id} size={64} />
                 <div>
                   <div className="nm">{LANGS[id].name}</div>
                   <div style={{ color: "var(--muted)", fontSize: 15 }}>
@@ -439,8 +440,19 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
         </div>
 
         <div className="setting">
-          <label>Tu nombre</label>
-          <input type="text" value={s.userName} maxLength={24} onChange={(e) => set("userName", e.target.value)} />
+          <label>Perfil</label>
+          <input type="text" value={s.userName} maxLength={24} placeholder="Tu nombre" onChange={(e) => set("userName", e.target.value)} />
+          <AvatarPicker value={s.avatar} name={s.userName} onChange={(v) => set("avatar", v)} />
+          <label className="toggle"><input type="checkbox" checked={s.showSplash} onChange={(e) => set("showSplash", e.target.checked)} /> Mostrar la pantalla de inicio al abrir</label>
+        </div>
+
+        <div className="setting">
+          <label>Acerca de</label>
+          <div className="help">
+            N.E.O.-type v1.1 · Licencia MIT. Usa React (MIT) y las fuentes JetBrains Mono, Rajdhani y Orbitron
+            (SIL Open Font License 1.1). Los nombres de los lenguajes son marcas de sus respectivos dueños y se usan solo
+            para identificarlos; los emblemas son diseños propios. El detalle está en THIRD_PARTY_NOTICES.md.
+          </div>
         </div>
 
         <div className="setting">

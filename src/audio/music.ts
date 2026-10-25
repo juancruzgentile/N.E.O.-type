@@ -493,7 +493,7 @@ class MusicEngine {
   private tracks: UserTrack[] = [];
   private listeners = new Set<() => void>();
   private timeData = new Uint8Array(256);
-  snap: MusicSnapshot = { playing: false, source: "station", station: 0, userIndex: 0, userTracks: [], volume: 0.5 };
+  snap: MusicSnapshot = { playing: false, source: "station", station: 0, userIndex: 0, userTracks: [], volume: 0.7 };
 
   subscribe(fn: () => void) {
     this.listeners.add(fn);
@@ -537,7 +537,16 @@ class MusicEngine {
     reverb.connect(revOut).connect(warmth);
     delay.connect(fb).connect(delay);
     delay.connect(delayOut).connect(warmth);
-    warmth.connect(comp).connect(master).connect(analyser).connect(ctx.destination);
+    // ganancia de compensación (+13 dB) y limitador final: más volumen sin saturar
+    const makeup = ctx.createGain();
+    makeup.gain.value = 4.5;
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -3;
+    limiter.knee.value = 0;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.002;
+    limiter.release.value = 0.12;
+    warmth.connect(comp).connect(makeup).connect(master).connect(limiter).connect(analyser).connect(ctx.destination);
 
     this.ctx = ctx;
     this.master = master;

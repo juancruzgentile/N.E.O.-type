@@ -38,6 +38,7 @@ un título que explica qué hace.
   brillo según tu racha de aciertos y animación al desbloquear cada símbolo. Todo se apaga desde Ajustes y respeta
   la preferencia del sistema de reducir movimiento.
 - **Logros y temas**: 22 logros con insignias y 5 temas de color (Neón, Synthwave, Matrix, Tokio noche y Claro).
+- **Tu perfil**: pantalla de inicio con efecto de cartel de neón, tu nombre y tu foto (o uno de los 12 avatares incluidos).
 - **100 % offline**: el build es un único `NeonType.html` que se abre con doble clic. El progreso queda en tu navegador.
 
 <table>
@@ -60,6 +61,8 @@ un título que explica qué hace.
 </table>
 
 ![Temas](docs/temas.jpg)
+
+<p align="center"><img src="docs/inicio.jpg" alt="Pantalla de inicio" width="760" /></p>
 
 ## Empezar
 
@@ -135,6 +138,9 @@ Mirá [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licencia
 
-[MIT](LICENSE) © Juan Cruz Gentile
+[MIT](LICENSE) © Juan Cruz Gentile. Las dependencias y fuentes incluidas tienen sus propias licencias: ver
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Inspirado en el sistema adaptativo de [keybr.com](https://www.keybr.com). No reutiliza su código.
+Los nombres de los lenguajes son marcas de sus titulares y se usan solo para identificarlos; los emblemas son diseños
+propios. La idea de la práctica adaptativa está inspirada en [keybr.com](https://www.keybr.com), pero N.E.O.-type es
+una implementación independiente que no reutiliza su código ni su diseño.

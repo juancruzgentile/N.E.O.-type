@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
+import { createPortal } from "react-dom";
 import type { AppState, LangId, View } from "../types";
 import { LANGS } from "../data/curriculum";
 import { progressToNext } from "../engine/stats";
@@ -7,13 +8,37 @@ import {
   IconChart, IconChevron, IconClock, IconCross, IconExpand, IconGear, IconKeyboard, IconMap, IconMedal, IconPulse, IconTrophy,
 } from "./icons";
 import { MusicMini, MusicPlayer } from "./MusicPlayer";
+import { Avatar, AvatarPicker } from "./Avatar";
+import { LangEmblem } from "./LangEmblem";
 
-export function LangBadge({ lang, size }: { lang: LangId; size?: number }) {
-  const l = LANGS[lang];
-  return (
-    <span className="lang-badge" style={{ background: l.color, ...(size ? { width: size, height: size } : {}) }}>
-      {l.badge}
-    </span>
+export function LangBadge({ lang, size = 32 }: { lang: LangId; size?: number }) {
+  return <LangEmblem lang={lang} size={size} />;
+}
+
+/** Editar nombre e imagen de perfil. */
+export function ProfileModal({ state, update, onClose }: { state: AppState; update: SidebarProps["update"]; onClose: () => void }) {
+  const [name, setName] = useState(state.settings.userName);
+  const [avatar, setAvatar] = useState(state.settings.avatar);
+  const save = () => {
+    update((s) => ({ ...s, settings: { ...s.settings, userName: name.trim() || s.settings.userName, avatar } }));
+    onClose();
+  };
+  // portal: la barra lateral recorta sus esquinas (clip-path) y cortaría el modal
+  return createPortal(
+    <div className="modal-back" onClick={onClose}>
+      <form className="frame glow modal profile-modal" onClick={(e) => e.stopPropagation()} onSubmit={(e) => { e.preventDefault(); save(); }}>
+        <div className="kicker">TU PERFIL</div>
+        <Avatar value={avatar} name={name} size={110} />
+        <label className="pm-label" htmlFor="pm-name">Nombre</label>
+        <input id="pm-name" className="pm-input" value={name} maxLength={24} autoFocus onChange={(e) => setName(e.target.value)} />
+        <AvatarPicker value={avatar} name={name} onChange={setAvatar} />
+        <div className="actions">
+          <button className="btn primary" type="submit">Guardar</button>
+          <button className="btn" type="button" onClick={onClose}>Cancelar</button>
+        </div>
+      </form>
+    </div>,
+    document.body,
   );
 }
 
@@ -101,16 +126,16 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
   const goalPct = Math.min(1, mins / goal);
   const R = 46;
   const C = 2 * Math.PI * R;
-  const initials = state.settings.userName.trim().split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?";
+  const [editing, setEditing] = useState(false);
 
   return (
     <aside className="frame sidebar">
       <div className="profile">
-        <div className="avatar">
-          {initials}
-          <span className="online" />
-        </div>
-        <div className="uname">{state.settings.userName || "Sin nombre"}</div>
+        <button className="avatar-btn" onClick={() => setEditing(true)} title="Cambiar nombre o imagen">
+          <Avatar value={state.settings.avatar} name={state.settings.userName} online />
+          <span className="avatar-edit">EDITAR</span>
+        </button>
+        <div className="uname">{state.settings.userName || "Programador"}</div>
         <div className="umotto">Code. Practice. Improve.</div>
       </div>
       <div className="lvl">
@@ -153,6 +178,7 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
         </div>
       </div>
       <MusicPlayer update={update} />
+      {editing && <ProfileModal state={state} update={update} onClose={() => setEditing(false)} />}
       <div className="version">v1.0.0</div>
     </aside>
   );

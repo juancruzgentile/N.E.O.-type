@@ -20,6 +20,9 @@ export interface Settings {
   animations: boolean;
   musicVolume: number;
   musicStation: number;
+  /** "" iniciales · "preset:<id>" · "img:<dataURL>" */
+  avatar: string;
+  showSplash: boolean;
 }
 
 /** Estadística de una tecla (un carácter). */
