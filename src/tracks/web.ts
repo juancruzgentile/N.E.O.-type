@@ -309,7 +309,7 @@ export const HTML: Track = {
   cumulative: true,
   batch: 2,
   variants: [],
-  symbols: ["<", ">", "/", "=", '"', "!", "-", ".", ":", ",", ";", "&", "?", "_", "(", ")", "+", ...DIGITS],
+  symbols: ["<", ">", "/", "=", '"', "!", "-", ".", ":", ",", ";", "&", "_", "(", ")", "+", ...DIGITS],
   steps: [
     { id: "structure", name: "Estructura", variants: [""], desc: "Esqueleto de una página, títulos, párrafos, énfasis, enlaces e imágenes", topics: [skeleton, textTags, linksImages] },
     { id: "lists", name: "Listas y tablas", variants: [""], desc: "Listas con y sin orden, menús de navegación y tablas con encabezado", topics: [lists, navList, table] },
@@ -355,6 +355,15 @@ const boxModel: Topic = {
         "}",
       ),
       () => ex(`Centra .${c} con un ancho máximo`, `.${c} {`, `  max-width: ${pick(rng, [960, 1080, 1200])}px;`, "  margin: 0 auto;", "}"),
+      () => ex(
+        `Imágenes de .${c} que ocupan todo el ancho con proporción 16:9`,
+        `.${c} img {`,
+        "  width: 100%;",
+        "  height: auto;",
+        `  aspect-ratio: ${pick(rng, ["16 / 9", "4 / 3", "1 / 1"])};`,
+        "  object-fit: cover;",
+        "}",
+      ),
       () => ex(`Sombra suave para .${c}`, `.${c} {`, `  box-shadow: 0 ${px(rng, 1, 4)} ${px(rng, 6, 16)} rgba(0, 0, 0, 0.${int(rng, 1, 4)});`, "}"),
     ])();
   },
@@ -403,6 +412,7 @@ const grid: Topic = {
         "}",
         ".sidebar { grid-area: side; }",
       ),
+      () => ex(`Un encabezado que ocupa todas las columnas de .${c}`, `.${c} .header {`, "  grid-column: 1 / -1;", "}"),
       () => ex(`Un elemento que ocupa dos columnas en .${c}`, `.${c} .wide {`, "  grid-column: span 2;", "}"),
     ])();
   },
@@ -460,7 +470,7 @@ export const CSS: Track = {
   cumulative: true,
   batch: 2,
   variants: [],
-  symbols: ["{", "}", ":", ";", ".", "#", "-", "(", ")", ",", "%", "*", ">", "@", '"', "/", "!", "_", ...DIGITS],
+  symbols: ["{", "}", ":", ";", ".", "#", "-", "(", ")", ",", "%", "*", ">", "@", '"', "/", "!", ...DIGITS],
   steps: [
     { id: "selectors", name: "Selectores y color", variants: [""], desc: "Selectores por etiqueta, clase e id, colores, fondos y tipografía", topics: [selectors] },
     { id: "box", name: "Modelo de caja", variants: [""], desc: "padding, margin, bordes, box-sizing, ancho máximo y sombras", topics: [boxModel] },

@@ -4,9 +4,10 @@ import type { Track } from "./types";
 import { SQL } from "./sql";
 import { LINUX } from "./linux";
 import { CSS, HTML } from "./web";
+import { FORMATS } from "./formats";
 
-export const TRACKS: Record<TrackId, Track> = { sql: SQL, linux: LINUX, html: HTML, css: CSS };
-export const TRACK_ORDER: TrackId[] = ["sql", "linux", "html", "css"];
+export const TRACKS: Record<TrackId, Track> = { sql: SQL, linux: LINUX, html: HTML, css: CSS, formats: FORMATS };
+export const TRACK_ORDER: TrackId[] = ["sql", "linux", "html", "css", "formats"];
 
 export const isTrack = (l: LangId): l is TrackId => Object.prototype.hasOwnProperty.call(TRACKS, l);
 

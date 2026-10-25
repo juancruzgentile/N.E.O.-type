@@ -33,11 +33,12 @@ const KW: Record<LangId, string[]> = {
     "animation", "transform", "content", "media", "keyframes", "from", "to", "var", "repeat", "minmax", "clamp", "none",
     "auto", "center", "solid", "important",
   ],
+  formats: ["true", "false", "null", "services", "image", "ports", "volumes", "environment", "jobs", "steps", "uses", "run", "with"],
   rust: ["fn", "let", "mut", "return", "if", "else", "for", "in", "while", "match", "impl", "struct", "enum", "trait", "pub", "use", "self", "Self", "true", "false", "as", "async", "await", "move", "ref", "where", "i32", "u32", "u64", "f64", "usize", "bool", "str"],
 };
 
 const COMMENT: Record<LangId, string> = {
-  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
+  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", formats: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
 };
 
 /** Clase de token para cada carácter del texto. */

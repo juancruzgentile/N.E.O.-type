@@ -77,6 +77,9 @@ for (const id of TRACK_ORDER) {
       check(`libre ${v.id}`, e.title, e.text);
     }
   }
+  const used = new Set([...texts].flatMap((x) => [...symbolsOf(x)]));
+  const unused = t.symbols.filter((c) => !used.has(c));
+  if (unused.length) { problems++; console.log(`[${id}] símbolos declarados que nunca aparecen: ${unused.join(" ")}`); }
   const missing: string[] = [];
   for (const layout of Object.keys(LAYOUTS) as (keyof typeof LAYOUTS)[]) {
     const allowed = fullSet(id, { ...DEFAULT_SETTINGS, layout, excludeMissing: true });

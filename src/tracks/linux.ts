@@ -264,6 +264,8 @@ const redirect: Topic = {
       () => ex("Guarda la salida y los errores del build en build.log", "npm run build > build.log 2>&1"),
       () => ex("Escribe un archivo de sistema con sudo usando tee", `echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-swap.conf`),
       () => ex("Ejecuta el script descartando los mensajes de error", "./cleanup.sh 2> /dev/null"),
+      () => ex("Restaura una base de datos MySQL desde un archivo", "mysql -u root -p shop < backup.sql"),
+      () => ex("Cuenta las líneas de un archivo leyéndolo por la entrada estándar", "wc -l < data.csv"),
     ])();
   },
 };
