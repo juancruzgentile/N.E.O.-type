@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
-import type { AppState, ErrorMode, LangId, LayoutId, Settings } from "../types";
+import type { AppState, ErrorMode, LangId, LayoutId, Settings, ThemeId } from "../types";
+import { ACHIEVEMENTS } from "../engine/achievements";
 import { LANGS, LANG_ORDER, SYMBOL_INFO } from "../data/curriculum";
 import { LAYOUTS, comboText, isTypeable } from "../data/layouts";
 import { type KeyInfo, msToWpm, playableChars, progressToNext, stageInfos } from "../engine/stats";
@@ -262,6 +263,49 @@ export function ChallengesView({ state, lang, onStart }: { state: AppState; lang
   );
 }
 
+// ─────────────────────────── Logros ───────────────────────────
+
+export function AchievementsView({ state }: { state: AppState }) {
+  const got = ACHIEVEMENTS.filter((a) => state.achievements[a.id]).length;
+  return (
+    <div className="frame view">
+      <h2>LOGROS</h2>
+      <div className="sub">
+        {got} de {ACHIEVEMENTS.length} desbloqueados. Se cuentan con el teclado actual ({LAYOUTS[state.settings.layout].name}).
+      </div>
+      <div className="progress" style={{ marginBottom: 22 }}><span style={{ width: `${(got / ACHIEVEMENTS.length) * 100}%` }} /></div>
+      <div className="ach-grid">
+        {ACHIEVEMENTS.map((a) => {
+          const ts = state.achievements[a.id];
+          const prog = !ts && a.progress ? a.progress(state) : null;
+          return (
+            <div key={a.id} className={`ach ${a.tier} ${ts ? "got" : "locked"}`}>
+              <div className="ach-icon" aria-hidden="true">{a.icon}</div>
+              <div className="ach-body">
+                <div className="ach-name">{a.name}</div>
+                <div className="ach-desc">{a.desc}</div>
+                {ts ? (
+                  <div className="ach-date">Desbloqueado el {new Date(ts).toLocaleDateString("es-AR")}</div>
+                ) : prog !== null ? (
+                  <div className="ach-prog"><span style={{ width: `${Math.round(prog * 100)}%` }} /></div>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export const THEMES: { id: ThemeId; name: string; colors: string[] }[] = [
+  { id: "neon", name: "Neón", colors: ["#030912", "#19d3ff", "#ff4fd8", "#2bff9a"] },
+  { id: "synthwave", name: "Synthwave", colors: ["#140620", "#ff7edb", "#36f9f6", "#fede5d"] },
+  { id: "matrix", name: "Matrix", colors: ["#000a03", "#39ff6a", "#c6ff3d", "#2bd16b"] },
+  { id: "tokyo", name: "Tokio noche", colors: ["#1a1b26", "#7aa2f7", "#bb9af7", "#9ece6a"] },
+  { id: "light", name: "Claro", colors: ["#eef3f8", "#0077c8", "#b03aa8", "#0f9d58"] },
+];
+
 // ─────────────────────────── Ajustes ───────────────────────────
 
 interface SettingsProps {
@@ -318,6 +362,18 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
       <h2>AJUSTES</h2>
       <div className="sub">Todo se guarda en este navegador. El progreso es independiente para cada lenguaje y cada teclado.</div>
       <div className="settings">
+        <div className="setting">
+          <label>Tema</label>
+          <div className="themes">
+            {THEMES.map((t) => (
+              <button key={t.id} className={`theme-sw ${s.theme === t.id ? "on" : ""}`} onClick={() => set("theme", t.id)} title={t.name}>
+                <span className="sw" style={{ background: `linear-gradient(135deg, ${t.colors[0]} 0 45%, ${t.colors[1]} 45% 65%, ${t.colors[2]} 65% 82%, ${t.colors[3]} 82%)` }} />
+                {t.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="setting">
           <label>Teclado físico</label>
           <div className="seg">
@@ -376,7 +432,8 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
         <div className="setting">
           <label>Opciones</label>
           <label className="toggle"><input type="checkbox" checked={s.showKeyboard} onChange={(e) => set("showKeyboard", e.target.checked)} /> Mostrar teclado en pantalla</label>
-          <label className="toggle"><input type="checkbox" checked={s.sound} onChange={(e) => set("sound", e.target.checked)} /> Sonidos</label>
+          <label className="toggle"><input type="checkbox" checked={s.sound} onChange={(e) => set("sound", e.target.checked)} /> Sonidos de teclas</label>
+          <label className="toggle"><input type="checkbox" checked={s.animations} onChange={(e) => set("animations", e.target.checked)} /> Animaciones y fondo animado</label>
           <label className="toggle"><input type="checkbox" checked={s.excludeMissing} onChange={(e) => set("excludeMissing", e.target.checked)} /> Saltar símbolos sin tecla en mi teclado</label>
           <div className="help">Con el teclado italiano, ` y ~ no tienen tecla: si desactivás esta opción, vas a tener que escribirlos con códigos Alt.</div>
         </div>

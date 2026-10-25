@@ -28,18 +28,22 @@ export function heatColor(info: KeyInfo | undefined): string {
 interface Props {
   layout: LayoutDef;
   next?: string | null;
+  /** flota suavemente (en práctica); el mapa de calor queda quieto */
+  float?: boolean;
   /** modo mapa de calor: info por carácter */
   heat?: Map<string, KeyInfo>;
 }
 
-export function Keyboard({ layout, next, heat }: Props) {
+export function Keyboard({ layout, next, heat, float = false }: Props) {
   const rows = rowsFor(layout);
   const combos = comboMap(layout);
   const combo = next ? combos.get(next) : undefined;
   const leftHand = combo && ["lp", "lr", "lm", "li"].includes(combo.finger);
 
   return (
-    <div className="keyboard-wrap">
+    <div className={"keyboard-wrap" + (float ? " floating" : "")}>
+      <div className="kb-f1">
+      <div className="kb-f2">
       <div className="keyboard" role="img" aria-label="Teclado en pantalla">
         {rows.map((row, ri) => (
           <div className="krow" key={ri}>
@@ -74,7 +78,7 @@ export function Keyboard({ layout, next, heat }: Props) {
                 k.code === "KeyF" || k.code === "KeyJ" ? "bump" : "",
               ].join(" ");
               return (
-                <div key={k.code + ki} className={cls} style={{ ...style, ...heatStyle }}>
+                <div key={k.code + ki} data-code={k.code} className={cls} style={{ ...style, ...heatStyle }}>
                   {!lg && <span className="main">{k.label}</span>}
                   {lg && isLetter && <span className="main">{lg[1]}</span>}
                   {lg && !isLetter && (
@@ -92,6 +96,9 @@ export function Keyboard({ layout, next, heat }: Props) {
           </div>
         ))}
       </div>
+      </div>
+      </div>
+      <div className="kb-shadow" aria-hidden="true" />
     </div>
   );
 }

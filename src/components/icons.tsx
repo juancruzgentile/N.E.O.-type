@@ -24,3 +24,10 @@ export const IconLock = (p: { size?: number }) => <Svg {...p}><rect x="5" y="11"
 export const IconRefresh = (p: { size?: number }) => <Svg {...p}><path d="M20 11a8 8 0 1 0-2 6M20 4v7h-7" /></Svg>;
 export const IconSkip = (p: { size?: number }) => <Svg {...p}><path d="m5 5 9 7-9 7zM19 5v14" /></Svg>;
 export const IconPulse = (p: { size?: number }) => <Svg {...p}><path d="M2 12h5l2-6 4 12 2-6h7" /></Svg>;
+export const IconMusic = (p: { size?: number }) => <Svg {...p}><path d="M9 18V5l11-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="17" cy="16" r="3" /></Svg>;
+export const IconPlay = (p: { size?: number }) => <Svg {...p}><path d="M7 4v16l13-8z" fill="currentColor" /></Svg>;
+export const IconPause = (p: { size?: number }) => <Svg {...p}><rect x="6" y="4" width="4" height="16" fill="currentColor" /><rect x="14" y="4" width="4" height="16" fill="currentColor" /></Svg>;
+export const IconNext = (p: { size?: number }) => <Svg {...p}><path d="m5 5 10 7-10 7zM19 5v14" /></Svg>;
+export const IconPrev = (p: { size?: number }) => <Svg {...p}><path d="m19 5-10 7 10 7zM5 5v14" /></Svg>;
+export const IconVolume = (p: { size?: number }) => <Svg {...p}><path d="M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" /></Svg>;
+export const IconMedal = (p: { size?: number }) => <Svg {...p}><circle cx="12" cy="15" r="6" /><path d="M8.5 10 6 2h4l2 5 2-5h4l-2.5 8M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z" /></Svg>;

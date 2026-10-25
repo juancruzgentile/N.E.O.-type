@@ -31,6 +31,13 @@ un título que explica qué hace.
   los modificadores (Shift / AltGr) del siguiente carácter.
 - **Modo libre y desafíos**: sprints de 30/60/120 s y "precisión perfecta", con récords.
 - **Estadísticas**: evolución de velocidad y precisión, mapa de calor del teclado, calendario de práctica.
+- **Música generativa**: 7 estaciones (lo-fi, lluvia, synthwave, espacio, zen, jazz y foco) sintetizadas en vivo con
+  Web Audio, sin archivos ni licencias de por medio. Nunca suenan exactamente igual. También podés cargar tus propias
+  canciones: quedan guardadas en el navegador.
+- **Interfaz viva**: teclado flotante, fondo de partículas que late con la música, chispas de la tecla al código,
+  brillo según tu racha de aciertos y animación al desbloquear cada símbolo. Todo se apaga desde Ajustes y respeta
+  la preferencia del sistema de reducir movimiento.
+- **Logros y temas**: 22 logros con insignias y 5 temas de color (Neón, Synthwave, Matrix, Tokio noche y Claro).
 - **100 % offline**: el build es un único `NeonType.html` que se abre con doble clic. El progreso queda en tu navegador.
 
 <table>
@@ -42,7 +49,17 @@ un título que explica qué hace.
     <td align="center">Elegí un lenguaje</td>
     <td align="center">Ruta de símbolos según tu teclado</td>
   </tr>
+  <tr>
+    <td><img src="docs/estadisticas.jpg" alt="Estadísticas" /></td>
+    <td><img src="docs/logros.jpg" alt="Logros" /></td>
+  </tr>
+  <tr>
+    <td align="center">Estadísticas y mapa de calor</td>
+    <td align="center">Logros</td>
+  </tr>
 </table>
+
+![Temas](docs/temas.jpg)
 
 ## Empezar
 
@@ -97,8 +114,19 @@ src/
 ├── engine/
 │   ├── session.ts       # procesa cada pulsación
 │   └── stats.ts         # estadísticas, foco, desbloqueo, elección de lección
+├── audio/
+│   ├── music.ts         # motor de música generativa (instrumentos, estaciones, secuenciador)
+│   └── tracks.ts        # canciones del usuario en IndexedDB
+├── fx/fx.ts             # efectos sobre el DOM con Web Animations API (sin re-render de React)
 └── components/          # interfaz en React
 ```
+
+### Rendimiento
+
+En una app de mecanografía la latencia importa más que cualquier efecto. Por eso las animaciones de cada pulsación
+se aplican directo sobre el DOM, el fondo se dibuja en un canvas limitado a ~30 fps que se pausa con la pestaña
+oculta, y los movimientos continuos usan solo `transform` y `opacity`. Los ciclos de las auroras (31, 43 y 59 s) y del
+teclado (13, 17 y 23 s) son números primos para que las capas casi nunca vuelvan a coincidir.
 
 ## Contribuir
 

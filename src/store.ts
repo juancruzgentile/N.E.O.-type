@@ -15,6 +15,10 @@ export const DEFAULT_SETTINGS: Settings = {
   excludeMissing: true,
   dailyGoalMin: 20,
   userName: "Juan Dev",
+  theme: "neon",
+  animations: true,
+  musicVolume: 0.5,
+  musicStation: 0,
 };
 
 export const initialState = (): AppState => ({
@@ -25,6 +29,7 @@ export const initialState = (): AppState => ({
   profiles: {},
   days: {},
   challenges: {},
+  achievements: {},
 });
 
 function load(): AppState {

@@ -4,8 +4,9 @@ import { LANGS } from "../data/curriculum";
 import { progressToNext } from "../engine/stats";
 import { getProfile, today } from "../store";
 import {
-  IconChart, IconChevron, IconClock, IconCross, IconExpand, IconGear, IconKeyboard, IconMap, IconPulse, IconTrophy,
+  IconChart, IconChevron, IconClock, IconCross, IconExpand, IconGear, IconKeyboard, IconMap, IconMedal, IconPulse, IconTrophy,
 } from "./icons";
+import { MusicMini, MusicPlayer } from "./MusicPlayer";
 
 export function LangBadge({ lang, size }: { lang: LangId; size?: number }) {
   const l = LANGS[lang];
@@ -65,6 +66,7 @@ export function Header({ state, saved, onToggleMode, onPickLang, challengeLabel 
         <span className={saved ? "dot" : "dot off"} />
         {saved ? "PROGRESO GUARDADO" : "SIN GUARDAR"}
       </div>
+      <MusicMini />
       <button className="icon-btn" onClick={fullscreen} title="Pantalla completa">
         <IconExpand />
       </button>
@@ -76,6 +78,7 @@ interface SidebarProps {
   state: AppState;
   view: View;
   setView: (v: View) => void;
+  update: (fn: (s: AppState) => AppState) => void;
 }
 
 const NAV: { id: View; label: string; icon: ReactNode }[] = [
@@ -83,10 +86,11 @@ const NAV: { id: View; label: string; icon: ReactNode }[] = [
   { id: "routes", label: "Rutas", icon: <IconMap size={30} /> },
   { id: "stats", label: "Estadísticas", icon: <IconChart size={30} /> },
   { id: "challenges", label: "Desafíos", icon: <IconTrophy size={30} /> },
+  { id: "achievements", label: "Logros", icon: <IconMedal size={30} /> },
   { id: "settings", label: "Ajustes", icon: <IconGear size={30} /> },
 ];
 
-export function Sidebar({ state, view, setView }: SidebarProps) {
+export function Sidebar({ state, view, setView, update }: SidebarProps) {
   const lang = state.lang;
   const profile = lang ? getProfile(state, lang) : null;
   const prog = lang && profile ? progressToNext(lang, profile, state.settings) : { mastered: 0, total: 0 };
@@ -148,7 +152,7 @@ export function Sidebar({ state, view, setView }: SidebarProps) {
           </div>
         </div>
       </div>
-      <div className="quote">"DISCIPLINA<br />TAMBIÉN ES CÓDIGO"</div>
+      <MusicPlayer update={update} />
       <div className="version">v1.0.0</div>
     </aside>
   );

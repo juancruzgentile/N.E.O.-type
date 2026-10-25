@@ -1,7 +1,38 @@
+import { memo, useEffect, useRef, useState } from "react";
 import type { Profile } from "../types";
+import { fxOn } from "../fx/fx";
 import { IconBolt, IconFlame, IconTarget, IconTrophy } from "./icons";
 
 const fmt = (n: number) => Math.round(n).toLocaleString("es-AR");
+
+/** Anima un número desde su valor anterior hasta el nuevo. */
+function useCountUp(value: number, ms = 750): number {
+  const [shown, setShown] = useState(value);
+  const from = useRef(value);
+  useEffect(() => {
+    if (!fxOn() || from.current === value) {
+      from.current = value;
+      setShown(value);
+      return;
+    }
+    const start = performance.now();
+    const a = from.current;
+    let raf = 0;
+    const tick = (now: number) => {
+      const k = Math.min(1, (now - start) / ms);
+      const e = 1 - Math.pow(1 - k, 3);
+      setShown(a + (value - a) * e);
+      if (k < 1) raf = requestAnimationFrame(tick);
+      else from.current = value;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      from.current = value;
+    };
+  }, [value, ms]);
+  return shown;
+}
 
 function Bars({ values, color }: { values: number[]; color: string }) {
   const max = Math.max(1, ...values);
@@ -33,7 +64,7 @@ interface Props {
   streak: number;
 }
 
-export function MetricCards({ profile, streak }: Props) {
+export const MetricCards = memo(function MetricCards({ profile, streak }: Props) {
   const ls = profile.lessons;
   const last = ls[ls.length - 1];
   const prev = ls.slice(-11, -1);
@@ -41,6 +72,10 @@ export function MetricCards({ profile, streak }: Props) {
   const avgWpm = avg("wpm");
   const avgAcc = avg("acc");
   const recent = ls.slice(-6);
+
+  const wpmShown = useCountUp(last ? last.wpm : 0);
+  const accShown = useCountUp(last ? last.acc * 100 : 0);
+  const scoreShown = useCountUp(profile.score);
 
   const wpmDelta = last && avgWpm ? ((last.wpm - avgWpm) / avgWpm) * 100 : null;
   const accDelta = last && avgAcc !== null ? (last.acc - avgAcc) * 100 : null;
@@ -51,7 +86,7 @@ export function MetricCards({ profile, streak }: Props) {
         <div className="ico" style={{ color: "var(--green)" }}><IconBolt size={32} /></div>
         <div>
           <div className="label">VELOCIDAD</div>
-          <div className="value">{last ? Math.round(last.wpm) : "—"}<small>WPM</small></div>
+          <div className="value">{last ? Math.round(wpmShown) : "—"}<small>WPM</small></div>
         </div>
         <div className="side">
           <Bars values={recent.map((l) => l.wpm)} color="var(--green)" />
@@ -62,7 +97,7 @@ export function MetricCards({ profile, streak }: Props) {
         <div className="ico" style={{ color: "var(--green)" }}><IconTarget size={32} /></div>
         <div>
           <div className="label">PRECISIÓN</div>
-          <div className="value">{last ? (last.acc * 100).toFixed(1) : "—"}<small>%</small></div>
+          <div className="value">{last ? accShown.toFixed(1) : "—"}<small>%</small></div>
         </div>
         <div className="side">
           <Bars values={recent.map((l) => l.acc * 100 - 80)} color="var(--green)" />
@@ -73,7 +108,7 @@ export function MetricCards({ profile, streak }: Props) {
         <div className="ico" style={{ color: "var(--yellow)" }}><IconTrophy size={32} /></div>
         <div>
           <div className="label">PUNTUACIÓN</div>
-          <div className="value">{fmt(profile.score)}</div>
+          <div className="value">{fmt(scoreShown)}</div>
         </div>
         <div className="side">
           <Bars values={recent.map((l) => l.score)} color="var(--green)" />
@@ -93,4 +128,4 @@ export function MetricCards({ profile, streak }: Props) {
       </div>
     </div>
   );
-}
+});

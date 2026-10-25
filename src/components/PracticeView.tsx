@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AppState, LangId, Lesson, LessonResult, Profile, Sample } from "../types";
 import { LANGS, SYMBOL_INFO } from "../data/curriculum";
-import { LAYOUTS, comboText } from "../data/layouts";
+import { LAYOUTS, comboMap, comboText } from "../data/layouts";
+import { dropSymbol, keyHit, spark, wave } from "../fx/fx";
 import { makeRng } from "../gen/base";
 import { TypingSession } from "../engine/session";
 import {
@@ -10,7 +11,7 @@ import {
 import { getProfile, profileKey, streakDays, today } from "../store";
 import { sound } from "../sound";
 import { CodeView } from "./CodeView";
-import { Keyboard } from "./Keyboard";
+import { FINGER_COLORS, Keyboard } from "./Keyboard";
 import { KeySet } from "./KeySet";
 import { MetricCards } from "./MetricCards";
 import { IconCode, IconRefresh, IconSkip } from "./icons";
@@ -64,6 +65,17 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
   const [perfectFails, setPerfectFails] = useState(0);
   const [sprintRunning, setSprintRunning] = useState(false);
   const composed = useRef({ data: "", t: 0 });
+  const panelRef = useRef<HTMLDivElement>(null);
+  const streakRef = useRef(0);
+  const dropping = useRef(false);
+  const [isDropping, setIsDropping] = useState(false);
+  const combos = useMemo(() => comboMap(layout), [layout]);
+
+  /** Racha de aciertos: intensifica el brillo del panel (variable CSS, sin re-render). */
+  const setStreak = (n: number) => {
+    streakRef.current = n;
+    panelRef.current?.style.setProperty("--streak", String(Math.min(1, n / 80)));
+  };
   const taRef = useRef<HTMLTextAreaElement>(null);
   const profileRef = useRef(profile);
   profileRef.current = profile;
@@ -197,20 +209,40 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
 
     if (unlocked && unlocked.length) {
       if (settings.sound) sound.unlock();
-      setUnlock(unlocked);
-    } else if (settings.sound) sound.done();
+      dropping.current = true;
+      setIsDropping(true);
+      taRef.current?.blur();
+      void dropSymbol(unlocked, unlocked.map((c) => combos.get(c)?.code)).then(() => {
+        dropping.current = false;
+        setIsDropping(false);
+        setUnlock(unlocked);
+      });
+    } else {
+      if (settings.sound) sound.done();
+      wave();
+    }
     loadLesson(make(np));
-  }, [challenge, commit, lang, lesson.kind, loadLesson, make, settings.sound, state.challenges, update]);
+  }, [challenge, combos, commit, lang, lesson.kind, loadLesson, make, settings.sound, state.challenges, update]);
 
   const handleChar = useCallback(
     (ch: string) => {
-      if (unlock || finished) return;
+      if (unlock || finished || dropping.current) return;
       const s = session.current;
+      const expected = s.text[s.pos];
       if (challenge?.kind === "sprint" && !sprint.current.running) {
         sprint.current.running = true;
         setSprintRunning(true);
       }
       const res = s.input(ch, performance.now(), settings.errorMode);
+      if (res === "ok" || res === "done") {
+        const c = combos.get(expected);
+        keyHit(c?.code, true);
+        spark(c?.code, c ? FINGER_COLORS[c.finger] : "var(--cyan)");
+        setStreak(streakRef.current + 1);
+      } else if (res === "error") {
+        keyHit(combos.get(ch)?.code ?? combos.get(expected)?.code, false);
+        setStreak(0);
+      }
       if (res === "error") {
         if (settings.sound) sound.error();
         setShake(true);
@@ -223,7 +255,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       setVersion((v) => v + 1);
       if (res === "done") onLessonDone();
     },
-    [challenge, finished, onLessonDone, settings.errorMode, settings.sound, unlock],
+    [challenge, combos, finished, onLessonDone, settings.errorMode, settings.sound, unlock],
   );
 
   const restart = useCallback(() => {
@@ -322,7 +354,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     <>
       <MetricCards profile={profile} streak={streak} />
 
-      <div className="frame glow code-panel">
+      <div className="frame glow code-panel" ref={panelRef}>
         <div className="code-head">
           <span style={{ color: "var(--cyan)" }}><IconCode size={30} /></span>
           <span className="ttl">ESCRIBE EL CÓDIGO</span>
@@ -352,7 +384,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
             onBlur={() => setFocused(false)}
           />
           <CodeView session={s} lang={lesson.kind === "drill" ? null : lang} focus={focus} version={version} shake={shake} />
-          {!focused && !unlock && !finished && (
+          {!focused && !unlock && !finished && !isDropping && (
             <div className="overlay">
               <div className="start-hint">
                 Pulsa <b>ENTER</b> o hacé clic para {s.startTs === null ? "comenzar" : "continuar"}
@@ -380,7 +412,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
 
       <KeySet infos={infos} focus={mode === "guided" ? focus : null} next={next} layout={layout} showChips={!challenge} />
 
-      {settings.showKeyboard && <Keyboard layout={layout} next={next} />}
+      {settings.showKeyboard && <Keyboard layout={layout} next={next} float />}
 
       {unlock && (
         <div className="modal-back" onClick={() => { setUnlock(null); focusInput(); }}>

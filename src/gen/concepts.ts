@@ -62,7 +62,7 @@ export interface Concept {
 const T = (id: ConceptId, cat: string, title: Concept["title"]): Concept => ({ id, cat, title });
 
 const typeWord = (lang: LangId) =>
-  lang === "go" || lang === "rust" ? "el struct" : lang === "typescript" ? "la interfaz" : lang === "python" ? "la dataclass" : "el tipo";
+  lang === "go" || lang === "rust" ? "el struct" : lang === "python" ? "la clase" : "el tipo";
 
 export const CONCEPTS: Concept[] = [
   T("sum", "Colecciones", (c) => `Suma ${c.num.es} de ${todos(c.ent.g)} ${art(c.ent.g, true)} ${c.ent.esP}`),

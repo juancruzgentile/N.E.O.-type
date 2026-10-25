@@ -2,7 +2,8 @@ export type LangId = "python" | "javascript" | "typescript" | "java" | "csharp" 
 export type LayoutId = "it" | "us" | "es" | "latam";
 export type ErrorMode = "block" | "advance" | "strict";
 export type Mode = "guided" | "free";
-export type View = "languages" | "practice" | "routes" | "stats" | "challenges" | "settings";
+export type View = "languages" | "practice" | "routes" | "stats" | "challenges" | "achievements" | "settings";
+export type ThemeId = "neon" | "synthwave" | "matrix" | "tokyo" | "light";
 
 export interface Settings {
   layout: LayoutId;
@@ -15,6 +16,10 @@ export interface Settings {
   excludeMissing: boolean;
   dailyGoalMin: number;
   userName: string;
+  theme: ThemeId;
+  animations: boolean;
+  musicVolume: number;
+  musicStation: number;
 }
 
 /** Estadística de una tecla (un carácter). */
@@ -61,6 +66,8 @@ export interface AppState {
   /** segundos practicados por día (YYYY-MM-DD) */
   days: Record<string, number>;
   challenges: Record<string, ChallengeRecord>;
+  /** logros desbloqueados: id → fecha */
+  achievements: Record<string, number>;
 }
 
 export interface Lesson {
