@@ -80,7 +80,14 @@ if (html) {
   const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)];
   const hashes = scripts.map((m) => `'sha256-${createHash("sha256").update(m[1], "utf8").digest("base64")}'`);
   ok(scripts.length >= 1 && hashes.every((h) => csp.includes(h)), "el hash del script coincide con la CSP");
-  ok(!/<script\b[^>]*\bsrc=/.test(html) && !/<link\b[^>]*\bhref="https?:/.test(html), "no se cargan scripts ni estilos externos");
+  // las etiquetas reales, sin el contenido de los scripts (los ejercicios de HTML incluyen <script> como texto)
+  const tags = html.replace(/(<script\b[^>]*>)[\s\S]*?<\/script>/g, "$1</script>");
+  ok(!/<script\b[^>]*\bsrc=/.test(tags) && !/<link\b[^>]*\bhref="https?:/.test(tags), "no se cargan scripts ni estilos externos");
+  ok(
+    scripts.every((m) => !/<!--|<script/i.test(m[1])),
+    "el JS incrustado no contiene <!-- ni <script (no puede alterar el cierre del elemento)",
+  );
+  ok(scripts.length === (html.match(/<\/script>/g) ?? []).length, "cada <script> tiene exactamente un cierre");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de seguridad pasaron");

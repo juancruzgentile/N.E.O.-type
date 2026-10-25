@@ -16,6 +16,8 @@ const DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 export const LANGS: Record<LangId, LangInfo> = {
   sql: { id: "sql", name: "Bases de datos", badge: "DB", color: "#ffb547", kind: "track", stages: [] },
+  html: { id: "html", name: "HTML", badge: "<>", color: "#ff5c7a", kind: "track", stages: [] },
+  css: { id: "css", name: "CSS", badge: "{}", color: "#2ee6d6", kind: "track", stages: [] },
   linux: { id: "linux", name: "Terminal Linux", badge: ">_", color: "#7dff6b", kind: "track", stages: [] },
   python: {
     id: "python", name: "Python", badge: "Py", color: "#4f9cff", kind: "code",

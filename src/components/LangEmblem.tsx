@@ -7,7 +7,7 @@ import { LANGS, LANG_ORDER, TRACK_ORDER } from "../data/curriculum";
  * Es un diseño propio: no usa los logos oficiales, que son marcas registradas.
  */
 
-const MONO: Record<LangId, string> = { python: "PY", javascript: "JS", typescript: "TS", java: "JV", csharp: "C#", go: "GO", rust: "RS", sql: "DB", linux: ">_" };
+const MONO: Record<LangId, string> = { python: "PY", javascript: "JS", typescript: "TS", java: "JV", csharp: "C#", go: "GO", rust: "RS", sql: "DB", linux: ">_", html: "<>", css: "{}" };
 
 /** código de barras determinístico por lenguaje */
 function bars(lang: LangId): [number, number][] {

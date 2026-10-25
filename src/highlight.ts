@@ -22,11 +22,22 @@ const KW: Record<LangId, string[]> = {
     "echo", "set", "source", "export", "cd", "ls", "mkdir", "rm", "cp", "mv", "cat", "grep", "find", "chmod", "chown", "ssh",
     "tar", "curl", "awk", "sed", "git", "make", "makepkg",
   ],
+  html: [
+    "html", "head", "body", "meta", "title", "link", "script", "header", "nav", "main", "article", "section", "footer", "div",
+    "span", "a", "img", "ul", "ol", "li", "table", "thead", "tbody", "tr", "th", "td", "form", "input", "label", "button",
+    "select", "option", "textarea", "figure", "figcaption", "video", "source", "track", "details", "summary", "h1", "h2", "h3",
+    "p", "strong", "em", "code", "kbd", "br", "blockquote", "time",
+  ],
+  css: [
+    "display", "flex", "grid", "color", "background", "margin", "padding", "border", "gap", "width", "height", "transition",
+    "animation", "transform", "content", "media", "keyframes", "from", "to", "var", "repeat", "minmax", "clamp", "none",
+    "auto", "center", "solid", "important",
+  ],
   rust: ["fn", "let", "mut", "return", "if", "else", "for", "in", "while", "match", "impl", "struct", "enum", "trait", "pub", "use", "self", "Self", "true", "false", "as", "async", "await", "move", "ref", "where", "i32", "u32", "u64", "f64", "usize", "bool", "str"],
 };
 
 const COMMENT: Record<LangId, string> = {
-  python: "#", sql: "--", linux: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
+  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
 };
 
 /** Clase de token para cada carácter del texto. */

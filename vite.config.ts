@@ -20,9 +20,18 @@ function contentSecurityPolicy(): Plugin {
     closeBundle() {
       const file = resolve(__dirname, "dist/index.html");
       let src = readFileSync(file, "utf8");
+      // Dentro de un <script> incrustado, las secuencias "<!--" y "<script" cambian cómo el
+      // navegador busca el cierre (estado "script data escaped"): si aparecen las dos, el
+      // </script> real deja de cerrar el elemento. Los ejercicios de HTML las contienen como
+      // texto, así que se escapan como \x3C (mismo valor en cualquier string o regex de JS).
+      src = src.replace(/(<script\b[^>]*>)([\s\S]*?)(<\/script>)/g, (_, open: string, body: string, close: string) =>
+        open + body.replace(/<(!--|script)/gi, "\\x3C$1") + close,
+      );
       const scripts = [...src.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((m) => sha(m[1]));
       const styles = [...src.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => sha(m[1]));
-      if (/<script\b[^>]*\bsrc=/.test(src)) throw new Error("CSP: se esperaba que todos los scripts estén incrustados");
+      // solo cuentan las etiquetas reales (no el texto que hay dentro del JS)
+      const tags = src.replace(/(<script\b[^>]*>)[\s\S]*?<\/script>/g, "$1</script>");
+      if (/<script\b[^>]*\bsrc=/.test(tags)) throw new Error("CSP: se esperaba que todos los scripts estén incrustados");
       const policy = [
         "default-src 'none'",
         `script-src ${scripts.join(" ")}`,

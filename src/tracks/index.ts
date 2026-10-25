@@ -3,9 +3,10 @@ import { type Rng, pick } from "../gen/base";
 import type { Track } from "./types";
 import { SQL } from "./sql";
 import { LINUX } from "./linux";
+import { CSS, HTML } from "./web";
 
-export const TRACKS: Record<TrackId, Track> = { sql: SQL, linux: LINUX };
-export const TRACK_ORDER: TrackId[] = ["sql", "linux"];
+export const TRACKS: Record<TrackId, Track> = { sql: SQL, linux: LINUX, html: HTML, css: CSS };
+export const TRACK_ORDER: TrackId[] = ["sql", "linux", "html", "css"];
 
 export const isTrack = (l: LangId): l is TrackId => Object.prototype.hasOwnProperty.call(TRACKS, l);
 
