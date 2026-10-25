@@ -7,9 +7,14 @@ updates:
     # no adopta versiones recién publicadas: da tiempo a detectar paquetes comprometidos
     cooldown:
       default-days: 7
+    # los saltos de versión mayor se evalúan a mano (pueden romper el build)
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       dependencias:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
