@@ -20,6 +20,11 @@ const GLYPHS: Record<string, ReactElement> = {
   goal: <g>{P("M12 3v4M12 17v4M3 12h4M17 12h4")}<rect x="8" y="8" width="8" height="8" /></g>,
   sprinter: P("M4 6l6 6-6 6M11 6l6 6-6 6M18 8l3 4-3 4"),
   surgeon: <g>{P("M12 2v7M12 15v7M2 12h7M15 12h7")}<rect x="10.5" y="10.5" width="3" height="3" /></g>,
+  firststep: P("M4 20h6v-6h6V8h4"),
+  dba: <g>{P("M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3z")}{P("M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3")}</g>,
+  sysadmin: <g>{P("M3 4h18v16H3z")}{P("M7 9l3 3-3 3M12 15h5")}</g>,
+  webdev: P("M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"),
+  trainee: P("M5 10l7-5 7 5M5 15l7-5 7 5M5 20l7-5 7 5"),
   owl: P("M15 3a9 9 0 1 0 6 14 7 7 0 0 1-6-14z"),
 };
 

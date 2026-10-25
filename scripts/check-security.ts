@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { MAX_AVATAR_CHARS, safeAvatar, sanitizeState } from "../src/sanitize";
 import { initialState } from "../src/store";
-import { LANGS } from "../src/data/curriculum";
+import { stageCount } from "../src/data/curriculum";
 import type { LangId } from "../src/types";
 
 let failed = 0;
@@ -12,7 +12,7 @@ const ok = (cond: boolean, msg: string) => {
   if (!cond) failed++;
   console.log(`${cond ? "✓" : "✗"} ${msg}`);
 };
-const clean = (raw: unknown) => sanitizeState(raw, initialState(), (l: LangId) => LANGS[l].stages.length);
+const clean = (raw: unknown) => sanitizeState(raw, initialState(), (l: LangId) => stageCount(l));
 
 // ── validación de datos ──
 const evil = JSON.parse(`{
@@ -49,7 +49,7 @@ ok(!("extra" in s.settings), "se descartan campos desconocidos");
 ok(s.lang === null && s.mode === "guided", "lenguaje y modo inválidos se descartan");
 ok(Object.keys(s.profiles).join() === "python:it", "solo se aceptan perfiles lenguaje:teclado válidos");
 const p = s.profiles["python:it"];
-ok(p.stage === LANGS.python.stages.length - 1 && p.score === 0, "nivel y puntaje se acotan");
+ok(p.stage === stageCount("python") - 1 && p.score === 0, "nivel y puntaje se acotan");
 ok(Object.keys(p.keys).join() === "(" && p.keys["("].recent === "" && p.keys["("].ema === 60_000, "estadísticas por tecla validadas");
 ok(p.lessons.length === 1 && p.lessons[0].acc === 1 && p.lessons[0].kind === "code", "lecciones inválidas descartadas y valores acotados");
 ok(Object.keys(s.days).join() === "2026-01-01" && s.days["2026-01-01"] === 86_400, "días validados");
@@ -62,6 +62,30 @@ ok(safeAvatar("img:data:image/jpeg;base64,AAAA") !== "", "imagen embebida acepta
 ok(safeAvatar("img:data:image/svg+xml;base64,AAAA") === "", "se rechaza SVG embebido (puede contener scripts)");
 ok(safeAvatar("img:javascript:alert(1)") === "", "se rechaza javascript:");
 ok(safeAvatar("img:data:image/png;base64," + "A".repeat(MAX_AVATAR_CHARS)) === "", "se rechaza una imagen demasiado grande");
+
+// ── rutas Trainee: escalones y ajustes nuevos ──
+const evilTrack = clean(JSON.parse(`{
+  "version": 1, "lang": "linux",
+  "settings": { "distro": "windows", "dbEngine": "oracle" },
+  "profiles": {
+    "sql:it": { "stage": 999,
+      "steps": {
+        "__proto__": { "n": 1, "w": [1], "a": [1] },
+        "sqlite": { "n": 3, "w": [30, "x", 1e9, -4, 50, 60, 70], "a": [1, 2, -1, 0.9] },
+        "<x>": { "n": 1, "w": [1], "a": [1] },
+        "mysql": { "n": "a", "w": [1], "a": [1] }
+      } }
+  }
+}`));
+const sp = evilTrack.profiles["sql:it"];
+ok(evilTrack.lang === "linux", "acepta una ruta Trainee válida como lenguaje");
+ok(evilTrack.settings.distro === "ubuntu" && evilTrack.settings.dbEngine === "sqlite", "distro y motor inválidos vuelven al valor por defecto");
+ok(sp.stage === stageCount("sql") - 1, "el escalón se acota a los que existen");
+ok(Object.keys(sp.steps).join(",") === "sqlite", "solo quedan escalones con id válido y datos numéricos");
+ok(!Object.prototype.hasOwnProperty.call(sp.steps, "__proto__") && ({} as Record<string, unknown>).n === undefined, "los escalones no permiten contaminar prototipos");
+const st = sp.steps.sqlite;
+ok(st.w.length === st.a.length && st.w.length <= 5, "velocidad y precisión del escalón quedan alineadas y acotadas a 5");
+ok(st.w.every((x) => x >= 0 && x <= 1000) && st.a.every((x) => x >= 0 && x <= 1), "los valores del escalón quedan dentro de rango");
 
 // ── Content Security Policy del build ──
 let html = "";

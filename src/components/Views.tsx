@@ -513,7 +513,7 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
         <div className="setting">
           <label>Acerca de</label>
           <div className="help">
-            N.E.O.-type v1.3 · Licencia MIT. Usa React (MIT) y las fuentes JetBrains Mono, Rajdhani y Chakra Petch
+            N.E.O.-type v{__APP_VERSION__} · Licencia MIT. Usa React (MIT) y las fuentes JetBrains Mono, Rajdhani y Chakra Petch
             (SIL Open Font License 1.1). Los nombres de los lenguajes son marcas de sus respectivos dueños y se usan solo
             para identificarlos; los emblemas son diseños propios. El detalle está en THIRD_PARTY_NOTICES.md.
           </div>

@@ -24,6 +24,8 @@ N.E.O.-type te hace tipear **código real** —nunca se ejecuta, es solo para en
 un título que explica qué hace.
 
 - **7 lenguajes**: Python, JavaScript, TypeScript, Java, C#, Go y Rust.
+- **5 rutas Trainee**: bases de datos (SQLite → MySQL → PostgreSQL → MongoDB), terminal Linux (Ubuntu/Mint → Debian →
+  Fedora → CachyOS → Arch), HTML, CSS y formatos (`.env`, `requirements.txt`, JSON, `package.json`, YAML, Markdown).
 - **Modo guiado adaptativo**: empezás con `(` y `)`. Cada símbolo nuevo se practica con ejercicios dirigidos y después con
   funciones reales que lo usan. El símbolo más débil es el *foco* y aparece en todas las lecciones.
 - **Desbloqueo exigente**: la siguiente etapa se abre solo cuando todos tus símbolos superan el mínimo de pulsaciones,
@@ -39,7 +41,7 @@ un título que explica qué hace.
 - **Interfaz viva**: teclado flotante, fondo de partículas que late con la música, chispas de la tecla al código,
   brillo según tu racha de aciertos y animación al desbloquear cada símbolo. Todo se apaga desde Ajustes y respeta
   la preferencia del sistema de reducir movimiento.
-- **Logros y temas**: 22 logros con insignias y 6 temas de color (Cyber, Neón, Synthwave, Matrix, Tokio noche y Claro),
+- **Logros y temas**: 27 logros con insignias y 6 temas de color (Cyber, Neón, Synthwave, Matrix, Tokio noche y Claro),
   con una estética cyberpunk que nunca toca la legibilidad del código.
 - **Tu perfil**: pantalla de inicio con efecto de cartel de neón, tu nombre y tu foto (o uno de los 12 avatares incluidos).
 - **100 % offline**: el build es un único `NeonType.html` que se abre con doble clic. El progreso queda en tu navegador.
@@ -106,6 +108,34 @@ Atajos para quien no quiera usar la terminal:
 4. Con todos los símbolos desbloqueados dominados, se abre la siguiente etapa de la ruta del lenguaje.
 5. El generador elige fragmentos que usen **solo** símbolos desbloqueados y que contengan el símbolo foco.
 
+## Rutas Trainee
+
+Además de los lenguajes, hay rutas para las herramientas que se usan todos los días. En lugar de símbolos, avanzan por
+**escalones** ordenados por dificultad:
+
+| Ruta | Escalones |
+| --- | --- |
+| Bases de datos | SQLite → MySQL → PostgreSQL → MongoDB |
+| Terminal Linux | Ubuntu / Mint → Debian → Fedora → CachyOS → Arch Linux |
+| HTML | Estructura → Listas y tablas → Formularios → Semántica → Head y recursos |
+| CSS | Selectores y color → Modelo de caja → Flexbox → Grid → Responsive → Variables y animación |
+| Formatos | .env → requirements.txt → JSON → package.json → YAML → Markdown |
+
+1. Cada escalón suma temas nuevos. En bases de datos y terminal, lo aprendido antes se practica también en el motor o la
+   distribución nueva (un upsert se escribe distinto en SQLite, MySQL, PostgreSQL y MongoDB; instalar un paquete,
+   distinto en Ubuntu, Fedora y Arch).
+2. Cerca de dos tercios de las lecciones van al escalón más débil y el resto repasa los anteriores.
+3. Un escalón está **dominado** cuando tus últimas 3 lecciones en él promedian la velocidad objetivo y la precisión mínima.
+4. Con todos los escalones desbloqueados dominados, se abre el siguiente.
+5. En el modo libre se elige el motor de base de datos o la distribución con un selector.
+
+<table>
+  <tr>
+    <td><img src="docs/trainee-ruta.jpg" alt="Ruta de bases de datos por escalones" /></td>
+    <td><img src="docs/trainee-practica.jpg" alt="Lección de SQL en PostgreSQL" /></td>
+  </tr>
+</table>
+
 ## Estructura
 
 ```
@@ -119,6 +149,13 @@ src/
 │   ├── lang/            # un generador por lenguaje
 │   ├── drills.ts        # ejercicios de símbolos
 │   └── index.ts         # elige fragmentos según los símbolos permitidos
+├── tracks/
+│   ├── types.ts         # estructura de una ruta Trainee (escalones, temas, variantes)
+│   ├── sql.ts           # bases de datos: SQLite, MySQL, PostgreSQL y MongoDB
+│   ├── linux.ts         # terminal por distribución
+│   ├── web.ts           # HTML y CSS
+│   ├── formats.ts       # .env, requirements.txt, JSON, package.json, YAML y Markdown
+│   └── index.ts         # registro de rutas y elección de ejercicios
 ├── engine/
 │   ├── session.ts       # procesa cada pulsación
 │   └── stats.ts         # estadísticas, foco, desbloqueo, elección de lección

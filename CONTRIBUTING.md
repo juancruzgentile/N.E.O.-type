@@ -35,6 +35,16 @@ Registrá los cambios visibles en `CHANGELOG.md`, en la sección de la próxima 
    código real pronto (`npm run check` informa desde qué etapa aparece).
 4. Agregá palabras clave para el resaltado en `src/highlight.ts`.
 
+## Agregar una ruta Trainee
+
+1. Creá `src/tracks/<ruta>.ts` con un objeto `Track`: escalones en orden de dificultad, temas de cada escalón y, si
+   aplica, variantes (motor, distribución…) con un ajuste para la práctica libre.
+2. Cada tema devuelve `{ title, text }` para una variante, o `null` si el tema no existe en ella.
+3. Registrala en `TRACKS` y `TRACK_ORDER` (`src/tracks/index.ts`), en `TrackId` (`src/types.ts`), en `LANGS`
+   (`src/data/curriculum.ts`), en `LANG_IDS` (`src/sanitize.ts`), en el emblema y en el resaltado.
+4. Corré `npm run check`: verifica que los textos usen solo los símbolos declarados (y que todos aparezcan), que sean
+   ASCII sin espacios finales y que cada escalón tenga ejercicios escribibles en los cuatro teclados.
+
 ## Agregar un concepto
 
 1. Agregá el id a `ConceptId` y su título en español a `CONCEPTS` (`src/gen/concepts.ts`).

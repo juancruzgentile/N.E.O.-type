@@ -1,7 +1,7 @@
-import type { AppState, LangId } from "../types";
-import { LANGS, LANG_ORDER } from "../data/curriculum";
+import type { AppState, LangId, TrackId } from "../types";
+import { LANGS, LANG_ORDER, TRACK_ORDER, stageCount } from "../data/curriculum";
 import { LAYOUTS, comboMap } from "../data/layouts";
-import { stageInfos } from "./stats";
+import { stageInfos, stepInfos } from "./stats";
 import { streakDays, today } from "../store";
 
 export interface Achievement {
@@ -27,6 +27,27 @@ const masteredIn = (s: AppState, lang: LangId) => {
   if (!p) return [];
   return stageInfos(lang, p, s.settings).filter((k) => k.state === "mastered").map((k) => k.char);
 };
+
+/** escalones dominados de una ruta Trainee con el teclado actual */
+const stepsMastered = (s: AppState, id: TrackId) => {
+  const p = s.profiles[`${id}:${s.settings.layout}`];
+  return p ? stepInfos(id, p, s.settings).filter((x) => x.state === "mastered").length : 0;
+};
+const trackDone = (s: AppState, id: TrackId) => {
+  const p = s.profiles[`${id}:${s.settings.layout}`];
+  return !!p && stepInfos(id, p, s.settings).every((x) => x.state === "mastered");
+};
+const tracksDone = (s: AppState) => TRACK_ORDER.filter((id) => trackDone(s, id)).length;
+
+const trackAch = (id: string, name: string, desc: string, tracks: TrackId[]): Achievement => ({
+  id, name, desc, tier: "gold",
+  check: (s) => tracks.every((t) => trackDone(s, t)),
+  progress: (s) => {
+    const done = tracks.reduce((n, t) => n + stepsMastered(s, t), 0);
+    const total = tracks.reduce((n, t) => n + stageCount(t), 0);
+    return Math.min(1, done / total);
+  },
+});
 
 const maxMastered = (s: AppState) => Math.max(0, ...LANG_ORDER.map((l) => masteredIn(s, l).length));
 
@@ -108,6 +129,18 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: "surgeon", name: "Cirujano", desc: "Superá el desafío de precisión perfecta", tier: "silver",
     check: (s) => Object.keys(s.challenges).some((k) => k.endsWith(":perfect")),
+  },
+  {
+    id: "firststep", name: "Primer escalón", desc: "Dominá un escalón de cualquier ruta Trainee", tier: "bronze",
+    check: (s) => TRACK_ORDER.some((t) => stepsMastered(s, t) >= 1),
+  },
+  trackAch("dba", "Guardián de datos", "Completá la ruta de bases de datos, de SQLite a MongoDB", ["sql"]),
+  trackAch("sysadmin", "Acceso root", "Completá la ruta de terminal, de Ubuntu a Arch Linux", ["linux"]),
+  trackAch("webdev", "Arquitecto web", "Completá las rutas de HTML y CSS", ["html", "css"]),
+  {
+    id: "trainee", name: "Trainee certificado", desc: "Completá las cinco rutas Trainee", tier: "gold",
+    check: (s) => tracksDone(s) === TRACK_ORDER.length,
+    progress: (s) => tracksDone(s) / TRACK_ORDER.length,
   },
   {
     id: "owl", name: "Búho nocturno", desc: "Completá una lección entre las 0 y las 5 h", tier: "bronze",

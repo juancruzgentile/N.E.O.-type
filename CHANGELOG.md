@@ -3,6 +3,30 @@
 Todos los cambios relevantes del proyecto. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
 y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
+## [1.4.0] - 2026-10-25
+
+### Agregado
+- **Rutas Trainee**: rutas por escalones de dificultad para las herramientas de todos los días. Cada escalón suma
+  temas nuevos, se mezcla con los anteriores y las lecciones se enfocan en el escalón más flojo. Un escalón se domina
+  cuando las últimas 3 lecciones promedian la velocidad y la precisión objetivo.
+  - **Bases de datos**: SQLite → MySQL → PostgreSQL → MongoDB, con cada consulta en el dialecto de su motor.
+  - **Terminal Linux**: Ubuntu/Mint → Debian → Fedora → CachyOS → Arch Linux, con comandos propios de cada
+    distribución (gestor de paquetes, nombres de paquetes y servicios, grupos, firewall, AUR).
+  - **HTML**: estructura, listas y tablas, formularios, semántica y accesibilidad, head y recursos.
+  - **CSS**: selectores, modelo de caja, flexbox, grid, responsive, variables y animación.
+  - **Formatos**: `.env`, `requirements.txt`, JSON, `package.json`, YAML y Markdown.
+- Selector de motor de base de datos y de distribución en la práctica libre.
+- 5 logros nuevos para las rutas Trainee.
+- Tests de seguridad para los datos de las rutas nuevas y para el script incrustado del build.
+
+### Cambiado
+- La pantalla de inicio separa los lenguajes de programación de las rutas Trainee.
+- La versión que muestra la app sale de `package.json`.
+
+### Seguridad
+- El build escapa `<!--` y `<script` dentro del JavaScript incrustado antes de calcular el hash de la CSP: juntas
+  pueden impedir que el navegador cierre el elemento `<script>`.
+
 ## [1.3.0] - 2026-10-25
 
 ### Agregado
@@ -56,7 +80,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Modo libre, desafíos (sprints y precisión perfecta) y estadísticas con mapa de calor.
 - Build de un solo archivo que funciona sin conexión.
 
-[1.3.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/e0ac0e7...main
+[1.4.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/32c443d...main
+[1.3.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/e0ac0e7...32c443d
 [1.2.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/d7abd94...e0ac0e7
 [1.1.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/2242a79...d7abd94
 [1.0.0]: https://github.com/juancruzgentile/N.E.O.-type/commit/2242a79
