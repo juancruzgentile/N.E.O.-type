@@ -1,0 +1,35 @@
+{
+  "name": "neo-type",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Mecanografía para programadores: aprende a teclear código más rápido, estilo keybr.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite --open",
+    "build": "tsc -b && vite build && node scripts/copy-build.mjs",
+    "preview": "vite preview",
+    "check": "esbuild scripts/check-generators.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check.mjs --log-level=warning && node node_modules/.cache/check.mjs"
+  },
+  "dependencies": {
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@fontsource/orbitron": "5.3.0",
+    "@fontsource/rajdhani": "5.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.7",
+    "vite-plugin-singlefile": "2.3.4",
+    "esbuild": "0.28.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/juancruzgentile/N.E.O.-type.git"
+  },
+  "author": "Juan Cruz Gentile"
+}
