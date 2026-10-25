@@ -6,8 +6,9 @@ import "@fontsource/jetbrains-mono/latin-800.css";
 import "@fontsource/rajdhani/latin-500.css";
 import "@fontsource/rajdhani/latin-600.css";
 import "@fontsource/rajdhani/latin-700.css";
-import "@fontsource/orbitron/latin-700.css";
-import "@fontsource/orbitron/latin-800.css";
+import "@fontsource/chakra-petch/latin-500.css";
+import "@fontsource/chakra-petch/latin-600.css";
+import "@fontsource/chakra-petch/latin-700.css";
 import "./styles.css";
 import App from "./App";
 

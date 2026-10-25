@@ -3,7 +3,7 @@ export type LayoutId = "it" | "us" | "es" | "latam";
 export type ErrorMode = "block" | "advance" | "strict";
 export type Mode = "guided" | "free";
 export type View = "languages" | "practice" | "routes" | "stats" | "challenges" | "achievements" | "settings";
-export type ThemeId = "neon" | "synthwave" | "matrix" | "tokyo" | "light";
+export type ThemeId = "cyber" | "neon" | "synthwave" | "matrix" | "tokyo" | "light";
 
 export interface Settings {
   layout: LayoutId;

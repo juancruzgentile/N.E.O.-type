@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AppState, LangId, Profile, Settings } from "./types";
 import { emptyProfile } from "./engine/stats";
+import { LANGS } from "./data/curriculum";
+import { MAX_IMPORT_BYTES, sanitizeState } from "./sanitize";
 
 const KEY = "neontype:v1";
 
@@ -15,7 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
   excludeMissing: true,
   dailyGoalMin: 20,
   userName: "",
-  theme: "neon",
+  theme: "cyber",
   animations: true,
   musicVolume: 0.7,
   musicStation: 0,
@@ -34,16 +36,20 @@ export const initialState = (): AppState => ({
   achievements: {},
 });
 
+const stagesOf = (l: LangId) => LANGS[l].stages.length;
+const clean = (raw: unknown) => sanitizeState(raw, initialState(), stagesOf);
+
 function load(): AppState {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return initialState();
-    const parsed = JSON.parse(raw) as AppState;
-    if (parsed.version !== 1) return initialState();
-    const settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
+    if (raw.length > MAX_IMPORT_BYTES) return initialState();
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || (parsed as { version?: unknown }).version !== 1) return initialState();
+    const state = clean(parsed);
     // "Juan Dev" era el nombre por defecto de versiones anteriores: se pide uno real
-    if (settings.userName === "Juan Dev") settings.userName = "";
-    return { ...initialState(), ...parsed, settings };
+    if (state.settings.userName === "Juan Dev") state.settings.userName = "";
+    return state;
   } catch {
     return initialState();
   }
@@ -93,9 +99,17 @@ export function useAppState() {
   const exportJson = useCallback(() => JSON.stringify(state, null, 2), [state]);
 
   const importJson = useCallback((json: string) => {
-    const parsed = JSON.parse(json) as AppState;
-    if (parsed.version !== 1 || !parsed.settings) throw new Error("Archivo no válido");
-    setState({ ...initialState(), ...parsed, settings: { ...DEFAULT_SETTINGS, ...parsed.settings } });
+    if (json.length > MAX_IMPORT_BYTES) throw new Error("el archivo es demasiado grande");
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(json);
+    } catch {
+      throw new Error("no es un JSON válido");
+    }
+    if (!parsed || typeof parsed !== "object" || (parsed as { version?: unknown }).version !== 1) {
+      throw new Error("no es una copia de seguridad de NeonType");
+    }
+    setState(clean(parsed));
   }, []);
 
   return { state, update, saved, exportJson, importJson };

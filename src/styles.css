@@ -49,9 +49,22 @@
   --tk-dec: #b47bff;
   --mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
   --ui: "Rajdhani", "Segoe UI", sans-serif;
-  --brand: "Orbitron", "Rajdhani", sans-serif;
+  --brand: "Chakra Petch", "Rajdhani", sans-serif;
   --cut: 14px;
   color-scheme: dark;
+}
+
+:root[data-theme="cyber"] {
+  --bg: #07070c; --bg2: #0d0c12; --panel: rgba(13, 12, 19, 0.9); --panel2: rgba(19, 17, 26, 0.95);
+  --line: #34202a; --line2: #6b2433; --cyan: #f3e600; --cyan-soft: rgba(243, 230, 0, 0.1);
+  --green: #00ff9f; --yellow: #02d7f2; --red: #ff003c; --magenta: #ff2e88; --purple: #b388ff; --blue: #02d7f2;
+  --text: #ece6d6; --text2: #c3baa3; --muted: #8f8673; --dim: #4d463b; --strong: #fffdf2; --strong-soft: #fff8d6;
+  --on-accent: #0a0a0f; --accent-text: #f3e600; --accent-deep: #c9bd00; --accent-hover: #fff35c;
+  --key-bg: #110f17; --kb-bg: rgba(11, 10, 16, 0.94); --input-bg: #0c0b11; --code-bg: rgba(8, 7, 12, 0.88);
+  --track: #22161c; --avatar1: #3a0d1a; --avatar2: #0a0a0f;
+  --aurora1: rgba(255, 0, 60, 0.12); --aurora2: rgba(2, 215, 242, 0.08); --aurora3: rgba(243, 230, 0, 0.05);
+  --tk-kw: #ff5470; --tk-ty: #02d7f2; --tk-str: #f3e600; --tk-num: #ffb000; --tk-com: #6e6656;
+  --tk-fn: #00ff9f; --tk-op: #ff8aa0; --tk-pun: #cfc6ad; --tk-id: #f4eedd; --tk-dec: #b388ff;
 }
 
 :root[data-theme="synthwave"] {
@@ -694,3 +707,74 @@ html.calm .splash-grid { animation: none; }
 .lang-card .progress > span { background: linear-gradient(90deg, color-mix(in srgb, var(--lc) 60%, transparent), var(--lc)); box-shadow: 0 0 10px var(--lc); }
 .lang-card .go { color: var(--lc); }
 .pill .lang-emblem { flex-shrink: 0; }
+
+
+/* ───────── lenguaje visual cyberpunk (todos los temas) ───────── */
+.brand, .view h2, .code-head .ttl, .lvl-head, .goal h4, .player h4, .uname, .lang-card .nm, .section, .kicker, .neon-logo {
+  font-family: var(--brand); text-transform: uppercase;
+}
+.brand { font-weight: 700; letter-spacing: 3px; }
+.view h2 { font-weight: 700; letter-spacing: 3px; display: flex; align-items: center; gap: 12px; animation: glitchIn 0.55s steps(1) both; }
+.view h2::before { content: ""; width: 10px; height: 22px; background: var(--red); clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%); flex-shrink: 0; }
+.view h2::after { content: "// SYS.OK"; font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--dim); margin-left: 6px; }
+/* glitch breve al entrar a una pantalla (una sola vez, no en bucle) */
+@keyframes glitchIn {
+  0% { opacity: 0; transform: translateX(-6px); text-shadow: 3px 0 var(--red), -3px 0 var(--blue); clip-path: inset(0 0 60% 0); }
+  20% { opacity: 1; transform: translateX(4px); clip-path: inset(40% 0 20% 0); }
+  40% { transform: translateX(-2px); text-shadow: -2px 0 var(--red), 2px 0 var(--blue); clip-path: inset(0 0 0 0); }
+  60% { transform: none; text-shadow: 1px 0 var(--red), -1px 0 var(--blue); }
+  100% { transform: none; text-shadow: none; clip-path: none; }
+}
+
+/* marcos: muesca de color y "cable" en la esquina superior */
+.frame::before {
+  content: ""; position: absolute; top: 0; left: var(--cut); width: 64px; height: 3px; background: var(--cyan);
+  box-shadow: 70px 0 0 -1px var(--red), 78px 0 0 -1px var(--red); pointer-events: none; z-index: 1;
+}
+.frame.glow::before { width: 120px; }
+
+/* botones con corte diagonal */
+.btn { text-transform: uppercase; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); font-family: var(--brand); font-weight: 600; letter-spacing: 1.5px; }
+.btn.primary { box-shadow: none; }
+.pill { font-family: var(--brand); }
+
+/* menú con numeración tipo HUD */
+.nav { counter-reset: nav; }
+.nav button { counter-increment: nav; font-family: var(--brand); text-transform: uppercase; font-size: 17px; letter-spacing: 1.5px; }
+.nav button::before { content: counter(nav, decimal-leading-zero); font-family: var(--mono); font-size: 11px; color: var(--dim); width: 18px; }
+.nav button.active::before { color: var(--red); }
+
+/* líneas de escaneo solo sobre el fondo (nunca sobre el código) */
+.bg-fx::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+}
+:root[data-theme="light"] .bg-fx::after { display: none; }
+
+/* insignias de logros */
+.ach-badge { flex-shrink: 0; }
+.ach-badge.on { filter: drop-shadow(0 0 8px color-mix(in srgb, currentColor 40%, transparent)); }
+.ach.locked .ach-name { color: var(--muted); }
+.ach { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
+.ach.got { border-color: var(--line2); }
+.ach-name { font-family: var(--brand); text-transform: uppercase; letter-spacing: 1px; font-size: 16px; }
+.toast { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
+.toast-name { font-family: var(--brand); text-transform: uppercase; }
+
+/* emblemas de lenguaje */
+.lang-card .lang-emblem { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--lc) 35%, transparent)); }
+.lang-card:hover .lang-emblem { transform: translateX(2px) skewX(-4deg); }
+.lang-card .nm { letter-spacing: 2px; }
+
+/* logo de inicio: glitch corto cuando termina de encenderse */
+.neon-logo { animation: logoGlitch 0.45s steps(1) 2.15s 1 both; }
+@keyframes logoGlitch {
+  0% { transform: none; }
+  15% { transform: translate(-5px, 1px) skewX(-10deg); filter: drop-shadow(4px 0 var(--red)) drop-shadow(-4px 0 var(--blue)); }
+  30% { transform: translate(4px, -1px) skewX(6deg); filter: drop-shadow(-3px 0 var(--red)) drop-shadow(3px 0 var(--blue)); }
+  50% { transform: translate(-2px, 0); filter: drop-shadow(2px 0 var(--red)) drop-shadow(-2px 0 var(--blue)); }
+  70% { transform: translate(1px, 0); filter: none; }
+  100% { transform: none; filter: none; }
+}
+html.calm .view h2, html.calm .neon-logo { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .view h2, .neon-logo { animation: none !important; } }

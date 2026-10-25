@@ -1,72 +1,53 @@
-import type { ReactElement } from "react";
 import type { LangId } from "../types";
-import { LANGS } from "../data/curriculum";
+import { LANGS, LANG_ORDER } from "../data/curriculum";
 
 /**
- * Emblemas originales para cada lenguaje (no son los logos oficiales, que son
- * marcas registradas): un motivo de la "personalidad" técnica de cada uno.
+ * Emblema de lenguaje con forma de "datashard": placa angular con el monograma
+ * desdoblado en rojo y cian (aberración cromática), código de barras y número de serie.
+ * Es un diseño propio: no usa los logos oficiales, que son marcas registradas.
  */
-const S = { fill: "none", strokeWidth: 3.2, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 
-const ART: Record<LangId, (c: string) => ReactElement> = {
-  // indentación: el bloque es la sangría
-  python: (c) => (
-    <g {...S} stroke={c}>
-      <path d="M17 21h14" /><path d="M23 29h18" /><path d="M29 37h14" /><path d="M23 45h10" />
-      <circle cx="35" cy="21" r="1.6" fill={c} /><circle cx="35" cy="17" r="1.6" fill={c} />
-    </g>
-  ),
-  // llaves con un rayo: rápido, dinámico, en todas partes
-  javascript: (c) => (
-    <g {...S} stroke={c}>
-      <path d="M22 16c-5 0-5 3-5 7s0 5-4 7c4 2 4 3 4 7s0 7 5 7M42 16c5 0 5 3 5 7s0 5 4 7c-4 2-4 3-4 7s0 7-5 7" />
-      <path d="M34 19l-6 12h8l-6 12" fill={c} fillOpacity="0.25" />
-    </g>
-  ),
-  // genérico <T>: tipos
-  typescript: (c) => (
-    <g {...S} stroke={c}>
-      <path d="M21 20 11 32l10 12M43 20l10 12-10 12" />
-      <path d="M25 24h14M32 24v18" />
-    </g>
-  ),
-  // cubos apilados: objetos y la máquina virtual
-  java: (c) => (
-    <g {...S} stroke={c}>
-      <path d="M32 14l10 5-10 5-10-5z" fill={c} fillOpacity="0.2" /><path d="M22 19v10l10 5 10-5V19" /><path d="M32 24v10" />
-      <path d="M21 36l-8 4v8l8 4 8-4v-8z" /><path d="M43 36l-8 4v8l8 4 8-4v-8z" />
-    </g>
-  ),
-  // nota musical con sostenido
-  csharp: (c) => (
-    <g {...S} stroke={c}>
-      <circle cx="21" cy="42" r="5" fill={c} fillOpacity="0.25" /><path d="M26 42V18l12-3v6l-12 3" />
-      <path d="M40 30v18M46 29v18M37 36h12M37 42h12" />
-    </g>
-  ),
-  // concurrencia: tareas que corren en paralelo y se comunican
-  go: (c) => (
-    <g {...S} stroke={c}>
-      <circle cx="18" cy="22" r="5" /><circle cx="46" cy="22" r="5" /><circle cx="32" cy="45" r="5" fill={c} fillOpacity="0.25" />
-      <path d="M24 22h16M43 27l-8 13M21 27l8 13" /><path d="M36 19l4 3-4 3" />
-    </g>
-  ),
-  // escudo con cerradura: seguridad de memoria
-  rust: (c) => (
-    <g {...S} stroke={c}>
-      <path d="M32 13l15 6v10c0 10-6 17-15 21-9-4-15-11-15-21V19z" fill={c} fillOpacity="0.12" />
-      <circle cx="32" cy="29" r="4" /><path d="M32 33v7" />
-    </g>
-  ),
-};
+const MONO: Record<LangId, string> = { python: "PY", javascript: "JS", typescript: "TS", java: "JV", csharp: "C#", go: "GO", rust: "RS" };
+
+/** código de barras determinístico por lenguaje */
+function bars(lang: LangId): [number, number][] {
+  let seed = [...lang].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) >>> 0;
+  const out: [number, number][] = [];
+  let x = 14;
+  while (x < 46) {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    const w = 0.8 + ((seed >>> 16) % 3) * 0.8;
+    out.push([x, w]);
+    x += w + 1 + ((seed >>> 8) % 2);
+  }
+  return out;
+}
 
 export function LangEmblem({ lang, size = 56 }: { lang: LangId; size?: number }) {
   const color = LANGS[lang].color;
+  const mono = MONO[lang];
+  const small = size < 40;
+  const serial = `0x${String(LANG_ORDER.indexOf(lang) + 1).padStart(2, "0")}`;
   return (
     <svg className="lang-emblem" width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={LANGS[lang].name}>
-      <circle cx="32" cy="32" r="30" fill="var(--key-bg)" stroke={color} strokeOpacity="0.55" strokeWidth="1.5" />
-      <circle cx="32" cy="32" r="26" fill={color} fillOpacity="0.07" />
-      {ART[lang](color)}
+      {/* placa con esquinas cortadas */}
+      <polygon points="4,4 48,4 60,16 60,60 16,60 4,48" fill="var(--key-bg)" stroke={color} strokeWidth="2" />
+      <polygon points="4,4 48,4 60,16 60,60 16,60 4,48" fill={color} fillOpacity="0.08" />
+      {/* franja lateral y muesca */}
+      <rect x="4" y="12" width="4" height="30" fill={color} />
+      <polygon points="48,4 60,16 54,16 48,10" fill={color} />
+      {!small && (
+        <>
+          <text x="56" y="12.5" fontSize="5" fill={color} fontFamily="'JetBrains Mono', monospace" textAnchor="end" opacity="0.9">{serial}</text>
+          {bars(lang).map(([x, w], i) => <rect key={i} x={x} y="50" width={w} height="5" fill={color} opacity="0.75" />)}
+        </>
+      )}
+      {/* monograma con aberración cromática */}
+      <g fontFamily="'Chakra Petch', sans-serif" fontWeight="700" fontSize={small ? 26 : 22} textAnchor="middle" letterSpacing="-0.5">
+        <text x={small ? 33.5 : 34.6} y={small ? 41 : 39} fill="#ff003c" opacity="0.85">{mono}</text>
+        <text x={small ? 30.5 : 31.4} y={small ? 41 : 39} fill="#02d7f2" opacity="0.85">{mono}</text>
+        <text x={small ? 32 : 33} y={small ? 41 : 39} fill="var(--strong)">{mono}</text>
+      </g>
     </svg>
   );
 }

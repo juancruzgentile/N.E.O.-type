@@ -3,16 +3,28 @@
 ## Preparar el entorno
 
 ```bash
-npm install
+npm ci          # respeta el lockfile; .npmrc desactiva los scripts de instalación
 npm run dev
 ```
 
 Antes de abrir un pull request, verificá que pasen:
 
 ```bash
-npm run build   # typecheck + build
-npm run check   # validación de los generadores de código
+npm run build          # typecheck + build (incluye la Content Security Policy)
+npm run check          # validación de los generadores de código
+npm run test:security  # validación de datos y CSP
 ```
+
+Registrá los cambios visibles en `CHANGELOG.md`, en la sección de la próxima versión.
+
+## Seguridad
+
+- No uses `innerHTML`, `dangerouslySetInnerHTML` ni `eval`: la CSP y Trusted Types los bloquean en el build.
+- La app no hace conexiones de red. Si una función nueva lo necesitara, hay que discutirlo antes (cambia el modelo
+  de privacidad).
+- Todo dato nuevo que se guarde debe validarse en `src/sanitize.ts`.
+- Evitá agregar dependencias. Si es imprescindible, fijá la versión exacta.
+- Las vulnerabilidades se reportan en privado (ver `SECURITY.md`).
 
 ## Agregar un lenguaje
 

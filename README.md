@@ -9,6 +9,8 @@ de 7 lenguajes, con un sistema adaptativo que te entrena cada símbolo hasta dom
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-7-646cff?logo=vite&logoColor=white)
 ![Offline](https://img.shields.io/badge/funciona-sin%20internet-2bff9a)
+[![CI](https://github.com/juancruzgentile/N.E.O.-type/actions/workflows/ci.yml/badge.svg)](https://github.com/juancruzgentile/N.E.O.-type/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/juancruzgentile/N.E.O.-type/actions/workflows/codeql.yml/badge.svg)](https://github.com/juancruzgentile/N.E.O.-type/actions/workflows/codeql.yml)
 ![License](https://img.shields.io/badge/licencia-MIT-yellow)
 
 ![Práctica](docs/practica.jpg)
@@ -37,7 +39,8 @@ un título que explica qué hace.
 - **Interfaz viva**: teclado flotante, fondo de partículas que late con la música, chispas de la tecla al código,
   brillo según tu racha de aciertos y animación al desbloquear cada símbolo. Todo se apaga desde Ajustes y respeta
   la preferencia del sistema de reducir movimiento.
-- **Logros y temas**: 22 logros con insignias y 5 temas de color (Neón, Synthwave, Matrix, Tokio noche y Claro).
+- **Logros y temas**: 22 logros con insignias y 6 temas de color (Cyber, Neón, Synthwave, Matrix, Tokio noche y Claro),
+  con una estética cyberpunk que nunca toca la legibilidad del código.
 - **Tu perfil**: pantalla de inicio con efecto de cartel de neón, tu nombre y tu foto (o uno de los 12 avatares incluidos).
 - **100 % offline**: el build es un único `NeonType.html` que se abre con doble clic. El progreso queda en tu navegador.
 
@@ -71,7 +74,7 @@ Requiere [Node.js](https://nodejs.org) 20 o superior.
 ```bash
 git clone https://github.com/juancruzgentile/N.E.O.-type.git
 cd N.E.O.-type
-npm install
+npm ci             # instala exactamente lo del lockfile, sin scripts de instalación
 npm run build      # genera NeonType.html, autocontenido
 ```
 
@@ -92,6 +95,8 @@ Atajos para quien no quiera usar la terminal:
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Typecheck + build de un solo archivo (`dist/index.html` → `NeonType.html`) |
 | `npm run check` | Genera miles de fragmentos y verifica que ninguno use símbolos fuera de la ruta de su lenguaje |
+| `npm run test:security` | Tests de validación de datos y de la Content Security Policy del build |
+| `npm run audit` | Auditoría de vulnerabilidades y firmas de las dependencias |
 
 ## Cómo funciona el modo guiado
 
@@ -121,6 +126,7 @@ src/
 │   ├── music.ts         # motor de música generativa (instrumentos, estaciones, secuenciador)
 │   └── tracks.ts        # canciones del usuario en IndexedDB
 ├── fx/fx.ts             # efectos sobre el DOM con Web Animations API (sin re-render de React)
+├── sanitize.ts          # validación estricta de datos importados y guardados
 └── components/          # interfaz en React
 ```
 
@@ -130,6 +136,18 @@ En una app de mecanografía la latencia importa más que cualquier efecto. Por e
 se aplican directo sobre el DOM, el fondo se dibuja en un canvas limitado a ~30 fps que se pausa con la pestaña
 oculta, y los movimientos continuos usan solo `transform` y `opacity`. Los ciclos de las auroras (31, 43 y 59 s) y del
 teclado (13, 17 y 23 s) son números primos para que las capas casi nunca vuelvan a coincidir.
+
+## Privacidad y seguridad
+
+- **100 % local**: sin servidor, sin cuentas y sin telemetría. El progreso, el perfil y tus canciones quedan solo en
+  tu navegador.
+- **Sin red**: la Content Security Policy del build prohíbe cualquier conexión, así que ningún dato puede salir de
+  tu equipo.
+- **Datos validados**: las copias de seguridad importadas se reconstruyen campo por campo con una lista blanca.
+- **Cadena de suministro cuidada**: dependencias mínimas y fijadas, instalación sin scripts, auditoría, CodeQL y
+  Dependabot.
+
+Detalles y cómo reportar un problema: [SECURITY.md](SECURITY.md). Historial de cambios: [CHANGELOG.md](CHANGELOG.md).
 
 ## Contribuir
 

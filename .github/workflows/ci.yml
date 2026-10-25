@@ -5,15 +5,33 @@ on:
     branches: [main]
   pull_request:
 
+# el token del workflow solo puede leer el repositorio
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
+      # .npmrc define ignore-scripts=true: ninguna dependencia ejecuta código al instalarse
       - run: npm ci
+      - name: Auditoría de dependencias
+        run: npm audit --audit-level=moderate
+      - name: Firmas y procedencia de los paquetes
+        run: npm audit signatures
       - run: npm run build
       - run: npm run check
+      - name: Tests de seguridad
+        run: npm run test:security

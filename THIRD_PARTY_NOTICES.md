@@ -43,7 +43,7 @@ Las fuentes se incluyen sin modificar, a través de los paquetes de [Fontsource]
 | --- | --- | --- |
 | JetBrains Mono | SIL OFL 1.1 | Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) |
 | Rajdhani | SIL OFL 1.1 | Copyright (c) 2014 Indian Type Foundry (info@indiantypefoundry.com) |
-| Orbitron | SIL OFL 1.1 | Copyright 2018 The Orbitron Project Authors (https://github.com/theleagueof/orbitron) |
+| Chakra Petch | SIL OFL 1.1 | Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch) |
 
 ```
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

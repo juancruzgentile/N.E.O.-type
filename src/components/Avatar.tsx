@@ -59,17 +59,28 @@ export function Avatar({ value, name, size = 104, online = false }: { value: str
 }
 
 /** Recorta al centro y reduce una imagen a 256×256 JPEG (pesa poco para guardar en el navegador). */
+const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
 export function fileToAvatar(file: File): Promise<string> {
+  if (!IMAGE_TYPES.includes(file.type)) return Promise.reject(new Error("Formato no soportado (usá PNG, JPG, WebP o GIF)"));
+  if (file.size > MAX_IMAGE_BYTES) return Promise.reject(new Error("La imagen supera los 10 MB"));
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const im = new Image();
     im.onload = () => {
+      if (im.width > 12000 || im.height > 12000) {
+        URL.revokeObjectURL(url);
+        reject(new Error("La imagen es demasiado grande"));
+        return;
+      }
       const side = Math.min(im.width, im.height);
       const c = document.createElement("canvas");
       c.width = c.height = 256;
       const g = c.getContext("2d")!;
       g.drawImage(im, (im.width - side) / 2, (im.height - side) / 2, side, side, 0, 0, 256, 256);
       URL.revokeObjectURL(url);
+      // se re-codifica desde el canvas: se descartan metadatos (EXIF, ubicación GPS) y cualquier contenido extra
       resolve("img:" + c.toDataURL("image/jpeg", 0.85));
     };
     im.onerror = () => {
@@ -87,11 +98,16 @@ export function AvatarPicker({ value, name, onChange }: { value: string; name: s
       <label className={`av-opt upload ${value.startsWith("img:") ? "on" : ""}`} title="Subir una foto">
         {value.startsWith("img:") ? <img src={value.slice(4)} alt="" /> : <span>+ Foto</span>}
         <input
-          type="file" accept="image/*" hidden
+          type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden
           onChange={async (e) => {
             const f = e.target.files?.[0];
-            if (f) onChange(await fileToAvatar(f));
             e.target.value = "";
+            if (!f) return;
+            try {
+              onChange(await fileToAvatar(f));
+            } catch (err) {
+              alert((err as Error).message);
+            }
           }}
         />
       </label>

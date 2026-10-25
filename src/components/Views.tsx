@@ -1,12 +1,14 @@
 import { type CSSProperties, useMemo, useRef, useState } from "react";
 import type { AppState, ErrorMode, LangId, LayoutId, Settings, ThemeId } from "../types";
 import { ACHIEVEMENTS } from "../engine/achievements";
+import { AchBadge } from "./AchBadge";
 import { LANGS, LANG_ORDER, SYMBOL_INFO } from "../data/curriculum";
 import { LAYOUTS, comboText, isTypeable } from "../data/layouts";
 import { type KeyInfo, msToWpm, playableChars, progressToNext, stageInfos } from "../engine/stats";
 import { DEFAULT_SETTINGS, getProfile, profileKey, today } from "../store";
 import { LangEmblem } from "./LangEmblem";
 import { AvatarPicker } from "./Avatar";
+import { MAX_IMPORT_BYTES } from "../sanitize";
 import { Keyboard, heatColor } from "./Keyboard";
 import type { Challenge } from "./PracticeView";
 
@@ -281,7 +283,7 @@ export function AchievementsView({ state }: { state: AppState }) {
           const prog = !ts && a.progress ? a.progress(state) : null;
           return (
             <div key={a.id} className={`ach ${a.tier} ${ts ? "got" : "locked"}`}>
-              <div className="ach-icon" aria-hidden="true">{a.icon}</div>
+              <AchBadge id={a.id} tier={a.tier} unlocked={!!ts} />
               <div className="ach-body">
                 <div className="ach-name">{a.name}</div>
                 <div className="ach-desc">{a.desc}</div>
@@ -300,6 +302,7 @@ export function AchievementsView({ state }: { state: AppState }) {
 }
 
 export const THEMES: { id: ThemeId; name: string; colors: string[] }[] = [
+  { id: "cyber", name: "Cyber", colors: ["#07070c", "#f3e600", "#ff003c", "#02d7f2"] },
   { id: "neon", name: "Neón", colors: ["#030912", "#19d3ff", "#ff4fd8", "#2bff9a"] },
   { id: "synthwave", name: "Synthwave", colors: ["#140620", "#ff7edb", "#36f9f6", "#fede5d"] },
   { id: "matrix", name: "Matrix", colors: ["#000a03", "#39ff6a", "#c6ff3d", "#2bd16b"] },
@@ -333,6 +336,11 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
   };
   const onFile = async (f: File | undefined) => {
     if (!f) return;
+    if (f.size > MAX_IMPORT_BYTES) {
+      setMsg("No se pudo importar: el archivo es demasiado grande.");
+      return;
+    }
+    if (!confirm("Importar reemplaza todo tu progreso actual por el del archivo. ¿Continuar?")) return;
     try {
       importJson(await f.text());
       setMsg("Progreso importado.");
@@ -449,7 +457,7 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
         <div className="setting">
           <label>Acerca de</label>
           <div className="help">
-            N.E.O.-type v1.1 · Licencia MIT. Usa React (MIT) y las fuentes JetBrains Mono, Rajdhani y Orbitron
+            N.E.O.-type v1.3 · Licencia MIT. Usa React (MIT) y las fuentes JetBrains Mono, Rajdhani y Chakra Petch
             (SIL Open Font License 1.1). Los nombres de los lenguajes son marcas de sus respectivos dueños y se usan solo
             para identificarlos; los emblemas son diseños propios. El detalle está en THIRD_PARTY_NOTICES.md.
           </div>

@@ -6,6 +6,7 @@ import { ACHIEVEMENTS, newAchievements } from "./engine/achievements";
 import { sound } from "./sound";
 import { Background } from "./components/Background";
 import { Splash } from "./components/Splash";
+import { AchBadge } from "./components/AchBadge";
 import { Footer, Header, Sidebar } from "./components/Chrome";
 import { useMusicInit } from "./components/MusicPlayer";
 import { type Challenge, PracticeView } from "./components/PracticeView";
@@ -140,7 +141,7 @@ export default function App() {
           if (!a) return null;
           return (
             <div key={t.key} className={`toast ${a.tier}`}>
-              <span className="ach-icon" aria-hidden="true">{a.icon}</span>
+              <AchBadge id={a.id} tier={a.tier} unlocked size={56} />
               <div>
                 <div className="toast-kicker">LOGRO DESBLOQUEADO</div>
                 <div className="toast-name">{a.name}</div>

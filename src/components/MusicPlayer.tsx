@@ -37,11 +37,12 @@ export function MusicPlayer({ update }: { update: Update }) {
     if (!isUser) saveStation(music.snap.station);
   };
 
-  const onFiles = async (files: FileList | null) => {
+  const onFiles = async (files: File[]) => {
     if (!files?.length) return;
-    const tracks = await addTracks(files);
+    const { tracks, rejected } = await addTracks(files);
     music.setTracks(tracks);
     setShowList(true);
+    if (rejected.length) alert("No se agregaron:\n" + rejected.join("\n"));
   };
 
   return (
@@ -106,7 +107,7 @@ export function MusicPlayer({ update }: { update: Update }) {
           <button className="btn small" onClick={() => fileRef.current?.click()}>+ Agregar canciones</button>
         </div>
       )}
-      <input ref={fileRef} type="file" accept="audio/*" multiple hidden onChange={(e) => void onFiles(e.target.files)} />
+      <input ref={fileRef} type="file" accept="audio/*" multiple hidden onChange={(e) => { const list = Array.from(e.target.files ?? []); e.target.value = ""; void onFiles(list); }} />
     </div>
   );
 }

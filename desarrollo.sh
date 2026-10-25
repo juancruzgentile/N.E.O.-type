@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -e
 cd "$(dirname "$0")"
-[ -d node_modules ] || npm install
+[ -d node_modules ] || npm ci
 npm run dev
