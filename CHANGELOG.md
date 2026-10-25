@@ -56,7 +56,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Modo libre, desafíos (sprints y precisión perfecta) y estadísticas con mapa de calor.
 - Build de un solo archivo que funciona sin conexión.
 
-[1.3.0]: https://github.com/juancruzgentile/N.E.O.-type/releases/tag/v1.3.0
-[1.2.0]: https://github.com/juancruzgentile/N.E.O.-type/releases/tag/v1.2.0
-[1.1.0]: https://github.com/juancruzgentile/N.E.O.-type/releases/tag/v1.1.0
-[1.0.0]: https://github.com/juancruzgentile/N.E.O.-type/releases/tag/v1.0.0
+[1.3.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/e0ac0e7...main
+[1.2.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/d7abd94...e0ac0e7
+[1.1.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/2242a79...d7abd94
+[1.0.0]: https://github.com/juancruzgentile/N.E.O.-type/commit/2242a79
