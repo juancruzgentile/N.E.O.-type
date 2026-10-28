@@ -107,14 +107,18 @@ export function Tutorial({ name, lang, mode, animations, onClose }: Props) {
   const next = useCallback(() => (step >= last ? onClose() : setStep((s) => s + 1)), [last, onClose, step]);
   const prev = useCallback(() => setStep((s) => Math.max(-1, s - 1)), []);
 
-  // el resto de la app queda inerte mientras el diálogo está abierto; al cerrar vuelve el foco anterior
+  // el resto de la app queda inerte mientras el diálogo está abierto; al cerrar, el foco vuelve a un lugar útil
   useEffect(() => {
     const before = document.activeElement as HTMLElement | null;
     const app = document.querySelector<HTMLElement>(".app");
     app?.setAttribute("inert", "");
     return () => {
       app?.removeAttribute("inert");
-      if (before && before !== document.body && before.isConnected) before.focus();
+      // si el control que lo abrió ya no existe (p. ej. el botón de Ajustes), el foco va al área de escritura
+      const target = before && before !== document.body && before.isConnected
+        ? before
+        : document.querySelector<HTMLElement>(".ta-hidden");
+      target?.focus();
     };
   }, []);
 

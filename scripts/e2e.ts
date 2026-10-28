@@ -106,21 +106,28 @@ try {
     await focusPractice(page);
     const text = await lessonText(page);
     const firstLine = text.split("\n")[0].trimStart();
-    await page.evaluate((t) => navigator.clipboard.writeText(t).catch(() => {}), firstLine);
-    // cuenta los pegados que llegan al área de escritura, para no confundir "bloqueado" con "nunca llegó"
+    // registra el texto de cada pegado que llega al área de escritura, para no confundir
+    // "bloqueado" con "nunca llegó" ni con "llegó otra cosa"
     await page.evaluate(() => {
-      const w = window as unknown as { pastes: number };
-      w.pastes = 0;
+      const w = window as unknown as { pasted: string[] };
+      w.pasted = [];
       const ta = document.querySelector<HTMLTextAreaElement>(".ta-hidden")!;
-      ta.addEventListener("paste", () => w.pastes++, true);
-      ta.addEventListener("input", (e) => { if ((e as InputEvent).inputType === "insertFromPaste") w.pastes++; }, true);
+      ta.addEventListener("paste", (e) => w.pasted.push(e.clipboardData?.getData("text/plain") ?? ""), true);
+      ta.addEventListener("input", (e) => {
+        if ((e as InputEvent).inputType === "insertFromPaste") w.pasted.push((e as InputEvent).data ?? "");
+      }, true);
     });
-    const pastes = () => page.evaluate(() => (window as unknown as { pastes: number }).pastes);
-    await page.keyboard.press("Control+V");
-    await page.waitForTimeout(50);
-    const pasted = (await pastes()) > 0;
-    // respaldo si el portapapeles no está disponible: evento de pegado igual al del navegador
-    if (!pasted) {
+    const pastedTexts = () => page.evaluate(() => (window as unknown as { pasted: string[] }).pasted);
+    // caso real: solo cuenta si el portapapeles quedó con el texto del ejercicio
+    const wrote = await page.evaluate((t) => navigator.clipboard.writeText(t).then(() => true, () => false), firstLine);
+    let real = false;
+    if (wrote) {
+      await page.keyboard.press("Control+V");
+      await page.waitForTimeout(50);
+      real = (await pastedTexts()).includes(firstLine);
+    }
+    // respaldo, informado aparte: el evento que genera el navegador al pegar, con el texto exacto
+    if (!real) {
       await page.evaluate((t) => {
         const ta = document.querySelector<HTMLTextAreaElement>(".ta-hidden")!;
         ta.value = t;
@@ -128,7 +135,8 @@ try {
       }, firstLine);
     }
     await page.waitForTimeout(150);
-    ok((await pastes()) > 0, `el pegado llega al área de escritura${pasted ? " (Ctrl+V real)" : " (evento simulado)"}`);
+    const how = real ? "Ctrl+V real" : `evento simulado; ${wrote ? "Ctrl+V no entregó el texto" : "no se pudo preparar el portapapeles"}`;
+    ok((await pastedTexts()).includes(firstLine), `el texto del ejercicio llega al área de escritura (${how})`);
     ok((await typedCount(page)) === 0, "y aun así no avanza la lección");
     await page.keyboard.insertText(firstLine[0]);
     ok((await typedCount(page)) === 1, "teclear sí avanza");
@@ -214,6 +222,15 @@ try {
     const { page, ctx } = await open(browser, seedState({ settings: { tutorialDone: false } }));
     await page.getByText("Te damos la bienvenida a").waitFor({ timeout: 5000 });
     ok(await page.getByText("no reemplaza el estudio").isVisible(), "la bienvenida muestra el aviso");
+    {
+      // primera bienvenida: Esc la cierra y el foco va a la práctica
+      const first = await open(browser, seedState({ settings: { tutorialDone: false } }));
+      await first.page.getByText("Te damos la bienvenida a").waitFor({ timeout: 5000 });
+      await first.page.keyboard.press("Escape");
+      ok(await first.page.evaluate(() => document.activeElement?.classList.contains("ta-hidden") ?? false),
+        "cerrar la primera bienvenida con Esc deja el foco en el área de escritura");
+      await first.ctx.close();
+    }
     ok((await page.locator(".app[inert]").count()) === 1, "la app queda inerte detrás del diálogo");
     await page.keyboard.press("Enter");
     await page.locator(".tour-spot").waitFor();
@@ -241,6 +258,8 @@ try {
     for (let i = 0; i < 5; i++) await page.keyboard.press("Enter");
     await page.locator(".tour").waitFor({ state: "detached" });
     ok((await state(page)).settings.tutorialDone === true, "terminar el recorrido lo marca como visto");
+    ok(await page.evaluate(() => document.activeElement !== document.body && !document.activeElement?.closest(".tour")),
+      "al terminar, el foco no queda perdido en el documento");
     ok((await page.locator(".app[inert]").count()) === 0, "al cerrar, la app vuelve a ser interactiva");
     await page.reload();
     await page.locator(".code-box").waitFor();
@@ -250,6 +269,8 @@ try {
     await page.getByText("Te damos la bienvenida a").waitFor({ timeout: 5000 });
     await page.keyboard.press("Escape");
     ok((await page.locator(".tour-back").count()) === 0, "se repite desde Ajustes y Esc lo cierra");
+    ok(await page.evaluate(() => document.activeElement?.classList.contains("ta-hidden") ?? false),
+      "al cerrar, el foco queda en el área de escritura");
     await page.getByRole("button", { name: "Ajustes" }).click();
     await page.getByRole("button", { name: "Ver tutorial de bienvenida" }).click();
     await page.getByRole("button", { name: "Saltar (Esc)" }).focus();
@@ -302,13 +323,23 @@ try {
     }
     ok(spotsOk, `${label}: cada paso resalta un elemento visible y la tarjeta entra en pantalla (${total} pasos)`);
     await page.locator(".tour").waitFor({ state: "detached" });
-    const scrollX = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    ok(scrollX <= 0, `${label}: sin desplazamiento horizontal`);
-    await page.getByRole("button", { name: "Ajustes" }).click();
-    await page.getByRole("button", { name: "Exportar progreso" }).waitFor({ timeout: 5000 });
-    await page.getByRole("button", { name: "Estadísticas" }).click();
-    ok((await page.locator('.mobile-nav button[aria-current="page"]').textContent())?.includes("Estadísticas") ?? false,
-      `${label}: la navegación compacta lleva a Ajustes y Estadísticas`);
+    const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    // cada vista por separado: la práctica puede entrar y otra vista desbordar
+    const wide: string[] = [];
+    if ((await overflow()) > 0) wide.push(`Práctica (${await overflow()} px)`);
+    let navOk = true;
+    for (const name of ["Rutas", "Estadísticas", "Desafíos", "Logros", "Ajustes", "Práctica"]) {
+      await page.locator(".mobile-nav").getByRole("button", { name }).click();
+      await page.waitForTimeout(200);
+      navOk &&= (await page.locator('.mobile-nav button[aria-current="page"]').textContent())?.includes(name) ?? false;
+      const px = await overflow();
+      if (px > 0) wide.push(`${name} (${px} px)`);
+    }
+    await page.getByTitle("Elegir lenguaje").click();
+    await page.waitForTimeout(200);
+    if ((await overflow()) > 0) wide.push(`Lenguajes (${await overflow()} px)`);
+    ok(navOk, `${label}: la navegación compacta lleva a cada sección`);
+    ok(wide.length === 0, `${label}: ninguna vista se desplaza de costado${wide.length ? " — desbordan: " + wide.join(", ") : ""}`);
     await ctx.close();
   }
 } finally {

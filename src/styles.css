@@ -377,6 +377,7 @@ button.pill:hover { border-color: var(--cyan); background: var(--cyan-soft); }
 .lang-card .meta { font-family: var(--mono); font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
 .lang-card .go { color: var(--cyan); font-weight: 700; letter-spacing: 1px; }
 
+.table-wrap { overflow-x: auto; max-width: 100%; }
 .table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 14px; }
 .table th { text-align: left; font-family: var(--ui); letter-spacing: 1.5px; color: var(--muted); font-weight: 700; padding: 8px 10px; border-bottom: 1px solid var(--line2); }
 .table td { padding: 7px 10px; border-bottom: 1px solid color-mix(in srgb, var(--line2) 35%, transparent); }

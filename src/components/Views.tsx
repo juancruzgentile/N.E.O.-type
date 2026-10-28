@@ -257,27 +257,29 @@ export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
       </div>
 
       <div className="section">SÍMBOLOS</div>
-      <table className="table">
-        <thead>
-          <tr><th>SÍMBOLO</th><th>CÓMO SE ESCRIBE</th><th>MUESTRAS</th><th>VELOCIDAD</th><th>PRECISIÓN</th><th>ESTADO</th></tr>
-        </thead>
-        <tbody>
-          {infos.map((k) => (
-            <tr key={k.char}>
-              <td className="sym" style={{ color: heatColor(k) }}>{k.char}</td>
-              <td style={{ color: "var(--yellow)" }}>{comboText(layout, k.char)}</td>
-              <td>{k.samples}</td>
-              <td>{k.wpm ? `${Math.round(k.wpm)} WPM` : "—"}</td>
-              <td>{k.samples ? `${Math.round(k.accuracy * 100)}%` : "—"}</td>
-              <td>
-                <span className={`state ${k.state}`}>
-                  {{ locked: "bloqueado", new: "sin calibrar", learning: "aprendiendo", mastered: "dominado" }[k.state]}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr><th>SÍMBOLO</th><th>CÓMO SE ESCRIBE</th><th>MUESTRAS</th><th>VELOCIDAD</th><th>PRECISIÓN</th><th>ESTADO</th></tr>
+          </thead>
+          <tbody>
+            {infos.map((k) => (
+              <tr key={k.char}>
+                <td className="sym" style={{ color: heatColor(k) }}>{k.char}</td>
+                <td style={{ color: "var(--yellow)" }}>{comboText(layout, k.char)}</td>
+                <td>{k.samples}</td>
+                <td>{k.wpm ? `${Math.round(k.wpm)} WPM` : "—"}</td>
+                <td>{k.samples ? `${Math.round(k.accuracy * 100)}%` : "—"}</td>
+                <td>
+                  <span className={`state ${k.state}`}>
+                    {{ locked: "bloqueado", new: "sin calibrar", learning: "aprendiendo", mastered: "dominado" }[k.state]}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="section">CALENDARIO</div>
       <div className="cal">

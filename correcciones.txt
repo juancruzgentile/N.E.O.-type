@@ -132,6 +132,21 @@ RONDA 4 — tutorial de bienvenida y navegación (informe-auditoria-3.md)
       foco atrapado con Tab, app inerte, textos de SQL y modo libre, y recorrido + navegación +
       sin desplazamiento horizontal a 1000 × 800 y 390 × 844.
 
+RONDA 5 — pendientes de la revisión de la ronda 4
+25. (Media) Estadísticas desbordaba 199 px a 390 × 844: la tabla de símbolos mide 552 px.
+    → La tabla va dentro de un contenedor con desplazamiento propio. (src/components/Views.tsx, src/styles.css)
+    → La prueba mide el ancho en cada vista (Práctica, Rutas, Estadísticas, Desafíos, Logros,
+      Ajustes y Lenguajes) a 1000 × 800 y 390 × 844, e informa cuáles desbordan. Sin la
+      corrección marca los mismos 199 px del informe.
+26. (Baja) Al cerrar el tutorial el foco quedaba en el documento: el botón de Ajustes que lo
+    abrió ya no existe cuando se cierra.
+    → Si el control de origen ya no está, el foco va al área de escritura de la práctica.
+      Pruebas: Esc en la primera bienvenida, al terminar el recorrido y al reabrirlo desde Ajustes.
+27. (Baja) La prueba de pegado contaba eventos pero no su contenido (con "ZZZZ" en el
+    portapapeles también pasaba).
+    → Registra el texto de cada pegado. El caso real solo vale si llega el texto exacto del
+      ejercicio; si no, se usa el evento simulado y el resultado dice por qué.
+
 VERIFICADO: tsc, build, npm test (check, logic, regression, security, e2e) y npm audit pasan.
 SIN PRUEBA AUTOMÁTICA: teclas muertas/composición, sonido real, sprint cronometrado y
 vista de estadísticas.
