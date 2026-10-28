@@ -22,6 +22,9 @@ auditorías de la v1.4.0. Detalle de cada corrección en `correcciones.txt`.
 - Modo calmo: corta todas las animaciones, no calcula el fondo oculto y los logros quedan visibles.
 - `npm run check` falla (código 1) si encuentra problemas.
 - Requisito de Node corregido a `^20.19.0 || >=22.12.0`.
+- Estadísticas ya no desborda en el celular: la tabla de símbolos se desplaza dentro de su recuadro.
+- Al cerrar el tutorial, el foco vuelve al área de escritura en lugar de perderse.
+- El CI corre en Ubuntu 24.04, porque Playwright todavía no instala el navegador en la 26.04.
 
 ### Agregado
 - Tutorial de bienvenida: mensaje inicial y recorrido de 5 pasos con foco sobre la pantalla de práctica

@@ -151,7 +151,9 @@ VERIFICADO: tsc, build, npm test (check, logic, regression, security, e2e) y npm
 SIN PRUEBA AUTOMÁTICA: teclas muertas/composición, sonido real, sprint cronometrado y
 vista de estadísticas.
 
-PENDIENTE (configuración de GitHub, no es código; se hace desde Settings del repo)
-   - Activar "Private vulnerability reporting" (SECURITY.md lo menciona y está apagado).
-   - Proteger main: exigir PR y que CI pase antes de integrar.
-   - Publicar releases con NeonType.html.
+CONFIGURACIÓN DE GITHUB (hecho el 2026-10-28)
+   - "Private vulnerability reporting" activado (SECURITY.md ya lo mencionaba).
+   - Regla "main": además de impedir borrar la rama y el force push, exige PR y que pase
+     el CI (build). Sin aprobaciones obligatorias y sin excepciones, también para el dueño.
+   - El CI corre en ubuntu-24.04: en ubuntu-latest (26.04) Playwright 1.56 no instala Chromium.
+   - Releases: la v1.5.0 se publica con NeonType.html adjunto.
