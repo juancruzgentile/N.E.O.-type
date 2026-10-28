@@ -5,7 +5,10 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
-Correcciones de las auditorías de la v1.4.0. Detalle de cada una en `correcciones.txt`.
+## [1.5.0] - 2026-10-28
+
+Tutorial de bienvenida, nombre unificado como N.E.O.-type, navegación en pantallas chicas y correcciones de las
+auditorías de la v1.4.0. Detalle de cada corrección en `correcciones.txt`.
 
 ### Corregido
 - "Precisión perfecta" ya no da récord con un error en el último carácter.
@@ -114,7 +117,9 @@ Correcciones de las auditorías de la v1.4.0. Detalle de cada una en `correccion
 - Modo libre, desafíos (sprints y precisión perfecta) y estadísticas con mapa de calor.
 - Build de un solo archivo que funciona sin conexión.
 
-[1.4.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/32c443d...main
+[Sin publicar]: https://github.com/juancruzgentile/N.E.O.-type/compare/v1.5.0...main
+[1.5.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/7494b31...v1.5.0
+[1.4.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/32c443d...7494b31
 [1.3.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/e0ac0e7...32c443d
 [1.2.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/d7abd94...e0ac0e7
 [1.1.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/2242a79...d7abd94

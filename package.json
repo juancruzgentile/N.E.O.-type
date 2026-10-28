@@ -1,7 +1,7 @@
 {
   "name": "neo-type",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Mecanografía para programadores: aprende a teclear código más rápido, estilo keybr.",
   "type": "module",
   "license": "MIT",
