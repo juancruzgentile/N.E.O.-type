@@ -71,7 +71,7 @@ un título que explica qué hace.
 
 ## Empezar
 
-Requiere [Node.js](https://nodejs.org) 20 o superior.
+Requiere [Node.js](https://nodejs.org) 20.19 o superior dentro de la rama 20, o 22.12 o superior (lo exige Vite 7).
 
 ```bash
 git clone https://github.com/juancruzgentile/N.E.O.-type.git

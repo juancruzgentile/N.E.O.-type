@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import type { LangId, View } from "./types";
 import { useAppState } from "./store";
-import { setFxEnabled } from "./fx/fx";
+import { onReducedMotionChange, reducedMotion, setFxEnabled } from "./fx/fx";
 import { ACHIEVEMENTS, newAchievements } from "./engine/achievements";
 import { sound } from "./sound";
 import { Background } from "./components/Background";
@@ -22,7 +22,10 @@ export default function App() {
   const [splash, setSplash] = useState(() => state.settings.showSplash || !state.settings.userName.trim());
   useMusicInit(state);
 
-  const { theme, animations } = state.settings;
+  const { theme } = state.settings;
+  // preferencia efectiva de movimiento: ajuste de la app y del sistema, en un solo lugar
+  const systemReduced = useSyncExternalStore(onReducedMotionChange, reducedMotion);
+  const animations = state.settings.animations && !systemReduced;
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;

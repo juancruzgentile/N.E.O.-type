@@ -1,5 +1,9 @@
 import type { ErrorMode, Sample } from "../types";
 
+/**
+ * "done" solo se devuelve si la última pulsación fue correcta. Si fue un error
+ * que igual cerró el texto (modos que avanzan) se devuelve "error" y `done` queda en true.
+ */
 export type InputResult = "ok" | "error" | "done" | "ignored";
 
 /**
@@ -75,10 +79,7 @@ export class TypingSession {
     this.lastTs = now;
     this.pos++;
     this.skipAuto();
-    if (this.done) {
-      this.endTs = now;
-      return "done";
-    }
+    if (this.done) this.endTs = now;
     return "error";
   }
 
@@ -105,22 +106,36 @@ export class TypingSession {
     return out;
   }
 
+  /** Posición actual si ya se falló en ella pero todavía no se completó (sesión cortada a mitad). */
+  pendingError(): number | null {
+    return !this.done && this.errors.has(this.pos) ? this.pos : null;
+  }
+
   samples(): Sample[] {
-    return this.typedPositions().map((i) => ({
+    const out: Sample[] = this.typedPositions().map((i) => ({
       char: this.text[i],
       ms: this.timing.get(i) ?? null,
       error: this.errors.has(i),
     }));
+    // el fallo en la posición pendiente también entrena ese símbolo
+    const p = this.pendingError();
+    if (p !== null) out.push({ char: this.text[p], ms: null, error: true });
+    return out;
   }
 
-  /** Resultado: wpm sobre caracteres correctos, precisión al primer intento. */
+  /**
+   * Resultado: wpm sobre caracteres correctos, precisión al primer intento.
+   * `attempted` suma la posición pendiente con error: cuenta para la precisión pero no en `chars`.
+   */
   result(now = this.endTs ?? performance.now()) {
     const typed = this.typedPositions();
     const correct = typed.filter((i) => !this.wrong.has(i)).length;
-    const errors = typed.filter((i) => this.errors.has(i)).length;
+    const pending = this.pendingError() === null ? 0 : 1;
+    const errors = typed.filter((i) => this.errors.has(i)).length + pending;
+    const attempted = typed.length + pending;
     const ms = this.startTs === null ? 0 : Math.max(1, now - this.startTs);
     const wpm = ms > 0 ? correct / 5 / (ms / 60000) : 0;
-    const acc = typed.length ? (typed.length - errors) / typed.length : 1;
-    return { wpm, acc, chars: typed.length, ms, errors };
+    const acc = attempted ? (attempted - errors) / attempted : 1;
+    return { wpm, acc, chars: typed.length, attempted, ms, errors };
   }
 }

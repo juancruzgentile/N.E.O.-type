@@ -127,12 +127,14 @@ export function progressToNext(lang: LangId, p: Profile, s: Settings): { mastere
   return { mastered: infos.filter((k) => k.state === "mastered").length, total: infos.length };
 }
 
-export function buildLesson(lang: LangId, p: Profile, s: Settings, mode: Mode, rng: Rng, lastConcept?: string): Lesson {
-  if (isTrack(lang)) return trackLesson(lang, p, s, mode, rng, lastConcept);
+/** `last`: lección anterior, para no repetir su concepto (lenguajes) o su título (rutas). */
+export function buildLesson(lang: LangId, p: Profile, s: Settings, mode: Mode, rng: Rng, last?: Lesson): Lesson {
+  if (isTrack(lang)) return trackLesson(lang, p, s, mode, rng, last?.title);
+  const avoid = last?.concept ? [last.concept] : [];
   if (mode === "free") {
     const allowed = fullSet(lang, s);
     const focus = pickFocus(lang, { ...p, stage: LANGS[lang].stages.length - 1 }, s);
-    const sn = findSnippet(lang, allowed, null, rng, lastConcept ? [lastConcept as never] : [], 40) ?? randomSnippet(lang, rng);
+    const sn = findSnippet(lang, allowed, null, rng, avoid, 40) ?? randomSnippet(lang, rng);
     return snippetLesson(sn, focus);
   }
   const allowed = unlockedSet(lang, p.stage, s);
@@ -142,7 +144,7 @@ export function buildLesson(lang: LangId, p: Profile, s: Settings, mode: Mode, r
   // símbolo recién desbloqueado o con pocas muestras → ejercicio dirigido
   if (info.state === "new" && info.samples < s.minSamples) return drillLesson(allowed, focus, rng);
   // calibrado → código real que lo use; si no hay todavía, ejercicio
-  const sn = findSnippet(lang, allowed, focus, rng, lastConcept ? [lastConcept as never] : []);
+  const sn = findSnippet(lang, allowed, focus, rng, avoid);
   if (sn && rng() < 0.75) return snippetLesson(sn, focus);
   return drillLesson(allowed, focus, rng);
 }

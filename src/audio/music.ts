@@ -490,6 +490,8 @@ class MusicEngine {
   private accents: { t: number; s: number }[] = [];
   private audioEl: HTMLAudioElement | null = null;
   private audioSrc: MediaElementAudioSourceNode | null = null;
+  /** id de la canción cargada en audioEl (para saber si sigue existiendo) */
+  private audioId: string | null = null;
   private tracks: UserTrack[] = [];
   private listeners = new Set<() => void>();
   private timeData = new Uint8Array(256);
@@ -576,6 +578,7 @@ class MusicEngine {
       this.audioSrc?.disconnect();
       this.audioEl = null;
       this.audioSrc = null;
+      this.audioId = null;
     }
   }
 
@@ -605,6 +608,8 @@ class MusicEngine {
 
   setTracks(tracks: UserTrack[]) {
     this.tracks = tracks;
+    // si se quitó la canción cargada (aunque esté en pausa), se descarta su reproductor
+    if (this.audioId && !tracks.some((t) => t.id === this.audioId)) this.stopAll();
     this.emit({ userTracks: tracks.map((t) => ({ id: t.id, name: t.name })) });
   }
 
@@ -621,6 +626,7 @@ class MusicEngine {
     void el.play();
     this.audioEl = el;
     this.audioSrc = src;
+    this.audioId = this.tracks[i].id;
     this.emit({ playing: true, source: "user", userIndex: i });
   }
 
@@ -630,12 +636,18 @@ class MusicEngine {
   }
 
   resume() {
-    if (this.snap.source === "user" && this.tracks.length) this.playUser(this.snap.userIndex);
+    // canción propia en pausa: se reanuda donde quedó en vez de recrear el audio
+    if (this.snap.source === "user" && this.audioEl) {
+      this.ensure();
+      void this.audioEl.play();
+      this.emit({ playing: true });
+    } else if (this.snap.source === "user" && this.tracks.length) this.playUser(this.snap.userIndex);
     else this.playStation(this.snap.station);
   }
 
   pause() {
-    this.stopAll();
+    if (this.snap.source === "user" && this.audioEl) this.audioEl.pause();
+    else this.stopAll();
     this.emit({ playing: false });
   }
 

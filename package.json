@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "check": "esbuild scripts/check-generators.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check.mjs --log-level=warning && node node_modules/.cache/check.mjs",
     "audit": "npm audit --audit-level=moderate && npm audit signatures",
+    "test:session": "esbuild scripts/check-session.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/session.mjs --log-level=warning && node node_modules/.cache/session.mjs",
     "test:security": "esbuild scripts/check-security.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/security.mjs --log-level=warning && node node_modules/.cache/security.mjs"
   },
   "dependencies": {
@@ -35,6 +36,6 @@
   },
   "author": "Juan Cruz Gentile",
   "engines": {
-    "node": ">=20"
+    "node": "^20.19.0 || >=22.12.0"
   }
 }

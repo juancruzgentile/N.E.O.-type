@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { AppState, LangId, Profile, Settings } from "./types";
 import { emptyProfile } from "./engine/stats";
 import { stageCount } from "./data/curriculum";
-import { MAX_IMPORT_BYTES, sanitizeState } from "./sanitize";
+import { MAX_IMPORT_BYTES, byteLength, sanitizeState } from "./sanitize";
 
 const KEY = "neontype:v1";
 
@@ -45,7 +45,7 @@ function load(): AppState {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return initialState();
-    if (raw.length > MAX_IMPORT_BYTES) return initialState();
+    if (byteLength(raw) > MAX_IMPORT_BYTES) return initialState();
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object" || (parsed as { version?: unknown }).version !== 1) return initialState();
     const state = clean(parsed);
@@ -98,10 +98,15 @@ export function useAppState() {
 
   const update = useCallback((fn: (s: AppState) => AppState) => setState(fn), []);
 
-  const exportJson = useCallback(() => JSON.stringify(state, null, 2), [state]);
+  // JSON compacto: con sangría una copia válida podía superar el límite de importación
+  const exportJson = useCallback(() => {
+    const json = JSON.stringify(state);
+    if (byteLength(json) > MAX_IMPORT_BYTES) throw new Error("el progreso supera el límite de 5 MB y no se podría volver a importar");
+    return json;
+  }, [state]);
 
   const importJson = useCallback((json: string) => {
-    if (json.length > MAX_IMPORT_BYTES) throw new Error("el archivo es demasiado grande");
+    if (byteLength(json) > MAX_IMPORT_BYTES) throw new Error("el archivo es demasiado grande");
     let parsed: unknown;
     try {
       parsed = JSON.parse(json);

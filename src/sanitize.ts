@@ -9,6 +9,8 @@ import type {
 } from "./types";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+/** Tamaño real en bytes (UTF-8), igual que File.size. `string.length` cuenta caracteres, no bytes. */
+export const byteLength = (s: string) => new TextEncoder().encode(s).length;
 export const MAX_AVATAR_CHARS = 400_000;
 
 const LANG_IDS: LangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "sql", "linux", "html", "css", "formats"];

@@ -13,13 +13,28 @@ function open(): Promise<IDBDatabase> {
   });
 }
 
+/** Resuelve recién cuando la transacción se confirma (no al terminar la petición) y cierra la conexión. */
 function tx<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T> {
   return open().then(
     (db) =>
       new Promise<T>((resolve, reject) => {
-        const req = fn(db.transaction(STORE, mode).objectStore(STORE));
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
+        let t: IDBTransaction;
+        try {
+          t = db.transaction(STORE, mode);
+        } catch (e) {
+          db.close();
+          reject(e);
+          return;
+        }
+        const req = fn(t.objectStore(STORE));
+        t.oncomplete = () => {
+          db.close();
+          resolve(req.result);
+        };
+        t.onabort = t.onerror = () => {
+          db.close();
+          reject(t.error ?? req.error);
+        };
       }),
   );
 }

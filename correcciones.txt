@@ -1,0 +1,72 @@
+CORRECCIONES — auditoría de N.E.O.-type v1.4.0 (commit 7494b31)
+Formato: problema → solución (archivo)
+
+1. "Precisión perfecta" aceptaba un error en el último carácter.
+   El motor devolvía "done" aunque la última tecla fuera errónea.
+   → input() ahora devuelve "error" en ese caso (con session.done = true) y la vista
+     cierra la lección mirando session.done. El récord exige errors === 0.
+   (src/engine/session.ts, src/components/PracticeView.tsx)
+
+2. El chequeo de generadores no fallaba con problemas (salía con código 0).
+   → process.exitCode = 1 si problems > 0. Verificado forzando un problema.
+   (scripts/check-generators.ts)
+
+3. Una copia exportada podía superar el límite de importación (5 MiB).
+   Se exportaba con sangría y los límites medían caracteres, no bytes.
+   → Export en JSON compacto; si aun así supera 5 MiB, avisa en vez de descargar.
+     Todos los límites usan byteLength() (bytes UTF-8, igual que File.size).
+   (src/store.ts, src/sanitize.ts, src/components/Views.tsx)
+
+4. Al cortar un sprint, el fallo en la posición pendiente desaparecía (100 % falso).
+   → pendingError(): ese fallo cuenta en precisión y muestras, pero no en "chars".
+     result() expone "attempted" y el sprint calcula la precisión con eso.
+   (src/engine/session.ts, src/components/PracticeView.tsx)
+
+5. Pegar texto contaba como tecleo (WPM absurdos).
+   → Se ignoran los inputType "insertFrom*" (pegar, arrastrar) y se bloquean
+     onPaste/onDrop. La composición y las teclas muertas siguen igual.
+   (src/components/PracticeView.tsx)
+
+6. Tab quedaba atrapado en el área de práctica (accesibilidad).
+   → Tab/Shift+Tab ya no se cancelan: mueven el foco normalmente. Se indica en el pie.
+   (src/components/PracticeView.tsx)
+
+7. Versión de Node anunciada incorrecta (">=20"; Vite 7 exige ^20.19 || >=22.12).
+   → Alineado en package.json (engines), package-lock.json, README y scripts .sh/.bat.
+
+8. Volumen/estación importados o restablecidos no llegaban al motor de música.
+   useMusicInit tenía una bandera que lo ejecutaba una sola vez.
+   → Carga de canciones (una vez) separada de dos efectos que sincronizan siempre.
+   (src/components/MusicPlayer.tsx)
+
+9. Pausar una canción propia la reiniciaba al reanudar.
+   → pause() solo pausa el <audio>; resume() lo reanuda donde quedó. Si se borra
+     esa canción, setTracks() descarta el reproductor.
+   (src/audio/music.ts)
+
+10. No se evitaba repetir el concepto en lenguajes (se comparaba título vs id).
+    → Lesson.concept (ConceptId tipado) se pasa a buildLesson; se quitó el "as never".
+    (src/types.ts, src/gen/index.ts, src/engine/stats.ts, src/components/PracticeView.tsx)
+
+11. El ejercicio CSS decía "16:9" pero podía generar 4:3 o 1:1.
+    → Título y código usan la misma proporción elegida. (src/tracks/web.ts)
+
+12. Reducción de movimiento incompleta; el fondo seguía calculándose oculto.
+    → App calcula una sola preferencia efectiva (ajuste + sistema, con listener) y
+      Background no arranca su bucle si está apagada. Regla CSS global en html.calm
+      que corta toda animación/transición. (src/App.tsx, src/fx/fx.ts, src/styles.css)
+
+13. IndexedDB daba por guardado antes de confirmar la transacción y no cerraba conexiones.
+    → tx() resuelve en transaction.oncomplete, rechaza en abort/error y cierra la conexión.
+    (src/audio/tracks.ts)
+
+TESTS NUEVOS
+   scripts/check-session.ts → npm run test:session (agregado al CI).
+   Cubre los puntos 1, 3 y 4.
+
+VERIFICADO: tsc, build, npm run check, test:security y test:session pasan.
+
+PENDIENTE (configuración de GitHub, no es código; se hace desde Settings del repo)
+   - Activar "Private vulnerability reporting" (SECURITY.md lo menciona y está apagado).
+   - Proteger main: exigir PR y que CI pase antes de integrar.
+   - Publicar releases con NeonType.html.

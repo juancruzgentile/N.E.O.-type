@@ -45,11 +45,11 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
   const mode = challenge ? "free" : state.mode;
 
   const rng = useRef(makeRng());
-  const lastConcept = useRef<string | undefined>(undefined);
+  const lastLesson = useRef<Lesson | undefined>(undefined);
   const make = useCallback(
     (p: Profile): Lesson => {
-      const l = buildLesson(lang, p, settings, mode, rng.current, lastConcept.current);
-      lastConcept.current = l.title;
+      const l = buildLesson(lang, p, settings, mode, rng.current, lastLesson.current);
+      lastLesson.current = l;
       return l;
     },
     [lang, settings.layout, settings.excludeMissing, settings.minSamples, settings.targetWpm, settings.minAccuracy, settings.distro, settings.dbEngine, mode],
@@ -143,10 +143,12 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     const partial = cur.samples();
     const r = cur.result();
     const chars = sp.chars + r.chars;
+    // la precisión incluye el fallo en la posición donde se cortó el sprint
+    const attempted = sp.chars + r.attempted;
     const errors = sp.errors + r.errors;
     const correct = sp.correct + (r.chars - cur.wrong.size);
     const wpm = correct / 5 / (challenge.seconds / 60);
-    const acc = chars ? (chars - errors) / chars : 1;
+    const acc = attempted ? (attempted - errors) / attempted : 1;
     const res: LessonResult = {
       ts: Date.now(), wpm, acc, chars, ms: challenge.seconds * 1000, score: lessonScore(chars, wpm, acc), kind: "sprint",
     };
@@ -207,7 +209,8 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     if (challenge?.kind === "perfect") {
       const key = challengeKey(lang, challenge);
       const prev = state.challenges[key];
-      const record = !prev || r.wpm > prev.wpm;
+      // el récord solo vale con cero errores
+      const record = r.errors === 0 && (!prev || r.wpm > prev.wpm);
       if (record) update((st) => ({ ...st, challenges: { ...st.challenges, [key]: { wpm: r.wpm, acc: 1, ts: Date.now() } } }));
       if (settings.sound) sound.done();
       setFinished({ title: "Precisión perfecta", wpm: r.wpm, acc: r.acc, record, best: prev });
@@ -266,7 +269,8 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
         }
       } else if (res !== "ignored" && settings.sound) sound.key();
       setVersion((v) => v + 1);
-      if (res === "done") onLessonDone();
+      // un error en el último carácter también cierra el texto (salvo en "perfecta", que ya reinició)
+      if (res !== "ignored" && session.current.done) onLessonDone();
     },
     [challenge, combos, finished, onLessonDone, settings.errorMode, settings.sound, unlock, unlockStep],
   );
@@ -328,8 +332,6 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     } else if (e.key === "Backspace") {
       e.preventDefault();
       if (session.current.backspace(settings.errorMode)) setVersion((v) => v + 1);
-    } else if (e.key === "Tab") {
-      e.preventDefault();
     } else if (e.key === "Escape") {
       e.preventDefault();
       restart();
@@ -340,6 +342,11 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     const ne = e.nativeEvent as InputEvent;
     const ta = e.currentTarget;
     if (ne.isComposing) return;
+    // pegar o arrastrar texto no es teclear: se descarta
+    if (ne.inputType?.startsWith("insertFrom")) {
+      ta.value = "";
+      return;
+    }
     const data = ne.data ?? ta.value;
     ta.value = "";
     // algunos navegadores repiten como input el texto de una composición (teclas muertas)
@@ -409,6 +416,8 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
             onKeyDown={onKeyDown}
             onInput={onInput}
             onCompositionEnd={onCompositionEnd}
+            onPaste={(e) => e.preventDefault()}
+            onDrop={(e) => e.preventDefault()}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           />
@@ -427,7 +436,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
               Última: <b>{Math.round(lastRes.wpm)} WPM</b> · <b>{(lastRes.acc * 100).toFixed(1)}%</b> · +{lastRes.score} pts
             </span>
           ) : (
-            <span>Las sangrías se saltan solas · Enter para saltar de línea · Esc reinicia</span>
+            <span>Las sangrías se saltan solas · Enter para saltar de línea · Esc reinicia · Tab sale</span>
           )}
           <span className="grow" />
           <span>

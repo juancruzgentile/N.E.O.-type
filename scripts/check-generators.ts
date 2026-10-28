@@ -91,3 +91,5 @@ for (const id of TRACK_ORDER) {
   console.log(`${id.padEnd(11)} escalones: ${t.steps.length} | temas: ${t.steps.reduce((n, s) => n + s.topics.length, 0)} | títulos distintos: ${titles.size} | fragmentos distintos: ${texts.size}`);
 }
 console.log(problems ? `PROBLEMAS: ${problems}` : "OK sin problemas");
+// sin esto CI aprobaba aunque hubiera problemas
+if (problems) process.exitCode = 1;

@@ -383,7 +383,14 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
   const [msg, setMsg] = useState("");
 
   const download = () => {
-    const blob = new Blob([exportJson()], { type: "application/json" });
+    let json: string;
+    try {
+      json = exportJson();
+    } catch (e) {
+      setMsg("No se pudo exportar: " + (e as Error).message);
+      return;
+    }
+    const blob = new Blob([json], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `neontype-progreso-${today()}.json`;

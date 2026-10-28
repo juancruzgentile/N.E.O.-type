@@ -10,14 +10,21 @@ export const useMusic = () => useSyncExternalStore((cb) => music.subscribe(cb), 
 
 /** Sincroniza el motor con los ajustes guardados y carga las canciones del usuario. */
 export function useMusicInit(state: AppState) {
-  const done = useRef(false);
+  const { musicVolume, musicStation } = state.settings;
+  // las canciones se cargan una sola vez
   useEffect(() => {
-    if (done.current) return;
-    done.current = true;
-    music.setVolume(state.settings.musicVolume);
-    music.setStation(state.settings.musicStation);
     void loadTracks().then((t) => music.setTracks(t));
-  }, [state.settings.musicVolume, state.settings.musicStation]);
+  }, []);
+  // volumen y estación se sincronizan siempre (también al importar o restablecer)
+  useEffect(() => {
+    if (music.snap.volume !== musicVolume) music.setVolume(musicVolume);
+  }, [musicVolume]);
+  useEffect(() => {
+    if (music.snap.station === musicStation) return;
+    // si suena una estación, se cambia de verdad; si no, solo queda elegida
+    if (music.snap.playing && music.snap.source === "station") music.playStation(musicStation);
+    else music.setStation(musicStation);
+  }, [musicStation]);
 }
 
 export function MusicPlayer({ update }: { update: Update }) {

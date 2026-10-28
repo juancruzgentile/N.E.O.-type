@@ -536,6 +536,11 @@ button.pill:hover { border-color: var(--cyan); background: var(--cyan-soft); }
 html.calm .aurora, html.calm .keyboard-wrap .kb-f1, html.calm .keyboard-wrap .kb-f2,
 html.calm .keyboard-wrap .keyboard, html.calm .kb-shadow, html.calm .eq i { animation: none !important; }
 html.calm .bg-canvas { display: none; }
+/* cualquier otra animación o transición también se corta en modo calmo */
+html.calm *, html.calm *::before, html.calm *::after {
+  animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+  animation-delay: 0s !important; transition-duration: 0.01ms !important; transition-delay: 0s !important;
+}
 @media (prefers-reduced-motion: reduce) {
   .aurora, .keyboard-wrap .kb-f1, .keyboard-wrap .kb-f2, .keyboard-wrap .keyboard, .kb-shadow { animation: none !important; }
 }

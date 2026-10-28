@@ -355,15 +355,19 @@ const boxModel: Topic = {
         "}",
       ),
       () => ex(`Centra .${c} con un ancho máximo`, `.${c} {`, `  max-width: ${pick(rng, [960, 1080, 1200])}px;`, "  margin: 0 auto;", "}"),
-      () => ex(
-        `Imágenes de .${c} que ocupan todo el ancho con proporción 16:9`,
-        `.${c} img {`,
-        "  width: 100%;",
-        "  height: auto;",
-        `  aspect-ratio: ${pick(rng, ["16 / 9", "4 / 3", "1 / 1"])};`,
-        "  object-fit: cover;",
-        "}",
-      ),
+      () => {
+        // título y código salen del mismo valor
+        const ratio = pick(rng, ["16 / 9", "4 / 3", "1 / 1"]);
+        return ex(
+          `Imágenes de .${c} que ocupan todo el ancho con proporción ${ratio.replace(" / ", ":")}`,
+          `.${c} img {`,
+          "  width: 100%;",
+          "  height: auto;",
+          `  aspect-ratio: ${ratio};`,
+          "  object-fit: cover;",
+          "}",
+        );
+      },
       () => ex(`Sombra suave para .${c}`, `.${c} {`, `  box-shadow: 0 ${px(rng, 1, 4)} ${px(rng, 6, 16)} rgba(0, 0, 0, 0.${int(rng, 1, 4)});`, "}"),
     ])();
   },

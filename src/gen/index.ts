@@ -96,5 +96,5 @@ export function findSnippet(
 }
 
 export function snippetLesson(sn: Snippet, focus: string | null): Lesson {
-  return { kind: "code", title: sn.title, tags: sn.tags, text: sn.text, focus };
+  return { kind: "code", title: sn.title, tags: sn.tags, text: sn.text, focus, concept: sn.concept };
 }

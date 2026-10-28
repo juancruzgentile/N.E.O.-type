@@ -1,3 +1,4 @@
+import type { ConceptId } from "./gen/concepts";
 /** Lenguajes de programación (ruta por símbolos). */
 export type CodeLangId = "python" | "javascript" | "typescript" | "java" | "csharp" | "go" | "rust";
 /** Rutas Trainee (progreso por escalones de temas). */
@@ -105,6 +106,8 @@ export interface Lesson {
   step?: string;
   /** rótulo del tipo de fragmento (FUNCIÓN, CONSULTA, COMANDO…) */
   label?: string;
+  /** lenguajes: concepto del fragmento, para no repetirlo en la lección siguiente */
+  concept?: ConceptId;
 }
 
 /** Una muestra registrada al teclear un carácter. */

@@ -5,10 +5,19 @@ let enabled = true;
 let active = 0;
 const MAX_SPARKS = 8;
 
-const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MQ = "(prefers-reduced-motion: reduce)";
+export const reducedMotion = () => typeof matchMedia !== "undefined" && matchMedia(MQ).matches;
+/** Avisa cuando el sistema cambia la preferencia de reducir movimiento. */
+export const onReducedMotionChange = (cb: () => void) => {
+  if (typeof matchMedia === "undefined") return () => {};
+  const mq = matchMedia(MQ);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
 
+/** `on` debe ser la preferencia efectiva (ajuste del usuario y del sistema). */
 export function setFxEnabled(on: boolean) {
-  enabled = on && !reduced();
+  enabled = on && !reducedMotion();
   document.documentElement.classList.toggle("calm", !enabled);
 }
 
