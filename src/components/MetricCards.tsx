@@ -81,7 +81,7 @@ export const MetricCards = memo(function MetricCards({ profile, streak }: Props)
   const accDelta = last && avgAcc !== null ? (last.acc - avgAcc) * 100 : null;
 
   return (
-    <div className="metrics">
+    <div className="metrics" data-tour="metrics">
       <div className="frame metric">
         <div className="ico" style={{ color: "var(--green)" }}><IconBolt size={32} /></div>
         <div>

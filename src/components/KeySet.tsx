@@ -14,7 +14,7 @@ const display = (ch: string) => (ch === "\n" ? "↵" : ch === " " ? "␣" : ch);
 export function KeySet({ infos, focus, next, layout, showChips }: Props) {
   const combo = next ? comboMap(layout).get(next) : undefined;
   return (
-    <div className="frame keyset">
+    <div className="frame keyset" data-tour="keyset">
       {showChips && (
         <>
           <span className="lbl">SÍMBOLOS</span>

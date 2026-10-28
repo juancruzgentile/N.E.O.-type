@@ -10,10 +10,22 @@ npm run dev
 Antes de abrir un pull request, verificá que pasen:
 
 ```bash
-npm run build          # typecheck + build (incluye la Content Security Policy)
-npm run check          # validación de los generadores de código
-npm run test:security  # validación de datos y CSP
+npm run build   # typecheck + build (incluye la Content Security Policy)
+npm test        # todas las pruebas (detalle abajo)
 ```
+
+| Comando | Qué prueba |
+| --- | --- |
+| `npm run check` | Generadores de código |
+| `npm run test:logic` | Progreso, logros, resaltado y canciones guardadas |
+| `npm run test:regression` | Errores ya corregidos (ver `correcciones.txt`) |
+| `npm run test:security` | Validación de datos y CSP del build |
+| `npm run test:e2e` | La app en Chromium real: lección, pegar, Tab, desafío, modo calmo, exportar/importar |
+
+`test:e2e` usa el build (`NeonType.html`) y necesita el navegador una sola vez:
+`npx playwright-core install --only-shell chromium`.
+
+Si arreglás un error, agregá la prueba que lo detecta en `test:regression` o `test:e2e`.
 
 Registrá los cambios visibles en `CHANGELOG.md`, en la sección de la próxima versión.
 

@@ -80,6 +80,7 @@ function sanitizeSettings(v: unknown, defaults: Settings): Settings {
     musicStation: int(s.musicStation, 0, 6, defaults.musicStation),
     avatar: has(s, "avatar") ? safeAvatar(s.avatar) : defaults.avatar,
     showSplash: bool(s.showSplash, defaults.showSplash),
+    tutorialDone: bool(s.tutorialDone, defaults.tutorialDone),
     distro: oneOf(s.distro, DISTRO_IDS, defaults.distro),
     dbEngine: oneOf(s.dbEngine, DB_IDS, defaults.dbEngine),
   };

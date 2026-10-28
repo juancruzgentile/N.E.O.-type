@@ -33,7 +33,13 @@ jobs:
         run: npm audit signatures
       - run: npm run build
       - run: npm run check
-      - name: Tests del motor de sesiones
-        run: npm run test:session
+      - name: Tests de lógica
+        run: npm run test:logic
+      - name: Tests de regresión
+        run: npm run test:regression
       - name: Tests de seguridad
         run: npm run test:security
+      - name: Navegador para las pruebas e2e
+        run: npx playwright-core install --with-deps --only-shell chromium
+      - name: Pruebas en navegador
+        run: npm run test:e2e

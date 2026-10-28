@@ -30,6 +30,8 @@ export interface Settings {
   /** "" iniciales · "preset:<id>" · "img:<dataURL>" */
   avatar: string;
   showSplash: boolean;
+  /** ya vio la bienvenida y el recorrido inicial */
+  tutorialDone: boolean;
   /** distribución para la práctica libre de la terminal */
   distro: DistroId;
   /** motor para la práctica libre de bases de datos */

@@ -60,6 +60,8 @@ function snippetVariants(lang: LangId, rng: Rng): Snippet[] {
 /**
  * Busca un fragmento que use solo símbolos permitidos. Si hay foco, prefiere
  * los que lo contienen (y cuantas más apariciones, mejor).
+ * Los conceptos de `avoid` quedan excluidos mientras aparezca otro fragmento válido;
+ * si en los intentos no aparece ninguno, se acepta repetir antes que no dar lección.
  */
 export function findSnippet(
   lang: LangId,
@@ -71,6 +73,9 @@ export function findSnippet(
 ): Snippet | null {
   let best: Snippet | null = null;
   let bestScore = -1;
+  // mejor candidato con un concepto a evitar: solo se usa si no hay alternativa
+  let alt: Snippet | null = null;
+  let altScore = -1;
   for (let i = 0; i < attempts; i++) {
     for (const sn of snippetVariants(lang, rng)) {
       const syms = symbolsOf(sn.text);
@@ -83,7 +88,13 @@ export function findSnippet(
         if (count === 0) score -= 10;
         else score += Math.min(count, 6);
       }
-      if (avoid.includes(sn.concept)) score -= 3;
+      if (avoid.includes(sn.concept)) {
+        if (score > altScore) {
+          alt = sn;
+          altScore = score;
+        }
+        continue;
+      }
       if (score > bestScore) {
         best = sn;
         bestScore = score;
@@ -91,8 +102,8 @@ export function findSnippet(
     }
     if (bestScore >= 6) break;
   }
-  if (!best || (focus && bestScore < 0)) return focus ? null : best;
-  return best;
+  const valid = (sn: Snippet | null, sc: number) => (sn && !(focus && sc < 0) ? sn : null);
+  return valid(best, bestScore) ?? valid(alt, altScore);
 }
 
 export function snippetLesson(sn: Snippet, focus: string | null): Lesson {

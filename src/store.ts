@@ -23,6 +23,7 @@ export const DEFAULT_SETTINGS: Settings = {
   musicStation: 0,
   avatar: "",
   showSplash: true,
+  tutorialDone: false,
   distro: "ubuntu",
   dbEngine: "sqlite",
 };
@@ -51,6 +52,10 @@ function load(): AppState {
     const state = clean(parsed);
     // "Juan Dev" era el nombre por defecto de versiones anteriores: se pide uno real
     if (state.settings.userName === "Juan Dev") state.settings.userName = "";
+    // quien ya practicaba antes de que existiera el tutorial no lo ve de golpe
+    const rawSettings = (parsed as { settings?: unknown }).settings;
+    const hadFlag = !!rawSettings && typeof rawSettings === "object" && "tutorialDone" in rawSettings;
+    if (!hadFlag && Object.keys(state.days).length > 0) state.settings.tutorialDone = true;
     return state;
   } catch {
     return initialState();
@@ -78,6 +83,29 @@ export function streakDays(days: Record<string, number>): number {
   return streak;
 }
 
+/** Copia de seguridad en JSON compacto. Falla si no se podría volver a importar. */
+export function serializeState(state: AppState): string {
+  // sin sangría: con ella una copia válida podía superar el límite de importación
+  const json = JSON.stringify(state);
+  if (byteLength(json) > MAX_IMPORT_BYTES) throw new Error("el progreso supera el límite de 5 MB y no se podría volver a importar");
+  return json;
+}
+
+/** Lee y valida una copia de seguridad. */
+export function parseBackup(json: string): AppState {
+  if (byteLength(json) > MAX_IMPORT_BYTES) throw new Error("el archivo es demasiado grande");
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    throw new Error("no es un JSON válido");
+  }
+  if (!parsed || typeof parsed !== "object" || (parsed as { version?: unknown }).version !== 1) {
+    throw new Error("no es una copia de seguridad de N.E.O.-type");
+  }
+  return clean(parsed);
+}
+
 export function useAppState() {
   const [state, setState] = useState<AppState>(load);
   const [saved, setSaved] = useState(true);
@@ -98,26 +126,8 @@ export function useAppState() {
 
   const update = useCallback((fn: (s: AppState) => AppState) => setState(fn), []);
 
-  // JSON compacto: con sangría una copia válida podía superar el límite de importación
-  const exportJson = useCallback(() => {
-    const json = JSON.stringify(state);
-    if (byteLength(json) > MAX_IMPORT_BYTES) throw new Error("el progreso supera el límite de 5 MB y no se podría volver a importar");
-    return json;
-  }, [state]);
-
-  const importJson = useCallback((json: string) => {
-    if (byteLength(json) > MAX_IMPORT_BYTES) throw new Error("el archivo es demasiado grande");
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(json);
-    } catch {
-      throw new Error("no es un JSON válido");
-    }
-    if (!parsed || typeof parsed !== "object" || (parsed as { version?: unknown }).version !== 1) {
-      throw new Error("no es una copia de seguridad de NeonType");
-    }
-    setState(clean(parsed));
-  }, []);
+  const exportJson = useCallback(() => serializeState(state), [state]);
+  const importJson = useCallback((json: string) => setState(parseBackup(json)), []);
 
   return { state, update, saved, exportJson, importJson };
 }

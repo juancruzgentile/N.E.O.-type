@@ -492,6 +492,8 @@ class MusicEngine {
   private audioSrc: MediaElementAudioSourceNode | null = null;
   /** id de la canción cargada en audioEl (para saber si sigue existiendo) */
   private audioId: string | null = null;
+  /** id de la canción elegida: el índice se recalcula desde acá cuando cambia la lista */
+  private userId: string | null = null;
   private tracks: UserTrack[] = [];
   private listeners = new Set<() => void>();
   private timeData = new Uint8Array(256);
@@ -608,9 +610,20 @@ class MusicEngine {
 
   setTracks(tracks: UserTrack[]) {
     this.tracks = tracks;
-    // si se quitó la canción cargada (aunque esté en pausa), se descarta su reproductor
-    if (this.audioId && !tracks.some((t) => t.id === this.audioId)) this.stopAll();
-    this.emit({ userTracks: tracks.map((t) => ({ id: t.id, name: t.name })) });
+    const patch: Partial<MusicSnapshot> = { userTracks: tracks.map((t) => ({ id: t.id, name: t.name })) };
+    const sel = this.userId ? tracks.findIndex((t) => t.id === this.userId) : -1;
+    if (sel >= 0) {
+      patch.userIndex = sel;
+    } else {
+      // se quitó la canción elegida: se descarta su reproductor (aunque esté en pausa)
+      if (this.audioId) {
+        this.stopAll();
+        patch.playing = false;
+      }
+      this.userId = null;
+      patch.userIndex = Math.max(0, Math.min(this.snap.userIndex, tracks.length - 1));
+    }
+    this.emit(patch);
   }
 
   playUser(index: number) {
@@ -622,11 +635,14 @@ class MusicEngine {
     const src = bus.ctx.createMediaElementSource(el);
     src.connect(this.warmth!);
     this.warmth!.frequency.setTargetAtTime(20000, bus.ctx.currentTime, 0.1);
-    el.onended = () => this.playUser(i + 1);
+    const id = this.tracks[i].id;
+    // la siguiente se busca por id: la lista puede haber cambiado mientras sonaba
+    el.onended = () => this.playUser(this.tracks.findIndex((t) => t.id === id) + 1);
     void el.play();
     this.audioEl = el;
     this.audioSrc = src;
-    this.audioId = this.tracks[i].id;
+    this.audioId = id;
+    this.userId = id;
     this.emit({ playing: true, source: "user", userIndex: i });
   }
 

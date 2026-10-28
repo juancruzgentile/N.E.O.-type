@@ -373,9 +373,10 @@ interface SettingsProps {
   update: Update;
   exportJson: () => string;
   importJson: (json: string) => void;
+  onTutorial: () => void;
 }
 
-export function SettingsView({ state, update, exportJson, importJson }: SettingsProps) {
+export function SettingsView({ state, update, exportJson, importJson, onTutorial }: SettingsProps) {
   const s = state.settings;
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) =>
     update((st) => ({ ...st, settings: { ...st.settings, [k]: v } }));
@@ -393,7 +394,7 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
     const blob = new Blob([json], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `neontype-progreso-${today()}.json`;
+    a.download = `neo-type-progreso-${today()}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -515,6 +516,7 @@ export function SettingsView({ state, update, exportJson, importJson }: Settings
           <input type="text" value={s.userName} maxLength={24} placeholder="Tu nombre" onChange={(e) => set("userName", e.target.value)} />
           <AvatarPicker value={s.avatar} name={s.userName} onChange={(v) => set("avatar", v)} />
           <label className="toggle"><input type="checkbox" checked={s.showSplash} onChange={(e) => set("showSplash", e.target.checked)} /> Mostrar la pantalla de inicio al abrir</label>
+          <button className="btn small" onClick={onTutorial}>Ver tutorial de bienvenida</button>
         </div>
 
         <div className="setting">

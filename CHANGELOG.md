@@ -3,6 +3,40 @@
 Todos los cambios relevantes del proyecto. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
 y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
+## [Sin publicar]
+
+Correcciones de las auditorías de la v1.4.0. Detalle de cada una en `correcciones.txt`.
+
+### Corregido
+- "Precisión perfecta" ya no da récord con un error en el último carácter.
+- Al cortar un sprint, el fallo en la posición pendiente cuenta en la precisión.
+- Pegar o arrastrar texto en la práctica ya no cuenta como tecleo; Tab libera el foco.
+- Las copias de seguridad se exportan en JSON compacto y los límites se miden en bytes.
+- Música: pausar conserva la posición, los ajustes importados se aplican, la selección sigue a la canción
+  al quitar otras y IndexedDB espera la confirmación de cada transacción.
+- No se repite el concepto de la lección anterior si hay alternativa.
+- El título del ejercicio de proporciones CSS coincide con el código.
+- Modo calmo: corta todas las animaciones, no calcula el fondo oculto y los logros quedan visibles.
+- `npm run check` falla (código 1) si encuentra problemas.
+- Requisito de Node corregido a `^20.19.0 || >=22.12.0`.
+
+### Agregado
+- Tutorial de bienvenida: mensaje inicial y recorrido de 5 pasos con foco sobre la pantalla de práctica
+  (código, teclado, símbolos, métricas y menú). Aparece una sola vez, se maneja con Enter / Esc / flechas
+  y se repite desde Ajustes. Quien ya tenía días de práctica no lo ve automáticamente. Los textos se adaptan
+  a lenguajes, rutas Trainee y modo libre; el foco queda dentro del diálogo y en pantallas chicas solo
+  resalta elementos visibles.
+- Navegación compacta cuando la ventana mide menos de 1250 px (antes desaparecía el menú).
+
+### Cambiado
+- El nombre se muestra igual en toda la app y la documentación: **N.E.O.-type** (antes aparecía también
+  "NeonType" en la cabecera, el pie, la pantalla de inicio, el título de la pestaña y las capturas).
+  La copia de seguridad se descarga como `neo-type-progreso-AAAA-MM-DD.json`. El progreso guardado no cambia.
+- Pruebas nuevas, todas en CI: `test:logic` (progreso, logros, resaltado, canciones guardadas),
+  `test:regression` (errores corregidos) y `test:e2e` (la app en Chromium real con Playwright).
+- `npm test` corre todas las pruebas.
+- Dependencia de desarrollo: `playwright-core` 1.56.1 (sin scripts de instalación).
+
 ## [1.4.0] - 2026-10-25
 
 ### Agregado

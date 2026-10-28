@@ -44,6 +44,8 @@ un título que explica qué hace.
 - **Logros y temas**: 27 logros con insignias y 6 temas de color (Cyber, Neón, Synthwave, Matrix, Tokio noche y Claro),
   con una estética cyberpunk que nunca toca la legibilidad del código.
 - **Tu perfil**: pantalla de inicio con efecto de cartel de neón, tu nombre y tu foto (o uno de los 12 avatares incluidos).
+- **Tutorial de bienvenida**: un mensaje inicial y un recorrido corto que señala lo básico de la pantalla de
+  práctica. Se maneja con el teclado y se puede repetir desde Ajustes.
 - **100 % offline**: el build es un único `NeonType.html` que se abre con doble clic. El progreso queda en tu navegador.
 
 <table>
@@ -97,7 +99,11 @@ Atajos para quien no quiera usar la terminal:
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Typecheck + build de un solo archivo (`dist/index.html` → `NeonType.html`) |
 | `npm run check` | Genera miles de fragmentos y verifica que ninguno use símbolos fuera de la ruta de su lenguaje |
+| `npm test` | Corre todas las pruebas de abajo |
+| `npm run test:logic` | Progreso, desbloqueos, logros, resaltado y canciones guardadas |
+| `npm run test:regression` | Tests de regresión: motor de sesiones, copias de seguridad, conceptos, música y modo calmo |
 | `npm run test:security` | Tests de validación de datos y de la Content Security Policy del build |
+| `npm run test:e2e` | La app en un Chromium real (requiere `npm run build` y, una vez, `npx playwright-core install --only-shell chromium`) |
 | `npm run audit` | Auditoría de vulnerabilidades y firmas de las dependencias |
 
 ## Cómo funciona el modo guiado

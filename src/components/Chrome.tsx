@@ -62,7 +62,7 @@ export function Header({ state, saved, onToggleMode, onPickLang, challengeLabel 
       <div className="brand">
         <span className="prompt">&gt;_</span>
         <span>
-          NEON<span className="type">TYPE</span>
+          N.E.O.-<span className="type">TYPE</span>
         </span>
       </div>
       <div className="tagline">
@@ -70,12 +70,12 @@ export function Header({ state, saved, onToggleMode, onPickLang, challengeLabel 
         <br />
         mejor mañana
       </div>
-      <button className="pill" onClick={onToggleMode} title="Cambiar entre modo guiado y libre">
+      <button className="pill" onClick={onToggleMode} title="Cambiar entre modo guiado y libre" data-tour="mode">
         <IconCross size={22} />
         {challengeLabel ?? (state.mode === "guided" ? "Modo guiado" : "Modo libre")}
       </button>
       <span style={{ color: "var(--dim)" }}><IconChevron /></span>
-      <button className="pill" onClick={onPickLang} title="Elegir lenguaje">
+      <button className="pill" onClick={onPickLang} title="Elegir lenguaje" data-tour="level">
         {lang ? (
           <>
             <LangBadge lang={lang} />
@@ -115,6 +115,25 @@ const NAV: { id: View; label: string; icon: ReactNode }[] = [
   { id: "settings", label: "Ajustes", icon: <IconGear size={30} /> },
 ];
 
+/** Navegación compacta para ventanas donde la barra lateral no entra. */
+export function MobileNav({ view, setView }: { view: View; setView: (v: View) => void }) {
+  return (
+    <nav className="frame mobile-nav" data-tour="nav" aria-label="Secciones">
+      {NAV.map((n) => (
+        <button
+          key={n.id}
+          className={view === n.id ? "active" : ""}
+          aria-current={view === n.id ? "page" : undefined}
+          onClick={() => setView(n.id)}
+        >
+          {n.icon}
+          <span className="mn-label">{n.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 export function Sidebar({ state, view, setView, update }: SidebarProps) {
   const lang = state.lang;
   const profile = lang ? getProfile(state, lang) : null;
@@ -148,7 +167,7 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
           {lang ? `${prog.mastered} / ${prog.total} ${isTrack(lang) ? "escalones" : "símbolos"} dominados` : "Elegí un lenguaje para empezar"}
         </div>
       </div>
-      <nav className="nav">
+      <nav className="nav" data-tour="nav" aria-label="Secciones">
         {NAV.map((n) => (
           <button key={n.id} className={view === n.id ? "active" : ""} onClick={() => setView(n.id)}>
             {n.icon}
@@ -187,7 +206,7 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
 export function Footer() {
   return (
     <footer className="footer">
-      <span className="b">NEONTYPE</span>
+      <span className="b">N.E.O.-TYPE</span>
       <span>// MEJOR ESCRITURA. MEJOR CÓDIGO.</span>
       <span className="grow" />
       <span className="steps">

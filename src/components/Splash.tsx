@@ -7,7 +7,9 @@ interface Props {
   onEnter: (name: string, avatar: string) => void;
 }
 
-const LOGO = [">", "_", " ", "N", "E", "O", "N", "T", "Y", "P", "E"];
+const LOGO = [">", "_", " ", "N", ".", "E", ".", "O", ".", "-", "T", "Y", "P", "E"];
+/** desde acá el logo va en color de acento ("TYPE") */
+const ACCENT_FROM = LOGO.indexOf("T");
 
 /**
  * Pantalla de inicio: las letras del logo parpadean como un cartel de neón
@@ -23,7 +25,7 @@ export function Splash({ name, avatar, onEnter }: Props) {
 
   // cada letra con su propio retraso y duración: se encienden "a su ritmo"
   const timings = useMemo(
-    () => LOGO.map((_, i) => ({ delay: 0.15 + Math.random() * 0.9 + (i > 6 ? 0.15 : 0), dur: 0.7 + Math.random() * 0.6 })),
+    () => LOGO.map((_, i) => ({ delay: 0.15 + Math.random() * 0.9 + (i >= ACCENT_FROM ? 0.15 : 0), dur: 0.7 + Math.random() * 0.6 })),
     [],
   );
 
@@ -60,11 +62,11 @@ export function Splash({ name, avatar, onEnter }: Props) {
     <div className={`splash ${leaving ? "leaving" : ""}`} onClick={() => !firstRun && ready && enter()}>
       <div className="splash-grid" aria-hidden="true" />
       <div className="splash-inner">
-        <h1 className="neon-logo" aria-label="NeonType">
+        <h1 className="neon-logo" aria-label="N.E.O.-type">
           {LOGO.map((ch, i) => (
             <span
               key={i}
-              className={`nl ${i < 2 ? "prompt" : i >= 7 ? "type" : ""}`}
+              className={`nl ${i < 2 ? "prompt" : i >= ACCENT_FROM ? "type" : ""}`}
               style={{ animationDelay: `${timings[i].delay}s`, animationDuration: `${timings[i].dur}s` }}
               aria-hidden="true"
             >

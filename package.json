@@ -11,7 +11,10 @@
     "preview": "vite preview",
     "check": "esbuild scripts/check-generators.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check.mjs --log-level=warning && node node_modules/.cache/check.mjs",
     "audit": "npm audit --audit-level=moderate && npm audit signatures",
-    "test:session": "esbuild scripts/check-session.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/session.mjs --log-level=warning && node node_modules/.cache/session.mjs",
+    "test": "npm run check && npm run test:logic && npm run test:regression && npm run test:security && npm run test:e2e",
+    "test:logic": "esbuild scripts/check-logic.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/logic.mjs --log-level=warning && node node_modules/.cache/logic.mjs",
+    "test:e2e": "esbuild scripts/e2e.ts --bundle --platform=node --format=esm --packages=external --outfile=node_modules/.cache/e2e.mjs --log-level=warning && node node_modules/.cache/e2e.mjs",
+    "test:regression": "esbuild scripts/check-regression.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/regression.mjs --log-level=warning && node node_modules/.cache/regression.mjs",
     "test:security": "esbuild scripts/check-security.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/security.mjs --log-level=warning && node node_modules/.cache/security.mjs"
   },
   "dependencies": {
@@ -26,6 +29,7 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "5.2.0",
     "esbuild": "0.28.2",
+    "playwright-core": "1.56.1",
     "typescript": "5.9.3",
     "vite": "7.3.7",
     "vite-plugin-singlefile": "2.3.4"

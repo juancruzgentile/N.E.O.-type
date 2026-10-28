@@ -60,11 +60,81 @@ Formato: problema → solución (archivo)
     → tx() resuelve en transaction.oncomplete, rechaza en abort/error y cierra la conexión.
     (src/audio/tracks.ts)
 
-TESTS NUEVOS
-   scripts/check-session.ts → npm run test:session (agregado al CI).
-   Cubre los puntos 1, 3 y 4.
+RONDA 2 — re-auditoría
+14. (Regresión del punto 12) Con modo calmo, los avisos de logro quedaban invisibles:
+    la regla global dejaba toastOut en su estado final (opacity 0, fuera de pantalla).
+    → html.calm .toast { animation: none; opacity: 1; transform: none }.
+      Lo retira el temporizador de App (4,8 s), como antes. (src/styles.css)
 
-VERIFICADO: tsc, build, npm run check, test:security y test:session pasan.
+15. Quitar una canción anterior a la que sonaba desajustaba la selección
+    (sonaba B, pero el título y la marca apuntaban a C). Venía de antes.
+    → El motor guarda el id de la canción elegida; setTracks() recalcula el índice
+      desde ese id, y al terminar una canción la siguiente también se busca por id.
+      Si se quita la que suena, se detiene. (src/audio/music.ts, src/components/MusicPlayer.tsx)
+
+16. (Punto 10 parcial) Se podía repetir el concepto: solo restaba 3 puntos.
+    → findSnippet() excluye los conceptos de "avoid" mientras aparezca otro fragmento
+      válido. Si no aparece ninguno, se repite antes que dejar sin lección. (src/gen/index.ts)
+    Nota: las rutas Trainee evitan repetir el título con 3 reintentos (sin cambios).
+
+17. Las pruebas no cubrían copias de seguridad, música ni CSS.
+    → serializeState()/parseBackup() salen del hook a funciones puras (src/store.ts).
+      scripts/check-session.ts pasa a ser scripts/check-regression.ts (npm run test:regression,
+      en CI). Cubre los puntos 1 (motor), 3, 4, 9, 10, 14, 15 y 16. Se comprobó que falla
+      con el código anterior (9 fallos) y pasa con el corregido.
+    → README, CONTRIBUTING y CHANGELOG actualizados.
+
+RONDA 3 — cobertura de pruebas
+18. Gran parte de la app no tenía pruebas (logros, progreso, IndexedDB, interfaz).
+    → scripts/check-logic.ts (npm run test:logic, 49 comprobaciones): muestras por tecla,
+      estados de símbolo, desbloqueo de etapas y escalones, puntaje, 14 de los 27 logros, resaltado y
+      canciones guardadas con un IndexedDB simulado (incluye fallo al confirmar y cierre de conexiones).
+    → scripts/e2e.ts (npm run test:e2e, 18 comprobaciones): la app real en Chromium
+      (playwright-core 1.56.1, dependencia de desarrollo). Lección completa, Ctrl+V real,
+      Tab/Shift+Tab, desafío perfecto, modo calmo del sistema con logro visible, exportar/importar
+      y música sincronizada.
+    → npm test corre todo; CI instala el navegador y corre test:logic y test:e2e.
+    Comprobado contra versiones viejas: e2e falla 9 veces con v1.4.0 (un fallo por error de la
+    auditoría) y 1 con 047ac45 (el aviso de logros). test:logic falla con el tracks.ts original.
+    Ajuste: una prueba de IndexedDB pasaba también con el código viejo; se reemplazó por el
+    caso real (la petición sale bien pero la transacción no se confirma).
+
+RONDA 4 — tutorial de bienvenida y navegación (informe-auditoria-3.md)
+19. (Media) Por debajo de 1250 px desaparecía el único menú de navegación. Venía de antes.
+    → Navegación compacta (MobileNav) bajo la cabecera cuando la barra lateral no entra;
+      debajo de 640 px muestra solo iconos, con nombre accesible. (src/components/Chrome.tsx, src/App.tsx, src/styles.css)
+    → De paso: la cabecera y el pie desbordaban en horizontal (6 px a 1000 px, 35 px a 390 px).
+      La grilla queda limitada al ancho de la ventana y la cabecera y el pie pasan a la línea siguiente.
+20. (Media) Los botones del tutorial no respetaban el teclado: Enter sobre "Atrás" avanzaba y
+    Espacio sobre "Saltar" no hacía nada.
+    → Enter y Espacio sobre un botón del tutorial activan ese botón; fuera de los botones, Enter
+      avanza. Las flechas y Esc siguen funcionando. (src/components/Tutorial.tsx)
+21. (Media) Con Tab el foco salía del diálogo hacia la app de fondo.
+    → Tab y Shift+Tab dan vueltas dentro del diálogo, la app queda "inert" mientras está
+      abierto y al cerrar el foco vuelve a donde estaba.
+22. (Media) En móvil el recorrido resaltaba elementos ocultos (el teclado, la barra lateral).
+    → Cada paso usa el primer elemento visible (de al menos 24 × 24 px) entre sus alternativas,
+      y se omiten los pasos que no tienen ninguno. Se recalcula al cambiar el tamaño de la ventana.
+23. (Baja) Textos fuera de contexto: las rutas Trainee hablaban de "( y )" y las métricas, de
+    datos "en vivo".
+    → El paso de progreso depende del modo y del tipo de práctica: símbolos (lenguajes guiados),
+      escalones (rutas Trainee guiadas, resalta el indicador de escalón) o modo libre (resalta el
+      botón de modo). Las métricas se describen como resultados de la última lección terminada,
+      puntuación total y racha de días.
+24. Pendientes de calidad de pruebas de la ronda anterior:
+    → Importación: se compara contra el estado exportado original (sin depender del orden de las
+      claves), no contra otra importación. (scripts/check-regression.ts)
+    → Pausa musical: el doble de <audio> registra paused y currentTime; se comprueba que pausar
+      conserva 42,5 s y que reanudar sigue con el mismo audio desde ahí.
+    → Pegado: un listener en el área de escritura acredita que el pegado llegó (Ctrl+V real o
+      evento simulado) antes de afirmar que fue bloqueado. (scripts/e2e.ts)
+    → Regresiones nuevas en e2e para los puntos 19 a 23: Enter/Espacio sobre Atrás y Saltar,
+      foco atrapado con Tab, app inerte, textos de SQL y modo libre, y recorrido + navegación +
+      sin desplazamiento horizontal a 1000 × 800 y 390 × 844.
+
+VERIFICADO: tsc, build, npm test (check, logic, regression, security, e2e) y npm audit pasan.
+SIN PRUEBA AUTOMÁTICA: teclas muertas/composición, sonido real, sprint cronometrado y
+vista de estadísticas.
 
 PENDIENTE (configuración de GitHub, no es código; se hace desde Settings del repo)
    - Activar "Private vulnerability reporting" (SECURITY.md lo menciona y está apagado).

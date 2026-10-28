@@ -41,7 +41,7 @@ export function Keyboard({ layout, next, heat, float = false }: Props) {
   const leftHand = combo && ["lp", "lr", "lm", "li"].includes(combo.finger);
 
   return (
-    <div className={"keyboard-wrap" + (float ? " floating" : "")}>
+    <div className={"keyboard-wrap" + (float ? " floating" : "")} data-tour={float ? "keyboard" : undefined}>
       <div className="kb-f1">
       <div className="kb-f2">
       <div className="keyboard" role="img" aria-label="Teclado en pantalla">

@@ -7,8 +7,9 @@ import { sound } from "./sound";
 import { Background } from "./components/Background";
 import { Splash } from "./components/Splash";
 import { AchBadge } from "./components/AchBadge";
-import { Footer, Header, Sidebar } from "./components/Chrome";
+import { Footer, Header, MobileNav, Sidebar } from "./components/Chrome";
 import { useMusicInit } from "./components/MusicPlayer";
+import { Tutorial } from "./components/Tutorial";
 import { type Challenge, PracticeView } from "./components/PracticeView";
 import {
   AchievementsView, ChallengesView, LanguagesView, RoutesView, SettingsView, StatsView,
@@ -101,6 +102,7 @@ export default function App() {
           }}
           onPickLang={() => goto("languages")}
         />
+        <MobileNav view={current} setView={goto} />
         <div className="body">
           <main className="main">
             {current === "languages" && <LanguagesView state={state} onPick={pickLang} />}
@@ -131,13 +133,32 @@ export default function App() {
             )}
             {current === "achievements" && <AchievementsView state={state} />}
             {current === "settings" && (
-              <SettingsView state={state} update={update} exportJson={exportJson} importJson={importJson} />
+              <SettingsView
+                state={state}
+                update={update}
+                exportJson={exportJson}
+                importJson={importJson}
+                onTutorial={() => {
+                  update((s) => ({ ...s, settings: { ...s.settings, tutorialDone: false } }));
+                  setChallenge(null);
+                  setView("practice");
+                }}
+              />
             )}
           </main>
           <Sidebar state={state} view={current} setView={goto} update={update} />
         </div>
         <Footer />
       </div>
+      {current === "practice" && lang && !challenge && !state.settings.tutorialDone && (
+        <Tutorial
+          name={state.settings.userName.trim()}
+          lang={lang}
+          mode={state.mode}
+          animations={animations}
+          onClose={() => update((s) => ({ ...s, settings: { ...s.settings, tutorialDone: true } }))}
+        />
+      )}
       <div className="toasts" aria-live="polite">
         {toasts.map((t) => {
           const a = ACHIEVEMENTS.find((x) => x.id === t.id);

@@ -102,9 +102,8 @@ export function MusicPlayer({ update }: { update: Update }) {
               <button
                 className="icon-btn" aria-label={`Quitar ${t.name}`} title="Quitar"
                 onClick={async () => {
-                  const tracks = await removeTrack(t.id);
-                  if (isUser && i === snap.userIndex) music.pause();
-                  music.setTracks(tracks);
+                  // setTracks recalcula la selección y detiene la canción si era la que se quitó
+                  music.setTracks(await removeTrack(t.id));
                 }}
               >
                 ×

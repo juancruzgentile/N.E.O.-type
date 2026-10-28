@@ -377,7 +377,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     <>
       <MetricCards profile={profile} streak={streak} />
 
-      <div className="frame glow code-panel" ref={panelRef}>
+      <div className="frame glow code-panel" ref={panelRef} data-tour="code">
         <div className="code-head">
           <span style={{ color: "var(--cyan)" }}><IconCode size={30} /></span>
           <span className="ttl">ESCRIBE EL CÓDIGO</span>
