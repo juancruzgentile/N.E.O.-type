@@ -4,11 +4,12 @@ import { ACHIEVEMENTS } from "../engine/achievements";
 import { AchBadge } from "./AchBadge";
 import { LANGS, LANG_ORDER, SYMBOL_INFO, TRACK_ORDER, isTrack, stageCount } from "../data/curriculum";
 import { TRACKS } from "../tracks/index";
-import { LAYOUTS, comboText, isTypeable } from "../data/layouts";
+import { LAYOUTS, comboText, isTypeable, layoutFor } from "../data/layouts";
 import { type KeyInfo, STEP_WINDOW, msToWpm, playableChars, progressToNext, stageInfos, stepInfos } from "../engine/stats";
 import { DEFAULT_SETTINGS, getProfile, profileKey, today } from "../store";
 import { LangEmblem } from "./LangEmblem";
 import { AvatarPicker } from "./Avatar";
+import { KeyCalibration } from "./KeyCalibration";
 import { MAX_IMPORT_BYTES } from "../sanitize";
 import { Keyboard, heatColor } from "./Keyboard";
 import type { Challenge } from "./PracticeView";
@@ -117,7 +118,7 @@ function TrackRoute({ state, lang }: { state: AppState; lang: LangId }) {
 export function RoutesView({ state, lang }: { state: AppState; lang: LangId }) {
   if (isTrack(lang)) return <TrackRoute state={state} lang={lang} />;
   const s = state.settings;
-  const layout = LAYOUTS[s.layout];
+  const layout = layoutFor(s);
   const profile = getProfile(state, lang);
   const infos = new Map(stageInfos(lang, profile, s).map((k) => [k.char, k]));
   return (
@@ -128,7 +129,7 @@ export function RoutesView({ state, lang }: { state: AppState; lang: LangId }) {
         símbolos desbloqueados tienen que estar en verde: al menos {s.minSamples} pulsaciones, {s.targetWpm} WPM y{" "}
         {s.minAccuracy}% de precisión.
       </div>
-      {layout.notes && <div className="note">{layout.notes}</div>}
+      {layout.notes && !layout.learned && <div className="note">{layout.notes}</div>}
       <div className="route">
         {LANGS[lang].stages.map((chars, i) => {
           const playable = playableChars(chars, s);
@@ -194,7 +195,7 @@ function LineChart({ data }: { data: { wpm: number; acc: number }[] }) {
 
 export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
   const s = state.settings;
-  const layout = LAYOUTS[s.layout];
+  const layout = layoutFor(s);
   const profile = getProfile(state, lang);
   const infos = stageInfos(lang, profile, s);
   const heat = new Map<string, KeyInfo>(infos.map((k) => [k.char, k]));
@@ -384,6 +385,9 @@ export function SettingsView({ state, update, exportJson, importJson, onTutorial
     update((st) => ({ ...st, settings: { ...st.settings, [k]: v } }));
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState("");
+  const [calibrating, setCalibrating] = useState(false);
+  const layout = layoutFor(s);
+  const learned = Object.keys(s.keymap[s.layout] ?? {});
 
   const download = () => {
     let json: string;
@@ -456,7 +460,26 @@ export function SettingsView({ state, update, exportJson, importJson, onTutorial
               <button key={id} className={s.layout === id ? "on" : ""} onClick={() => set("layout", id)}>{LAYOUTS[id].name}</button>
             ))}
           </div>
-          <div className="help">Cambia el teclado en pantalla y las combinaciones que te enseña. {LAYOUTS[s.layout].notes ?? ""}</div>
+          <div className="help">Cambia el teclado en pantalla y las combinaciones que te enseña. {learned.length ? "" : (LAYOUTS[s.layout].notes ?? "")}</div>
+          <div className="help">
+            {learned.length
+              ? `Ajustado a tu teclado real: ${learned.map((ch) => `${ch} (${comboText(layout, ch)})`).join(" · ")}`
+              : "La app aprende sola dónde tenés cada símbolo mientras practicás. También podés calibrarlo de una vez."}
+          </div>
+          <div className="seg">
+            <button onClick={() => setCalibrating(true)}>Calibrar teclado</button>
+            {learned.length > 0 && (
+              <button
+                onClick={() => {
+                  if (!confirm(`¿Olvidar los ${learned.length} símbolos aprendidos del teclado ${LAYOUTS[s.layout].short}?`)) return;
+                  update((st) => ({ ...st, settings: { ...st.settings, keymap: { ...st.settings.keymap, [s.layout]: {} } } }));
+                }}
+              >
+                Restablecer
+              </button>
+            )}
+          </div>
+          {calibrating && <KeyCalibration state={state} update={update} onClose={() => setCalibrating(false)} />}
         </div>
 
         <div className="setting">

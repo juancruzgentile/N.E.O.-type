@@ -9,6 +9,7 @@ import { highlight } from "../src/highlight";
 import { initialState, streakDays, today } from "../src/store";
 import { LANGS, stageCount, unlockedChars } from "../src/data/curriculum";
 import { TRACKS } from "../src/tracks/index";
+import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKey } from "../src/data/layouts";
 import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
 
 let failed = 0;
@@ -236,6 +237,38 @@ for (const [lang, code] of [
   ok((await removeTrack(r1.tracks[0].id)).length === 0, "quitar una canción la borra");
   ok((await loadTracks()).length === 0, "la lista guardada queda vacía");
   ok(opened > 0 && opened === closed, `cada conexión se cierra (${opened} abiertas, ${closed} cerradas)`);
+}
+
+// ── teclado real del usuario ──
+{
+  const keymap = { it: { "{": { code: "Digit7", shift: false, altgr: true }, "`": { code: "Quote", shift: true, altgr: true } } };
+  const lay = layoutFor({ layout: "it", keymap });
+  ok(lay !== LAYOUTS.it && layoutFor({ layout: "it", keymap }) === lay, "el teclado ajustado se arma una vez y se reutiliza");
+  ok(layoutFor({ layout: "it", keymap: {} }) === LAYOUTS.it, "sin nada aprendido se usa la distribución tal cual");
+  ok(comboText(lay, "{") === "AltGr + 7", `la combinación enseñada sale del teclado real (${comboText(lay, "{")})`);
+  ok(comboMap(LAYOUTS.it).get("{")?.code === "BracketLeft", "la distribución base no se modifica");
+  ok(!lay.legends.BracketLeft.includes("{"), "el símbolo deja de figurar en su tecla anterior");
+  ok(isTypeable(lay, "`") && !isTypeable(LAYOUTS.it, "`"), "un símbolo sin tecla en la distribución pasa a ser practicable");
+  ok(!("`" in lay.missing) && lay.learned === 2, "deja de figurar como faltante y se cuenta como aprendido");
+  const bad = layoutFor({ layout: "it", keymap: { it: { "{": { code: "Numpad7", shift: false, altgr: false } } } });
+  ok(bad === LAYOUTS.it, "se ignoran teclas físicas que no producen símbolos");
+
+  const ev = (key: string, code: string, o: { shift?: boolean; alt?: boolean; altgr?: boolean } = {}) => ({
+    key, code, shiftKey: !!o.shift, altKey: !!o.alt, ctrlKey: false, getModifierState: (m: string) => m === "AltGraph" && !!o.altgr,
+  });
+  ok(readKey(ev("a", "KeyA")) === null && readKey(ev("1", "Numpad1")) === null, "no aprende letras ni el teclado numérico");
+  ok(JSON.stringify(readKey(ev("{", "Digit7", { altgr: true }))) === '{"key":"{","code":"Digit7","shift":false,"altgr":true}', "lee AltGr de Linux");
+  ok(readKey(ev("[", "BracketLeft", { alt: true }))?.altgr === true, "Windows (Ctrl+Alt) y macOS (Opción) cuentan como AltGr");
+
+  const learner = new KeyLearner();
+  const obs = readKey(ev("{", "Digit7", { altgr: true }))!;
+  ok(learner.observe(obs, LAYOUTS.it) === null, "una sola vez no alcanza para cambiar la combinación");
+  ok(learner.observe(obs, LAYOUTS.it)?.code === "Digit7", "dos veces seguidas igual: se aprende");
+  const okObs = readKey(ev("{", "BracketLeft", { altgr: true, shift: true }))!;
+  ok(learner.observe(okObs, LAYOUTS.it) === null && learner.observe(okObs, LAYOUTS.it) === null, "si coincide con lo esperado no hay nada que aprender");
+  learner.observe(obs, LAYOUTS.it);
+  learner.observe(readKey(ev("{", "Digit8", { altgr: true }))!, LAYOUTS.it);
+  ok(learner.observe(obs, LAYOUTS.it) === null, "observaciones distintas reinician la cuenta");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de lógica pasaron");

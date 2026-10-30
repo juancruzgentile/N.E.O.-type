@@ -3,7 +3,7 @@ import type { AppState, LangId, Lesson, LessonResult, Profile, Sample } from "..
 import { LANGS, SYMBOL_INFO, isTrack, stageCount } from "../data/curriculum";
 import { TRACKS } from "../tracks/index";
 import type { Step } from "../tracks/types";
-import { LAYOUTS, comboMap, comboText } from "../data/layouts";
+import { KeyLearner, LAYOUTS, comboMap, comboText, keyLabel, layoutFor, readKey } from "../data/layouts";
 import { dropSymbol, keyHit, spark, wave } from "../fx/fx";
 import { makeRng } from "../gen/base";
 import { TypingSession } from "../engine/session";
@@ -40,15 +40,19 @@ const challengeKey = (lang: LangId, c: Challenge) => `${lang}:${c.kind === "spri
 
 export function PracticeView({ state, update, lang, challenge, onExitChallenge }: Props) {
   const settings = state.settings;
-  const layout = LAYOUTS[settings.layout];
+  const layout = layoutFor(settings);
   const profile = getProfile(state, lang);
   const mode = challenge ? "free" : state.mode;
 
+  // la lección se arma con los ajustes más recientes (incluido lo aprendido del teclado),
+  // pero aprender una tecla nueva no regenera la lección en curso
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
   const rng = useRef(makeRng());
   const lastLesson = useRef<Lesson | undefined>(undefined);
   const make = useCallback(
     (p: Profile): Lesson => {
-      const l = buildLesson(lang, p, settings, mode, rng.current, lastLesson.current);
+      const l = buildLesson(lang, p, settingsRef.current, mode, rng.current, lastLesson.current);
       lastLesson.current = l;
       return l;
     },
@@ -326,6 +330,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.nativeEvent.isComposing) return;
+    learnKey(e.nativeEvent);
     if (e.key === "Enter") {
       e.preventDefault();
       handleChar("\n");
@@ -336,6 +341,24 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       e.preventDefault();
       restart();
     }
+  };
+
+  /** Aprende del teclado real: qué tecla y modificadores producen cada símbolo. */
+  const learner = useRef(new KeyLearner());
+  const [learnedNote, setLearnedNote] = useState<string | null>(null);
+  const learnKey = (ev: KeyboardEvent) => {
+    const obs = readKey(ev);
+    if (!obs) return;
+    const k = learner.current.observe(obs, layout);
+    if (!k) return;
+    const id = settings.layout;
+    update((st) => ({
+      ...st,
+      settings: { ...st.settings, keymap: { ...st.settings.keymap, [id]: { ...(st.settings.keymap[id] ?? {}), [obs.key]: k } } },
+    }));
+    const parts = [k.shift && "Shift", k.altgr && "AltGr", keyLabel(LAYOUTS[id], k.code)].filter(Boolean);
+    setLearnedNote(`Aprendí tu teclado: ${obs.key} se escribe con ${parts.join(" + ")}`);
+    setTimeout(() => setLearnedNote(null), 4500);
   };
 
   const onInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -431,7 +454,9 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
           )}
         </div>
         <div className="panel-foot">
-          {lastRes ? (
+          {learnedNote ? (
+            <span className="last">{learnedNote}</span>
+          ) : lastRes ? (
             <span className="last">
               Última: <b>{Math.round(lastRes.wpm)} WPM</b> · <b>{(lastRes.acc * 100).toFixed(1)}%</b> · +{lastRes.score} pts
             </span>

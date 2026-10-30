@@ -1,6 +1,6 @@
 import type { AppState, LangId, TrackId } from "../types";
 import { LANGS, LANG_ORDER, TRACK_ORDER, stageCount } from "../data/curriculum";
-import { LAYOUTS, comboMap } from "../data/layouts";
+import { comboMap, layoutFor } from "../data/layouts";
 import { stageInfos, stepInfos } from "./stats";
 import { streakDays, today } from "../store";
 
@@ -96,7 +96,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: "altgr", name: "Ninja del AltGr", desc: "Dominá 4 símbolos que se escriben con AltGr", tier: "gold",
     check: (s) => {
-      const combos = comboMap(LAYOUTS[s.settings.layout]);
+      const combos = comboMap(layoutFor(s.settings));
       return LANG_ORDER.some((l) => masteredIn(s, l).filter((c) => combos.get(c)?.altgr).length >= 4);
     },
   },

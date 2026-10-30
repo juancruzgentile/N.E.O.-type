@@ -1,6 +1,6 @@
 import type { KeyStat, LangId, Lesson, Mode, Profile, Sample, Settings, StepStat, TrackId } from "../types";
 import { LANGS, allChars, stageCount, unlockedChars } from "../data/curriculum";
-import { LAYOUTS, isTypeable } from "../data/layouts";
+import { isTypeable, layoutFor } from "../data/layouts";
 import { type Rng, int } from "../gen/base";
 import { TRACKS, freeExercise, isTrack, stepExercise } from "../tracks/index";
 import { variantName } from "../tracks/types";
@@ -70,7 +70,7 @@ export function keyInfo(char: string, k: KeyStat | undefined, s: Settings, unloc
 
 /** Caracteres de la etapa que se pueden escribir en el layout (los demás se saltan si así se configuró). */
 export function playableChars(chars: string[], s: Settings): string[] {
-  const layout = LAYOUTS[s.layout];
+  const layout = layoutFor(s);
   return s.excludeMissing ? chars.filter((c) => isTypeable(layout, c)) : chars;
 }
 

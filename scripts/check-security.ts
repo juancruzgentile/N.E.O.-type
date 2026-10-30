@@ -87,6 +87,27 @@ const st = sp.steps.sqlite;
 ok(st.w.length === st.a.length && st.w.length <= 5, "velocidad y precisión del escalón quedan alineadas y acotadas a 5");
 ok(st.w.every((x) => x >= 0 && x <= 1000) && st.a.every((x) => x >= 0 && x <= 1), "los valores del escalón quedan dentro de rango");
 
+// ── teclado aprendido ──
+{
+  const km = clean(JSON.parse(`{
+    "version": 1,
+    "settings": { "keymap": {
+      "__proto__": { "x": 1 },
+      "xx": { "{": { "code": "Digit7" } },
+      "it": {
+        "{": { "code": "Digit7", "shift": "yes", "altgr": true, "dead": 1 },
+        "a": { "code": "KeyA" },
+        "<b>": { "code": "Digit1" },
+        "}": { "code": "javascript:alert(1)" },
+        "__proto__": { "code": "Digit1" }
+      }
+    } }
+  }`)).settings.keymap;
+  ok(Object.keys(km).join(",") === "it", "teclado aprendido: solo distribuciones conocidas");
+  ok(Object.keys(km.it ?? {}).join(",") === "{", "teclado aprendido: solo símbolos y teclas físicas válidas");
+  ok(JSON.stringify(km.it?.["{"]) === '{"code":"Digit7","shift":false,"altgr":true}', "teclado aprendido: modificadores booleanos y sin campos extra");
+}
+
 // ── Content Security Policy del build ──
 let html = "";
 try {

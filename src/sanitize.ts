@@ -4,9 +4,10 @@
 // (__proto__, constructor), meter URLs externas ni valores que rompan la interfaz.
 
 import type {
-  AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, KeyStat, LangId, LayoutId, LessonResult, Mode, Profile, Settings,
-  StepStat, ThemeId,
+  AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, KeyStat, LangId, LayoutId, LearnedKey, LessonResult, Mode,
+  Profile, Settings, StepStat, ThemeId,
 } from "./types";
+import { CHAR_KEY_CODES } from "./data/layouts";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 /** Tamaño real en bytes (UTF-8), igual que File.size. `string.length` cuenta caracteres, no bytes. */
@@ -61,6 +62,22 @@ function entries(v: unknown, keyRe: RegExp, limit: number): [string, unknown][] 
   return out;
 }
 
+/** Símbolos aprendidos del teclado real: solo distribuciones, símbolos y teclas físicas conocidas. */
+function sanitizeKeymap(v: unknown): Settings["keymap"] {
+  const out: Settings["keymap"] = {};
+  if (!isObj(v)) return out;
+  for (const layout of LAYOUT_IDS) {
+    if (!has(v, layout) || !isObj(v[layout])) continue;
+    const map: Record<string, LearnedKey> = {};
+    for (const [ch, raw] of entries(v[layout], /^[!-@[-`{-~]$/, 100)) {
+      if (!isObj(raw) || typeof raw.code !== "string" || !CHAR_KEY_CODES.has(raw.code)) continue;
+      map[ch] = { code: raw.code, shift: bool(raw.shift, false), altgr: bool(raw.altgr, false), ...(raw.dead === true ? { dead: true } : {}) };
+    }
+    if (Object.keys(map).length) out[layout] = map;
+  }
+  return out;
+}
+
 function sanitizeSettings(v: unknown, defaults: Settings): Settings {
   const s = isObj(v) ? v : {};
   return {
@@ -81,6 +98,7 @@ function sanitizeSettings(v: unknown, defaults: Settings): Settings {
     avatar: has(s, "avatar") ? safeAvatar(s.avatar) : defaults.avatar,
     showSplash: bool(s.showSplash, defaults.showSplash),
     tutorialDone: bool(s.tutorialDone, defaults.tutorialDone),
+    keymap: sanitizeKeymap(s.keymap),
     distro: oneOf(s.distro, DISTRO_IDS, defaults.distro),
     dbEngine: oneOf(s.dbEngine, DB_IDS, defaults.dbEngine),
   };

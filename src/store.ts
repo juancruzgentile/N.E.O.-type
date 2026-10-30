@@ -24,6 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
   avatar: "",
   showSplash: true,
   tutorialDone: false,
+  keymap: {},
   distro: "ubuntu",
   dbEngine: "sqlite",
 };
