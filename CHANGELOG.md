@@ -5,6 +5,16 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- La app aprende tu teclado real: si escribís un símbolo con una tecla o modificadores distintos de los que
+  supone la distribución elegida, lo detecta (dos veces seguidas) y desde ahí enseña tu combinación.
+- Ajustes → Teclado físico → **Calibrar teclado**: te pide cada símbolo una vez y graba cómo lo escribís,
+  incluidas las teclas muertas. **Restablecer** olvida lo aprendido. Se guarda por distribución y por navegador.
+- `test:e2e` acepta `CHROMIUM_PATH` para usar un Chromium ya instalado.
+
+### Cambiado
+- Los 27 logros tienen nombres nuevos con humor de programador (lo que hay que hacer para ganarlos no cambia).
+
 ## [1.5.0] - 2026-10-28
 
 Tutorial de bienvenida, nombre unificado como N.E.O.-type, navegación en pantallas chicas y correcciones de las

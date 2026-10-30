@@ -1,4 +1,4 @@
-import type { LayoutId } from "../types";
+import type { LayoutId, LearnedKey, Settings } from "../types";
 
 export type Finger = "lp" | "lr" | "lm" | "li" | "ri" | "rm" | "rr" | "rp" | "th";
 
@@ -35,6 +35,8 @@ export interface LayoutDef {
   /** caracteres sin tecla directa y cómo escribirlos */
   missing: Record<string, string>;
   notes?: string;
+  /** cantidad de símbolos ajustados a tu teclado real */
+  learned?: number;
 }
 
 const F: Record<string, Finger> = {
@@ -181,11 +183,12 @@ export interface Combo {
   finger: Finger;
 }
 
-const comboCache = new Map<LayoutId, Map<string, Combo>>();
+// por objeto: un teclado ajustado a tu teclado real es un objeto distinto del base
+const comboCache = new WeakMap<LayoutDef, Map<string, Combo>>();
 
 /** Cómo se escribe cada carácter en un layout. */
 export function comboMap(layout: LayoutDef): Map<string, Combo> {
-  const cached = comboCache.get(layout.id);
+  const cached = comboCache.get(layout);
   if (cached) return cached;
   const map = new Map<string, Combo>();
   const allKeys = rowsFor(layout).flat();
@@ -205,7 +208,7 @@ export function comboMap(layout: LayoutDef): Map<string, Combo> {
   }
   map.set(" ", { code: "Space", shift: false, altgr: false, dead: false, finger: "th" });
   map.set("\n", { code: "Enter", shift: false, altgr: false, dead: false, finger: "rp" });
-  comboCache.set(layout.id, map);
+  comboCache.set(layout, map);
   return map;
 }
 
@@ -232,4 +235,97 @@ export function comboText(layout: LayoutDef, ch: string): string {
 
 export function isTypeable(layout: LayoutDef, ch: string): boolean {
   return comboMap(layout).has(ch);
+}
+
+// ─────────────────────────── Teclado real del usuario ───────────────────────────
+
+const MODIFIER_OR_SPECIAL = new Set([
+  "Backspace", "Tab", "CapsLock", "Enter", "ShiftLeft", "ShiftRight", "ControlLeft", "ControlRight",
+  "MetaLeft", "MetaRight", "AltLeft", "AltRight", "Space",
+]);
+
+/** Teclas físicas que pueden producir un símbolo (las de las filas de caracteres, en ISO o ANSI). */
+export const CHAR_KEY_CODES: ReadonlySet<string> = new Set(
+  [...ISO_ROWS.flat(), ...ANSI_ROWS.flat()].map((k) => k.code).filter((c) => !MODIFIER_OR_SPECIAL.has(c)),
+);
+
+/** Símbolos que la app aprende del teclado real: ASCII imprimible que no es letra ni espacio. */
+export const isLearnable = (ch: string) => /^[!-@[-`{-~]$/.test(ch);
+
+const derived = new Map<string, LayoutDef>();
+
+/**
+ * Teclado efectivo: el de la distribución elegida, corregido con lo que la app aprendió de tu
+ * teclado real (mientras tipeás o con la calibración). Lo usan el teclado en pantalla, las
+ * combinaciones que se enseñan y qué símbolos se pueden practicar.
+ */
+export function layoutFor(s: Pick<Settings, "layout" | "keymap">): LayoutDef {
+  const base = LAYOUTS[s.layout];
+  const learned = s.keymap?.[s.layout];
+  const entries = learned ? Object.entries(learned).filter(([ch, k]) => isLearnable(ch) && CHAR_KEY_CODES.has(k.code)) : [];
+  if (!entries.length) return base;
+  const key = s.layout + JSON.stringify(entries);
+  const hit = derived.get(key);
+  if (hit) return hit;
+  const legends: Record<string, Legend> = {};
+  for (const [code, lg] of Object.entries(base.legends)) legends[code] = [...lg] as Legend;
+  const learnedChars = new Set(entries.map(([ch]) => ch));
+  // el símbolo deja de estar donde lo suponía la distribución…
+  for (const lg of Object.values(legends)) {
+    for (let i = 0; i < 4; i++) if (lg[i] !== undefined && learnedChars.has(lg[i] as string)) lg[i] = "";
+  }
+  // …y pasa a la tecla y modificadores donde realmente lo escribís
+  for (const [ch, k] of entries) {
+    const lg = (legends[k.code] ??= ["", ""]);
+    const slot = (k.shift ? 1 : 0) + (k.altgr ? 2 : 0);
+    while (lg.length <= slot) lg.push("");
+    lg[slot] = ch;
+  }
+  const deadLearned = entries.filter(([, k]) => k.dead).map(([ch]) => ch);
+  const out: LayoutDef = {
+    ...base,
+    legends,
+    dead: [...base.dead.filter((c) => !learnedChars.has(c)), ...deadLearned],
+    missing: Object.fromEntries(Object.entries(base.missing).filter(([c]) => !learnedChars.has(c))),
+    learned: entries.length,
+  };
+  if (derived.size > 50) derived.clear();
+  derived.set(key, out);
+  return out;
+}
+
+/** Lee qué símbolo produjo una pulsación y con qué tecla y modificadores (null si no sirve para aprender). */
+export function readKey(e: Pick<KeyboardEvent, "key" | "code" | "shiftKey" | "altKey" | "ctrlKey" | "getModifierState">): (LearnedKey & { key: string }) | null {
+  if (!isLearnable(e.key) || !CHAR_KEY_CODES.has(e.code)) return null;
+  // AltGr: Windows lo informa como Ctrl + Alt, Linux como AltGraph y macOS usa Opción (Alt)
+  const altgr = e.getModifierState("AltGraph") || e.altKey;
+  return { key: e.key, code: e.code, shift: e.shiftKey, altgr };
+}
+
+const sameKey = (a: Pick<LearnedKey, "code" | "shift" | "altgr">, b: Pick<LearnedKey, "code" | "shift" | "altgr">) =>
+  a.code === b.code && a.shift === b.shift && a.altgr === b.altgr;
+
+/**
+ * Aprende mientras tipeás: si un símbolo sale dos veces seguidas con una tecla o modificadores
+ * distintos de los que la app suponía, devuelve la combinación real para guardarla.
+ */
+export class KeyLearner {
+  private pending = new Map<string, { k: LearnedKey; n: number }>();
+
+  observe(obs: LearnedKey & { key: string }, layout: LayoutDef): LearnedKey | null {
+    const current = comboMap(layout).get(obs.key);
+    const k: LearnedKey = { code: obs.code, shift: obs.shift, altgr: obs.altgr };
+    if (current && !current.dead && sameKey(current, k)) {
+      this.pending.delete(obs.key);
+      return null;
+    }
+    const prev = this.pending.get(obs.key);
+    const n = prev && sameKey(prev.k, k) ? prev.n + 1 : 1;
+    if (n >= 2) {
+      this.pending.delete(obs.key);
+      return k;
+    }
+    this.pending.set(obs.key, { k, n });
+    return null;
+  }
 }

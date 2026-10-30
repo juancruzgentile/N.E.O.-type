@@ -852,3 +852,8 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
   .mobile-nav button { padding: 10px; }
   .mn-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+
+/* ── calibración del teclado ── */
+.modal.calib .big { letter-spacing: 0; font-size: 80px; }
+.modal.calib .calib-msg { font-size: 15px; color: var(--yellow); min-height: 22px; }
+.modal.calib .progress { margin-top: 12px; }

@@ -12,6 +12,16 @@ export type Mode = "guided" | "free";
 export type View = "languages" | "practice" | "routes" | "stats" | "challenges" | "achievements" | "settings";
 export type ThemeId = "cyber" | "neon" | "synthwave" | "matrix" | "tokyo" | "light";
 
+/** Cómo escribe el usuario un símbolo en su teclado real (aprendido o calibrado). */
+export interface LearnedKey {
+  /** tecla física (KeyboardEvent.code) */
+  code: string;
+  shift: boolean;
+  altgr: boolean;
+  /** tecla muerta: el símbolo aparece después de apretar Espacio */
+  dead?: boolean;
+}
+
 export interface Settings {
   layout: LayoutId;
   targetWpm: number;
@@ -32,6 +42,8 @@ export interface Settings {
   showSplash: boolean;
   /** ya vio la bienvenida y el recorrido inicial */
   tutorialDone: boolean;
+  /** símbolos aprendidos de tu teclado real, por distribución */
+  keymap: Partial<Record<LayoutId, Record<string, LearnedKey>>>;
   /** distribución para la práctica libre de la terminal */
   distro: DistroId;
   /** motor para la práctica libre de bases de datos */

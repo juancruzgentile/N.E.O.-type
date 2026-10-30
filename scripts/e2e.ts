@@ -83,7 +83,8 @@ async function typeLesson(page: Page, text: string, lastWrong = false) {
   }
 }
 
-const browser = await chromium.launch();
+// CHROMIUM_PATH permite usar un Chromium ya instalado si no coincide con la versión de Playwright
+const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 try {
   // 1. carga y lección completa
   {

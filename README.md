@@ -33,6 +33,8 @@ un título que explica qué hace.
 - **Código infinito**: ~40 conceptos × 22 entidades de dominio × variantes por lenguaje → cientos de funciones distintas.
 - **4 teclados físicos**: italiano, inglés (EE. UU.), español (España) y español (Latinoamérica), con la tecla, el dedo y
   los modificadores (Shift / AltGr) del siguiente carácter.
+- **Tu teclado real**: si escribís un símbolo con otra tecla o modificador, la app lo aprende sola mientras
+  practicás. También podés calibrarlo de una vez desde Ajustes.
 - **Modo libre y desafíos**: sprints de 30/60/120 s y "precisión perfecta", con récords.
 - **Estadísticas**: evolución de velocidad y precisión, mapa de calor del teclado, calendario de práctica.
 - **Música generativa**: 7 estaciones (lo-fi, lluvia, synthwave, espacio, zen, jazz y foco) sintetizadas en vivo con
@@ -148,7 +150,7 @@ Además de los lenguajes, hay rutas para las herramientas que se usan todos los 
 src/
 ├── data/
 │   ├── curriculum.ts    # orden de desbloqueo de símbolos por lenguaje
-│   └── layouts.ts       # teclados IT / US / ES / LATAM: teclas, Shift, AltGr y dedos
+│   └── layouts.ts       # teclados IT / US / ES / LATAM y ajuste al teclado real del usuario
 ├── gen/
 │   ├── base.ts          # vocabulario de dominio, nombres (snake/camel/Pascal), español
 │   ├── concepts.ts      # conceptos y sus títulos

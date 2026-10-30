@@ -1,6 +1,6 @@
 import type { AppState, LangId, TrackId } from "../types";
 import { LANGS, LANG_ORDER, TRACK_ORDER, stageCount } from "../data/curriculum";
-import { LAYOUTS, comboMap } from "../data/layouts";
+import { comboMap, layoutFor } from "../data/layouts";
 import { stageInfos, stepInfos } from "./stats";
 import { streakDays, today } from "../store";
 
@@ -73,77 +73,77 @@ const streakAch = (id: string, name: string, n: number, tier: Achievement["tier"
 });
 
 export const ACHIEVEMENTS: Achievement[] = [
-  { id: "hello", name: "Hola, mundo", desc: "Completá tu primera lección", tier: "bronze", check: (s) => allLessons(s).length >= 1 },
-  lessonsAch("lessons10", "Constante", 10, "bronze"),
-  lessonsAch("lessons50", "Dedicado", 50, "silver"),
-  lessonsAch("lessons200", "Incansable", 200, "gold"),
-  wpmAch("wpm30", "Calentando motores", 30, "bronze"),
-  wpmAch("wpm50", "Fluido", 50, "silver"),
-  wpmAch("wpm70", "Veloz", 70, "gold"),
-  wpmAch("wpm90", "Relámpago", 90, "gold"),
+  { id: "hello", name: "Primer commit", desc: "Completá tu primera lección", tier: "bronze", check: (s) => allLessons(s).length >= 1 },
+  lessonsAch("lessons10", "Ya no es un side project", 10, "bronze"),
+  lessonsAch("lessons50", "Commit diario", 50, "silver"),
+  lessonsAch("lessons200", "Esto ya es legacy", 200, "gold"),
+  wpmAch("wpm30", "Hot reload", 30, "bronze"),
+  wpmAch("wpm50", "Sin lag", 50, "silver"),
+  wpmAch("wpm70", "Complejidad O(1)", 70, "gold"),
+  wpmAch("wpm90", "Teclado overclockeado", 90, "gold"),
   {
-    id: "clean", name: "Código limpio", desc: "Escribí una función real sin ningún error", tier: "silver",
+    id: "clean", name: "Cero warnings", desc: "Escribí una función real sin ningún error", tier: "silver",
     check: (s) => allLessons(s).some((l) => l.kind === "code" && l.acc >= 1 && l.chars >= 60),
   },
   {
-    id: "symbols10", name: "Alfabeto simbólico", desc: "Dominá 10 símbolos en un mismo lenguaje", tier: "bronze",
+    id: "symbols10", name: "Regex sin miedo", desc: "Dominá 10 símbolos en un mismo lenguaje", tier: "bronze",
     check: (s) => maxMastered(s) >= 10, progress: (s) => Math.min(1, maxMastered(s) / 10),
   },
   {
-    id: "brackets", name: "Domador de llaves", desc: "Dominá ( ) [ ] { } en un mismo lenguaje", tier: "silver",
+    id: "brackets", name: "Paréntesis balanceados", desc: "Dominá ( ) [ ] { } en un mismo lenguaje", tier: "silver",
     check: (s) => LANG_ORDER.some((l) => ["(", ")", "[", "]", "{", "}"].every((c) => masteredIn(s, l).includes(c))),
   },
   {
-    id: "altgr", name: "Ninja del AltGr", desc: "Dominá 4 símbolos que se escriben con AltGr", tier: "gold",
+    id: "altgr", name: "AltGr sin googlear", desc: "Dominá 4 símbolos que se escriben con AltGr", tier: "gold",
     check: (s) => {
-      const combos = comboMap(LAYOUTS[s.settings.layout]);
+      const combos = comboMap(layoutFor(s.settings));
       return LANG_ORDER.some((l) => masteredIn(s, l).filter((c) => combos.get(c)?.altgr).length >= 4);
     },
   },
   {
-    id: "route", name: "Ruta completa", desc: "Desbloqueá todos los símbolos de un lenguaje", tier: "gold",
+    id: "route", name: "Merge a main", desc: "Desbloqueá todos los símbolos de un lenguaje", tier: "gold",
     check: (s) => profilesOf(s).some(({ lang, p }) => p!.stage >= LANGS[lang].stages.length - 1),
     progress: (s) => Math.max(0, ...profilesOf(s).map(({ lang, p }) => p!.stage / (LANGS[lang].stages.length - 1))),
   },
   {
-    id: "polyglot", name: "Políglota", desc: "Practicá 3 lenguajes distintos", tier: "bronze",
+    id: "polyglot", name: "Full stack de CV", desc: "Practicá 3 lenguajes distintos", tier: "bronze",
     check: (s) => profilesOf(s).filter(({ p }) => p!.lessons.length > 0).length >= 3,
     progress: (s) => Math.min(1, profilesOf(s).filter(({ p }) => p!.lessons.length > 0).length / 3),
   },
   {
-    id: "allterrain", name: "Todoterreno", desc: "Practicá los 7 lenguajes", tier: "gold",
+    id: "allterrain", name: "Hello world en 7 idiomas", desc: "Practicá los 7 lenguajes", tier: "gold",
     check: (s) => profilesOf(s).filter(({ p }) => p!.lessons.length > 0).length >= 7,
     progress: (s) => Math.min(1, profilesOf(s).filter(({ p }) => p!.lessons.length > 0).length / 7),
   },
-  streakAch("streak3", "Hábito", 3, "bronze"),
-  streakAch("streak7", "Una semana entera", 7, "silver"),
-  streakAch("streak30", "Disciplina también es código", 30, "gold"),
+  streakAch("streak3", "Daily standup", 3, "bronze"),
+  streakAch("streak7", "Sprint completo", 7, "silver"),
+  streakAch("streak30", "Uptime 99,9 %", 30, "gold"),
   {
-    id: "goal", name: "Objetivo cumplido", desc: "Alcanzá tu objetivo diario de práctica", tier: "bronze",
+    id: "goal", name: "Ticket cerrado", desc: "Alcanzá tu objetivo diario de práctica", tier: "bronze",
     check: (s) => (s.days[today()] ?? 0) >= s.settings.dailyGoalMin * 60,
   },
   {
-    id: "sprinter", name: "Sprinter", desc: "Hacé 40 WPM o más en el sprint de 60 s", tier: "silver",
+    id: "sprinter", name: "Deploy un viernes", desc: "Hacé 40 WPM o más en el sprint de 60 s", tier: "silver",
     check: (s) => Object.entries(s.challenges).some(([k, r]) => k.endsWith(":sprint60") && r.wpm >= 40),
   },
   {
-    id: "surgeon", name: "Cirujano", desc: "Superá el desafío de precisión perfecta", tier: "silver",
+    id: "surgeon", name: "Cero bugs en producción", desc: "Superá el desafío de precisión perfecta", tier: "silver",
     check: (s) => Object.keys(s.challenges).some((k) => k.endsWith(":perfect")),
   },
   {
-    id: "firststep", name: "Primer escalón", desc: "Dominá un escalón de cualquier ruta Trainee", tier: "bronze",
+    id: "firststep", name: "Funciona en mi máquina", desc: "Dominá un escalón de cualquier ruta Trainee", tier: "bronze",
     check: (s) => TRACK_ORDER.some((t) => stepsMastered(s, t) >= 1),
   },
-  trackAch("dba", "Guardián de datos", "Completá la ruta de bases de datos, de SQLite a MongoDB", ["sql"]),
-  trackAch("sysadmin", "Acceso root", "Completá la ruta de terminal, de Ubuntu a Arch Linux", ["linux"]),
-  trackAch("webdev", "Arquitecto web", "Completá las rutas de HTML y CSS", ["html", "css"]),
+  trackAch("dba", "DROP TABLE, no gracias", "Completá la ruta de bases de datos, de SQLite a MongoDB", ["sql"]),
+  trackAch("sysadmin", "Vivo en la terminal", "Completá la ruta de terminal, de Ubuntu a Arch Linux", ["linux"]),
+  trackAch("webdev", "Centré un div", "Completá las rutas de HTML y CSS", ["html", "css"]),
   {
-    id: "trainee", name: "Trainee certificado", desc: "Completá las cinco rutas Trainee", tier: "gold",
+    id: "trainee", name: "Fin del onboarding", desc: "Completá las cinco rutas Trainee", tier: "gold",
     check: (s) => tracksDone(s) === TRACK_ORDER.length,
     progress: (s) => tracksDone(s) / TRACK_ORDER.length,
   },
   {
-    id: "owl", name: "Búho nocturno", desc: "Completá una lección entre las 0 y las 5 h", tier: "bronze",
+    id: "owl", name: "Bug a las 3 AM", desc: "Completá una lección entre las 0 y las 5 h", tier: "bronze",
     check: (s) => allLessons(s).some((l) => new Date(l.ts).getHours() < 5),
   },
 ];
