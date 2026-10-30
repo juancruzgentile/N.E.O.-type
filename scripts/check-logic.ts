@@ -91,9 +91,9 @@ ok(lessonScore(100, 50, 1) === 500 && lessonScore(100, 50, 0.5) === 125, "el pun
   };
   const has = (s: AppState, id: string) => newAchievements(s).includes(id);
   ok(newAchievements(initialState()).length === 0, "estado vacío: ningún logro");
-  ok(has(withLessons([lesson()]), "hello"), "primera lección: Hola, mundo");
+  ok(has(withLessons([lesson()]), "hello"), "primera lección: Primer commit");
   ok(has(withLessons(Array.from({ length: 10 }, () => lesson())), "lessons10"), "10 lecciones: Constante");
-  ok(has(withLessons([lesson({ wpm: 31 })]), "wpm30"), "31 WPM: Calentando motores");
+  ok(has(withLessons([lesson({ wpm: 31 })]), "wpm30"), "31 WPM: Hot reload");
   ok(!has(withLessons([lesson({ wpm: 31, chars: 59 })]), "wpm30"), "una lección de menos de 60 caracteres no cuenta para WPM");
   ok(has(withLessons([lesson({ kind: "code", acc: 1, chars: 60 })]), "clean"), "función sin errores: Código limpio");
   ok(!has(withLessons([lesson({ kind: "drill", acc: 1, chars: 60 })]), "clean"), "un ejercicio no cuenta como función");
