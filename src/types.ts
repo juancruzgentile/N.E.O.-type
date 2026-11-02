@@ -106,6 +106,20 @@ export interface ProjectRecord {
   ts: number;
 }
 
+/** Entrada de la Biblioteca en repaso espaciado (sistema de cajas). */
+export interface ReviewItem {
+  /** caja 0..4: cuanto más alta, más tarda en volver */
+  box: number;
+  /** día desde el que toca repasarla (YYYY-MM-DD) */
+  due: string;
+  /** veces que se practicó */
+  n: number;
+  /** veces que volvió a la primera caja por un mal intento */
+  lapses: number;
+  /** último intento */
+  ts: number;
+}
+
 export interface AppState {
   version: 1;
   settings: Settings;
@@ -117,6 +131,8 @@ export interface AppState {
   challenges: Record<string, ChallengeRecord>;
   /** proyectos terminados: id → mejor marca */
   projects: Record<string, ProjectRecord>;
+  /** repaso espaciado: id de entrada de la Biblioteca → estado */
+  review: Record<string, ReviewItem>;
   /** logros desbloqueados: id → fecha */
   achievements: Record<string, number>;
 }
@@ -133,6 +149,10 @@ export interface Lesson {
   label?: string;
   /** lenguajes: concepto del fragmento, para no repetirlo en la lección siguiente */
   concept?: ConceptId;
+  /** repaso: id de la entrada de la Biblioteca que se practica */
+  review?: string;
+  /** resaltado del texto cuando no es el del lenguaje actual (repasos) */
+  hl?: LangId;
 }
 
 /** Una muestra registrada al teclear un carácter. */
