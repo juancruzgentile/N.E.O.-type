@@ -38,6 +38,7 @@ export const initialState = (): AppState => ({
   days: {},
   challenges: {},
   projects: {},
+  review: {},
   achievements: {},
 });
 

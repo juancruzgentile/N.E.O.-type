@@ -178,7 +178,7 @@ export default function App() {
                 }}
               />
             )}
-            {current === "library" && <LibraryView lang={lang} />}
+            {current === "library" && <LibraryView lang={lang} state={state} update={update} />}
             {current === "achievements" && <AchievementsView state={state} />}
             {current === "settings" && (
               <SettingsView

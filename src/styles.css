@@ -1000,3 +1000,23 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
   .lib-search kbd { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .lib-entry { transition: none; } }
+
+/* ── Practicar y repaso ─────────────────────────────────────────────────── */
+.lib-entry-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.lib-practice { gap: 6px; }
+.lib-review { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.5px; color: var(--cyan); padding: 2px 4px 2px 9px; border: 1px solid color-mix(in srgb, var(--cyan) 45%, transparent); }
+.lib-review.mastered { color: var(--green); border-color: color-mix(in srgb, var(--green) 45%, transparent); }
+.lib-forget { background: none; border: 0; color: inherit; font-size: 16px; line-height: 1; padding: 0 4px; cursor: pointer; opacity: 0.7; }
+.lib-forget:hover, .lib-forget:focus-visible { opacity: 1; }
+.lib-in-review { margin-left: 12px; font-family: var(--mono); font-size: 12px; color: var(--cyan); letter-spacing: 1px; }
+.modal.entry-practice { width: min(860px, 94vw); max-height: 92vh; overflow: auto; text-align: left; }
+.modal.entry-practice .kicker { text-align: left; }
+.ep-title { margin: 8px 0 14px; font-family: var(--mono); font-size: 24px; color: var(--strong); }
+.ep-box { max-height: 52vh; overflow: auto; }
+.ep-result { text-align: center; }
+.ep-review { color: var(--cyan) !important; }
+.snippet-title.is-review .kind { color: var(--cyan); border-color: var(--cyan); }
+@media (max-width: 640px) {
+  .modal.entry-practice { padding: 20px 16px; }
+  .ep-title { font-size: 19px; }
+}

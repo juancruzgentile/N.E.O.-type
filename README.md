@@ -43,6 +43,9 @@ un título que explica qué hace.
   métodos de trabajo y más de 250 comandos en niveles básico, intermedio y avanzado. Búsqueda instantánea en todo
   (`/` o `Ctrl+K`), sin importar acentos. Próximamente: IA, Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode,
   Antigravity y Hermes.
+- **Practicar y repasar**: cada ejemplo de la Biblioteca tiene un botón **Practicar este ejemplo** que lo convierte en
+  una lección corta. Lo que practicás queda en tu repaso y vuelve cada tanto, intercalado en tus lecciones normales:
+  si lo hacés bien tarda más en volver (1, 3, 7, 15 y 30 días); si fallás, vuelve al día siguiente.
 - **Estadísticas**: evolución de velocidad y precisión, mapa de calor del teclado, calendario de práctica.
 - **Música generativa**: 7 estaciones (lo-fi, lluvia, synthwave, espacio, zen, jazz y foco) sintetizadas en vivo con
   Web Audio, sin archivos ni licencias de por medio. Nunca suenan exactamente igual. También podés cargar tus propias

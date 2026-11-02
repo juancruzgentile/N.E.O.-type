@@ -21,6 +21,13 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   resaltados. La búsqueda recorre todo a la vez, sin importar acentos ni mayúsculas (/ o Ctrl+K para buscar,
   Enter abre el primer resultado). Incluye una sección **Próximamente** con IA: conceptos, Claude, ChatGPT,
   Gemini, Codex, Cursor, OpenCode, Antigravity y Hermes. También está en el menú principal.
+- **Practicar y repasar**: cada entrada de la Biblioteca tiene un botón **Practicar este ejemplo** que abre una
+  lección corta con su código (sin tildes ni tabulaciones, para que se pueda escribir con cualquier teclado). Al
+  terminarla entra en el repaso espaciado, con un sistema de cajas: un buen intento (95 % de precisión o más) la sube
+  de caja y tarda más en volver (1, 3, 7, 15 y 30 días); uno malo la devuelve al día siguiente. Lo que toca repasar
+  aparece intercalado cada 2 a 4 lecciones, marcado como REPASO y priorizando el lenguaje que estás practicando. Los
+  repasos no cambian el progreso del lenguaje, pero suman a la meta diaria. Cada entrada muestra si está en repaso y
+  cuándo vuelve, y se puede quitar.
 
 ## [1.6.0] - 2026-11-02
 
