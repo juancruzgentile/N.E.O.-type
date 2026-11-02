@@ -6,6 +6,8 @@ import { resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { type Browser, type Page, chromium } from "playwright-core";
 import { PROJECTS } from "../src/projects/projects";
+import { TOPICS } from "../src/library/index";
+import { entryId } from "../src/library/search";
 
 const FILE = "file://" + resolve("NeonType.html");
 const KEY = "neontype:v1";
@@ -456,6 +458,70 @@ try {
     const soon = await page.locator(".lib-soon-card").allTextContents();
     ok(soon.length === 9 && soon.every((t) => /PRÓXIMAMENTE/.test(t)), "Próximamente muestra las 9 secciones de IA marcadas como próximamente");
     ok(errors.length === 0, `biblioteca sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 12. practicar un ejemplo de la Biblioteca y repasarlo intercalado en las lecciones
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "python" }));
+    await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    const entry = page.locator(".lib-entry").first();
+    const id = (await entry.getAttribute("id")) ?? "";
+    await entry.getByRole("button", { name: "Practicar este ejemplo" }).click();
+    await page.locator(".entry-practice").waitFor();
+    await page.waitForFunction(() => document.activeElement?.classList.contains("ta-hidden"));
+    await page.keyboard.press("Escape");
+    ok((await page.locator(".entry-practice").count()) === 0, "Esc cierra la práctica del ejemplo");
+    await entry.getByRole("button", { name: "Practicar este ejemplo" }).click();
+    await page.waitForFunction(() => document.activeElement?.classList.contains("ta-hidden"));
+    const text = (await page.locator(".ep-box").getAttribute("data-text")) ?? "";
+    await typeLesson(page, text);
+    await page.locator(".ep-result").waitFor({ timeout: 5000 });
+    let st = await state(page);
+    ok(st.review?.[id]?.box === 0 && st.review[id].n === 1, "terminar el ejemplo lo suma al repaso");
+    ok(/Quedó en tu repaso: vuelve mañana/.test((await page.locator(".ep-review").textContent()) ?? ""), "avisa cuándo vuelve");
+    await page.getByRole("button", { name: "Volver a la Biblioteca" }).click();
+    ok(/En repaso · vuelve mañana/.test((await entry.locator(".lib-review").textContent()) ?? ""), "la entrada muestra que está en repaso");
+    ok(/1 en tu repaso/.test((await page.locator(".lib-in-review").textContent()) ?? ""), "el tema cuenta cuántas tiene en repaso");
+    await entry.getByRole("button", { name: /Quitar .* del repaso/ }).click();
+    st = await state(page);
+    ok(!st.review?.[id] && (await entry.locator(".lib-review").count()) === 0, "se puede quitar una entrada del repaso");
+    ok(st.profiles?.["python:it"] === undefined, "practicar desde la Biblioteca no toca el progreso del lenguaje");
+    ok(errors.length === 0, `practicar ejemplos sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+  {
+    const git = TOPICS.find((t) => t.id === "git")!;
+    const gid = entryId(git, git.entries[0]);
+    const due = { box: 0, due: "2020-01-01", n: 1, lapses: 0, ts: 0 };
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "python", review: { [gid]: due } }));
+    let found = false;
+    let lessons = 0;
+    for (let i = 0; i < 7 && !found; i++) {
+      found = (await page.locator(".snippet-title.is-review").count()) > 0;
+      if (found) break;
+      // terminar lecciones puede desbloquear un símbolo: se cierra el aviso
+      if (await page.locator(".modal-back").count()) await page.keyboard.press("Enter");
+      await focusPractice(page);
+      await typeLesson(page, await lessonText(page));
+      lessons++;
+      await page.waitForFunction((n) => {
+        const st = JSON.parse(localStorage.getItem("neontype:v1") ?? "{}");
+        return st.profiles?.["python:it"]?.lessons?.length === n;
+      }, lessons);
+    }
+    ok(found && lessons >= 3 && lessons <= 5, `el repaso aparece intercalado entre las lecciones (después de ${lessons})`);
+    ok(/REPASO/.test((await page.locator(".snippet-title").textContent()) ?? "") && /Git/.test((await page.locator(".code-head .tags").textContent()) ?? ""), "la lección de repaso se marca y dice de qué tema es");
+    if (await page.locator(".modal-back").count()) await page.keyboard.press("Enter");
+    await focusPractice(page);
+    await typeLesson(page, await lessonText(page));
+    await page.waitForFunction(() => /Repaso de/.test(document.querySelector(".panel-foot .last")?.textContent ?? ""));
+    const st = await state(page);
+    ok(st.review[gid]?.box === 1 && st.review[gid].due > "2020-01-01", "un repaso bien hecho sube de caja y se aleja la fecha");
+    ok(st.profiles["python:it"].lessons.length === lessons, "el repaso no cuenta como lección del lenguaje");
+    ok(/bien hecho · vuelve en 3 días/.test((await page.locator(".panel-foot .last").textContent()) ?? ""), "avisa cuándo vuelve el repaso");
+    ok((await page.locator(".snippet-title.is-review").count()) === 0, "después sigue una lección normal");
+    ok(errors.length === 0, `repaso intercalado sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
 } finally {
