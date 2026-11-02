@@ -330,7 +330,7 @@ try {
     const wide: string[] = [];
     if ((await overflow()) > 0) wide.push(`Práctica (${await overflow()} px)`);
     let navOk = true;
-    for (const name of ["Rutas", "Estadísticas", "Desafíos", "Logros", "Ajustes", "Práctica"]) {
+    for (const name of ["Rutas", "Estadísticas", "Desafíos", "Biblioteca", "Logros", "Ajustes", "Práctica"]) {
       await page.locator(".mobile-nav").getByRole("button", { name }).click();
       await page.waitForTimeout(200);
       navOk &&= (await page.locator('.mobile-nav button[aria-current="page"]').textContent())?.includes(name) ?? false;
@@ -422,6 +422,40 @@ try {
     await page.getByRole("button", { name: "Volver a desafíos" }).click();
     ok((await page.locator(".project-card").nth(1).getByRole("button", { name: "Empezar" }).count()) === 1, "el proyecto 2 ya se puede empezar");
     ok(errors.length === 0, `proyectos sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 11. biblioteca: temas, búsqueda rápida y próximamente
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "go" }));
+    await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await page.locator(".library").waitFor();
+    ok((await page.locator(".lib-head h3").textContent()) === "Go", "abre en el lenguaje que estás practicando");
+    await page.locator(".lib-nav").getByRole("button", { name: /Python/ }).click();
+    ok((await page.locator(".lib-head h3").textContent()) === "Python", "cambia de tema desde el índice");
+    const all = await page.locator(".lib-entry").count();
+    await page.locator(".lib-levels").getByRole("tab", { name: /Avanzado/ }).click();
+    const adv = await page.locator(".lib-entry").count();
+    ok(adv > 0 && adv < all && (await page.locator(".lib-level-title").count()) === 1, "el filtro de nivel muestra solo ese nivel");
+    await page.locator(".lib-head").click();
+    await page.keyboard.press("/");
+    ok(await page.locator(".lib-search input[type=search]").evaluate((el) => el === document.activeElement), "/ enfoca la búsqueda");
+    await page.keyboard.type("rebase");
+    await page.locator(".lib-entry").first().waitFor();
+    ok((await page.locator(".lib-entry h4").first().textContent()) === "git rebase", "la búsqueda encuentra en todos los temas");
+    await page.keyboard.press("Enter");
+    await page.locator(".lib-entry.flash").waitFor();
+    ok((await page.locator(".lib-head h3").textContent()) === "Git" && (await page.locator(".lib-entry.flash h4").textContent()) === "git rebase", "Enter abre el primer resultado en su tema y lo resalta");
+    await page.locator(".lib-search input[type=search]").fill("funcion flecha");
+    await page.waitForTimeout(100);
+    ok(/flecha/i.test((await page.locator(".lib-entry").first().textContent()) ?? ""), "busca sin acentos y con varias palabras");
+    await page.locator(".lib-search input[type=search]").fill("xyzxyz");
+    ok(/SIN RESULTADOS/.test((await page.locator(".lib-content .section").first().textContent()) ?? ""), "avisa cuando no hay resultados");
+    await page.locator(".lib-search input[type=search]").press("Escape");
+    await page.locator(".lib-nav").getByRole("button", { name: /IA y herramientas/ }).click();
+    const soon = await page.locator(".lib-soon-card").allTextContents();
+    ok(soon.length === 9 && soon.every((t) => /PRÓXIMAMENTE/.test(t)), "Próximamente muestra las 9 secciones de IA marcadas como próximamente");
+    ok(errors.length === 0, `biblioteca sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
 } finally {

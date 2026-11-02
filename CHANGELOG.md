@@ -6,8 +6,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
-- Menú principal: la pantalla de inicio ahora es un menú (Continuar, Lenguajes, Desafíos y proyectos, Ajustes).
-  El botón **Menú** de la cabecera vuelve a él desde cualquier sección, después de confirmar en un diálogo
+- Menú principal: la pantalla de inicio ahora es un menú (Continuar, Lenguajes, Desafíos y proyectos, Biblioteca,
+  Ajustes). El botón **Menú** de la cabecera vuelve a él desde cualquier sección, después de confirmar en un diálogo
   (Enter confirma, Esc cancela). Al volver desde la app, el menú aparece al instante con el foco en Continuar.
 - **Proyectos** (en Desafíos): 10 programas completos para escribir de punta a punta en el menor tiempo posible,
   de una calculadora en Python hasta un tablero de tareas full stack con Makefile, Docker Compose, SQL, FastAPI,
@@ -15,6 +15,12 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   hasta el próximo nivel (o escribe una tabulación real en Go y Makefile) y también valen los espacios. El reloj
   cuenta solo el tiempo activo (Esc pausa), los errores no avanzan y se guarda el mejor tiempo de cada proyecto.
   Salir o reiniciar a mitad de un proyecto pide confirmación.
+- **Biblioteca**: referencia rápida de 13 temas (Python, JavaScript, TypeScript, Java, C#, Go, Rust,
+  SQL y MongoDB, HTML, CSS, formatos de datos, terminal Linux y Git). Cada tema tiene un resumen, datos rápidos,
+  métodos de trabajo y más de 250 comandos y conceptos en niveles básico, intermedio y avanzado, con ejemplos
+  resaltados. La búsqueda recorre todo a la vez, sin importar acentos ni mayúsculas (/ o Ctrl+K para buscar,
+  Enter abre el primer resultado). Incluye una sección **Próximamente** con IA: conceptos, Claude, ChatGPT,
+  Gemini, Codex, Cursor, OpenCode, Antigravity y Hermes. También está en el menú principal.
 
 ## [1.6.0] - 2026-11-02
 

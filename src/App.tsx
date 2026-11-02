@@ -17,6 +17,7 @@ import { type Challenge, PracticeView } from "./components/PracticeView";
 import {
   AchievementsView, ChallengesView, LanguagesView, RoutesView, SettingsView, StatsView,
 } from "./components/Views";
+import { LibraryView } from "./components/LibraryView";
 
 export default function App() {
   const { state, update, saved, exportJson, importJson } = useAppState();
@@ -68,7 +69,7 @@ export default function App() {
   }, [state, update]);
 
   const lang = state.lang;
-  const needsLang = !lang && view !== "settings" && view !== "achievements";
+  const needsLang = !lang && view !== "settings" && view !== "achievements" && view !== "library";
   const current: View = needsLang ? "languages" : view;
 
   const pickLang = (l: LangId) => {
@@ -177,6 +178,7 @@ export default function App() {
                 }}
               />
             )}
+            {current === "library" && <LibraryView lang={lang} />}
             {current === "achievements" && <AchievementsView state={state} />}
             {current === "settings" && (
               <SettingsView

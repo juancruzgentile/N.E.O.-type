@@ -12,6 +12,8 @@ import { TRACKS } from "../src/tracks/index";
 import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKey } from "../src/data/layouts";
 import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
 import { TypingSession } from "../src/engine/session";
+import { SOON, TOPICS } from "../src/library/index";
+import { entryId, normalize, search } from "../src/library/search";
 
 let failed = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -298,6 +300,30 @@ for (const [lang, code] of [
   typeAll(odd, "a\n");
   ok(odd.tab(0, "block") === "ok" && odd.text[odd.pos] === "b", "Tab no se pasa de la sangría si es más corta que el ancho");
   ok(highlight("\tx", "go")[0] === "sp", "la tabulación se resalta como espacio");
+}
+
+// ── biblioteca ──
+{
+  for (const t of TOPICS) {
+    const levels = new Set(t.entries.map((e) => e.level));
+    ok(levels.size === 3 && t.entries.length >= 12, `${t.name}: tiene entradas de los tres niveles (${t.entries.length})`);
+    const ids = t.entries.map((e) => entryId(t, e));
+    const dup = ids.filter((id, i) => ids.indexOf(id) !== i);
+    ok(dup.length === 0, `${t.name}: cada entrada tiene un id único${dup.length ? " — repetidos: " + dup.join(", ") : ""}`);
+    ok(t.workflow.length >= 4 && t.facts.length >= 4 && t.summary.length > 80, `${t.name}: tiene resumen, datos y métodos de trabajo`);
+    const empty = t.entries.filter((e) => !e.code.trim() || !e.desc.trim() || /\s$/.test(e.code));
+    ok(empty.length === 0, `${t.name}: ninguna entrada sin ejemplo ni descripción`);
+  }
+  ok(new Set(TOPICS.map((t) => t.id)).size === TOPICS.length, "los temas no se repiten");
+  ok(normalize("Función ÁRBOL") === "funcion arbol", "la búsqueda ignora acentos y mayúsculas");
+  const rebase = search(TOPICS, "rebase");
+  ok(rebase[0]?.entry.name === "git rebase", "buscar por nombre trae primero la coincidencia exacta");
+  ok(search(TOPICS, "funcion").some((h) => h.topic.id === "python"), "buscar sin acento encuentra entradas con acento");
+  const py = search(TOPICS, "python listas");
+  ok(py.length > 0 && py.every((h) => h.topic.id === "python"), "nombrar el tema filtra por ese tema");
+  ok(search(TOPICS, "zzzz-nada").length === 0 && search(TOPICS, "   ").length === 0, "sin coincidencias o vacío no devuelve nada");
+  const names = SOON.map((s) => s.name).join(" ");
+  ok(SOON.length === 9 && ["IA", "Claude", "ChatGPT", "Gemini", "Codex", "Cursor", "OpenCode", "Antigravity", "Hermes"].every((n) => names.includes(n)), "Próximamente lista IA, Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode, Antigravity y Hermes");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de lógica pasaron");

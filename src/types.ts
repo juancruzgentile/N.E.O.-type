@@ -9,7 +9,7 @@ export type DbEngineId = "sqlite" | "mysql" | "postgresql" | "mongodb";
 export type LayoutId = "it" | "us" | "es" | "latam";
 export type ErrorMode = "block" | "advance" | "strict";
 export type Mode = "guided" | "free";
-export type View = "languages" | "practice" | "routes" | "stats" | "challenges" | "achievements" | "settings";
+export type View = "languages" | "practice" | "routes" | "stats" | "challenges" | "library" | "achievements" | "settings";
 export type ThemeId = "cyber" | "neon" | "synthwave" | "matrix" | "tokyo" | "light";
 
 /** Cómo escribe el usuario un símbolo en su teclado real (aprendido o calibrado). */

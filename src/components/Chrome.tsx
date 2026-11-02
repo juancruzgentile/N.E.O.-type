@@ -5,7 +5,7 @@ import { LANGS, isTrack, stageCount } from "../data/curriculum";
 import { progressToNext } from "../engine/stats";
 import { getProfile, today } from "../store";
 import {
-  IconChart, IconChevron, IconClock, IconCross, IconExpand, IconGear, IconHome, IconKeyboard, IconMap, IconMedal, IconPulse, IconTrophy,
+  IconBook, IconChart, IconChevron, IconClock, IconCross, IconExpand, IconGear, IconHome, IconKeyboard, IconMap, IconMedal, IconPulse, IconTrophy,
 } from "./icons";
 import { MusicMini, MusicPlayer } from "./MusicPlayer";
 import { Avatar, AvatarPicker } from "./Avatar";
@@ -116,6 +116,7 @@ const NAV: { id: View; label: string; icon: ReactNode }[] = [
   { id: "routes", label: "Rutas", icon: <IconMap size={30} /> },
   { id: "stats", label: "Estadísticas", icon: <IconChart size={30} /> },
   { id: "challenges", label: "Desafíos", icon: <IconTrophy size={30} /> },
+  { id: "library", label: "Biblioteca", icon: <IconBook size={30} /> },
   { id: "achievements", label: "Logros", icon: <IconMedal size={30} /> },
   { id: "settings", label: "Ajustes", icon: <IconGear size={30} /> },
 ];
