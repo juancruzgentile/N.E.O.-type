@@ -222,6 +222,9 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
       ts: num(v.ts, 0, 8.64e15, 0),
     };
   }
+  // ejercicios de memoria: tema-nivel-número (los que ya no existan se ignoran)
+  const recall: Record<string, number> = {};
+  for (const [k, v] of entries(r.recall, /^[a-z]{1,16}-[1-9]-[1-9]\d?$/, 2000)) recall[k] = num(v, 0, 8.64e15, 0);
   const achievements: Record<string, number> = {};
   for (const [k, v] of entries(r.achievements, /^[a-z0-9]{1,24}$/, 100)) achievements[k] = num(v, 0, 8.64e15, 0);
 
@@ -235,6 +238,7 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     challenges,
     projects,
     review,
+    recall,
     achievements,
   };
 }

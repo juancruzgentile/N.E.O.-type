@@ -39,6 +39,7 @@ export const initialState = (): AppState => ({
   challenges: {},
   projects: {},
   review: {},
+  recall: {},
   achievements: {},
 });
 
@@ -76,7 +77,7 @@ function readRaw(): string | null {
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** Partes del estado que se combinan clave por clave. */
-const MAPS = ["settings", "profiles", "days", "challenges", "projects", "review", "achievements"] as const;
+const MAPS = ["settings", "profiles", "days", "challenges", "projects", "review", "recall", "achievements"] as const;
 
 /**
  * Combina los cambios de esta ventana (`ours`) con los de otra (`theirs`),
