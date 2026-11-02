@@ -50,6 +50,11 @@ un título que explica qué hace.
   y escribís el comando o el código sin verlo. Git, terminal Linux, SQL, Python y JavaScript, en tres niveles que se
   abren en orden. Valen varias respuestas; los detalles de estilo se aceptan con un aviso y un error que cambia lo
   que hace el comando no deja avanzar, pero te dice qué revisar y te da una pista.
+- **Atajos de editor** (en Desafíos): un editor de práctica donde llegás a un texto objetivo usando los atajos de
+  **Vim** (movimientos, `dw`, `ci"`, `3dd`, `.` …) o de **VS Code** (mover, duplicar, comentar y borrar líneas,
+  saltar por palabras…). Cada ejercicio tiene un par de teclas para las tres estrellas y se guarda tu mejor marca.
+  Los atajos de VS Code siguen el juego de Linux/Windows o el de Mac, según Ajustes. Los que el navegador no deja
+  usar (Ctrl+W, Ctrl+T, Ctrl+N…) se enseñan en una lista aparte.
 - **Estadísticas**: evolución de velocidad y precisión, mapa de calor del teclado, calendario de práctica.
 - **Música generativa**: 7 estaciones (lo-fi, lluvia, synthwave, espacio, zen, jazz y foco) sintetizadas en vivo con
   Web Audio, sin archivos ni licencias de por medio. Nunca suenan exactamente igual. También podés cargar tus propias

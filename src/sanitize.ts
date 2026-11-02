@@ -5,7 +5,7 @@
 
 import type {
   AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, KeyStat, LangId, LayoutId, LearnedKey, LessonResult, Mode,
-  Profile, ProjectRecord, ReviewItem, Settings, StepStat, ThemeId, Totals,
+  Profile, ProjectRecord, ReviewItem, Settings, ShortcutRecord, StepStat, ThemeId, Totals,
 } from "./types";
 import { totalsOf } from "./engine/totals";
 import { CHAR_KEY_CODES } from "./data/layouts";
@@ -102,6 +102,7 @@ function sanitizeSettings(v: unknown, defaults: Settings): Settings {
     keymap: sanitizeKeymap(s.keymap),
     distro: oneOf(s.distro, DISTRO_IDS, defaults.distro),
     dbEngine: oneOf(s.dbEngine, DB_IDS, defaults.dbEngine),
+    vscodeKeys: oneOf(s.vscodeKeys, ["pc", "mac"] as const, defaults.vscodeKeys),
   };
 }
 
@@ -225,6 +226,12 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
   // ejercicios de memoria: tema-nivel-número (los que ya no existan se ignoran)
   const recall: Record<string, number> = {};
   for (const [k, v] of entries(r.recall, /^[a-z]{1,16}-[1-9]-[1-9]\d?$/, 2000)) recall[k] = num(v, 0, 8.64e15, 0);
+  // atajos: vim-1-1, vscode-2-3…; las teclas y el tiempo tienen que ser positivos
+  const shortcuts: Record<string, ShortcutRecord> = {};
+  for (const [k, v] of entries(r.shortcuts, /^(vim|vscode)-[1-9]-[1-9]\d?$/, 500)) {
+    if (!isObj(v) || typeof v.keys !== "number" || !Number.isFinite(v.keys) || v.keys < 1) continue;
+    shortcuts[k] = { stars: int(v.stars, 1, 3, 1), keys: int(v.keys, 1, 100_000, 1), ms: num(v.ms, 1, 8.64e7, 1) };
+  }
   const achievements: Record<string, number> = {};
   for (const [k, v] of entries(r.achievements, /^[a-z0-9]{1,24}$/, 100)) achievements[k] = num(v, 0, 8.64e15, 0);
 
@@ -239,6 +246,7 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     projects,
     review,
     recall,
+    shortcuts,
     achievements,
   };
 }

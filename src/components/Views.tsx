@@ -17,6 +17,8 @@ import { PROJECTS, formatTime, projectLines, projectUnlocked } from "../projects
 import { IconLock } from "./icons";
 import { RECALL, levelDone, levelOpen } from "../recall/exercises";
 import { TOPICS } from "../library/index";
+import { SHORTCUT_SETS, levelDone as scLevelDone, levelOpen as scLevelOpen } from "../shortcuts/exercises";
+import { TAUGHT_ONLY } from "../shortcuts/vscode";
 
 type Update = (fn: (s: AppState) => AppState) => void;
 
@@ -304,9 +306,10 @@ interface ChallengesProps {
   onStart: (c: Challenge) => void;
   onProject: (id: string) => void;
   onRecall: (topic: string, level: number) => void;
+  onShortcut: (set: string, level: number) => void;
 }
 
-export function ChallengesView({ state, lang, onStart, onProject, onRecall }: ChallengesProps) {
+export function ChallengesView({ state, lang, onStart, onProject, onRecall, onShortcut }: ChallengesProps) {
   const items: { c: Challenge; title: string; desc: string }[] = [
     { c: { kind: "sprint", seconds: 30 }, title: "Sprint 30 s", desc: "Escribí todo el código que puedas en 30 segundos. Todos los símbolos habilitados." },
     { c: { kind: "sprint", seconds: 60 }, title: "Sprint 60 s", desc: "El clásico test de un minuto, pero con funciones reales del lenguaje." },
@@ -408,6 +411,52 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall }: Ch
             </div>
           );
         })}
+      </div>
+
+      <div className="section" id="atajos">ATAJOS DE EDITOR</div>
+      <div className="sub">
+        Un editor de práctica con un objetivo: llegá al texto pedido usando los atajos de Vim o de VS Code. Cada
+        ejercicio tiene un par de teclas: si lo igualás, tres estrellas. Se guarda tu mejor marca y cada nivel se abre
+        al completar el anterior. Los atajos de VS Code son los de {state.settings.vscodeKeys === "mac" ? "Mac" : "Linux y Windows"} (se
+        cambia en Ajustes).
+      </div>
+      <div className="recall-topics">
+        {SHORTCUT_SETS.map((st) => (
+          <div key={st.id} className="recall-topic" style={{ "--tc": st.id === "vim" ? "#57d38c" : "#3fa7ff" } as CSSProperties}>
+            <h3>{st.name}</h3>
+            <p className="sc-desc">{st.desc}</p>
+            <div className="recall-levels">
+              {st.levels.map((lv, i) => {
+                const open = scLevelOpen(state.shortcuts, st, i);
+                const got = lv.exercises.reduce((n, e) => n + (state.shortcuts[e.id]?.stars ?? 0), 0);
+                const full = scLevelDone(state.shortcuts, lv);
+                return (
+                  <button
+                    key={lv.name}
+                    className={"recall-level" + (full ? " done" : "") + (open ? "" : " locked")}
+                    disabled={!open}
+                    title={open ? undefined : `Completá ${st.levels[i - 1].name} para abrirlo`}
+                    aria-label={`${st.name} ${lv.name}: ${open ? `${got} de ${lv.exercises.length * 3} estrellas` : "bloqueado"}`}
+                    onClick={() => onShortcut(st.id, i)}
+                  >
+                    <span className="rl-name">{!open && <IconLock size={14} />} {lv.name}</span>
+                    <span className="rl-count">{open ? `★ ${got}/${lv.exercises.length * 3}` : "bloqueado"}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {st.id === "vscode" && (
+              <details className="sc-taught">
+                <summary>Atajos que se enseñan pero no se practican acá</summary>
+                <ul>
+                  {TAUGHT_ONLY.map((t) => (
+                    <li key={t.pc}><kbd>{state.settings.vscodeKeys === "mac" ? t.mac : t.pc}</kbd> {t.what} <span>({t.why})</span></li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -568,6 +617,15 @@ export function SettingsView({ state, update, exportJson, importJson, onTutorial
             )}
           </div>
           {calibrating && <KeyCalibration state={state} update={update} onClose={() => setCalibrating(false)} />}
+        </div>
+
+        <div className="setting">
+          <label>Atajos de VS Code</label>
+          <div className="seg">
+            <button className={s.vscodeKeys === "pc" ? "on" : ""} onClick={() => set("vscodeKeys", "pc")}>Linux / Windows</button>
+            <button className={s.vscodeKeys === "mac" ? "on" : ""} onClick={() => set("vscodeKeys", "mac")}>Mac</button>
+          </div>
+          <div className="help">Los que se practican en Desafíos → Atajos de editor. En Mac, Ctrl pasa a ser Cmd y Ctrl+flecha a ser Option+flecha.</div>
         </div>
 
         <div className="setting">

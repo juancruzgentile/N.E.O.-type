@@ -10,6 +10,10 @@ import { initialState, mergeStates, streakDays, today } from "../src/store";
 import { addTotals, totalsOf } from "../src/engine/totals";
 import { check } from "../src/recall/check";
 import { RECALL, allExercises, levelOpen } from "../src/recall/exercises";
+import { SHORTCUT_SETS, allShortcutExercises, applyKey, levelOpen as scOpen, par, solved, stars, startState, stepCombo } from "../src/shortcuts/exercises";
+import { createState } from "../src/shortcuts/buffer";
+import { vimKey } from "../src/shortcuts/vim";
+import { ACTIONS, TAUGHT_ONLY, readCombo, vscodeKey } from "../src/shortcuts/vscode";
 import { LANGS, stageCount, unlockedChars } from "../src/data/curriculum";
 import { TRACKS } from "../src/tracks/index";
 import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKey } from "../src/data/layouts";
@@ -467,6 +471,84 @@ for (const [lang, code] of [
   const almost = { ...first };
   delete almost[git.levels[0].exercises[3].id];
   ok(!levelOpen(almost, git, 1), "con un ejercicio sin resolver, el siguiente nivel sigue cerrado");
+}
+
+// ── atajos: motor de Vim ──
+{
+  const esc = (k: string) => k.replace(/<Esc>/g, "\u001b");
+  const vrun = (lines: string[], keys: string, line = 0, col = 0) => {
+    let st = createState(lines, line, col);
+    for (const ch of esc(keys)) st = vimKey(st, ch === "\u001b" ? "Escape" : ch);
+    return st;
+  };
+  ok(vrun(["uno dos tres"], "www").col === 11, "w en la última palabra se queda en el último carácter");
+  ok(vrun(["uno dos tres"], "w").col === 4 && vrun(["uno dos tres"], "2w").col === 8 && vrun(["uno dos tres"], "$").col === 11, "w, 2w y $ mueven por palabras y al final");
+  ok(vrun(["a(b, c)"], "w").col === 1 && vrun(["foo.bar"], "e").col === 2, "los signos son palabras aparte");
+  ok(vrun(["uno dos tres"], "wdw").lines[0] === "uno tres", "dw borra la palabra y el espacio");
+  ok(vrun(["uno dos tres"], "wwdw").lines[0] === "uno dos ", "dw en la última palabra no se lleva la línea siguiente");
+  ok(vrun(["uno dos tres"], "wcwX<Esc>").lines[0] === "uno X tres", "cw cambia solo la palabra (como ce)");
+  ok(vrun(["a", "b", "c", "d"], "j2dd").lines.join() === "a,d", "2dd borra dos líneas");
+  ok(vrun(["a", "b"], "ddp").lines.join() === "b,a", "dd y p mueven una línea");
+  ok(vrun(["x = 1"], "A;<Esc>u").lines[0] === "x = 1", "u deshace toda la inserción de una vez");
+  ok(vrun(["f(a, b)"], "fadi(").lines[0] === "f()", "di( borra dentro de los paréntesis");
+  ok(vrun(['s = "hola"'], 'ci"chau<Esc>').lines[0] === 's = "chau"', 'ci" funciona desde antes de las comillas');
+  ok(vrun(["abc"], "rX").lines[0] === "Xbc" && vrun(["abc"], "3x").lines[0] === "", "r reemplaza y 3x borra tres");
+  ok(vrun(["var a", "var b"], "cwlet<Esc>j0.").lines.join() === "let a,let b", ". repite el último cambio con su texto");
+  ok(vrun(["a", "  b"], "J").lines[0] === "a b", "J une las líneas con un espacio");
+  ok(vrun(["abc"], "i<Esc>").col === 0 && vrun(["abc"], "A<Esc>").col === 2, "Esc vuelve un lugar, como en Vim");
+  ok(vrun(["abc"], "dz").lines[0] === "abc" && vrun(["abc"], "dz").pending === "", "un comando que no existe se descarta sin romper nada");
+}
+
+// ── atajos: motor de VS Code ──
+{
+  const O = { tab: 2, comment: "// " };
+  const vs = (lines: string[], keys: string[], line = 0, col = 0, pf: "pc" | "mac" = "pc") => {
+    let st = createState(lines, line, col);
+    for (const k of keys) st = vscodeKey(st, k, pf, O);
+    return st;
+  };
+  ok(vs(["a", "b", "c"], ["Ctrl+Shift+K"], 1).lines.join() === "a,c", "Ctrl+Shift+K borra la línea");
+  ok(vs(["a", "b"], ["Alt+ArrowDown"]).lines.join() === "b,a" && vs(["a", "b"], ["Alt+ArrowUp"], 1).line === 0, "Alt+flecha mueve la línea y el cursor la sigue");
+  ok(vs(["a"], ["Alt+Shift+ArrowDown"]).lines.length === 2 && vs(["a"], ["Ctrl+Alt+Shift+ArrowDown"]).lines.length === 2, "duplicar línea: Shift+Alt+↓ y la variante de Linux");
+  ok(vs(["  x();"], ["Ctrl+/"]).lines[0] === "  // x();" && vs(["  // x();"], ["Ctrl+/"]).lines[0] === "  x();", "Ctrl+/ comenta y descomenta respetando la sangría");
+  ok(vs(["if (a) {"], ["End", "Enter", "b"]).lines.join("|") === "if (a) {|  b", "Enter después de { agrega sangría");
+  ok(vs(["foo bar"], ["Ctrl+ArrowRight"]).col === 3 && vs(["foo bar"], ["Ctrl+ArrowLeft"], 0, 7).col === 4, "Ctrl+flecha salta por palabras");
+  ok(vs(["foo bar"], ["Ctrl+Backspace"], 0, 7).lines[0] === "foo " && vs(["foo bar"], ["Ctrl+Backspace"], 0, 4).lines[0] === "bar", "Ctrl+Retroceso borra la palabra anterior");
+  ok(vs(["  hola"], ["Home"], 0, 5).col === 2 && vs(["  hola"], ["Home", "Home"], 0, 5).col === 0, "Home va al primer carácter y después a la columna 0");
+  ok(vs(["hola mundo"], ["Shift+End", "x"], 0, 5).lines[0] === "hola x", "escribir reemplaza la selección");
+  ok(vs(["a", "b", "c"], ["Ctrl+X", "ArrowDown", "Ctrl+V"]).lines.join() === "b,a,c", "Ctrl+X sin selección corta la línea y Ctrl+V la pega arriba");
+  ok(vs(["x"], ["a", "b", "c", "Ctrl+Z"]).lines[0] === "x", "las letras seguidas se deshacen juntas");
+  ok(vs(["a", "b"], ["Shift+ArrowDown", "Ctrl+]"]).lines.join() === "  a,b", "una selección que termina en la columna 0 no toma esa línea");
+  ok(vs(["a"], ["Cmd+Shift+K"], 0, 0, "mac").lines.join() === "" && vs(["a"], ["Ctrl+Shift+K"], 0, 0, "mac").lines.join() === "a", "en Mac el atajo es con Cmd");
+  ok(vs(["abc"], ["Ctrl+W"]).lines[0] === "abc", "un atajo que no es del editor no hace nada");
+  const ev = (key: string, mods: Partial<Record<"ctrlKey" | "metaKey" | "altKey" | "shiftKey", boolean>> = {}, altGr = false) =>
+    readCombo({ key, ctrlKey: false, metaKey: false, altKey: false, shiftKey: false, ...mods, getModifierState: (k) => k === "AltGraph" && altGr });
+  ok(ev("k", { ctrlKey: true }) === "Ctrl+K" && ev("K", { ctrlKey: true, shiftKey: true }) === "Ctrl+Shift+K", "lee Ctrl+letra y Ctrl+Shift+letra");
+  ok(ev("/", { ctrlKey: true, shiftKey: true }) === "Ctrl+/", "Ctrl+/ en teclados donde / lleva Shift (italiano)");
+  ok(ev("a") === "a" && ev("A", { shiftKey: true }) === "A" && ev("Shift") === null && ev("Tab") === null, "las letras se escriben; Shift solo y Tab se ignoran");
+  ok(ev("[", { altKey: true }, true) === "[" && ev("[", { ctrlKey: true, altKey: true }, true) === "[", "AltGr escribe el símbolo, no es un atajo");
+  ok(ev("ArrowUp", { altKey: true }) === "Alt+ArrowUp" && ev("ArrowLeft", { metaKey: true, shiftKey: true }) === "Cmd+Shift+ArrowLeft", "lee flechas con modificadores");
+  ok(TAUGHT_ONLY.every((t) => !Object.values(ACTIONS).some((a) => a.pc.includes(t.pc))), "los atajos solo enseñados no se cuentan como practicables");
+}
+
+// ── atajos: ejercicios ──
+{
+  const all = allShortcutExercises();
+  ok(new Set(all.map((e) => e.id)).size === all.length && all.length === 24, `ids únicos (${all.length} ejercicios)`);
+  const broken: string[] = [];
+  for (const st of SHORTCUT_SETS) for (const l of st.levels) for (const e of l.exercises) for (const pf of st.id === "vim" ? (["pc"] as const) : (["pc", "mac"] as const)) {
+    let ed = startState(e);
+    if (solved(e, ed)) broken.push(`${e.id}: ya empieza resuelto`);
+    for (const k of e.solution) ed = applyKey(st.id, ed, st.id === "vim" ? k : stepCombo(k, pf), pf);
+    if (!solved(e, ed)) broken.push(`${e.id} (${pf}): ${JSON.stringify(ed.lines)}`);
+  }
+  ok(broken.length === 0, `cada solución de referencia llega al objetivo con Linux/Windows y Mac${broken.length ? " — " + broken.join("; ") : ""}`);
+  ok(all.every((e) => e.solution.every((k) => !k.startsWith("@") || k.slice(1) in ACTIONS)), "las soluciones solo usan atajos conocidos");
+  ok(SHORTCUT_SETS[0].levels.flatMap((l) => l.exercises).every((e) => (e.use ?? []).length > 0), "cada ejercicio de Vim muestra qué atajos usar");
+  ok(stars(3, 3) === 3 && stars(2, 3) === 3 && stars(6, 3) === 2 && stars(7, 3) === 1 && par(all[0]) === all[0].solution.length, "estrellas: el par da 3, hasta 1,5 veces + 1 da 2");
+  const vimSet = SHORTCUT_SETS[0];
+  const lvl1 = Object.fromEntries(vimSet.levels[0].exercises.map((e) => [e.id, { stars: 1, keys: 9, ms: 1000 }]));
+  ok(scOpen({}, vimSet, 0) && !scOpen({}, vimSet, 1) && scOpen(lvl1, vimSet, 1) && !scOpen(lvl1, vimSet, 2), "cada nivel de atajos se abre al completar el anterior");
 }
 
 // ── totales históricos ──
