@@ -5,6 +5,10 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.6.0] - 2026-11-02
+
+La app aprende tu teclado real y se puede calibrar desde Ajustes; logros con nombres nuevos.
+
 ### Agregado
 - La app aprende tu teclado real: si escribís un símbolo con una tecla o modificadores distintos de los que
   supone la distribución elegida, lo detecta (dos veces seguidas) y desde ahí enseña tu combinación.
@@ -16,6 +20,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Los 27 logros tienen nombres nuevos con humor de programador (lo que hay que hacer para ganarlos no cambia).
 - `iniciar.sh` e `iniciar.bat` construyen la app si todavía no existe `NeonType.html`, en lugar de pedir que
   ejecutes primero el script de construcción.
+- Dependencia de desarrollo: `playwright-core` 1.64.1.
 
 ## [1.5.0] - 2026-10-28
 
@@ -132,7 +137,8 @@ auditorías de la v1.4.0. Detalle de cada corrección en `correcciones.txt`.
 - Modo libre, desafíos (sprints y precisión perfecta) y estadísticas con mapa de calor.
 - Build de un solo archivo que funciona sin conexión.
 
-[Sin publicar]: https://github.com/juancruzgentile/N.E.O.-type/compare/v1.5.0...main
+[Sin publicar]: https://github.com/juancruzgentile/N.E.O.-type/compare/v1.6.0...main
+[1.6.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/7494b31...v1.5.0
 [1.4.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/32c443d...7494b31
 [1.3.0]: https://github.com/juancruzgentile/N.E.O.-type/compare/e0ac0e7...32c443d
