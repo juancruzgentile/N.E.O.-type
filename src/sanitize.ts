@@ -5,8 +5,9 @@
 
 import type {
   AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, KeyStat, LangId, LayoutId, LearnedKey, LessonResult, Mode,
-  Profile, ProjectRecord, ReviewItem, Settings, StepStat, ThemeId,
+  Profile, ProjectRecord, ReviewItem, Settings, StepStat, ThemeId, Totals,
 } from "./types";
+import { totalsOf } from "./engine/totals";
 import { CHAR_KEY_CODES } from "./data/layouts";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
@@ -163,11 +164,21 @@ function sanitizeProfile(v: unknown, maxStage: number): Profile {
     const st = sanitizeStepStat(raw);
     if (st) steps[k] = st;
   }
+  // acumulados: nunca menos que lo que muestra el historial (copias viejas no los tienen)
+  const t = isObj(p.totals) ? p.totals : {};
+  const fromLessons = totalsOf(lessons);
+  const totals: Totals = {
+    n: Math.max(int(t.n, 0, 1e9, 0), fromLessons.n),
+    ms: Math.max(num(t.ms, 0, 1e13, 0), fromLessons.ms),
+    chars: Math.max(int(t.chars, 0, 1e12, 0), fromLessons.chars),
+    best: Math.max(num(t.best, 0, 1000, 0), fromLessons.best),
+  };
   return {
     stage: int(p.stage, 0, maxStage, 0),
     steps,
     keys,
     lessons,
+    totals,
     score: int(p.score, 0, 1e12, 0),
   };
 }

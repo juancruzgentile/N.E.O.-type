@@ -8,7 +8,7 @@ import { dropSymbol, keyHit, spark, wave } from "../fx/fx";
 import { makeRng } from "../gen/base";
 import { TypingSession } from "../engine/session";
 import {
-  applySamples, applyStep, buildLesson, canUnlock, lessonScore, nextStage, pickFocus, playableChars, stageInfos,
+  addTotals, applySamples, applyStep, buildLesson, canUnlock, lessonScore, nextStage, pickFocus, playableChars, stageInfos,
 } from "../engine/stats";
 import { getProfile, profileKey, streakDays, today } from "../store";
 import { PASS_ACC, grade, pickDue, reviewLesson, whenText } from "../review/review";
@@ -141,7 +141,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     ): { profile: Profile; unlocked: string[] | null; newStep: Step | null } => {
       const p = profileRef.current;
       let np: Profile = { ...p, keys: applySamples(p.keys, samples) };
-      if (result) np = { ...np, lessons: [...p.lessons, result].slice(-500), score: p.score + result.score };
+      if (result) np = { ...np, lessons: [...p.lessons, result].slice(-500), totals: addTotals(p.totals, result), score: p.score + result.score };
       if (result && step) np = { ...np, steps: applyStep(np.steps, step, result.wpm, result.acc) };
       let unlocked: string[] | null = null;
       let newStep: Step | null = null;

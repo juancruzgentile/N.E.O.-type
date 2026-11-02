@@ -5,6 +5,7 @@ import { TypingSession } from "../src/engine/session";
 import { MAX_IMPORT_BYTES, byteLength } from "../src/sanitize";
 import { initialState, parseBackup, serializeState } from "../src/store";
 import { emptyProfile, fullSet } from "../src/engine/stats";
+import { totalsOf } from "../src/engine/totals";
 import { findSnippet } from "../src/gen/index";
 import { makeRng } from "../src/gen/base";
 import { LANG_ORDER } from "../src/data/curriculum";
@@ -49,7 +50,8 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   const lesson: LessonResult = { ts: 1_700_000_000_000, wpm: 61.234567, acc: 0.98765, chars: 240, ms: 52_345, score: 1234, kind: "code" };
   const langs = [...LANG_ORDER, ...TRACK_ORDER];
   for (const lang of langs) for (const layout of Object.keys(LAYOUTS)) {
-    big.profiles[`${lang}:${layout}`] = { ...emptyProfile(), lessons: Array.from({ length: 500 }, (_, i) => ({ ...lesson, ts: lesson.ts + i })) };
+    const lessons = Array.from({ length: 500 }, (_, i) => ({ ...lesson, ts: lesson.ts + i }));
+    big.profiles[`${lang}:${layout}`] = { ...emptyProfile(), lessons, totals: totalsOf(lessons) };
   }
   const json = serializeState(big);
   ok(Object.keys(big.profiles).length === 48, "estado de prueba con 48 perfiles");

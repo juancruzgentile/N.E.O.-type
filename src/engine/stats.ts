@@ -6,13 +6,16 @@ import { TRACKS, freeExercise, isTrack, stepExercise } from "../tracks/index";
 import { variantName } from "../tracks/types";
 import { findSnippet, randomSnippet, snippetLesson } from "../gen/index";
 import { drillLesson } from "../gen/drills";
+import { emptyTotals } from "./totals";
+
+export { addTotals, emptyTotals, totalsOf } from "./totals";
 
 const RECENT = 50;
 const ALPHA = 0.1;
 /** pausas más largas no cuentan como tiempo de tecla */
 export const MAX_SAMPLE_MS = 2500;
 
-export const emptyProfile = (): Profile => ({ stage: 0, steps: {}, keys: {}, lessons: [], score: 0 });
+export const emptyProfile = (): Profile => ({ stage: 0, steps: {}, keys: {}, lessons: [], totals: emptyTotals(), score: 0 });
 
 export const targetMs = (wpm: number) => 12000 / wpm;
 export const msToWpm = (ms: number) => (ms > 0 ? 12000 / ms : 0);

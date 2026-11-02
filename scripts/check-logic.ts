@@ -6,7 +6,8 @@ import {
 } from "../src/engine/stats";
 import { ACHIEVEMENTS, newAchievements } from "../src/engine/achievements";
 import { highlight } from "../src/highlight";
-import { initialState, streakDays, today } from "../src/store";
+import { initialState, mergeStates, streakDays, today } from "../src/store";
+import { addTotals, totalsOf } from "../src/engine/totals";
 import { LANGS, stageCount, unlockedChars } from "../src/data/curriculum";
 import { TRACKS } from "../src/tracks/index";
 import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKey } from "../src/data/layouts";
@@ -379,6 +380,33 @@ for (const [lang, code] of [
   const rl = reviewLesson(gitId);
   ok(rl?.label === "REPASO" && rl.review === gitId && rl.hl === git.hl && rl.text === practiceText(git.entries[0].code), "arma la lección de repaso con el ejemplo y su resaltado");
   ok(reviewLesson("lib-no-existe") === null, "una entrada que ya no existe no arma lección");
+}
+
+// ── totales históricos ──
+{
+  const l = (wpm: number): LessonResult => ({ ts: 0, wpm, acc: 1, chars: 100, ms: 20000, score: 1, kind: "code" });
+  const ls = Array.from({ length: 600 }, (_, i) => l(i === 3 ? 99 : 40));
+  const t = ls.reduce(addTotals, totalsOf([]));
+  ok(t.n === 600 && t.chars === 60000 && t.ms === 600 * 20000 && t.best === 99, "los totales cuentan todas las lecciones, también las que salen del historial");
+  ok(totalsOf(ls.slice(-500)).best === 40, "con solo el historial se perdería el récord viejo");
+}
+
+// ── dos ventanas a la vez ──
+{
+  const base = initialState();
+  const a = { ...base, settings: { ...base.settings, userName: "Ventana A" } };
+  const b = { ...base, settings: { ...base.settings, targetWpm: 45 } };
+  const m = mergeStates(base, b, a);
+  ok(m.settings.userName === "Ventana A" && m.settings.targetWpm === 45, "se combinan cambios de dos ventanas en ajustes distintos");
+  const a2 = { ...base, projects: { p01: { ms: 60000, wpm: 30, acc: 1, ts: 1 } } };
+  const b2 = { ...base, review: { "lib-x": { box: 0, due: "2026-11-03", n: 1, lapses: 0, ts: 1 } }, lang: "go" as const };
+  const m2 = mergeStates(base, b2, a2);
+  ok(!!m2.projects.p01 && !!m2.review["lib-x"] && m2.lang === "go", "no se pierden récords ni repasos de la otra ventana");
+  const base3 = { ...base, achievements: { a: 1, b: 2 } };
+  const m3 = mergeStates(base3, { ...base3, achievements: { a: 1 } }, { ...base3, achievements: { a: 1, b: 2, c: 3 } });
+  ok(!("b" in m3.achievements) && m3.achievements.c === 3, "lo que borró esta ventana se borra y lo nuevo de la otra se suma");
+  const same = { ...base, settings: { ...base.settings, targetWpm: 50 } };
+  ok(mergeStates(base, same, { ...base, settings: { ...base.settings, targetWpm: 35 } }).settings.targetWpm === 50, "si las dos cambiaron lo mismo, gana esta ventana");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de lógica pasaron");
