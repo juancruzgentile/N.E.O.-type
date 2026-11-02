@@ -157,3 +157,26 @@ CONFIGURACIÓN DE GITHUB (hecho el 2026-10-28)
      el CI (build). Sin aprobaciones obligatorias y sin excepciones, también para el dueño.
    - El CI corre en ubuntu-24.04: en ubuntu-latest (26.04) Playwright 1.56 no instala Chromium.
    - Releases: la v1.5.0 se publica con NeonType.html adjunto.
+
+AUDITORÍA v1.6.0 (commit 94b0fcc, 2026-11-02)
+1. (Media) Dos ventanas se pisaban el progreso: cada una guardaba su copia completa.
+   → Evento storage para recibir los cambios de la otra ventana y mergeStates() que combina clave por
+     clave (gana lo que cambió esta ventana). Antes de guardar se compara con lo que hay en localStorage.
+   (src/store.ts) Pruebas: lógica (mergeStates) y e2e con dos pestañas.
+2. (Media) La práctica de la Biblioteca ignoraba el teclado y «Saltar símbolos sin tecla».
+   → practiceFor() saltea las líneas con símbolos sin tecla y avisa; el repaso intercalado también.
+     La prueba ahora revisa cada ejemplo con cada teclado (antes solo miraba que fuera ASCII).
+   (src/review/review.ts, src/components/EntryPractice.tsx, src/components/PracticeView.tsx)
+3. (Media) El diálogo de práctica dejaba escapar el foco.
+   → useModalFocus(): Tab da la vuelta, #root inerte y foco devuelto al cerrar. Lo usan ConfirmDialog,
+     EntryPractice y el fin de proyecto (Modal). (src/components/useModalFocus.ts, Modal.tsx)
+4. (Baja) Las estadísticas «totales» solo veían las últimas 500 lecciones.
+   → Profile.totals con acumulados; las copias viejas los reconstruyen desde el historial. (src/engine/totals.ts)
+5-12. Errores de contenido (SQL, Go, TypeScript, C#, Java, HTML) e imprecisiones (CSS, C# record, asyncio,
+   YAML, Rust, GitHub Actions). → Corregidos en src/library/*.ts. SQL verificado con SQLite 3.46 y Go con
+   go run. Rust, Java y C# sin compilador en la máquina: revisados contra la especificación.
+   Pruebas de regresión: fallan con el contenido anterior (11) y pasan con el nuevo.
+13. (Media) Node 20 figuraba como soportado. → engines >=22.12.0; README separa mínimo y recomendado.
+14. (Media) CapitalizeWords en Go cortaba el primer byte. → Trabaja con runas. (src/gen/lang/go.ts)
+PENDIENTE: ficha por entrada (fuente, fecha de revisión, versión mínima) y compilar automáticamente los
+ejemplos completos de cada lenguaje.

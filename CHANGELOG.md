@@ -29,6 +29,24 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   repasos no cambian el progreso del lenguaje, pero suman a la meta diaria. Cada entrada muestra si está en repaso y
   cuándo vuelve, y se puede quitar.
 
+### Corregido (auditoría del 2026-11-02 sobre 94b0fcc)
+- Con la app abierta en dos ventanas, la que guardaba última borraba los cambios de la otra. Ahora las ventanas se
+  avisan los cambios y, antes de guardar, se combinan clave por clave.
+- Las estadísticas de lecciones, tiempo, caracteres y mejor velocidad cuentan todo el historial, no solo las
+  últimas 500 lecciones.
+- Practicar un ejemplo de la Biblioteca (y su repaso) respeta «Saltar símbolos sin tecla»: saltea las líneas con
+  símbolos que tu teclado no tiene y avisa cuáles y cómo escribirlos.
+- El diálogo de práctica y el de fin de proyecto atrapan el foco, dejan inerte el resto de la app y lo devuelven
+  al cerrar.
+- Biblioteca: SQLite necesita `PRAGMA foreign_keys = ON`; la CTE ya no usa `DATE '…'`; EXPLAIN, upsert, CTE y
+  funciones de ventana dicen para qué motor y versión sirven. Go: `errors.Is` en quien llama y canal con búfer en el
+  timeout. TypeScript: límites de `node app.ts`. C#: el código de nivel superior va antes de las clases y se precisa
+  qué tan inmutable es un record. Java: `assertThrows` con una llamada real. HTML: el `dialog` trae cómo abrirlo.
+  También se precisaron CSS (cascada), Python (asyncio y archivos), YAML (tabulaciones), Rust (unsafe), GitHub
+  Actions (v7 y fijar por SHA) y `git reset` (stash y reflog).
+- Los ejercicios de Go capitalizaban palabras cortando el primer byte, lo que rompía texto con tildes o ñ.
+- Node 20 ya no figura como soportado: mínimo 22.12, recomendado una LTS con soporte (24 o 26).
+
 ## [1.6.0] - 2026-11-02
 
 La app aprende tu teclado real y se puede calibrar desde Ajustes; logros con nombres nuevos.
