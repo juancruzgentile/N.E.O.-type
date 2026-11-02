@@ -5,10 +5,13 @@ import { TypingSession } from "../src/engine/session";
 import { MAX_IMPORT_BYTES, byteLength } from "../src/sanitize";
 import { initialState, parseBackup, serializeState } from "../src/store";
 import { emptyProfile, fullSet } from "../src/engine/stats";
+import { totalsOf } from "../src/engine/totals";
 import { findSnippet } from "../src/gen/index";
 import { makeRng } from "../src/gen/base";
 import { LANG_ORDER } from "../src/data/curriculum";
 import { TRACK_ORDER } from "../src/tracks/index";
+import { TOPICS } from "../src/library/index";
+import { go as goGen } from "../src/gen/lang/go";
 import { LAYOUTS } from "../src/data/layouts";
 import type { AppState, LessonResult } from "../src/types";
 
@@ -49,7 +52,8 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   const lesson: LessonResult = { ts: 1_700_000_000_000, wpm: 61.234567, acc: 0.98765, chars: 240, ms: 52_345, score: 1234, kind: "code" };
   const langs = [...LANG_ORDER, ...TRACK_ORDER];
   for (const lang of langs) for (const layout of Object.keys(LAYOUTS)) {
-    big.profiles[`${lang}:${layout}`] = { ...emptyProfile(), lessons: Array.from({ length: 500 }, (_, i) => ({ ...lesson, ts: lesson.ts + i })) };
+    const lessons = Array.from({ length: 500 }, (_, i) => ({ ...lesson, ts: lesson.ts + i }));
+    big.profiles[`${lang}:${layout}`] = { ...emptyProfile(), lessons, totals: totalsOf(lessons) };
   }
   const json = serializeState(big);
   ok(Object.keys(big.profiles).length === 48, "estado de prueba con 48 perfiles");
@@ -179,6 +183,43 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
 {
   const css = readFileSync("src/styles.css", "utf8");
   ok(/html\.calm \.toast\s*\{[^}]*animation:\s*none\s*!important[^}]*opacity:\s*1/.test(css), "modo calmo: el aviso de logro no se anima y queda visible");
+}
+
+// ── auditoría 1.6.0: ejemplos de la Biblioteca ──
+{
+  const topic = (id: string) => TOPICS.find((t) => t.id === id)!;
+  const entry = (t: string, name: string) => topic(t).entries.find((e) => e.name === name)!;
+  const goErr = entry("go", "if err != nil y %w").code;
+  // el return del error tiene que estar en una función y errors.Is fuera de ella
+  const endOfFunc = goErr.indexOf("\n}");
+  ok(endOfFunc > goErr.indexOf("return nil, fmt.Errorf") && goErr.indexOf("return nil, fmt.Errorf") > 0 && goErr.indexOf("errors.Is") > endOfFunc, "Go: errors.Is se usa en quien llama, no después del return");
+  ok(/make\(chan string, 1\)/.test(entry("go", "Canales y select").code), "Go: el canal del timeout tiene búfer y la goroutine no queda colgada");
+  ok(/PRAGMA foreign_keys = ON/.test(entry("sql", "Claves foráneas").code), "SQL: las claves foráneas avisan que SQLite las activa por conexión");
+  ok(!topic("sql").entries.some((e) => /DATE '/.test(e.code)), "SQL: sin literales DATE '…' que SQLite no entiende");
+  ok(/EXPLAIN QUERY PLAN/.test(entry("sql", "EXPLAIN").code), "SQL: EXPLAIN muestra la variante de SQLite");
+  ok(!topic("java").entries.some((e) => /\(\) -> \d+ \/ \d+\)/.test(e.code)), "Java: assertThrows recibe una llamada, no una expresión suelta");
+  // C#: con instrucciones de nivel superior, los tipos van después
+  const csBad = topic("csharp").entries.filter((e) => {
+    const lines = e.code.split("\n");
+    const firstType = lines.findIndex((l) => /^(public |internal )?(sealed |abstract |static )?(class|record|struct|interface|enum) /.test(l));
+    return firstType >= 0 && lines.slice(firstType).some((l) => /^(var |Console\.|await )/.test(l));
+  });
+  ok(csBad.length === 0, `C#: ningún ejemplo pone código suelto después de una clase${csBad.length ? " — " + csBad.map((e) => e.name).join(", ") : ""}`);
+  ok(/node app\.ts no lo acepta/.test(entry("typescript", "Clases con modificadores").desc), "TypeScript: avisa que las propiedades en el constructor no corren con node app.ts");
+  ok(/command="show-modal"/.test(entry("html", "dialog y details").code), "HTML: el ejemplo de dialog trae cómo abrirlo");
+  // GitHub Actions: el ejemplo usa la misma versión mayor que el CI del proyecto
+  const ci = readFileSync(".github/workflows/ci.yml", "utf8");
+  const ex = entry("formats", "GitHub Actions").code;
+  const major = (re: RegExp, txt: string) => re.exec(txt)?.[1];
+  ok(major(/checkout@\S+ # v(\d+)/, ci) === major(/checkout@v(\d+)/, ex) && major(/setup-node@\S+ # v(\d+)/, ci) === major(/setup-node@v(\d+)/, ex),
+    "Actions: el ejemplo usa las mismas versiones mayores que el CI del proyecto");
+}
+
+// ── auditoría 1.6.0: capitalizar en Go respeta UTF-8 ──
+{
+  const out = goGen.capitalize!({} as never);
+  const code = Array.isArray(out) ? out.join("\n") : out;
+  ok(!/word\[:1\]/.test(code) && /\[\]rune\(word\)/.test(code), "Go: CapitalizeWords trabaja con runas, no con el primer byte");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");

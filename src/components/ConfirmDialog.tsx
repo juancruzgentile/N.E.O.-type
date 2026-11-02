@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useModalFocus } from "./useModalFocus";
 
 interface Props {
   kicker: string;
@@ -22,34 +23,20 @@ export function ConfirmDialog({ kicker, title, message, confirmLabel, cancelLabe
   const cancelRef = useRef(onCancel);
   cancelRef.current = onCancel;
 
+  useModalFocus(boxRef);
+
   useEffect(() => {
-    const before = document.activeElement as HTMLElement | null;
     okRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         e.stopPropagation();
         cancelRef.current();
-      } else if (e.key === "Tab") {
-        const btns = boxRef.current?.querySelectorAll("button");
-        if (!btns || !btns.length) return;
-        const first = btns[0];
-        const last = btns[btns.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
       }
     };
     // en captura: tiene que ganarle a los atajos de la práctica (Esc reinicia)
     window.addEventListener("keydown", onKey, true);
-    return () => {
-      window.removeEventListener("keydown", onKey, true);
-      if (before && document.contains(before)) before.focus();
-    };
+    return () => window.removeEventListener("keydown", onKey, true);
   }, []);
 
   return createPortal(

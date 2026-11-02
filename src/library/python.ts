@@ -220,7 +220,7 @@ match comando.split():
         tomar(objetos)
     case _:
         print("No entiendo")`, "pattern matching switch"),
-    a("Concurrencia", "async / await", "Código asíncrono con asyncio: ideal para muchas operaciones de red o disco en paralelo sin hilos.", code`
+    a("Concurrencia", "async / await", "Código asíncrono con asyncio: un solo hilo atiende muchas esperas de red a la vez (concurrencia, no paralelismo). Leer archivos con open() bloquea el bucle: para eso usá asyncio.to_thread() o una librería asíncrona.", code`
 import asyncio
 
 async def tarea(n):

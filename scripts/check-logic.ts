@@ -6,7 +6,8 @@ import {
 } from "../src/engine/stats";
 import { ACHIEVEMENTS, newAchievements } from "../src/engine/achievements";
 import { highlight } from "../src/highlight";
-import { initialState, streakDays, today } from "../src/store";
+import { initialState, mergeStates, streakDays, today } from "../src/store";
+import { addTotals, totalsOf } from "../src/engine/totals";
 import { LANGS, stageCount, unlockedChars } from "../src/data/curriculum";
 import { TRACKS } from "../src/tracks/index";
 import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKey } from "../src/data/layouts";
@@ -14,7 +15,7 @@ import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
 import { TypingSession } from "../src/engine/session";
 import { SOON, TOPICS } from "../src/library/index";
 import { entryId, normalize, search } from "../src/library/search";
-import { INTERVALS, addDays, daysBetween, dueCount, findEntry, grade, pickDue, practiceText, reviewLesson, whenText } from "../src/review/review";
+import { INTERVALS, addDays, daysBetween, dueCount, findEntry, grade, pickDue, practiceFor, practiceText, reviewLesson, whenText } from "../src/review/review";
 
 let failed = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -354,12 +355,29 @@ for (const [lang, code] of [
 
   ok(practiceText("print('año')  \n\treturn …") === "print('ano')\n    return ...", "el texto de práctica saca tildes, cambia tabulaciones y símbolos raros");
   ok(practiceText("x = 1      # uno\n    y  =  2") === "x = 1 # uno\n    y = 2", "junta los espacios para alinear comentarios pero respeta la sangría");
-  let unTypeable: string[] = [];
-  for (const t of TOPICS) for (const e of t.entries) {
-    const txt = practiceText(e.code);
-    if (/[^\x20-\x7e\n]/.test(txt) || !txt.trim()) unTypeable.push(`${t.id}: ${e.name}`);
+  // cada ejemplo, en cada teclado con «Saltar símbolos sin tecla»: solo quedan símbolos con tecla
+  const notTypeable: string[] = [];
+  const empty: string[] = [];
+  let droppedSome = 0;
+  for (const layout of Object.values(LAYOUTS)) {
+    for (const t of TOPICS) for (const e of t.entries) {
+      const pr = practiceFor(e.code, layout);
+      if ([...pr.text].some((c) => !isTypeable(layout, c))) notTypeable.push(`${layout.name} · ${t.id}: ${e.name}`);
+      if (!pr.text) empty.push(`${layout.name} · ${t.id}: ${e.name}`);
+      if (pr.dropped) droppedSome++;
+    }
   }
-  ok(unTypeable.length === 0, `todos los ejemplos de la Biblioteca se pueden escribir en cualquier teclado${unTypeable.length ? " — " + unTypeable.slice(0, 3).join(", ") : ""}`);
+  ok(notTypeable.length === 0, `con «Saltar símbolos» los ejemplos solo piden teclas que existen${notTypeable.length ? " — " + notTypeable.slice(0, 3).join(", ") : ""}`);
+  ok(empty.length === 0, `ningún ejemplo queda vacío en ningún teclado${empty.length ? " — " + empty.slice(0, 3).join(", ") : ""}`);
+  ok(droppedSome > 0, "en el teclado italiano se saltan líneas con ` o ~");
+  const itKb = LAYOUTS.it;
+  const pr = practiceFor("cd ~\nls -la\n\necho `date`\npwd", itKb);
+  ok(pr.text === "ls -la\n\npwd" && pr.dropped === 2 && pr.missing.join("") === "~`", "salta las líneas con símbolos sin tecla y avisa cuáles");
+  ok(practiceFor("cd ~", null).text === "cd ~", "sin la opción, el ejemplo queda completo");
+  const tl = TOPICS.find((t) => t.id === "javascript")!.entries.find((e) => e.code.includes("`"))!;
+  const tlId = entryId(TOPICS.find((t) => t.id === "javascript")!, tl);
+  ok(!reviewLesson(tlId, itKb)?.text.includes("`") && reviewLesson(tlId, null)!.text.includes("`"), "el repaso intercalado también respeta el teclado");
+  ok(TOPICS.every((t) => t.entries.every((e) => !/[^\x20-\x7e\n]/.test(practiceText(e.code)))), "el texto de práctica no tiene tildes ni símbolos fuera de ASCII");
 
   const py = TOPICS.find((t) => t.id === "python")!;
   const git = TOPICS.find((t) => t.id === "git")!;
@@ -379,6 +397,33 @@ for (const [lang, code] of [
   const rl = reviewLesson(gitId);
   ok(rl?.label === "REPASO" && rl.review === gitId && rl.hl === git.hl && rl.text === practiceText(git.entries[0].code), "arma la lección de repaso con el ejemplo y su resaltado");
   ok(reviewLesson("lib-no-existe") === null, "una entrada que ya no existe no arma lección");
+}
+
+// ── totales históricos ──
+{
+  const l = (wpm: number): LessonResult => ({ ts: 0, wpm, acc: 1, chars: 100, ms: 20000, score: 1, kind: "code" });
+  const ls = Array.from({ length: 600 }, (_, i) => l(i === 3 ? 99 : 40));
+  const t = ls.reduce(addTotals, totalsOf([]));
+  ok(t.n === 600 && t.chars === 60000 && t.ms === 600 * 20000 && t.best === 99, "los totales cuentan todas las lecciones, también las que salen del historial");
+  ok(totalsOf(ls.slice(-500)).best === 40, "con solo el historial se perdería el récord viejo");
+}
+
+// ── dos ventanas a la vez ──
+{
+  const base = initialState();
+  const a = { ...base, settings: { ...base.settings, userName: "Ventana A" } };
+  const b = { ...base, settings: { ...base.settings, targetWpm: 45 } };
+  const m = mergeStates(base, b, a);
+  ok(m.settings.userName === "Ventana A" && m.settings.targetWpm === 45, "se combinan cambios de dos ventanas en ajustes distintos");
+  const a2 = { ...base, projects: { p01: { ms: 60000, wpm: 30, acc: 1, ts: 1 } } };
+  const b2 = { ...base, review: { "lib-x": { box: 0, due: "2026-11-03", n: 1, lapses: 0, ts: 1 } }, lang: "go" as const };
+  const m2 = mergeStates(base, b2, a2);
+  ok(!!m2.projects.p01 && !!m2.review["lib-x"] && m2.lang === "go", "no se pierden récords ni repasos de la otra ventana");
+  const base3 = { ...base, achievements: { a: 1, b: 2 } };
+  const m3 = mergeStates(base3, { ...base3, achievements: { a: 1 } }, { ...base3, achievements: { a: 1, b: 2, c: 3 } });
+  ok(!("b" in m3.achievements) && m3.achievements.c === 3, "lo que borró esta ventana se borra y lo nuevo de la otra se suma");
+  const same = { ...base, settings: { ...base.settings, targetWpm: 50 } };
+  ok(mergeStates(base, same, { ...base, settings: { ...base.settings, targetWpm: 35 } }).settings.targetWpm === 50, "si las dos cambiaron lo mismo, gana esta ventana");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de lógica pasaron");

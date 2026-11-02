@@ -203,9 +203,12 @@ git rebase -i HEAD~3      # unir o editar los últimos 3 commits
 git push --force-with-lease`, "rebase historia lineal squash"),
     a("Historia", "git cherry-pick", "Copia un commit puntual de otra rama a la actual.", code`
 git cherry-pick a1b2c3d`, "copiar commit"),
-    a("Deshacer", "git reset", "Mueve la rama a otro commit. --soft conserva los cambios preparados, --hard los descarta (peligroso).", code`
+    a("Deshacer", "git reset", "Mueve la rama a otro commit. --soft conserva los cambios preparados; --hard descarta también los cambios sin commitear, y esos no se recuperan. Los commits que quedan afuera siguen un tiempo en git reflog.", code`
 git reset --soft HEAD~1   # deshace el último commit, conserva cambios
-git reset --hard HEAD~1   # lo borra todo: sin vuelta atrás fácil`, "deshacer commit reset"),
+git reset --soft HEAD^    # lo mismo: ^ es el commit anterior
+git stash                 # antes de un --hard, guardá lo que no commiteaste
+git reset --hard HEAD~1   # descarta el commit y los cambios sin guardar
+git reflog                # muestra a dónde apuntaba la rama, para volver`, "deshacer commit reset reflog recuperar"),
     a("Rescate", "git reflog", "Historial de adónde apuntó HEAD: sirve para recuperar commits que parecían perdidos.", code`
 git reflog
 git switch -c rescate HEAD@{3}`, "recuperar perdido"),
@@ -240,7 +243,7 @@ export const formats: Topic = {
   ],
   workflow: [
     { title: "Validar al guardar", text: "Un error de coma en JSON o de sangría en YAML rompe todo. Usá un editor que valide y formatee." },
-    { title: "YAML: solo espacios", text: "YAML no admite tabulaciones; la sangría (2 espacios) define la estructura." },
+    { title: "YAML: espacios en la sangría", text: "La sangría define la estructura y solo puede tener espacios: una tabulación ahí es un error. Dos espacios por nivel es la convención, no una regla." },
     { title: "Secretos fuera del repositorio", text: "El archivo .env real va en .gitignore; subí un .env.example sin valores." },
     { title: "Un README útil", text: "Qué es el proyecto, cómo instalarlo, cómo ejecutarlo y cómo contribuir, en ese orden." },
   ],
@@ -314,15 +317,15 @@ services:
     environment:
       POSTGRES_PASSWORD: secreto`, "compose servicios"),
 
-    a("CI", "GitHub Actions", "Flujos de trabajo en YAML que corren en cada push o pull request.", code`
+    a("CI", "GitHub Actions", "Flujos de trabajo en YAML que corren en cada push o pull request. Para más seguridad, fijá cada acción por su SHA completo (como hace este proyecto) y dejá que Dependabot la actualice; una versión mayor nueva puede pedir un runner actualizado.", code`
 name: CI
 on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - run: npm ci

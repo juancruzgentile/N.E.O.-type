@@ -106,14 +106,18 @@ export const html: Topic = {
   <img src="foto.jpg" alt="Paisaje" loading="lazy">
 </picture>
 <video src="demo.mp4" controls width="640"></video>`, "imagen responsive video lazy"),
-    a("Interacción", "dialog y details", "Componentes nativos: ventanas modales y secciones desplegables sin JavaScript extra.", code`
+    a("Interacción", "dialog y details", "Componentes nativos: secciones desplegables y ventanas modales. El dialog arranca cerrado: showModal() lo abre, y en navegadores actuales un botón con commandfor y command lo abre sin JavaScript. El form con method=\"dialog\" lo cierra.", code`
 <details>
   <summary>Ver más</summary>
   <p>Contenido oculto.</p>
 </details>
-<dialog id="confirmar">
+
+<button commandfor="confirmar" command="show-modal">Abrir</button>
+<dialog id="confirmar" aria-labelledby="titulo-confirmar">
+  <h2 id="titulo-confirmar">¿Seguro?</h2>
   <form method="dialog"><button>Cerrar</button></form>
-</dialog>`, "modal desplegable acordeon"),
+</dialog>
+<!-- navegadores viejos: document.getElementById("confirmar").showModal() -->`, "modal desplegable acordeon"),
     a("Rendimiento", "Carga diferida", "loading=\"lazy\" para imágenes fuera de pantalla y defer/module para scripts que no bloquean.", code`
 <img src="grande.jpg" alt="…" loading="lazy" decoding="async">
 <script src="analitica.js" defer></script>
@@ -131,7 +135,7 @@ export const css: Topic = {
   hl: "css",
   summary:
     "Hojas de estilo en cascada: definen cómo se ve el HTML (colores, tipografía, espaciado, disposición y animaciones). " +
-    "Las reglas se aplican por selectores y, si chocan, gana la más específica o la última.",
+    "Las reglas se aplican por selectores. Si dos chocan, la cascada decide en este orden: origen e !important, capas (@layer), especificidad y, al final, la que aparece última.",
   facts: [
     { label: "Archivos", value: ".css" },
     { label: "Unidades", value: "px · rem · % · vw/vh · fr" },

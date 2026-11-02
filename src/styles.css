@@ -1015,6 +1015,7 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .ep-box { max-height: 52vh; overflow: auto; }
 .ep-result { text-align: center; }
 .ep-review { color: var(--cyan) !important; }
+.ep-note { margin: 12px 0 0; font-size: 14px; line-height: 1.45; color: var(--yellow); }
 .snippet-title.is-review .kind { color: var(--cyan); border-color: var(--cyan); }
 @media (max-width: 640px) {
   .modal.entry-practice { padding: 20px 16px; }

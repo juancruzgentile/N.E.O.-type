@@ -92,12 +92,20 @@ type Forma interface {
 type Circulo struct{ R float64 }
 
 func (c Circulo) Area() float64 { return math.Pi * c.R * c.R }`, "interfaz implicita"),
-    m("Errores", "if err != nil y %w", "El manejo de errores es explícito. %w envuelve el error original para poder inspeccionarlo con errors.Is/As.", code`
-datos, err := os.ReadFile(ruta)
-if err != nil {
-	return fmt.Errorf("leyendo %s: %w", ruta, err)
+    m("Errores", "if err != nil y %w", "El manejo de errores es explícito. %w envuelve el error original sin perderlo: quien llama puede inspeccionarlo con errors.Is o errors.As.", code`
+func leer(ruta string) ([]byte, error) {
+	datos, err := os.ReadFile(ruta)
+	if err != nil {
+		return nil, fmt.Errorf("leyendo %s: %w", ruta, err)
+	}
+	return datos, nil
 }
-if errors.Is(err, fs.ErrNotExist) { /* ... */ }`, "error manejo wrap"),
+
+// quien llama reconoce el error original dentro del envuelto
+_, err := leer("config.json")
+if errors.Is(err, fs.ErrNotExist) {
+	fmt.Println("falta el archivo de configuración")
+}`, "error manejo wrap"),
     m("Recursos", "defer", "Posterga una llamada hasta que la función termina. Ideal para cerrar archivos o liberar locks.", code`
 f, err := os.Open("datos.txt")
 if err != nil {
@@ -118,7 +126,7 @@ type Tarea struct {
 b, _ := json.Marshal(t)
 err := json.Unmarshal(b, &t)`, "json serializar tags"),
 
-    m("Concurrencia", "Goroutines", "go f() lanza una función concurrente muy liviana. sync.WaitGroup espera a que terminen.", code`
+    m("Concurrencia", "Goroutines", "go f() lanza una función concurrente muy liviana. sync.WaitGroup espera a que terminen. Desde Go 1.22 cada vuelta del for tiene su propia variable, así que url no se comparte entre goroutines.", code`
 var wg sync.WaitGroup
 for _, url := range urls {
 	wg.Add(1)
@@ -128,8 +136,8 @@ for _, url := range urls {
 	}()
 }
 wg.Wait()`, "concurrencia hilos paralelo"),
-    a("Concurrencia", "Canales y select", "Los canales comunican goroutines. select espera en varios a la vez (por ejemplo con un timeout).", code`
-resultados := make(chan string)
+    a("Concurrencia", "Canales y select", "Los canales comunican goroutines. select espera en varios a la vez (por ejemplo con un timeout). El canal tiene lugar para un valor: si gana el timeout, la goroutine igual puede enviar y terminar en vez de quedar bloqueada. Para frenar el trabajo en sí, usá context.", code`
+resultados := make(chan string, 1)
 go func() { resultados <- trabajar() }()
 
 select {

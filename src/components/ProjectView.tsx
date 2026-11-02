@@ -7,6 +7,7 @@ import { keyHit } from "../fx/fx";
 import { today } from "../store";
 import { sound } from "../sound";
 import { CodeView } from "./CodeView";
+import { Modal } from "./Modal";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { Keyboard } from "./Keyboard";
 import { IconCode, IconRefresh } from "./icons";
@@ -298,22 +299,20 @@ export function ProjectView({ project, state, update, onExit, onOpen, onBusy }: 
       )}
 
       {finished && (
-        <div className="modal-back">
-          <div className="frame glow modal" role="dialog" aria-modal="true" aria-labelledby="pf-title">
-            <div className="kicker">{finished.record ? (finished.prev ? "¡NUEVO RÉCORD!" : "¡PROYECTO TERMINADO!") : "PROYECTO TERMINADO"}</div>
-            <div id="pf-title" className="big" style={{ letterSpacing: 2 }}>{formatTime(finished.ms)}</div>
-            <p>{project.title} · {Math.round(finished.wpm)} WPM · precisión {(finished.acc * 100).toFixed(1)}%</p>
-            {finished.prev && !finished.record && <p>Tu récord: {formatTime(finished.prev.ms)}</p>}
-            {finished.record && finished.prev && <p>Mejoraste {formatTime(finished.prev.ms - finished.ms)} respecto de tu marca anterior.</p>}
-            {finished.unlockedNext && <p className="unlocked">Desbloqueaste el proyecto {finished.unlockedNext.num}: {finished.unlockedNext.title}</p>}
-            {!nextProject && <p className="unlocked">Terminaste el último proyecto. ¡Sos un maestro del teclado!</p>}
-            <div className="actions">
-              {nextProject && <button className="btn primary" autoFocus onClick={() => onOpen(nextProject.id)}>Siguiente proyecto</button>}
-              <button className={"btn" + (nextProject ? "" : " primary")} autoFocus={!nextProject} onClick={restart}>Repetir</button>
-              <button className="btn" onClick={onExit}>Volver a desafíos</button>
-            </div>
+        <Modal labelledBy="pf-title">
+          <div className="kicker">{finished.record ? (finished.prev ? "¡NUEVO RÉCORD!" : "¡PROYECTO TERMINADO!") : "PROYECTO TERMINADO"}</div>
+          <div id="pf-title" className="big" style={{ letterSpacing: 2 }}>{formatTime(finished.ms)}</div>
+          <p>{project.title} · {Math.round(finished.wpm)} WPM · precisión {(finished.acc * 100).toFixed(1)}%</p>
+          {finished.prev && !finished.record && <p>Tu récord: {formatTime(finished.prev.ms)}</p>}
+          {finished.record && finished.prev && <p>Mejoraste {formatTime(finished.prev.ms - finished.ms)} respecto de tu marca anterior.</p>}
+          {finished.unlockedNext && <p className="unlocked">Desbloqueaste el proyecto {finished.unlockedNext.num}: {finished.unlockedNext.title}</p>}
+          {!nextProject && <p className="unlocked">Terminaste el último proyecto. ¡Sos un maestro del teclado!</p>}
+          <div className="actions">
+            {nextProject && <button className="btn primary" autoFocus onClick={() => onOpen(nextProject.id)}>Siguiente proyecto</button>}
+            <button className={"btn" + (nextProject ? "" : " primary")} autoFocus={!nextProject} onClick={restart}>Repetir</button>
+            <button className="btn" onClick={onExit}>Volver a desafíos</button>
           </div>
-        </div>
+        </Modal>
       )}
     </>
   );

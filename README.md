@@ -86,7 +86,7 @@ un título que explica qué hace.
 
 ## Empezar
 
-Requiere [Node.js](https://nodejs.org) 20.19 o superior dentro de la rama 20, o 22.12 o superior (lo exige Vite 7).
+Requiere [Node.js](https://nodejs.org). Recomendado: una versión LTS con soporte, como Node 24 o 26. Mínimo: 22.12 (lo exige Vite 7). Node 20 todavía puede compilarlo, pero ya no recibe actualizaciones de seguridad, así que no lo tomamos como soportado.
 
 ```bash
 git clone https://github.com/juancruzgentile/N.E.O.-type.git

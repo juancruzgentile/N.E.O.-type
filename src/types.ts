@@ -82,12 +82,23 @@ export interface StepStat {
   a: number[];
 }
 
+/** Acumulados de todas las lecciones, aunque el historial se recorte. */
+export interface Totals {
+  n: number;
+  ms: number;
+  chars: number;
+  /** mejor velocidad de una lección */
+  best: number;
+}
+
 export interface Profile {
   stage: number;
   /** solo rutas Trainee: id de escalón → rendimiento */
   steps: Record<string, StepStat>;
   keys: Record<string, KeyStat>;
+  /** últimas lecciones (máx. 500) */
   lessons: LessonResult[];
+  totals: Totals;
   score: number;
 }
 

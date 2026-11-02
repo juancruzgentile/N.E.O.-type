@@ -14,7 +14,7 @@ export const typescript: Topic = {
   facts: [
     { label: "Archivos", value: ".ts · .tsx" },
     { label: "Compilar", value: "npx tsc" },
-    { label: "Ejecutar", value: "node app.ts (tipos se quitan) · tsx" },
+    { label: "Ejecutar", value: "tsx app.ts · tsc y node · node app.ts (con límites)" },
     { label: "Versión de referencia", value: "TypeScript 7 (compilador nativo)" },
     { label: "Configuración", value: "tsconfig.json" },
   ],
@@ -23,6 +23,7 @@ export const typescript: Topic = {
     { title: "Tipar los bordes", text: "Tipá parámetros y retornos de funciones públicas y los datos que entran (API, formularios). Dentro de la función, la inferencia suele alcanzar." },
     { title: "unknown en vez de any", text: "any apaga el compilador. unknown obliga a verificar el tipo antes de usar el valor." },
     { title: "Chequeo en CI", text: "tsc --noEmit revisa tipos sin generar archivos: ideal para correr en cada pull request." },
+    { title: "Node ejecuta .ts, con límites", text: "Desde Node 22.18 podés correr node app.ts: Node solo borra los tipos, no revisa nada ni transforma código. enum, namespace y las propiedades en el constructor fallan con ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX. Para esos casos compilá con tsc o usá tsx." },
     { title: "Validar en tiempo de ejecución", text: "Los tipos desaparecen al ejecutar. Para datos externos usá validación real (por ejemplo con Zod) además del tipo." },
   ],
   entries: [
@@ -85,10 +86,10 @@ type Borrador = Partial<Usuario>;          // todo opcional
 type Publico = Pick<Usuario, "id" | "nombre">;
 type Nuevo = Omit<Usuario, "id">;
 type PorId = Record<number, Usuario>;`, "utility types"),
-    m("Clases", "Clases con modificadores", "public, private, protected y readonly. Los parámetros del constructor pueden declarar propiedades directamente.", code`
+    m("Clases", "Clases con modificadores", "public, private, protected y readonly. Los parámetros del constructor pueden declarar propiedades directamente; ese atajo necesita compilar con tsc o tsx, porque node app.ts no lo acepta.", code`
 class Cuenta {
   private saldo = 0;
-  constructor(public readonly titular: string) {}
+  constructor(public readonly titular: string) {}  // crea this.titular
   depositar(monto: number): void {
     this.saldo += monto;
   }

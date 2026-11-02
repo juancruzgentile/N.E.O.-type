@@ -23,8 +23,8 @@ type Update = (fn: (s: AppState) => AppState) => void;
 function LangCard({ state, id, onPick }: { state: AppState; id: LangId; onPick: (l: LangId) => void }) {
   const p = getProfile(state, id);
   const prog = progressToNext(id, p, state.settings);
-  const best = p.lessons.reduce((m, l) => Math.max(m, l.wpm), 0);
-  const started = p.lessons.length > 0;
+  const best = p.totals.best;
+  const started = p.totals.n > 0;
   const total = stageCount(id);
   const track = isTrack(id);
   const pct = track
@@ -46,7 +46,7 @@ function LangCard({ state, id, onPick }: { state: AppState; id: LangId; onPick: 
         <span style={{ width: `${pct * 100}%` }} />
       </div>
       <div className="meta">
-        <span>{p.lessons.length} lecciones</span>
+        <span>{p.totals.n} lecciones</span>
         <span>récord {Math.round(best)} WPM</span>
       </div>
       <div className="go">{started ? "CONTINUAR →" : "EMPEZAR →"}</div>
@@ -212,9 +212,7 @@ export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
     }
   }
   const ls = profile.lessons;
-  const totalMs = ls.reduce((a, l) => a + l.ms, 0);
-  const totalChars = ls.reduce((a, l) => a + l.chars, 0);
-  const best = ls.reduce((m, l) => Math.max(m, l.wpm), 0);
+  const { n: totalLessons, ms: totalMs, chars: totalChars, best } = profile.totals;
   const last20 = ls.slice(-20);
   const avg20 = last20.length ? last20.reduce((a, l) => a + l.wpm, 0) / last20.length : 0;
   const acc20 = last20.length ? last20.reduce((a, l) => a + l.acc, 0) / last20.length : 0;
@@ -237,7 +235,7 @@ export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
       <h2>ESTADÍSTICAS · {LANGS[lang].name.toUpperCase()}</h2>
       <div className="sub">Teclado {layout.name}. El mapa de calor muestra qué tan cerca está cada tecla del objetivo.</div>
       <div className="cards">
-        <div className="stat-card"><div className="l">LECCIONES</div><div className="v">{ls.length}</div></div>
+        <div className="stat-card"><div className="l">LECCIONES</div><div className="v">{totalLessons}</div></div>
         <div className="stat-card"><div className="l">TIEMPO PRACTICADO</div><div className="v">{Math.round(totalMs / 60000)} min</div></div>
         <div className="stat-card"><div className="l">CARACTERES</div><div className="v">{totalChars.toLocaleString("es-AR")}</div></div>
         <div className="stat-card"><div className="l">MEJOR VELOCIDAD</div><div className="v">{Math.round(best)} WPM</div></div>

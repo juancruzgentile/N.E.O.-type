@@ -8,7 +8,7 @@ import { dropSymbol, keyHit, spark, wave } from "../fx/fx";
 import { makeRng } from "../gen/base";
 import { TypingSession } from "../engine/session";
 import {
-  applySamples, applyStep, buildLesson, canUnlock, lessonScore, nextStage, pickFocus, playableChars, stageInfos,
+  addTotals, applySamples, applyStep, buildLesson, canUnlock, lessonScore, nextStage, pickFocus, playableChars, stageInfos,
 } from "../engine/stats";
 import { getProfile, profileKey, streakDays, today } from "../store";
 import { PASS_ACC, grade, pickDue, reviewLesson, whenText } from "../review/review";
@@ -70,8 +70,15 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       if (!challenge) {
         sinceReview.current++;
         if (sinceReview.current > reviewGap.current) {
-          const id = pickDue(reviewRef.current, lang, today());
-          const rl = id ? reviewLesson(id) : null;
+          // se saltan las entradas que no se pueden escribir con este teclado
+          const st = settingsRef.current;
+          const kb = st.excludeMissing ? layoutFor(st) : null;
+          const skip: string[] = [];
+          let rl: Lesson | null = null;
+          for (let id = pickDue(reviewRef.current, lang, today()); id && !rl; id = pickDue(reviewRef.current, lang, today(), skip)) {
+            rl = reviewLesson(id, kb);
+            skip.push(id);
+          }
           if (rl) {
             sinceReview.current = 0;
             reviewGap.current = 2 + Math.floor(rng.current() * 3);
@@ -141,7 +148,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     ): { profile: Profile; unlocked: string[] | null; newStep: Step | null } => {
       const p = profileRef.current;
       let np: Profile = { ...p, keys: applySamples(p.keys, samples) };
-      if (result) np = { ...np, lessons: [...p.lessons, result].slice(-500), score: p.score + result.score };
+      if (result) np = { ...np, lessons: [...p.lessons, result].slice(-500), totals: addTotals(p.totals, result), score: p.score + result.score };
       if (result && step) np = { ...np, steps: applyStep(np.steps, step, result.wpm, result.acc) };
       let unlocked: string[] | null = null;
       let newStep: Step | null = null;

@@ -9,7 +9,7 @@ export const rust: Topic = {
   color: "#f46623",
   hl: "rust",
   summary:
-    "Lenguaje de sistemas, compilado, con la velocidad de C y C++ pero sin errores de memoria: el compilador verifica la propiedad (ownership) de cada valor. " +
+    "Lenguaje de sistemas, compilado, con la velocidad de C y C++ y seguridad de memoria en el código seguro: el compilador verifica la propiedad (ownership) y los préstamos de cada valor. Los bloques unsafe y las llamadas a C quedan fuera de esa garantía y dependen de quien los escribe. " +
     "Se usa en herramientas de línea de comandos, navegadores, sistemas embebidos, WebAssembly y servicios de alto rendimiento.",
   facts: [
     { label: "Archivos", value: ".rs · Cargo.toml" },
