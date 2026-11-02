@@ -223,7 +223,7 @@ try {
 
   // 6. tutorial de bienvenida: aparece una vez, bloquea el teclado y se puede repetir desde Ajustes
   {
-    const { page, ctx } = await open(browser, seedState({ settings: { tutorialDone: false } }));
+    let { page, ctx } = await open(browser, seedState({ settings: { tutorialDone: false } }));
     await page.getByText("Te damos la bienvenida a").waitFor({ timeout: 5000 });
     ok(await page.getByText("no reemplaza el estudio").isVisible(), "la bienvenida muestra el aviso");
     {
@@ -265,9 +265,12 @@ try {
     ok(await page.evaluate(() => document.activeElement !== document.body && !document.activeElement?.closest(".tour")),
       "al terminar, el foco no queda perdido en el documento");
     ok((await page.locator(".app[inert]").count()) === 0, "al cerrar, la app vuelve a ser interactiva");
-    await page.reload();
-    await page.locator(".code-box").waitFor();
-    ok((await page.locator(".tour, .tour-back").count()) === 0, "no vuelve a aparecer al recargar");
+    // se abre de nuevo con lo guardado. No se usa reload(): el Chromium de Playwright 1.64 a veces
+    // recarga antes de terminar de escribir localStorage y la prueba fallaba sin que la app tuviera nada mal.
+    const saved = await state(page);
+    await ctx.close();
+    ({ page, ctx } = await open(browser, saved));
+    ok((await page.locator(".tour, .tour-back").count()) === 0, "no vuelve a aparecer al abrir de nuevo");
     await page.getByRole("button", { name: "Ajustes" }).click();
     await page.getByRole("button", { name: "Ver tutorial de bienvenida" }).click();
     await page.getByText("Te damos la bienvenida a").waitFor({ timeout: 5000 });
