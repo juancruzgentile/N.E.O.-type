@@ -29,6 +29,13 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   repasos no cambian el progreso del lenguaje, pero suman a la meta diaria. Cada entrada muestra si está en repaso y
   cuándo vuelve, y se puede quitar.
 
+- **Ejercicios de memoria** (en Desafíos): se lee una consigna y se escribe el comando o el código sin verlo. 60
+  ejercicios de Git, terminal Linux, SQL, Python y JavaScript, en niveles Básico, Intermedio y Avanzado que se abren
+  al completar el anterior. Valen varias respuestas. Los errores leves (espacios, comillas, orden de las opciones,
+  mayúsculas en SQL, el ; final) se aceptan con un aviso. Uno grave (otro comando, otra opción, otro argumento o
+  comillas dobles en un texto SQL) no deja avanzar: explica qué revisar y ofrece una pista. Con cualquier teclado hay
+  al menos una respuesta que se puede escribir (por ejemplo HEAD^ además de HEAD~1).
+
 ### Corregido (auditoría del 2026-11-02 sobre 94b0fcc)
 - Con la app abierta en dos ventanas, la que guardaba última borraba los cambios de la otra. Ahora las ventanas se
   avisan los cambios y, antes de guardar, se combinan clave por clave.

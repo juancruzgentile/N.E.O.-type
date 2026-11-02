@@ -15,6 +15,8 @@ import { Keyboard, heatColor } from "./Keyboard";
 import type { Challenge } from "./PracticeView";
 import { PROJECTS, formatTime, projectLines, projectUnlocked } from "../projects/projects";
 import { IconLock } from "./icons";
+import { RECALL, levelDone, levelOpen } from "../recall/exercises";
+import { TOPICS } from "../library/index";
 
 type Update = (fn: (s: AppState) => AppState) => void;
 
@@ -301,9 +303,10 @@ interface ChallengesProps {
   lang: LangId;
   onStart: (c: Challenge) => void;
   onProject: (id: string) => void;
+  onRecall: (topic: string, level: number) => void;
 }
 
-export function ChallengesView({ state, lang, onStart, onProject }: ChallengesProps) {
+export function ChallengesView({ state, lang, onStart, onProject, onRecall }: ChallengesProps) {
   const items: { c: Challenge; title: string; desc: string }[] = [
     { c: { kind: "sprint", seconds: 30 }, title: "Sprint 30 s", desc: "Escribí todo el código que puedas en 30 segundos. Todos los símbolos habilitados." },
     { c: { kind: "sprint", seconds: 60 }, title: "Sprint 60 s", desc: "El clásico test de un minuto, pero con funciones reales del lenguaje." },
@@ -363,6 +366,44 @@ export function ChallengesView({ state, lang, onStart, onProject }: ChallengesPr
                 ) : (
                   <div className="pc-lock"><IconLock size={20} /> Terminá el proyecto {i} para desbloquearlo</div>
                 )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="section" id="memoria">EJERCICIOS DE MEMORIA</div>
+      <div className="sub">
+        Leés una consigna y escribís el comando o el código sin verlo. Valen varias respuestas, y los detalles de
+        estilo (espacios, comillas, orden de las opciones) se aceptan con un aviso. Un comando, una opción o un
+        argumento distinto no deja avanzar: te dice qué revisar y podés pedir una pista. Cada nivel se abre al
+        completar el anterior.
+      </div>
+      <div className="recall-topics">
+        {RECALL.map((t) => {
+          const lib = TOPICS.find((x) => x.id === t.id);
+          return (
+            <div key={t.id} className="recall-topic" style={{ "--tc": lib?.color ?? "var(--cyan)" } as CSSProperties}>
+              <h3>{t.name}</h3>
+              <div className="recall-levels">
+                {t.levels.map((lv, i) => {
+                  const open = levelOpen(state.recall, t, i);
+                  const solved = lv.exercises.filter((e) => state.recall[e.id]).length;
+                  const full = levelDone(state.recall, lv);
+                  return (
+                    <button
+                      key={lv.name}
+                      className={"recall-level" + (full ? " done" : "") + (open ? "" : " locked")}
+                      disabled={!open}
+                      title={open ? undefined : `Completá ${t.levels[i - 1].name} para abrirlo`}
+                      aria-label={`${t.name} ${lv.name}: ${open ? `${solved} de ${lv.exercises.length} resueltos` : "bloqueado"}`}
+                      onClick={() => onRecall(t.id, i)}
+                    >
+                      <span className="rl-name">{!open && <IconLock size={14} />} {lv.name}</span>
+                      <span className="rl-count">{open ? `${solved}/${lv.exercises.length}` : "bloqueado"}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           );

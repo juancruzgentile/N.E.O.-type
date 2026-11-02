@@ -572,6 +572,43 @@ try {
     ok(errors.length === 0, `dos ventanas sin errores${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
+
+  // 15. ejercicios de memoria: corrección, pista, aviso leve y desbloqueo del nivel siguiente
+  {
+    const { page, errors, ctx } = await open(browser);
+    await page.locator(".nav").getByRole("button", { name: "Desafíos" }).click();
+    const inter = page.getByRole("button", { name: /^Git Intermedio/ });
+    ok(await inter.isDisabled(), "el nivel Intermedio arranca bloqueado");
+    await page.getByRole("button", { name: /^Git Básico/ }).click();
+    const input = page.locator(".recall-input");
+    await input.waitFor();
+    ok(await input.evaluate((el) => el === document.activeElement), "el foco va directo a la respuesta");
+    await input.fill("git log");
+    await input.press("Enter");
+    ok(/Todavía no\. Ese comando hace otra cosa/.test((await page.locator(".rf.wrong").textContent()) ?? ""), "un comando equivocado no avanza y dice por qué");
+    ok((await page.locator(".recall").getByRole("button", { name: "Siguiente", exact: true }).count()) === 0, "con un error grave no se puede seguir");
+    await page.getByRole("button", { name: "Ver una pista" }).click();
+    ok(/Pista:/.test((await page.locator(".rf-hint").textContent()) ?? ""), "se puede pedir una pista");
+    const answers = ["git   status", "git add -A", "git commit -m 'primer commit'", "git log --oneline"];
+    for (const [i, a] of answers.entries()) {
+      await input.fill(a);
+      await input.press("Enter");
+      await page.locator(".rf.ok, .rf.minor").waitFor();
+      if (i === 0) ok(/espacios/.test((await page.locator(".rf.minor").textContent()) ?? ""), "espacios de más: vale con un aviso");
+      if (i === 2) ok(/comillas/.test((await page.locator(".rf.minor").textContent()) ?? ""), "otras comillas: vale con un aviso");
+      if (i === 3) ok((await page.locator(".rf.ok").count()) === 1, "respuesta exacta: correcta");
+      await page.keyboard.press("Enter");
+    }
+    ok(/Nivel completo/.test((await page.locator(".recall h2").textContent()) ?? ""), "terminar los 4 ejercicios completa el nivel");
+    const st = await state(page);
+    ok(["git-1-1", "git-1-2", "git-1-3", "git-1-4"].every((id) => st.recall?.[id] > 0), "se guardan los ejercicios resueltos");
+    await page.getByRole("button", { name: "Nivel Intermedio" }).click();
+    ok(/INTERMEDIO/.test((await page.locator(".recall .kicker").textContent()) ?? ""), "se abre el nivel siguiente");
+    await page.getByRole("button", { name: "Volver a desafíos" }).click();
+    ok(!(await inter.isDisabled()) && /0\/4/.test((await inter.textContent()) ?? ""), "en Desafíos el nivel Intermedio queda abierto");
+    ok(errors.length === 0, `ejercicios de memoria sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
 } finally {
   await browser.close();
 }
