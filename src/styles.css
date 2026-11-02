@@ -857,3 +857,22 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .modal.calib .big { letter-spacing: 0; font-size: 80px; }
 .modal.calib .calib-msg { font-size: 15px; color: var(--yellow); min-height: 22px; }
 .modal.calib .progress { margin-top: 12px; }
+
+/* ── menú principal ── */
+.pill.menu-btn { padding: 9px 14px; }
+@media (max-width: 760px) { .menu-label { display: none; } }
+.splash-menu { display: flex; flex-direction: column; gap: 8px; width: min(420px, 86vw); margin-top: 8px; }
+.splash-menu button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 18px; text-align: left;
+  background: var(--panel2); border: 1px solid var(--line2); color: var(--text);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.splash-menu button:hover, .splash-menu button:focus-visible { border-color: var(--cyan); background: var(--cyan-soft); transform: translateX(4px); outline: none; }
+.splash-menu button.on { border-color: var(--cyan); }
+.splash-menu .sm-label { font-family: var(--brand); font-size: 19px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--cyan); }
+.splash-menu .sm-hint { font-size: 14px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .splash-menu button { transition: none; } .splash-menu button:hover { transform: none; } }
+
+/* ── diálogo de confirmación ── */
+.modal.confirm .confirm-title { margin: 12px 0 6px; font-family: var(--brand); font-size: 26px; letter-spacing: 1px; color: var(--strong); }

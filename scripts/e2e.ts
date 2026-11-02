@@ -343,6 +343,39 @@ try {
     ok(wide.length === 0, `${label}: ninguna vista se desplaza de costado${wide.length ? " — desbordan: " + wide.join(", ") : ""}`);
     await ctx.close();
   }
+
+  // 9. menú principal: pregunta antes de salir y lleva a cada sección
+  {
+    const { page, errors, ctx } = await open(browser);
+    await focusPractice(page);
+    const text = await lessonText(page);
+    await page.keyboard.type(text.trimStart()[0]);
+    await page.getByTitle("Volver al menú principal").click();
+    const dialog = page.getByRole("alertdialog");
+    await dialog.waitFor();
+    ok(await page.getByRole("button", { name: "Sí, volver al menú" }).evaluate((b) => b === document.activeElement), "el diálogo pone el foco en confirmar");
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "detached" });
+    ok((await typedCount(page)) === 1 && !(await page.locator(".splash").count()), "Esc cancela y la lección sigue donde estaba");
+    await page.getByTitle("Volver al menú principal").click();
+    await page.getByRole("button", { name: "Seguir acá" }).click();
+    ok(!(await page.locator(".splash").count()), "Seguir acá cierra el diálogo sin salir");
+    await page.getByTitle("Volver al menú principal").click();
+    await page.keyboard.press("Enter");
+    await page.locator(".splash-menu").waitFor();
+    ok(true, "Enter confirma y muestra el menú principal");
+    await page.locator(".splash-menu").getByRole("button", { name: /Desafíos y proyectos/ }).click();
+    await page.locator(".splash").waitFor({ state: "detached" });
+    ok(/DESAFÍOS/.test((await page.locator(".view h2").first().textContent()) ?? ""), "el menú lleva a la sección elegida");
+    await page.getByTitle("Volver al menú principal").click();
+    await page.keyboard.press("Enter");
+    await page.locator(".splash-menu").waitFor();
+    ok(await page.locator(".splash-menu button").first().evaluate((b) => b === document.activeElement), "al volver, el menú aparece con el foco en Continuar");
+    await page.keyboard.press("Enter");
+    await page.locator(".splash").waitFor({ state: "detached" });
+    ok(errors.length === 0, `ida y vuelta al menú sin errores${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
 } finally {
   await browser.close();
 }

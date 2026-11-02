@@ -5,7 +5,7 @@ import { LANGS, isTrack, stageCount } from "../data/curriculum";
 import { progressToNext } from "../engine/stats";
 import { getProfile, today } from "../store";
 import {
-  IconChart, IconChevron, IconClock, IconCross, IconExpand, IconGear, IconKeyboard, IconMap, IconMedal, IconPulse, IconTrophy,
+  IconChart, IconChevron, IconClock, IconCross, IconExpand, IconGear, IconHome, IconKeyboard, IconMap, IconMedal, IconPulse, IconTrophy,
 } from "./icons";
 import { MusicMini, MusicPlayer } from "./MusicPlayer";
 import { Avatar, AvatarPicker } from "./Avatar";
@@ -47,10 +47,11 @@ interface HeaderProps {
   saved: boolean;
   onToggleMode: () => void;
   onPickLang: () => void;
+  onMenu: () => void;
   challengeLabel: string | null;
 }
 
-export function Header({ state, saved, onToggleMode, onPickLang, challengeLabel }: HeaderProps) {
+export function Header({ state, saved, onToggleMode, onPickLang, onMenu, challengeLabel }: HeaderProps) {
   const lang = state.lang;
   const stage = lang ? getProfile(state, lang).stage : 0;
   const fullscreen = () => {
@@ -59,6 +60,10 @@ export function Header({ state, saved, onToggleMode, onPickLang, challengeLabel 
   };
   return (
     <header className="frame header">
+      <button className="pill menu-btn" onClick={onMenu} title="Volver al menú principal">
+        <IconHome size={22} />
+        <span className="menu-label">Menú</span>
+      </button>
       <div className="brand">
         <span className="prompt">&gt;_</span>
         <span>

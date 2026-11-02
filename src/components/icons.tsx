@@ -31,3 +31,6 @@ export const IconNext = (p: { size?: number }) => <Svg {...p}><path d="m5 5 10 7
 export const IconPrev = (p: { size?: number }) => <Svg {...p}><path d="m19 5-10 7 10 7zM5 5v14" /></Svg>;
 export const IconVolume = (p: { size?: number }) => <Svg {...p}><path d="M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" /></Svg>;
 export const IconMedal = (p: { size?: number }) => <Svg {...p}><circle cx="12" cy="15" r="6" /><path d="M8.5 10 6 2h4l2 5 2-5h4l-2.5 8M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z" /></Svg>;
+export const IconHome = (p: { size?: number }) => <Svg {...p}><path d="m3 11 9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5" /></Svg>;
+export const IconBook = (p: { size?: number }) => <Svg {...p}><path d="M4 4h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v15h-6a2 2 0 0 0-2 2 2 2 0 0 0-2-2H4zM12 5v16" /></Svg>;
+export const IconSearch = (p: { size?: number }) => <Svg {...p}><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></Svg>;

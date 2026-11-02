@@ -5,7 +5,8 @@ import { onReducedMotionChange, reducedMotion, setFxEnabled } from "./fx/fx";
 import { ACHIEVEMENTS, newAchievements } from "./engine/achievements";
 import { sound } from "./sound";
 import { Background } from "./components/Background";
-import { Splash } from "./components/Splash";
+import { type MenuDest, Splash } from "./components/Splash";
+import { ConfirmDialog } from "./components/ConfirmDialog";
 import { AchBadge } from "./components/AchBadge";
 import { Footer, Header, MobileNav, Sidebar } from "./components/Chrome";
 import { useMusicInit } from "./components/MusicPlayer";
@@ -21,6 +22,9 @@ export default function App() {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [toasts, setToasts] = useState<{ id: string; key: number }[]>([]);
   const [splash, setSplash] = useState(() => state.settings.showSplash || !state.settings.userName.trim());
+  const [askMenu, setAskMenu] = useState(false);
+  // true cuando el menú se abre desde la app (no al arrancar)
+  const [fromApp, setFromApp] = useState(false);
   useMusicInit(state);
 
   const { theme } = state.settings;
@@ -75,8 +79,10 @@ export default function App() {
         <Splash
           name={state.settings.userName}
           avatar={state.settings.avatar}
-          onEnter={(name, avatar) => {
+          quick={fromApp}
+          onEnter={(name, avatar, dest: MenuDest) => {
             update((s) => ({ ...s, settings: { ...s.settings, userName: name || s.settings.userName, avatar } }));
+            if (dest !== "continue") goto(dest);
             setSplash(false);
           }}
         />
@@ -101,6 +107,7 @@ export default function App() {
             setView(lang ? "practice" : "languages");
           }}
           onPickLang={() => goto("languages")}
+          onMenu={() => setAskMenu(true)}
         />
         <MobileNav view={current} setView={goto} />
         <div className="body">
@@ -157,6 +164,26 @@ export default function App() {
           mode={state.mode}
           animations={animations}
           onClose={() => update((s) => ({ ...s, settings: { ...s.settings, tutorialDone: true } }))}
+        />
+      )}
+      {askMenu && (
+        <ConfirmDialog
+          kicker="MENÚ PRINCIPAL"
+          title="¿Volver al menú principal?"
+          message={
+            challenge
+              ? "Vas a salir del desafío en curso y ese intento no se guarda. El resto de tu progreso queda guardado."
+              : "Tu progreso queda guardado. Si estabas en medio de una lección, ese intento se descarta."
+          }
+          confirmLabel="Sí, volver al menú"
+          cancelLabel="Seguir acá"
+          onConfirm={() => {
+            setAskMenu(false);
+            setChallenge(null);
+            setFromApp(true);
+            setSplash(true);
+          }}
+          onCancel={() => setAskMenu(false)}
         />
       )}
       <div className="toasts" aria-live="polite">

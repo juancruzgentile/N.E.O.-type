@@ -5,6 +5,11 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- Menú principal: la pantalla de inicio ahora es un menú (Continuar, Lenguajes, Desafíos y proyectos, Ajustes).
+  El botón **Menú** de la cabecera vuelve a él desde cualquier sección, después de confirmar en un diálogo
+  (Enter confirma, Esc cancela). Al volver desde la app, el menú aparece al instante con el foco en Continuar.
+
 ## [1.6.0] - 2026-11-02
 
 La app aprende tu teclado real y se puede calibrar desde Ajustes; logros con nombres nuevos.
