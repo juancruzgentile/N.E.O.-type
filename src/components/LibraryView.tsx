@@ -1,11 +1,14 @@
 import { type CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react";
-import type { LangId } from "../types";
+import type { AppState, LangId, ReviewItem } from "../types";
 import { highlight } from "../highlight";
 import { GROUPS, SOON, TOPICS, totalEntries } from "../library/index";
 import { type Hit, entryId, search } from "../library/search";
 import { type Entry, type Level, LEVELS, type Topic } from "../library/types";
 import { LangEmblem } from "./LangEmblem";
-import { IconBook, IconLock, IconSearch } from "./icons";
+import { IconBook, IconKeyboard, IconLock, IconSearch } from "./icons";
+import { EntryPractice } from "./EntryPractice";
+import { MAX_BOX, findEntry, whenText } from "../review/review";
+import { today } from "../store";
 
 /** Bloque de código con resaltado; agrupa caracteres seguidos del mismo tipo en un solo span. */
 const CodeBlock = memo(function CodeBlock({ text, lang }: { text: string; lang: LangId }) {
@@ -35,8 +38,9 @@ function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
 
 const levelName = (l: Level) => LEVELS.find((x) => x.id === l)!.name;
 
-function EntryCard({ topic, entry, showTopic, onOpenTopic, flash }: {
+function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice, onForget }: {
   topic: Topic; entry: Entry; showTopic?: boolean; onOpenTopic?: () => void; flash?: boolean;
+  rv?: ReviewItem; onPractice: () => void; onForget: () => void;
 }) {
   return (
     <article id={entryId(topic, entry)} className={`lib-entry ${flash ? "flash" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
@@ -52,19 +56,38 @@ function EntryCard({ topic, entry, showTopic, onOpenTopic, flash }: {
       </header>
       <p>{entry.desc}</p>
       <CodeBlock text={entry.code} lang={topic.hl} />
+      <footer className="lib-entry-foot">
+        <button className="btn small lib-practice" onClick={onPractice} title="Escribir este ejemplo y sumarlo a tu repaso">
+          <IconKeyboard size={16} /> Practicar este ejemplo
+        </button>
+        {rv && (
+          <span className={`lib-review ${rv.box >= MAX_BOX ? "mastered" : ""}`}>
+            {rv.box >= MAX_BOX ? "Dominada" : "En repaso"} · {whenText(rv, today())}
+            <button className="lib-forget" onClick={onForget} title="Quitar del repaso" aria-label={`Quitar ${entry.name} del repaso`}>×</button>
+          </span>
+        )}
+      </footer>
     </article>
   );
 }
 
 type Selection = { kind: "topic"; id: string } | { kind: "soon" };
 
-export function LibraryView({ lang }: { lang: LangId | null }) {
+interface Props {
+  lang: LangId | null;
+  state: AppState;
+  update: (fn: (s: AppState) => AppState) => void;
+}
+
+export function LibraryView({ lang, state, update }: Props) {
   const initial = TOPICS.find((t) => t.id === lang)?.id ?? TOPICS[0].id;
   const [sel, setSel] = useState<Selection>({ kind: "topic", id: initial });
   const [query, setQuery] = useState("");
   const [onlyTopic, setOnlyTopic] = useState(false);
   const [level, setLevel] = useState<Level | "all">("all");
   const [flash, setFlash] = useState<string | null>(null);
+  const [practice, setPractice] = useState<string | null>(null);
+  const practicing = practice ? findEntry(practice) : null;
   const inputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -77,6 +100,7 @@ export function LibraryView({ lang }: { lang: LangId | null }) {
 
   // "/" o Ctrl+K enfocan la búsqueda desde cualquier lugar de la biblioteca
   useEffect(() => {
+    if (practice) return;
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName);
@@ -88,7 +112,7 @@ export function LibraryView({ lang }: { lang: LangId | null }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [practice]);
 
   // después de abrir un resultado: desplazarse hasta la entrada y resaltarla
   useEffect(() => {
@@ -113,13 +137,25 @@ export function LibraryView({ lang }: { lang: LangId | null }) {
   };
 
   const entries = topic ? topic.entries.filter((e) => level === "all" || e.level === level) : [];
+  const forget = (id: string) =>
+    update((s) => {
+      const review = { ...s.review };
+      delete review[id];
+      return { ...s, review };
+    });
+  const card = (t: Topic, e: Entry, extra: { showTopic?: boolean; onOpenTopic?: () => void; flash?: boolean } = {}) => {
+    const id = entryId(t, e);
+    return <EntryCard key={id} topic={t} entry={e} {...extra} rv={state.review[id]} onPractice={() => setPractice(id)} onForget={() => forget(id)} />;
+  };
+  const inReview = topic ? topic.entries.filter((e) => state.review[entryId(topic, e)]).length : 0;
 
   return (
     <div className="frame view library">
       <h2>BIBLIOTECA</h2>
       <div className="sub">
         Referencia rápida para programar: qué es cada lenguaje, cómo se trabaja con él y los comandos básicos, intermedios y
-        avanzados con ejemplos. {totalEntries} entradas en {TOPICS.length} temas.
+        avanzados con ejemplos. {totalEntries} entradas en {TOPICS.length} temas. Con <b>Practicar este ejemplo</b> lo escribís
+        y queda en tu repaso: vuelve cada tanto en tus lecciones, más espaciado a medida que lo dominás.
       </div>
 
       <div className="lib-search" role="search">
@@ -190,9 +226,7 @@ export function LibraryView({ lang }: { lang: LangId | null }) {
               </div>
               {!hits.length && <p className="lib-empty">Probá con otra palabra, un sinónimo o sin el nombre del lenguaje.</p>}
               <div className="lib-entries">
-                {hits.map((h) => (
-                  <EntryCard key={entryId(h.topic, h.entry)} topic={h.topic} entry={h.entry} showTopic onOpenTopic={() => openHit(h)} />
-                ))}
+                {hits.map((h) => card(h.topic, h.entry, { showTopic: true, onOpenTopic: () => openHit(h) }))}
               </div>
             </>
           ) : sel.kind === "soon" ? (
@@ -244,7 +278,10 @@ export function LibraryView({ lang }: { lang: LangId | null }) {
                 ))}
               </div>
 
-              <div className="section">COMANDOS Y CONCEPTOS</div>
+              <div className="section">
+                COMANDOS Y CONCEPTOS
+                {inReview > 0 && <span className="lib-in-review">{inReview} en tu repaso</span>}
+              </div>
               <div className="seg lib-levels" role="tablist" aria-label="Nivel">
                 {[{ id: "all" as const, name: "Todo" }, ...LEVELS].map((l) => (
                   <button
@@ -265,9 +302,7 @@ export function LibraryView({ lang }: { lang: LangId | null }) {
                   <section key={l.id} className="lib-level-block">
                     <h3 className={`lib-level-title ${l.id}`}>{l.name}</h3>
                     <div className="lib-entries">
-                      {list.map((e) => (
-                        <EntryCard key={entryId(topic, e)} topic={topic} entry={e} flash={flash === entryId(topic, e)} />
-                      ))}
+                      {list.map((e) => card(topic, e, { flash: flash === entryId(topic, e) }))}
                     </div>
                   </section>
                 );
@@ -276,6 +311,16 @@ export function LibraryView({ lang }: { lang: LangId | null }) {
           ) : null}
         </div>
       </div>
+      {practicing && (
+        <EntryPractice
+          key={practice}
+          topic={practicing.topic}
+          entry={practicing.entry}
+          state={state}
+          update={update}
+          onClose={() => setPractice(null)}
+        />
+      )}
     </div>
   );
 }
