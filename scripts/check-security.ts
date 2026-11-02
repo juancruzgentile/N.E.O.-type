@@ -151,6 +151,28 @@ ok(st.w.every((x) => x >= 0 && x <= 1000) && st.a.every((x) => x >= 0 && x <= 1)
   ok(JSON.stringify(clean({ version: 1 }).recall) === "{}", "sin ejercicios queda un objeto vacío");
 }
 
+// ── atajos de editor ──
+{
+  const st = clean(JSON.parse(`{
+    "version": 1,
+    "settings": { "vscodeKeys": "linux" },
+    "shortcuts": {
+      "vim-1-1": { "stars": 3, "keys": 3, "ms": 2100 },
+      "vscode-2-1": { "stars": 9, "keys": 2, "ms": -4 },
+      "vim-1-2": { "stars": 3, "keys": 0, "ms": 1 },
+      "emacs-1-1": { "stars": 3, "keys": 3, "ms": 1 },
+      "vim-1-3": "tres",
+      "__proto__": { "stars": 3, "keys": 1, "ms": 1 }
+    }
+  }`));
+  ok(st.settings.vscodeKeys === "pc" || st.settings.vscodeKeys === "mac", "atajos de VS Code: solo pc o mac");
+  ok(JSON.stringify(st.shortcuts["vim-1-1"]) === '{"stars":3,"keys":3,"ms":2100}', "una marca válida se conserva");
+  ok(st.shortcuts["vscode-2-1"]?.stars === 3 && st.shortcuts["vscode-2-1"].ms === 1, "estrellas y tiempo fuera de rango se acotan");
+  ok(!("vim-1-2" in st.shortcuts) && !("vim-1-3" in st.shortcuts), "marcas con 0 teclas o de otro tipo se descartan");
+  ok(Object.keys(st.shortcuts).every((k) => /^(vim|vscode)-[1-9]-[1-9]\d?$/.test(k)), "solo claves de ejercicios de atajos");
+  ok(JSON.stringify(clean({ version: 1 }).shortcuts) === "{}", "sin atajos queda un objeto vacío");
+}
+
 // ── repaso de la Biblioteca ──
 {
   const st = clean(JSON.parse(`{

@@ -48,6 +48,8 @@ export interface Settings {
   distro: DistroId;
   /** motor para la práctica libre de bases de datos */
   dbEngine: DbEngineId;
+  /** atajos de VS Code que se practican: Linux/Windows o Mac */
+  vscodeKeys: "pc" | "mac";
 }
 
 /** Estadística de una tecla (un carácter). */
@@ -117,6 +119,16 @@ export interface ProjectRecord {
   ts: number;
 }
 
+/** Mejor resultado en un ejercicio de atajos. */
+export interface ShortcutRecord {
+  /** 1 a 3 según las teclas frente al par */
+  stars: number;
+  /** menor cantidad de teclas */
+  keys: number;
+  /** mejor tiempo en ms */
+  ms: number;
+}
+
 /** Entrada de la Biblioteca en repaso espaciado (sistema de cajas). */
 export interface ReviewItem {
   /** caja 0..4: cuanto más alta, más tarda en volver */
@@ -146,6 +158,8 @@ export interface AppState {
   review: Record<string, ReviewItem>;
   /** ejercicios de memoria resueltos: id → fecha de la primera vez */
   recall: Record<string, number>;
+  /** ejercicios de atajos: id → mejor resultado */
+  shortcuts: Record<string, ShortcutRecord>;
   /** logros desbloqueados: id → fecha */
   achievements: Record<string, number>;
 }
