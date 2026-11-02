@@ -5,7 +5,7 @@
 
 import type {
   AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, KeyStat, LangId, LayoutId, LearnedKey, LessonResult, Mode,
-  Profile, Settings, StepStat, ThemeId,
+  Profile, ProjectRecord, ReviewItem, Settings, StepStat, ThemeId,
 } from "./types";
 import { CHAR_KEY_CODES } from "./data/layouts";
 
@@ -193,6 +193,24 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     if (!isObj(v)) continue;
     challenges[k] = { wpm: num(v.wpm, 0, 1000, 0), acc: num(v.acc, 0, 1, 0), ts: num(v.ts, 0, 8.64e15, 0) };
   }
+  // proyectos: p01…p99, con un tiempo positivo (un récord de 0 ms sería trampa)
+  const projects: Record<string, ProjectRecord> = {};
+  for (const [k, v] of entries(r.projects, /^p\d{2}$/, 100)) {
+    if (!isObj(v) || typeof v.ms !== "number" || !Number.isFinite(v.ms) || v.ms < 1000) continue;
+    projects[k] = { ms: num(v.ms, 1000, 8.64e7, 1000), wpm: num(v.wpm, 0, 1000, 0), acc: num(v.acc, 0, 1, 0), ts: num(v.ts, 0, 8.64e15, 0) };
+  }
+  // repaso: ids de entradas de la Biblioteca (que ya no existan se ignoran al usarse)
+  const review: Record<string, ReviewItem> = {};
+  for (const [k, v] of entries(r.review, /^lib-[a-z0-9]+(-[a-z0-9]+){0,30}$/, 3000)) {
+    if (!isObj(v) || k.length > 160 || typeof v.due !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v.due)) continue;
+    review[k] = {
+      box: int(v.box, 0, 4, 0),
+      due: v.due,
+      n: int(v.n, 0, 1_000_000, 0),
+      lapses: int(v.lapses, 0, 1_000_000, 0),
+      ts: num(v.ts, 0, 8.64e15, 0),
+    };
+  }
   const achievements: Record<string, number> = {};
   for (const [k, v] of entries(r.achievements, /^[a-z0-9]{1,24}$/, 100)) achievements[k] = num(v, 0, 8.64e15, 0);
 
@@ -204,6 +222,8 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     profiles,
     days,
     challenges,
+    projects,
+    review,
     achievements,
   };
 }

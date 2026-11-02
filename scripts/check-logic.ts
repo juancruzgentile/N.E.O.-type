@@ -11,6 +11,10 @@ import { LANGS, stageCount, unlockedChars } from "../src/data/curriculum";
 import { TRACKS } from "../src/tracks/index";
 import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKey } from "../src/data/layouts";
 import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
+import { TypingSession } from "../src/engine/session";
+import { SOON, TOPICS } from "../src/library/index";
+import { entryId, normalize, search } from "../src/library/search";
+import { INTERVALS, addDays, daysBetween, dueCount, findEntry, grade, pickDue, practiceText, reviewLesson, whenText } from "../src/review/review";
 
 let failed = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -269,6 +273,112 @@ for (const [lang, code] of [
   learner.observe(obs, LAYOUTS.it);
   learner.observe(readKey(ev("{", "Digit8", { altgr: true }))!, LAYOUTS.it);
   ok(learner.observe(obs, LAYOUTS.it) === null, "observaciones distintas reinician la cuenta");
+}
+
+// ── sangrías que se escriben (proyectos) ──
+{
+  const typeAll = (s: TypingSession, keys: string) => {
+    for (const k of keys) s.input(k, 0, "block");
+  };
+  const auto = new TypingSession("if x:\n    y");
+  ok(auto.auto.filter(Boolean).length === 4, "por defecto la sangría se salta sola");
+  const s = new TypingSession("if x:\n    y = 1\n        z", { manualIndent: true, tabWidth: 4 });
+  ok(s.auto.every((a) => !a), "con manualIndent ninguna posición se salta");
+  typeAll(s, "if x:\n");
+  ok(s.inIndent() && s.column() === 0, "al empezar la línea el cursor está en la sangría");
+  ok(s.tab(0, "block") === "ok" && s.text[s.pos] === "y", "Tab completa una sangría de 4 espacios");
+  ok(s.tab(0, "block") === "error" && s.text[s.pos] === "y", "Tab fuera de la sangría es un error y no avanza");
+  typeAll(s, "y = 1\n");
+  s.tab(0, "block");
+  ok(s.column() === 4 && s.inIndent(), "Tab avanza hasta el próximo múltiplo del ancho");
+  typeAll(s, "    ");
+  ok(s.text[s.pos] === "z" && s.errors.size === 1, "la sangría también se puede escribir con espacios");
+  const t = new TypingSession("func f() {\n\treturn\n}", { manualIndent: true });
+  typeAll(t, "func f() {\n");
+  ok(t.input(" ", 0, "block") === "error", "si la sangría es una tabulación, un espacio es un error");
+  ok(t.tab(0, "block") === "ok" && t.text[t.pos] === "r", "Tab escribe una tabulación real (Go, Makefile)");
+  const odd = new TypingSession("a\n  b", { manualIndent: true, tabWidth: 4 });
+  typeAll(odd, "a\n");
+  ok(odd.tab(0, "block") === "ok" && odd.text[odd.pos] === "b", "Tab no se pasa de la sangría si es más corta que el ancho");
+  ok(highlight("\tx", "go")[0] === "sp", "la tabulación se resalta como espacio");
+}
+
+// ── biblioteca ──
+{
+  for (const t of TOPICS) {
+    const levels = new Set(t.entries.map((e) => e.level));
+    ok(levels.size === 3 && t.entries.length >= 12, `${t.name}: tiene entradas de los tres niveles (${t.entries.length})`);
+    const ids = t.entries.map((e) => entryId(t, e));
+    const dup = ids.filter((id, i) => ids.indexOf(id) !== i);
+    ok(dup.length === 0, `${t.name}: cada entrada tiene un id único${dup.length ? " — repetidos: " + dup.join(", ") : ""}`);
+    ok(t.workflow.length >= 4 && t.facts.length >= 4 && t.summary.length > 80, `${t.name}: tiene resumen, datos y métodos de trabajo`);
+    const empty = t.entries.filter((e) => !e.code.trim() || !e.desc.trim() || /\s$/.test(e.code));
+    ok(empty.length === 0, `${t.name}: ninguna entrada sin ejemplo ni descripción`);
+  }
+  ok(new Set(TOPICS.map((t) => t.id)).size === TOPICS.length, "los temas no se repiten");
+  ok(normalize("Función ÁRBOL") === "funcion arbol", "la búsqueda ignora acentos y mayúsculas");
+  const rebase = search(TOPICS, "rebase");
+  ok(rebase[0]?.entry.name === "git rebase", "buscar por nombre trae primero la coincidencia exacta");
+  ok(search(TOPICS, "funcion").some((h) => h.topic.id === "python"), "buscar sin acento encuentra entradas con acento");
+  const py = search(TOPICS, "python listas");
+  ok(py.length > 0 && py.every((h) => h.topic.id === "python"), "nombrar el tema filtra por ese tema");
+  ok(search(TOPICS, "zzzz-nada").length === 0 && search(TOPICS, "   ").length === 0, "sin coincidencias o vacío no devuelve nada");
+  const names = SOON.map((s) => s.name).join(" ");
+  ok(SOON.length === 9 && ["IA", "Claude", "ChatGPT", "Gemini", "Codex", "Cursor", "OpenCode", "Antigravity", "Hermes"].every((n) => names.includes(n)), "Próximamente lista IA, Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode, Antigravity y Hermes");
+}
+
+// ── repaso espaciado ──
+{
+  const day = "2026-11-02";
+  ok(addDays(day, 1) === "2026-11-03" && addDays("2026-12-31", 1) === "2027-01-01" && addDays("2026-03-28", 2) === "2026-03-30", "suma días entre meses, años y cambios de horario");
+  ok(daysBetween(day, "2026-11-09") === 7 && daysBetween(day, "2026-11-01") === -1, "cuenta días entre fechas");
+  const first = grade(undefined, 1, day);
+  ok(first.counted && first.item.box === 0 && first.item.due === "2026-11-03", "una entrada nueva vuelve mañana");
+  const failNew = grade(undefined, 0.5, day);
+  ok(failNew.item.box === 0 && failNew.item.lapses === 0, "fallar la primera vez no cuenta como olvido");
+  // subir de caja en cada repaso a tiempo: 1, 3, 7, 15 y 30 días
+  let it = first.item;
+  let d = it.due;
+  const gaps: number[] = [];
+  for (let i = 0; i < 5; i++) {
+    it = grade(it, 0.99, d).item;
+    gaps.push(daysBetween(d, it.due));
+    d = it.due;
+  }
+  ok(JSON.stringify(gaps) === JSON.stringify([3, 7, 15, 30, 30]) && it.box === 4, "bien hecho sube de caja y tarda más en volver, hasta 30 días");
+  const lapse = grade(it, 0.8, d);
+  ok(lapse.item.box === 0 && lapse.item.due === addDays(d, INTERVALS[0]) && lapse.item.lapses === 1, "un mal repaso vuelve a la primera caja y reaparece mañana");
+  const early = grade(first.item, 1, day);
+  ok(!early.counted && early.item.box === 0 && early.item.due === first.item.due && early.item.n === 2, "practicar de nuevo el mismo día no adelanta la caja");
+  ok(whenText(first.item, day) === "vuelve mañana" && whenText({ ...first.item, due: day }, day) === "toca hoy" && whenText({ ...first.item, due: "2026-11-09" }, day) === "vuelve en 7 días", "texto de cuándo vuelve");
+
+  ok(practiceText("print('año')  \n\treturn …") === "print('ano')\n    return ...", "el texto de práctica saca tildes, cambia tabulaciones y símbolos raros");
+  ok(practiceText("x = 1      # uno\n    y  =  2") === "x = 1 # uno\n    y = 2", "junta los espacios para alinear comentarios pero respeta la sangría");
+  let unTypeable: string[] = [];
+  for (const t of TOPICS) for (const e of t.entries) {
+    const txt = practiceText(e.code);
+    if (/[^\x20-\x7e\n]/.test(txt) || !txt.trim()) unTypeable.push(`${t.id}: ${e.name}`);
+  }
+  ok(unTypeable.length === 0, `todos los ejemplos de la Biblioteca se pueden escribir en cualquier teclado${unTypeable.length ? " — " + unTypeable.slice(0, 3).join(", ") : ""}`);
+
+  const py = TOPICS.find((t) => t.id === "python")!;
+  const git = TOPICS.find((t) => t.id === "git")!;
+  const pyId = entryId(py, py.entries[0]);
+  const gitId = entryId(git, git.entries[0]);
+  ok(findEntry(pyId)?.entry === py.entries[0] && findEntry("lib-no-existe") === null, "encuentra una entrada por id");
+  const rv = {
+    [gitId]: { box: 0, due: "2026-10-30", n: 1, lapses: 0, ts: 0 },
+    [pyId]: { box: 1, due: "2026-11-01", n: 1, lapses: 0, ts: 0 },
+    "lib-no-existe": { box: 0, due: "2026-01-01", n: 1, lapses: 0, ts: 0 },
+    [entryId(py, py.entries[1])]: { box: 0, due: "2026-11-20", n: 1, lapses: 0, ts: 0 },
+  };
+  ok(pickDue(rv, "python", day) === pyId, "repasa primero lo del lenguaje que estás practicando");
+  ok(pickDue(rv, "go", day) === gitId, "si no hay del lenguaje, lo más atrasado");
+  ok(pickDue(rv, "go", day, [gitId, pyId]) === null && pickDue({}, "go", day) === null, "nada que repasar devuelve null");
+  ok(dueCount(rv, day) === 2, "cuenta solo lo que toca hoy y sigue existiendo");
+  const rl = reviewLesson(gitId);
+  ok(rl?.label === "REPASO" && rl.review === gitId && rl.hl === git.hl && rl.text === practiceText(git.entries[0].code), "arma la lección de repaso con el ejemplo y su resaltado");
+  ok(reviewLesson("lib-no-existe") === null, "una entrada que ya no existe no arma lección");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de lógica pasaron");

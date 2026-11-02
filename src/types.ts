@@ -9,7 +9,7 @@ export type DbEngineId = "sqlite" | "mysql" | "postgresql" | "mongodb";
 export type LayoutId = "it" | "us" | "es" | "latam";
 export type ErrorMode = "block" | "advance" | "strict";
 export type Mode = "guided" | "free";
-export type View = "languages" | "practice" | "routes" | "stats" | "challenges" | "achievements" | "settings";
+export type View = "languages" | "practice" | "routes" | "stats" | "challenges" | "library" | "achievements" | "settings";
 export type ThemeId = "cyber" | "neon" | "synthwave" | "matrix" | "tokyo" | "light";
 
 /** Cómo escribe el usuario un símbolo en su teclado real (aprendido o calibrado). */
@@ -97,6 +97,29 @@ export interface ChallengeRecord {
   ts: number;
 }
 
+/** Mejor marca en un proyecto: el menor tiempo. */
+export interface ProjectRecord {
+  /** tiempo activo en ms (sin pausas) */
+  ms: number;
+  wpm: number;
+  acc: number;
+  ts: number;
+}
+
+/** Entrada de la Biblioteca en repaso espaciado (sistema de cajas). */
+export interface ReviewItem {
+  /** caja 0..4: cuanto más alta, más tarda en volver */
+  box: number;
+  /** día desde el que toca repasarla (YYYY-MM-DD) */
+  due: string;
+  /** veces que se practicó */
+  n: number;
+  /** veces que volvió a la primera caja por un mal intento */
+  lapses: number;
+  /** último intento */
+  ts: number;
+}
+
 export interface AppState {
   version: 1;
   settings: Settings;
@@ -106,6 +129,10 @@ export interface AppState {
   /** segundos practicados por día (YYYY-MM-DD) */
   days: Record<string, number>;
   challenges: Record<string, ChallengeRecord>;
+  /** proyectos terminados: id → mejor marca */
+  projects: Record<string, ProjectRecord>;
+  /** repaso espaciado: id de entrada de la Biblioteca → estado */
+  review: Record<string, ReviewItem>;
   /** logros desbloqueados: id → fecha */
   achievements: Record<string, number>;
 }
@@ -122,6 +149,10 @@ export interface Lesson {
   label?: string;
   /** lenguajes: concepto del fragmento, para no repetirlo en la lección siguiente */
   concept?: ConceptId;
+  /** repaso: id de la entrada de la Biblioteca que se practica */
+  review?: string;
+  /** resaltado del texto cuando no es el del lenguaje actual (repasos) */
+  hl?: LangId;
 }
 
 /** Una muestra registrada al teclear un carácter. */

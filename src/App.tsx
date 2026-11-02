@@ -1,11 +1,14 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { LangId, View } from "./types";
 import { useAppState } from "./store";
 import { onReducedMotionChange, reducedMotion, setFxEnabled } from "./fx/fx";
 import { ACHIEVEMENTS, newAchievements } from "./engine/achievements";
 import { sound } from "./sound";
 import { Background } from "./components/Background";
-import { Splash } from "./components/Splash";
+import { type MenuDest, Splash } from "./components/Splash";
+import { ConfirmDialog } from "./components/ConfirmDialog";
+import { ProjectView } from "./components/ProjectView";
+import { PROJECTS } from "./projects/projects";
 import { AchBadge } from "./components/AchBadge";
 import { Footer, Header, MobileNav, Sidebar } from "./components/Chrome";
 import { useMusicInit } from "./components/MusicPlayer";
@@ -14,6 +17,7 @@ import { type Challenge, PracticeView } from "./components/PracticeView";
 import {
   AchievementsView, ChallengesView, LanguagesView, RoutesView, SettingsView, StatsView,
 } from "./components/Views";
+import { LibraryView } from "./components/LibraryView";
 
 export default function App() {
   const { state, update, saved, exportJson, importJson } = useAppState();
@@ -21,6 +25,21 @@ export default function App() {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [toasts, setToasts] = useState<{ id: string; key: number }[]>([]);
   const [splash, setSplash] = useState(() => state.settings.showSplash || !state.settings.userName.trim());
+  const [askMenu, setAskMenu] = useState(false);
+  // true cuando el menú se abre desde la app (no al arrancar)
+  const [fromApp, setFromApp] = useState(false);
+  // proyecto abierto y si tiene un intento a medias (para preguntar antes de salir)
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const projectBusy = useRef(false);
+  const onProjectBusy = useCallback((b: boolean) => {
+    projectBusy.current = b;
+  }, []);
+  const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null);
+  /** Corre `fn` enseguida, o después de confirmar si hay un proyecto a medias. */
+  const guard = (fn: () => void) => {
+    if (projectBusy.current) setPendingLeave(() => fn);
+    else fn();
+  };
   useMusicInit(state);
 
   const { theme } = state.settings;
@@ -50,23 +69,29 @@ export default function App() {
   }, [state, update]);
 
   const lang = state.lang;
-  const needsLang = !lang && view !== "settings" && view !== "achievements";
+  const needsLang = !lang && view !== "settings" && view !== "achievements" && view !== "library";
   const current: View = needsLang ? "languages" : view;
 
   const pickLang = (l: LangId) => {
     update((s) => ({ ...s, lang: l }));
     setChallenge(null);
+    setProjectId(null);
     setView("practice");
   };
 
-  const goto = (v: View) => {
-    if (v !== "practice") setChallenge(null);
-    setView(v);
-  };
+  const goto = (v: View) =>
+    guard(() => {
+      setProjectId(null);
+      if (v !== "practice") setChallenge(null);
+      setView(v);
+    });
 
-  const challengeLabel = challenge
-    ? challenge.kind === "sprint" ? `Sprint ${challenge.seconds}s` : "Precisión perfecta"
-    : null;
+  const project = projectId ? PROJECTS.find((p) => p.id === projectId) ?? null : null;
+  const challengeLabel = project
+    ? `Proyecto ${String(project.num).padStart(2, "0")}`
+    : challenge
+      ? challenge.kind === "sprint" ? `Sprint ${challenge.seconds}s` : "Precisión perfecta"
+      : null;
 
   if (splash) {
     return (
@@ -75,8 +100,10 @@ export default function App() {
         <Splash
           name={state.settings.userName}
           avatar={state.settings.avatar}
-          onEnter={(name, avatar) => {
+          quick={fromApp}
+          onEnter={(name, avatar, dest: MenuDest) => {
             update((s) => ({ ...s, settings: { ...s.settings, userName: name || s.settings.userName, avatar } }));
+            if (dest !== "continue") goto(dest);
             setSplash(false);
           }}
         />
@@ -93,6 +120,10 @@ export default function App() {
           saved={saved}
           challengeLabel={challengeLabel}
           onToggleMode={() => {
+            if (project) {
+              guard(() => setProjectId(null));
+              return;
+            }
             if (challenge) {
               setChallenge(null);
               return;
@@ -101,6 +132,7 @@ export default function App() {
             setView(lang ? "practice" : "languages");
           }}
           onPickLang={() => goto("languages")}
+          onMenu={() => setAskMenu(true)}
         />
         <MobileNav view={current} setView={goto} />
         <div className="body">
@@ -121,7 +153,18 @@ export default function App() {
             )}
             {current === "routes" && lang && <RoutesView state={state} lang={lang} />}
             {current === "stats" && lang && <StatsView state={state} lang={lang} />}
-            {current === "challenges" && lang && (
+            {current === "challenges" && lang && project && (
+              <ProjectView
+                key={project.id}
+                project={project}
+                state={state}
+                update={update}
+                onBusy={onProjectBusy}
+                onExit={() => setProjectId(null)}
+                onOpen={(id) => setProjectId(id)}
+              />
+            )}
+            {current === "challenges" && lang && !project && (
               <ChallengesView
                 state={state}
                 lang={lang}
@@ -129,8 +172,13 @@ export default function App() {
                   setChallenge(c);
                   setView("practice");
                 }}
+                onProject={(id) => {
+                  setChallenge(null);
+                  setProjectId(id);
+                }}
               />
             )}
+            {current === "library" && <LibraryView lang={lang} state={state} update={update} />}
             {current === "achievements" && <AchievementsView state={state} />}
             {current === "settings" && (
               <SettingsView
@@ -157,6 +205,45 @@ export default function App() {
           mode={state.mode}
           animations={animations}
           onClose={() => update((s) => ({ ...s, settings: { ...s.settings, tutorialDone: true } }))}
+        />
+      )}
+      {askMenu && (
+        <ConfirmDialog
+          kicker="MENÚ PRINCIPAL"
+          title="¿Volver al menú principal?"
+          message={
+            projectBusy.current
+              ? "Vas a salir del proyecto en curso y ese intento no se guarda. Tus récords quedan guardados."
+              : challenge
+              ? "Vas a salir del desafío en curso y ese intento no se guarda. El resto de tu progreso queda guardado."
+              : "Tu progreso queda guardado. Si estabas en medio de una lección, ese intento se descarta."
+          }
+          confirmLabel="Sí, volver al menú"
+          cancelLabel="Seguir acá"
+          onConfirm={() => {
+            setAskMenu(false);
+            setChallenge(null);
+            setProjectId(null);
+            setFromApp(true);
+            setSplash(true);
+          }}
+          onCancel={() => setAskMenu(false)}
+        />
+      )}
+      {pendingLeave && (
+        <ConfirmDialog
+          kicker="PROYECTO EN CURSO"
+          title="¿Salir del proyecto?"
+          message="Vas a perder el avance de este intento. Tus récords anteriores quedan guardados."
+          confirmLabel="Sí, salir"
+          cancelLabel="Seguir escribiendo"
+          onConfirm={() => {
+            const fn = pendingLeave;
+            setPendingLeave(null);
+            projectBusy.current = false;
+            fn();
+          }}
+          onCancel={() => setPendingLeave(null)}
         />
       )}
       <div className="toasts" aria-live="polite">

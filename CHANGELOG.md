@@ -5,6 +5,30 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- Menú principal: la pantalla de inicio ahora es un menú (Continuar, Lenguajes, Desafíos y proyectos, Biblioteca,
+  Ajustes). El botón **Menú** de la cabecera vuelve a él desde cualquier sección, después de confirmar en un diálogo
+  (Enter confirma, Esc cancela). Al volver desde la app, el menú aparece al instante con el foco en Continuar.
+- **Proyectos** (en Desafíos): 10 programas completos para escribir de punta a punta en el menor tiempo posible,
+  de una calculadora en Python hasta un tablero de tareas full stack con Makefile, Docker Compose, SQL, FastAPI,
+  HTML, CSS y TypeScript. Cada uno se desbloquea al terminar el anterior. Las sangrías se escriben: Tab avanza
+  hasta el próximo nivel (o escribe una tabulación real en Go y Makefile) y también valen los espacios. El reloj
+  cuenta solo el tiempo activo (Esc pausa), los errores no avanzan y se guarda el mejor tiempo de cada proyecto.
+  Salir o reiniciar a mitad de un proyecto pide confirmación.
+- **Biblioteca**: referencia rápida de 13 temas (Python, JavaScript, TypeScript, Java, C#, Go, Rust,
+  SQL y MongoDB, HTML, CSS, formatos de datos, terminal Linux y Git). Cada tema tiene un resumen, datos rápidos,
+  métodos de trabajo y más de 250 comandos y conceptos en niveles básico, intermedio y avanzado, con ejemplos
+  resaltados. La búsqueda recorre todo a la vez, sin importar acentos ni mayúsculas (/ o Ctrl+K para buscar,
+  Enter abre el primer resultado). Incluye una sección **Próximamente** con IA: conceptos, Claude, ChatGPT,
+  Gemini, Codex, Cursor, OpenCode, Antigravity y Hermes. También está en el menú principal.
+- **Practicar y repasar**: cada entrada de la Biblioteca tiene un botón **Practicar este ejemplo** que abre una
+  lección corta con su código (sin tildes ni tabulaciones, para que se pueda escribir con cualquier teclado). Al
+  terminarla entra en el repaso espaciado, con un sistema de cajas: un buen intento (95 % de precisión o más) la sube
+  de caja y tarda más en volver (1, 3, 7, 15 y 30 días); uno malo la devuelve al día siguiente. Lo que toca repasar
+  aparece intercalado cada 2 a 4 lecciones, marcado como REPASO y priorizando el lenguaje que estás practicando. Los
+  repasos no cambian el progreso del lenguaje, pero suman a la meta diaria. Cada entrada muestra si está en repaso y
+  cuándo vuelve, y se puede quitar.
+
 ## [1.6.0] - 2026-11-02
 
 La app aprende tu teclado real y se puede calibrar desde Ajustes; logros con nombres nuevos.

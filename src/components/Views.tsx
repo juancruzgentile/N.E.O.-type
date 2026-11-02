@@ -13,6 +13,8 @@ import { KeyCalibration } from "./KeyCalibration";
 import { MAX_IMPORT_BYTES } from "../sanitize";
 import { Keyboard, heatColor } from "./Keyboard";
 import type { Challenge } from "./PracticeView";
+import { PROJECTS, formatTime, projectLines, projectUnlocked } from "../projects/projects";
+import { IconLock } from "./icons";
 
 type Update = (fn: (s: AppState) => AppState) => void;
 
@@ -296,7 +298,14 @@ export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
 
 // ─────────────────────────── Desafíos ───────────────────────────
 
-export function ChallengesView({ state, lang, onStart }: { state: AppState; lang: LangId; onStart: (c: Challenge) => void }) {
+interface ChallengesProps {
+  state: AppState;
+  lang: LangId;
+  onStart: (c: Challenge) => void;
+  onProject: (id: string) => void;
+}
+
+export function ChallengesView({ state, lang, onStart, onProject }: ChallengesProps) {
   const items: { c: Challenge; title: string; desc: string }[] = [
     { c: { kind: "sprint", seconds: 30 }, title: "Sprint 30 s", desc: "Escribí todo el código que puedas en 30 segundos. Todos los símbolos habilitados." },
     { c: { kind: "sprint", seconds: 60 }, title: "Sprint 60 s", desc: "El clásico test de un minuto, pero con funciones reales del lenguaje." },
@@ -317,6 +326,46 @@ export function ChallengesView({ state, lang, onStart }: { state: AppState; lang
               <p>{desc}</p>
               <div className="rec">{rec ? `Récord: ${Math.round(rec.wpm)} WPM · ${(rec.acc * 100).toFixed(0)}%` : "Sin récord todavía"}</div>
               <button className="btn primary" onClick={() => onStart(c)}>Empezar</button>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="section" id="proyectos">PROYECTOS</div>
+      <div className="sub">
+        Diez programas completos para escribir de punta a punta, en el menor tiempo posible. Acá las sangrías no se
+        saltan: se escriben con Tab o con espacios, como en un editor. Cada proyecto se desbloquea al terminar el
+        anterior, y el último junta varios lenguajes en una aplicación entera. Los errores no avanzan y el reloj solo
+        corre mientras escribís.
+      </div>
+      <div className="projects">
+        {PROJECTS.map((p, i) => {
+          const rec = state.projects[p.id];
+          const open = projectUnlocked(state.projects, i);
+          return (
+            <div key={p.id} className={`project-card ${open ? "" : "locked"} ${rec ? "done" : ""}`}>
+              <div className="pc-num">{String(p.num).padStart(2, "0")}</div>
+              <div className="pc-body">
+                <div className="pc-head">
+                  <h3>{p.title}</h3>
+                  <span className="pc-level">{p.level}</span>
+                </div>
+                <p>{p.desc}</p>
+                <div className="pc-stack">{p.stack.map((t) => <span key={t}>{t}</span>)}</div>
+                <div className="pc-meta">
+                  {p.files.length} {p.files.length === 1 ? "archivo" : "archivos"} · {projectLines(p)} líneas · practicás {p.skills}
+                </div>
+              </div>
+              <div className="pc-side">
+                {open ? (
+                  <>
+                    <div className="rec">{rec ? `Récord: ${formatTime(rec.ms)} · ${Math.round(rec.wpm)} WPM` : "Sin terminar todavía"}</div>
+                    <button className="btn primary" onClick={() => onProject(p.id)}>{rec ? "Mejorar tiempo" : "Empezar"}</button>
+                  </>
+                ) : (
+                  <div className="pc-lock"><IconLock size={20} /> Terminá el proyecto {i} para desbloquearlo</div>
+                )}
+              </div>
             </div>
           );
         })}

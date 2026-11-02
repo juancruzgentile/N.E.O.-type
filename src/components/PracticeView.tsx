@@ -11,6 +11,7 @@ import {
   applySamples, applyStep, buildLesson, canUnlock, lessonScore, nextStage, pickFocus, playableChars, stageInfos,
 } from "../engine/stats";
 import { getProfile, profileKey, streakDays, today } from "../store";
+import { PASS_ACC, grade, pickDue, reviewLesson, whenText } from "../review/review";
 import { sound } from "../sound";
 import { CodeView } from "./CodeView";
 import { FINGER_COLORS, Keyboard } from "./Keyboard";
@@ -59,7 +60,32 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
     [lang, settings.layout, settings.excludeMissing, settings.minSamples, settings.targetWpm, settings.minAccuracy, settings.distro, settings.dbEngine, mode],
   );
 
+  // repaso intercalado: cada 2 a 4 lecciones, si hay algo de la Biblioteca que toca hoy
+  const reviewRef = useRef(state.review);
+  reviewRef.current = state.review;
+  const sinceReview = useRef(0);
+  const reviewGap = useRef(2 + Math.floor(rng.current() * 3));
+  const nextLesson = useCallback(
+    (p: Profile): Lesson => {
+      if (!challenge) {
+        sinceReview.current++;
+        if (sinceReview.current > reviewGap.current) {
+          const id = pickDue(reviewRef.current, lang, today());
+          const rl = id ? reviewLesson(id) : null;
+          if (rl) {
+            sinceReview.current = 0;
+            reviewGap.current = 2 + Math.floor(rng.current() * 3);
+            return rl;
+          }
+        }
+      }
+      return make(p);
+    },
+    [challenge, lang, make],
+  );
+
   const [lesson, setLesson] = useState<Lesson>(() => make(profile));
+  const [reviewNote, setReviewNote] = useState<string | null>(null);
   const session = useRef(new TypingSession(lesson.text));
   const [version, setVersion] = useState(0);
   const [focused, setFocused] = useState(false);
@@ -207,7 +233,33 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       return;
     }
 
+    // un repaso no cambia el progreso del lenguaje: solo mueve la entrada de caja y suma tiempo
+    if (lesson.review) {
+      const id = lesson.review;
+      const day = today();
+      const { item, counted } = grade(state.review[id], r.acc, day);
+      update((st) => ({
+        ...st,
+        review: { ...st.review, [id]: item },
+        days: { ...st.days, [day]: (st.days[day] ?? 0) + r.ms / 1000 },
+      }));
+      reviewRef.current = { ...reviewRef.current, [id]: item };
+      setLastRes(null);
+      setReviewNote(
+        !counted
+          ? `Repaso de ${lesson.title}: ${Math.round(r.wpm)} WPM · ${(r.acc * 100).toFixed(1)}%`
+          : r.acc >= PASS_ACC
+            ? `Repaso de ${lesson.title} bien hecho · ${whenText(item, day)}`
+            : `Repaso de ${lesson.title}: ${(r.acc * 100).toFixed(1)}% · lo vas a ver de nuevo mañana`,
+      );
+      if (settings.sound) sound.done();
+      wave();
+      loadLesson(nextLesson(profileRef.current));
+      return;
+    }
+
     const { profile: np, unlocked, newStep } = commit(samples, res, !challenge, challenge ? undefined : lesson.step);
+    setReviewNote(null);
     setLastRes(res);
 
     if (challenge?.kind === "perfect") {
@@ -241,8 +293,8 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       if (settings.sound) sound.done();
       wave();
     }
-    loadLesson(make(np));
-  }, [challenge, combos, commit, lang, lesson.kind, lesson.step, loadLesson, make, settings.sound, state.challenges, update]);
+    loadLesson(nextLesson(np));
+  }, [challenge, combos, commit, lang, lesson.kind, lesson.review, lesson.step, lesson.title, loadLesson, make, nextLesson, settings.sound, state.challenges, state.review, update]);
 
   const handleChar = useCallback(
     (ch: string) => {
@@ -286,9 +338,9 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
   }, [focusInput, lesson.text]);
 
   const skip = useCallback(() => {
-    loadLesson(make(profileRef.current));
+    loadLesson(nextLesson(profileRef.current));
     focusInput();
-  }, [focusInput, loadLesson, make]);
+  }, [focusInput, loadLesson, nextLesson]);
 
   const repeatChallenge = useCallback(() => {
     sprint.current = { chars: 0, errors: 0, correct: 0, running: false, samples: [] };
@@ -423,7 +475,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
             {lesson.tags.map((t) => <span key={t}>{t}</span>)}
           </div>
         </div>
-        <div className="snippet-title">
+        <div className={"snippet-title" + (lesson.review ? " is-review" : "")}>
           <span className="kind">{lesson.label ?? (lesson.kind === "drill" ? "EJERCICIO" : "FUNCIÓN")}</span>
           {lesson.title}
         </div>
@@ -444,7 +496,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           />
-          <CodeView session={s} lang={lesson.kind === "drill" ? null : lang} focus={focus} version={version} shake={shake} />
+          <CodeView session={s} lang={lesson.hl ?? (lesson.kind === "drill" ? null : lang)} focus={focus} version={version} shake={shake} />
           {!focused && !unlock && !unlockStep && !finished && !isDropping && (
             <div className="overlay">
               <div className="start-hint">
@@ -456,6 +508,8 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
         <div className="panel-foot">
           {learnedNote ? (
             <span className="last">{learnedNote}</span>
+          ) : reviewNote ? (
+            <span className="last">{reviewNote}</span>
           ) : lastRes ? (
             <span className="last">
               Última: <b>{Math.round(lastRes.wpm)} WPM</b> · <b>{(lastRes.acc * 100).toFixed(1)}%</b> · +{lastRes.score} pts

@@ -36,6 +36,16 @@ un título que explica qué hace.
 - **Tu teclado real**: si escribís un símbolo con otra tecla o modificador, la app lo aprende sola mientras
   practicás. También podés calibrarlo de una vez desde Ajustes.
 - **Modo libre y desafíos**: sprints de 30/60/120 s y "precisión perfecta", con récords.
+- **10 proyectos contra reloj**: programas completos para escribir de punta a punta, sangrías incluidas (Tab o
+  espacios, tabulaciones reales en Go y Makefile). Van de una calculadora en Python a un tablero de tareas full stack
+  con Docker, SQL, FastAPI, HTML, CSS y TypeScript, y se desbloquean en orden. Se guarda tu mejor tiempo.
+- **Biblioteca**: referencia rápida de 13 temas (los 7 lenguajes, SQL, HTML, CSS, formatos, terminal Linux y Git) con
+  métodos de trabajo y más de 250 comandos en niveles básico, intermedio y avanzado. Búsqueda instantánea en todo
+  (`/` o `Ctrl+K`), sin importar acentos. Próximamente: IA, Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode,
+  Antigravity y Hermes.
+- **Practicar y repasar**: cada ejemplo de la Biblioteca tiene un botón **Practicar este ejemplo** que lo convierte en
+  una lección corta. Lo que practicás queda en tu repaso y vuelve cada tanto, intercalado en tus lecciones normales:
+  si lo hacés bien tarda más en volver (1, 3, 7, 15 y 30 días); si fallás, vuelve al día siguiente.
 - **Estadísticas**: evolución de velocidad y precisión, mapa de calor del teclado, calendario de práctica.
 - **Música generativa**: 7 estaciones (lo-fi, lluvia, synthwave, espacio, zen, jazz y foco) sintetizadas en vivo con
   Web Audio, sin archivos ni licencias de por medio. Nunca suenan exactamente igual. También podés cargar tus propias
@@ -45,7 +55,8 @@ un título que explica qué hace.
   la preferencia del sistema de reducir movimiento.
 - **Logros y temas**: 27 logros con insignias y 6 temas de color (Cyber, Neón, Synthwave, Matrix, Tokio noche y Claro),
   con una estética cyberpunk que nunca toca la legibilidad del código.
-- **Tu perfil**: pantalla de inicio con efecto de cartel de neón, tu nombre y tu foto (o uno de los 12 avatares incluidos).
+- **Tu perfil y menú principal**: pantalla de inicio con efecto de cartel de neón, tu nombre y tu foto (o uno de los
+  12 avatares incluidos), y un menú para ir a cada sección. El botón Menú vuelve a él después de confirmar.
 - **Tutorial de bienvenida**: un mensaje inicial y un recorrido corto que señala lo básico de la pantalla de
   práctica. Se maneja con el teclado y se puede repetir desde Ajustes.
 - **100 % offline**: el build es un único `NeonType.html` que se abre con doble clic. El progreso queda en tu navegador.
@@ -164,8 +175,15 @@ src/
 │   ├── web.ts           # HTML y CSS
 │   ├── formats.ts       # .env, requirements.txt, JSON, package.json, YAML y Markdown
 │   └── index.ts         # registro de rutas y elección de ejercicios
+├── projects/
+│   └── projects.ts      # los 10 proyectos (archivos, sangría de cada uno y orden de desbloqueo)
+├── library/
+│   ├── types.ts         # estructura de un tema: resumen, datos, métodos de trabajo y entradas por nivel
+│   ├── <tema>.ts        # contenido de cada lenguaje o herramienta
+│   ├── search.ts        # búsqueda sin acentos, por relevancia
+│   └── index.ts         # orden de los temas y la sección Próximamente
 ├── engine/
-│   ├── session.ts       # procesa cada pulsación
+│   ├── session.ts       # procesa cada pulsación (y las sangrías escritas a mano de los proyectos)
 │   └── stats.ts         # estadísticas, foco, desbloqueo, elección de lección
 ├── audio/
 │   ├── music.ts         # motor de música generativa (instrumentos, estaciones, secuenciador)

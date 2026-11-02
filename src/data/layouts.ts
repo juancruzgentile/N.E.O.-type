@@ -208,6 +208,7 @@ export function comboMap(layout: LayoutDef): Map<string, Combo> {
   }
   map.set(" ", { code: "Space", shift: false, altgr: false, dead: false, finger: "th" });
   map.set("\n", { code: "Enter", shift: false, altgr: false, dead: false, finger: "rp" });
+  map.set("\t", { code: "Tab", shift: false, altgr: false, dead: false, finger: "lp" });
   comboCache.set(layout, map);
   return map;
 }

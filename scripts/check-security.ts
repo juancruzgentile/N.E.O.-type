@@ -108,6 +108,50 @@ ok(st.w.every((x) => x >= 0 && x <= 1000) && st.a.every((x) => x >= 0 && x <= 1)
   ok(JSON.stringify(km.it?.["{"]) === '{"code":"Digit7","shift":false,"altgr":true}', "teclado aprendido: modificadores booleanos y sin campos extra");
 }
 
+// ── récords de proyectos ──
+{
+  const st = clean({
+    version: 1,
+    projects: {
+      p01: { ms: 95_000, wpm: 40, acc: 0.98, ts: 1 },
+      p02: { ms: 0, wpm: 9999, acc: 1, ts: 1 },
+      p03: { ms: "rápido" },
+      p04: "nada",
+      "p05;alert(1)": { ms: 5000 },
+      __proto__: { ms: 5000 },
+      p06: { ms: 1e12, wpm: -3, acc: 7, ts: 1 },
+    },
+  });
+  ok(st.projects.p01?.ms === 95_000, "un récord válido se conserva");
+  ok(!("p02" in st.projects), "un tiempo de 0 ms se descarta (sería trampa)");
+  ok(!("p03" in st.projects) && !("p04" in st.projects), "récords con tipos inválidos se descartan");
+  ok(Object.keys(st.projects).every((k) => /^p\d{2}$/.test(k)), "solo claves de proyecto válidas");
+  ok(st.projects.p06?.ms === 8.64e7 && st.projects.p06.wpm === 0 && st.projects.p06.acc === 1, "valores fuera de rango se acotan");
+  ok(JSON.stringify(clean({ version: 1 }).projects) === "{}", "sin proyectos queda un objeto vacío");
+}
+
+// ── repaso de la Biblioteca ──
+{
+  const st = clean(JSON.parse(`{
+    "version": 1,
+    "review": {
+      "lib-python-variables-print": { "box": 2, "due": "2026-11-05", "n": 3, "lapses": 1, "ts": 1 },
+      "lib-git-x": { "box": 99, "due": "2026-01-01", "n": -4, "lapses": "x", "ts": 1e99 },
+      "lib-bad-due": { "box": 1, "due": "mañana" },
+      "__proto__": { "box": 1, "due": "2026-01-01" },
+      "https://evil": { "box": 1, "due": "2026-01-01" },
+      "lib-UPPER": { "box": 1, "due": "2026-01-01" },
+      "lib-x-y": "texto"
+    }
+  }`));
+  ok(st.review["lib-python-variables-print"]?.box === 2 && st.review["lib-python-variables-print"].due === "2026-11-05", "una entrada de repaso válida se conserva");
+  const g = st.review["lib-git-x"];
+  ok(g?.box === 4 && g.n === 0 && g.lapses === 0 && g.ts === 8.64e15, "valores de repaso fuera de rango se acotan");
+  ok(Object.keys(st.review).length === 2, "se descartan claves inválidas, fechas mal escritas y valores que no son objetos");
+  ok(!Object.prototype.hasOwnProperty.call(st.review, "__proto__") && ({} as Record<string, unknown>).box === undefined, "el repaso no permite contaminar prototipos");
+  ok(JSON.stringify(clean({ version: 1 }).review) === "{}", "sin repaso queda un objeto vacío");
+}
+
 // ── Content Security Policy del build ──
 let html = "";
 try {

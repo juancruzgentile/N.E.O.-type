@@ -6,13 +6,23 @@ import type { ErrorMode, Sample } from "../types";
  */
 export type InputResult = "ok" | "error" | "done" | "ignored";
 
+export interface SessionOptions {
+  /** las sangrías se escriben (proyectos); si no, se saltan solas */
+  manualIndent?: boolean;
+  /** ancho de una sangría con espacios: Tab avanza hasta el próximo múltiplo */
+  tabWidth?: number;
+}
+
 /**
- * Estado de una lección en curso. Las sangrías al principio de cada línea se
- * saltan solas: el cursor pasa directo al primer carácter con contenido.
+ * Estado de una lección en curso. Por defecto las sangrías al principio de cada
+ * línea se saltan solas: el cursor pasa directo al primer carácter con contenido.
+ * Con `manualIndent` hay que escribirlas, con espacios o con Tab.
  */
 export class TypingSession {
   readonly text: string;
   readonly auto: boolean[];
+  readonly manualIndent: boolean;
+  readonly tabWidth: number;
   pos = 0;
   /** posiciones con error en el primer intento */
   errors = new Set<number>();
@@ -26,9 +36,12 @@ export class TypingSession {
   keystrokes = 0;
   lastError = 0;
 
-  constructor(text: string) {
+  constructor(text: string, opts: SessionOptions = {}) {
     this.text = text;
+    this.manualIndent = opts.manualIndent ?? false;
+    this.tabWidth = Math.max(1, opts.tabWidth ?? 4);
     this.auto = new Array(text.length).fill(false);
+    if (this.manualIndent) return;
     let lineStart = true;
     for (let i = 0; i < text.length; i++) {
       const ch = text[i];
@@ -81,6 +94,36 @@ export class TypingSession {
     this.skipAuto();
     if (this.done) this.endTs = now;
     return "error";
+  }
+
+  /** Columna de una posición dentro de su línea. */
+  column(pos = this.pos): number {
+    return pos - (this.text.lastIndexOf("\n", pos - 1) + 1);
+  }
+
+  /** La posición está dentro de la sangría de su línea (antes del primer carácter con contenido). */
+  inIndent(pos = this.pos): boolean {
+    for (let i = this.text.lastIndexOf("\n", pos - 1) + 1; i < pos; i++) {
+      if (this.text[i] !== " " && this.text[i] !== "\t") return false;
+    }
+    return this.text[pos] === " " || this.text[pos] === "\t";
+  }
+
+  /**
+   * Tecla Tab. Si se espera una tabulación, la escribe. Dentro de una sangría con
+   * espacios avanza hasta el próximo múltiplo de `tabWidth`, como un editor. En
+   * cualquier otro lugar es un error.
+   */
+  tab(now: number, mode: ErrorMode): InputResult {
+    if (this.done) return "ignored";
+    if (this.text[this.pos] === "\t" || !this.inIndent()) return this.input("\t", now, mode);
+    let n = this.tabWidth - (this.column() % this.tabWidth);
+    let res: InputResult = "ignored";
+    while (n-- > 0 && this.text[this.pos] === " ") {
+      res = this.input(" ", now, mode);
+      if (res !== "ok") break;
+    }
+    return res;
   }
 
   backspace(mode: ErrorMode): boolean {

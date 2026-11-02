@@ -27,6 +27,19 @@ function CodeViewInner({ session, lang, focus, shake }: Props) {
     return out;
   }, [text]);
 
+  // sangrías que hay que escribir (proyectos): se muestran con · y →
+  const indent = useMemo(() => {
+    const out = new Array<boolean>(text.length).fill(false);
+    if (!session.manualIndent) return out;
+    let lineStart = true;
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === "\n") lineStart = true;
+      else if (lineStart && (text[i] === " " || text[i] === "\t")) out[i] = true;
+      else lineStart = false;
+    }
+    return out;
+  }, [text, session.manualIndent]);
+
   const pos = session.pos;
   const curLine = lines.findIndex((l) => pos >= l.start && pos <= l.end);
 
@@ -45,13 +58,15 @@ function CodeViewInner({ session, lang, focus, shake }: Props) {
           if (i === pos) cls.push("cursor");
           if (i === pos && shake) cls.push("shake", "err");
           if (i < pos && session.errors.has(i) && !session.wrong.has(i)) cls.push("errmark");
+          if (indent[i]) cls.push("ind");
+          if (text[i] === "\t") cls.push("tab");
           if (isNl) cls.push("nl");
           else cls.push("tk-" + toks[i]);
           if (!isNl && focus && text[i] === focus && i >= pos) cls.push("focus-sym");
           const shown = session.wrong.has(i) && i < pos ? session.wrong.get(i)! : ch;
           chars.push(
             <span key={i} className={cls.join(" ")}>
-              {isNl ? (i === pos ? "↵" : " ") : shown === " " ? " " : shown}
+              {isNl ? (i === pos ? "↵" : " ") : indent[i] ? (text[i] === "\t" ? "→" : i < pos ? " " : "·") : shown === " " ? " " : shown}
             </span>,
           );
         }
