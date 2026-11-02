@@ -9,6 +9,8 @@ import { type MenuDest, Splash } from "./components/Splash";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { ProjectView } from "./components/ProjectView";
 import { RecallView } from "./components/RecallView";
+import { ShortcutView } from "./components/ShortcutView";
+import { findSet } from "./shortcuts/exercises";
 import { findRecall } from "./recall/exercises";
 import { PROJECTS } from "./projects/projects";
 import { AchBadge } from "./components/AchBadge";
@@ -38,6 +40,7 @@ export default function App() {
   }, []);
   // ejercicios de memoria abiertos (n cambia para volver a empezar el mismo nivel)
   const [recallSel, setRecallSel] = useState<{ topic: string; level: number; n: number } | null>(null);
+  const [shortcutSel, setShortcutSel] = useState<{ set: string; level: number; n: number } | null>(null);
   const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null);
   /** Corre `fn` enseguida, o después de confirmar si hay un proyecto a medias. */
   const guard = (fn: () => void) => {
@@ -81,6 +84,7 @@ export default function App() {
     setChallenge(null);
     setProjectId(null);
     setRecallSel(null);
+    setShortcutSel(null);
     setView("practice");
   };
 
@@ -88,16 +92,20 @@ export default function App() {
     guard(() => {
       setProjectId(null);
       setRecallSel(null);
+      setShortcutSel(null);
       if (v !== "practice") setChallenge(null);
       setView(v);
     });
 
   const project = projectId ? PROJECTS.find((p) => p.id === projectId) ?? null : null;
   const recallTopic = recallSel ? findRecall(recallSel.topic) : null;
+  const shortcutSet = shortcutSel ? findSet(shortcutSel.set) : null;
   const challengeLabel = project
     ? `Proyecto ${String(project.num).padStart(2, "0")}`
     : recallTopic
       ? `Memoria · ${recallTopic.name}`
+      : shortcutSet
+        ? `Atajos · ${shortcutSet.name}`
     : challenge
       ? challenge.kind === "sprint" ? `Sprint ${challenge.seconds}s` : "Precisión perfecta"
       : null;
@@ -133,8 +141,9 @@ export default function App() {
               guard(() => setProjectId(null));
               return;
             }
-            if (recallSel) {
+            if (recallSel || shortcutSel) {
               setRecallSel(null);
+              setShortcutSel(null);
               return;
             }
             if (challenge) {
@@ -188,7 +197,18 @@ export default function App() {
                 onOpen={(level) => setRecallSel((r) => ({ topic: r!.topic, level, n: (r?.n ?? 0) + 1 }))}
               />
             )}
-            {current === "challenges" && lang && !project && !recallTopic && (
+            {current === "challenges" && lang && !project && !recallTopic && shortcutSet && shortcutSel && (
+              <ShortcutView
+                key={`${shortcutSel.set}-${shortcutSel.level}-${shortcutSel.n}`}
+                set={shortcutSet}
+                level={shortcutSel.level}
+                state={state}
+                update={update}
+                onExit={() => setShortcutSel(null)}
+                onOpen={(level) => setShortcutSel((r) => ({ set: r!.set, level, n: (r?.n ?? 0) + 1 }))}
+              />
+            )}
+            {current === "challenges" && lang && !project && !recallTopic && !shortcutSet && (
               <ChallengesView
                 state={state}
                 lang={lang}
@@ -203,6 +223,10 @@ export default function App() {
                 onRecall={(topic, level) => {
                   setChallenge(null);
                   setRecallSel({ topic, level, n: 0 });
+                }}
+                onShortcut={(id, level) => {
+                  setChallenge(null);
+                  setShortcutSel({ set: id, level, n: 0 });
                 }}
               />
             )}
@@ -253,6 +277,7 @@ export default function App() {
             setChallenge(null);
             setProjectId(null);
             setRecallSel(null);
+            setShortcutSel(null);
             setFromApp(true);
             setSplash(true);
           }}

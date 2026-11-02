@@ -612,6 +612,64 @@ try {
     ok(errors.length === 0, `ejercicios de memoria sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
+
+  // 16. atajos de editor: Vim y VS Code con estrellas, desbloqueo y juego de Mac
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ settings: { vscodeKeys: "pc" } }));
+    await page.locator(".nav").getByRole("button", { name: "Desafíos" }).click();
+    ok(await page.getByRole("button", { name: /^Vim Intermedio/ }).isDisabled(), "el nivel Intermedio de Vim arranca bloqueado");
+    await page.getByRole("button", { name: /^Vim Básico/ }).click();
+    const editor = page.locator(".sc-editor[tabindex]");
+    await page.waitForFunction(() => document.activeElement?.classList.contains("sc-editor"));
+    ok(true, "el foco va directo al editor");
+    await page.keyboard.press("j");
+    ok((await page.locator(".sc-status b").textContent()) === "1", "cada tecla cuenta");
+    await page.locator(".panel-foot").getByRole("button", { name: /Reiniciar/ }).click();
+    await editor.focus();
+    for (const k of ["f", "l", "x"]) await page.keyboard.press(k);
+    await page.locator(".sc-result").waitFor();
+    ok((await page.locator(".sc-stars .on").count()) === 3, "resolverlo con el par da tres estrellas");
+    let st = await state(page);
+    ok(st.shortcuts?.["vim-1-1"]?.keys === 3 && st.shortcuts["vim-1-1"].stars === 3, "se guarda la marca");
+    await page.getByRole("button", { name: "Siguiente ejercicio" }).click();
+    await page.waitForFunction(() => document.activeElement?.classList.contains("sc-editor"));
+    // en el modo inserción las letras se escriben; Esc vuelve al modo normal
+    await page.keyboard.press("j");
+    await page.keyboard.press("d");
+    await page.keyboard.press("d");
+    await page.locator(".sc-result").waitFor();
+    await page.getByRole("button", { name: "Siguiente ejercicio" }).click();
+    await page.keyboard.press("A");
+    ok(/INSERTAR/.test((await page.locator(".sc-mode").textContent()) ?? ""), "A entra en modo inserción");
+    await page.keyboard.press(";");
+    await page.keyboard.press("Escape");
+    await page.locator(".sc-result").waitFor();
+    ok(/NORMAL/.test((await page.locator(".sc-mode").textContent()) ?? ""), "Esc vuelve al modo normal sin salir del ejercicio");
+    await page.locator(".panel-foot").getByRole("button", { name: "Volver a desafíos" }).click();
+
+    await page.getByRole("button", { name: /^VS Code Básico/ }).click();
+    await page.waitForFunction(() => document.activeElement?.classList.contains("sc-editor"));
+    ok(/Ctrl\+Shift\+K/.test((await page.locator(".sc-use").textContent()) ?? ""), "muestra el atajo de Linux/Windows");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Control+Shift+K");
+    await page.locator(".sc-result").waitFor();
+    st = await state(page);
+    ok(st.shortcuts?.["vscode-1-1"]?.stars === 3, "Ctrl+Shift+K borra la línea y completa el ejercicio");
+    await page.getByRole("button", { name: "Siguiente ejercicio" }).click();
+    await page.keyboard.press("Tab");
+    ok(await page.evaluate(() => !document.activeElement?.classList.contains("sc-editor")), "Tab saca el foco del editor (no queda atrapado)");
+    await page.locator(".panel-foot").getByRole("button", { name: "Volver a desafíos" }).click();
+    await page.locator(".sc-taught summary").click();
+    ok(/Ctrl\+W/.test((await page.locator(".sc-taught").textContent()) ?? ""), "lista los atajos que solo se enseñan");
+
+    await page.getByRole("button", { name: "Ajustes" }).click();
+    await page.getByRole("button", { name: "Mac", exact: true }).click();
+    await page.locator(".nav").getByRole("button", { name: "Desafíos" }).click();
+    await page.getByRole("button", { name: /^VS Code Básico/ }).click();
+    ok(/MAC/.test((await page.locator(".shortcut .kicker").textContent()) ?? "") && /Alt\+↑/.test((await page.locator(".sc-use").textContent()) ?? ""), "con Mac elegido, el ejercicio usa ese juego de atajos");
+    ok(errors.length === 0, `atajos sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
 } finally {
   await browser.close();
 }

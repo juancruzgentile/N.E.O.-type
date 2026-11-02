@@ -36,6 +36,13 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   comillas dobles en un texto SQL) no deja avanzar: explica qué revisar y ofrece una pista. Con cualquier teclado hay
   al menos una respuesta que se puede escribir (por ejemplo HEAD^ además de HEAD~1).
 
+- **Atajos de editor** (en Desafíos): 24 ejercicios en un editor simulado, 12 de Vim y 12 de VS Code, en tres niveles
+  que se abren en orden. Se llega a un texto objetivo con los atajos y las teclas se cuentan contra un par: igualarlo
+  da tres estrellas. Vim tiene modo normal e inserción, operadores con movimientos y objetos de texto, conteos,
+  deshacer y `.`; un ejercicio de Vim termina al volver al modo normal. VS Code usa los atajos por defecto de
+  Linux/Windows o de Mac (nueva opción en Ajustes), con selección, y en Linux también acepta Ctrl+Shift+Alt+↓ para
+  duplicar. Los atajos que el navegador no deja practicar se listan aparte. Tab siempre saca el foco del editor.
+
 ### Corregido (auditoría del 2026-11-02 sobre 94b0fcc)
 - Con la app abierta en dos ventanas, la que guardaba última borraba los cambios de la otra. Ahora las ventanas se
   avisan los cambios y, antes de guardar, se combinan clave por clave.
