@@ -52,7 +52,7 @@ export function highlight(text: string, lang: LangId | null): Tok[] {
   };
   while (i < text.length) {
     const ch = text[i];
-    if (ch === " " || ch === "\n") {
+    if (ch === " " || ch === "\n" || ch === "\t") {
       out[i] = "sp";
       i++;
       continue;

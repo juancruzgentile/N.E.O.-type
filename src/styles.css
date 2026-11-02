@@ -876,3 +876,8 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 
 /* ── diálogo de confirmación ── */
 .modal.confirm .confirm-title { margin: 12px 0 6px; font-family: var(--brand); font-size: 26px; letter-spacing: 1px; color: var(--strong); }
+
+/* ── sangrías que se escriben (proyectos) ── */
+.ch.ind { color: var(--dim); }
+.ch.ind.pending { opacity: 0.7; }
+.ch.tab { display: inline-block; width: 4ch; }

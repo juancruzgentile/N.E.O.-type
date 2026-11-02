@@ -11,6 +11,7 @@ import { LANGS, stageCount, unlockedChars } from "../src/data/curriculum";
 import { TRACKS } from "../src/tracks/index";
 import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKey } from "../src/data/layouts";
 import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
+import { TypingSession } from "../src/engine/session";
 
 let failed = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -269,6 +270,34 @@ for (const [lang, code] of [
   learner.observe(obs, LAYOUTS.it);
   learner.observe(readKey(ev("{", "Digit8", { altgr: true }))!, LAYOUTS.it);
   ok(learner.observe(obs, LAYOUTS.it) === null, "observaciones distintas reinician la cuenta");
+}
+
+// ── sangrías que se escriben (proyectos) ──
+{
+  const typeAll = (s: TypingSession, keys: string) => {
+    for (const k of keys) s.input(k, 0, "block");
+  };
+  const auto = new TypingSession("if x:\n    y");
+  ok(auto.auto.filter(Boolean).length === 4, "por defecto la sangría se salta sola");
+  const s = new TypingSession("if x:\n    y = 1\n        z", { manualIndent: true, tabWidth: 4 });
+  ok(s.auto.every((a) => !a), "con manualIndent ninguna posición se salta");
+  typeAll(s, "if x:\n");
+  ok(s.inIndent() && s.column() === 0, "al empezar la línea el cursor está en la sangría");
+  ok(s.tab(0, "block") === "ok" && s.text[s.pos] === "y", "Tab completa una sangría de 4 espacios");
+  ok(s.tab(0, "block") === "error" && s.text[s.pos] === "y", "Tab fuera de la sangría es un error y no avanza");
+  typeAll(s, "y = 1\n");
+  s.tab(0, "block");
+  ok(s.column() === 4 && s.inIndent(), "Tab avanza hasta el próximo múltiplo del ancho");
+  typeAll(s, "    ");
+  ok(s.text[s.pos] === "z" && s.errors.size === 1, "la sangría también se puede escribir con espacios");
+  const t = new TypingSession("func f() {\n\treturn\n}", { manualIndent: true });
+  typeAll(t, "func f() {\n");
+  ok(t.input(" ", 0, "block") === "error", "si la sangría es una tabulación, un espacio es un error");
+  ok(t.tab(0, "block") === "ok" && t.text[t.pos] === "r", "Tab escribe una tabulación real (Go, Makefile)");
+  const odd = new TypingSession("a\n  b", { manualIndent: true, tabWidth: 4 });
+  typeAll(odd, "a\n");
+  ok(odd.tab(0, "block") === "ok" && odd.text[odd.pos] === "b", "Tab no se pasa de la sangría si es más corta que el ancho");
+  ok(highlight("\tx", "go")[0] === "sp", "la tabulación se resalta como espacio");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de lógica pasaron");
