@@ -144,6 +144,8 @@ export interface AppState {
   projects: Record<string, ProjectRecord>;
   /** repaso espaciado: id de entrada de la Biblioteca → estado */
   review: Record<string, ReviewItem>;
+  /** ejercicios de memoria resueltos: id → fecha de la primera vez */
+  recall: Record<string, number>;
   /** logros desbloqueados: id → fecha */
   achievements: Record<string, number>;
 }
