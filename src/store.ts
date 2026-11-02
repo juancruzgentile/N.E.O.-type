@@ -173,7 +173,13 @@ export function useAppState() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // al abrir no se guarda: escribir sin cambios reales solo suma trabajo al navegador
+  const first = useRef(true);
   useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
     let next = state;
     let json = JSON.stringify(next);
     if (json === known.current) {
