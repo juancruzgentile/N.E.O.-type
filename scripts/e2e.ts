@@ -524,6 +524,54 @@ try {
     ok(errors.length === 0, `repaso intercalado sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
+
+  // 13. el diálogo de práctica atrapa el foco y respeta el teclado italiano
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "javascript" }));
+    await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await page.locator(".lib-search input[type=search]").fill("template literals");
+    await page.locator(".lib-search input[type=search]").press("Enter");
+    const entry = page.locator(".lib-entry", { hasText: "Template literals" }).first();
+    await entry.getByRole("button", { name: "Practicar este ejemplo" }).click();
+    await page.waitForFunction(() => document.activeElement?.classList.contains("ta-hidden"));
+    const text = (await page.locator(".ep-box").getAttribute("data-text")) ?? "";
+    ok(!text.includes("`") && /Salteé \d+ l[ií]neas? con `/.test((await page.locator(".ep-note").textContent()) ?? ""), "con teclado italiano salta las líneas con ` y lo avisa");
+    const inside = () => page.evaluate(() => !!document.activeElement?.closest(".entry-practice"));
+    let trapped = true;
+    for (let i = 0; i < 6; i++) {
+      await page.keyboard.press("Tab");
+      trapped &&= await inside();
+    }
+    for (let i = 0; i < 3; i++) {
+      await page.keyboard.press("Shift+Tab");
+      trapped &&= await inside();
+    }
+    ok(trapped, "Tab y Shift+Tab no sacan el foco del diálogo");
+    ok(await page.evaluate(() => (document.getElementById("root") as HTMLElement & { inert: boolean }).inert), "el resto de la app queda inerte mientras está abierto");
+    await page.keyboard.press("Escape");
+    ok(!(await page.evaluate(() => (document.getElementById("root") as HTMLElement & { inert: boolean }).inert)) && /Practicar este ejemplo/.test((await page.evaluate(() => document.activeElement?.textContent)) ?? ""), "al cerrar, la app vuelve a responder y el foco vuelve al botón");
+    ok(errors.length === 0, `diálogo de práctica sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 14. dos ventanas abiertas no se pisan los cambios
+  {
+    const { page: a, errors, ctx } = await open(browser);
+    const b = await ctx.newPage();
+    b.on("pageerror", (e) => errors.push(e.message));
+    await b.goto(FILE);
+    await b.locator(".code-box").waitFor();
+    for (const p of [a, b]) await p.getByRole("button", { name: "Ajustes" }).click();
+    await a.locator("input[placeholder='Tu nombre']").fill("Ventana A");
+    await b.waitForFunction(() => (document.querySelector("input[placeholder='Tu nombre']") as HTMLInputElement)?.value === "Ventana A");
+    ok(true, "la otra ventana ve el cambio al instante");
+    await b.locator("input[type=range]").first().fill("45");
+    await a.waitForFunction(() => /45 WPM/.test(document.querySelector("output")?.textContent ?? ""));
+    const st = await state(a);
+    ok(st.settings.userName === "Ventana A" && st.settings.targetWpm === 45, "el cambio de una ventana no borra el de la otra");
+    ok(errors.length === 0, `dos ventanas sin errores${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
 } finally {
   await browser.close();
 }

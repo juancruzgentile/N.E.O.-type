@@ -203,9 +203,12 @@ git rebase -i HEAD~3      # unir o editar los últimos 3 commits
 git push --force-with-lease`, "rebase historia lineal squash"),
     a("Historia", "git cherry-pick", "Copia un commit puntual de otra rama a la actual.", code`
 git cherry-pick a1b2c3d`, "copiar commit"),
-    a("Deshacer", "git reset", "Mueve la rama a otro commit. --soft conserva los cambios preparados, --hard los descarta (peligroso).", code`
+    a("Deshacer", "git reset", "Mueve la rama a otro commit. --soft conserva los cambios preparados; --hard descarta también los cambios sin commitear, y esos no se recuperan. Los commits que quedan afuera siguen un tiempo en git reflog.", code`
 git reset --soft HEAD~1   # deshace el último commit, conserva cambios
-git reset --hard HEAD~1   # lo borra todo: sin vuelta atrás fácil`, "deshacer commit reset"),
+git reset --soft HEAD^    # lo mismo: ^ es el commit anterior
+git stash                 # antes de un --hard, guardá lo que no commiteaste
+git reset --hard HEAD~1   # descarta el commit y los cambios sin guardar
+git reflog                # muestra a dónde apuntaba la rama, para volver`, "deshacer commit reset reflog recuperar"),
     a("Rescate", "git reflog", "Historial de adónde apuntó HEAD: sirve para recuperar commits que parecían perdidos.", code`
 git reflog
 git switch -c rescate HEAD@{3}`, "recuperar perdido"),

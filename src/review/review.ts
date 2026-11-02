@@ -2,6 +2,7 @@
 // Cada entrada practicada entra en una caja. Si se hace bien sube de caja y
 // tarda más en volver; si se hace mal vuelve a la primera y reaparece mañana.
 import type { LangId, Lesson, ReviewItem } from "../types";
+import { type LayoutDef, isTypeable } from "../data/layouts";
 import { TOPICS } from "../library/index";
 import { entryId } from "../library/search";
 import type { Entry, Topic } from "../library/types";
@@ -93,16 +94,46 @@ export function practiceText(code: string): string {
     .replace(/(\S) {2,}(?=\S)/g, "$1 ");
 }
 
-/** Lección de repaso para una entrada. */
-export function reviewLesson(id: string): Lesson | null {
+export interface Practice {
+  text: string;
+  /** símbolos sin tecla en el teclado elegido */
+  missing: string[];
+  /** líneas que se saltaron por tener esos símbolos */
+  dropped: number;
+}
+
+/**
+ * Texto para practicar respetando el teclado. Con `layout` (opción «Saltar
+ * símbolos sin tecla» activada) se saltan las líneas que usan un símbolo que
+ * ese teclado no tiene; sin `layout` queda todo para escribirlo como se pueda.
+ */
+export function practiceFor(code: string, layout: LayoutDef | null): Practice {
+  const text = practiceText(code);
+  if (!layout) return { text, missing: [], dropped: 0 };
+  const missing = new Set<string>();
+  let dropped = 0;
+  const kept = text.split("\n").filter((line) => {
+    const bad = [...line].filter((c) => !isTypeable(layout, c));
+    bad.forEach((c) => missing.add(c));
+    if (bad.length) dropped++;
+    return !bad.length;
+  });
+  const out = kept.join("\n").replace(/\n{3,}/g, "\n\n").replace(/^\n+|\n+$/g, "");
+  return { text: out.trim() ? out : "", missing: [...missing], dropped };
+}
+
+/** Lección de repaso para una entrada (null si no existe o no queda nada para escribir). */
+export function reviewLesson(id: string, layout: LayoutDef | null = null): Lesson | null {
   const found = findEntry(id);
   if (!found) return null;
   const { topic, entry } = found;
+  const { text } = practiceFor(entry.code, layout);
+  if (!text) return null;
   return {
     kind: "code",
     title: entry.name,
     tags: [topic.name, entry.cat],
-    text: practiceText(entry.code),
+    text,
     focus: null,
     label: "REPASO",
     review: id,

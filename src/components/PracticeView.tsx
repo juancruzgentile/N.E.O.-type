@@ -70,8 +70,15 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       if (!challenge) {
         sinceReview.current++;
         if (sinceReview.current > reviewGap.current) {
-          const id = pickDue(reviewRef.current, lang, today());
-          const rl = id ? reviewLesson(id) : null;
+          // se saltan las entradas que no se pueden escribir con este teclado
+          const st = settingsRef.current;
+          const kb = st.excludeMissing ? layoutFor(st) : null;
+          const skip: string[] = [];
+          let rl: Lesson | null = null;
+          for (let id = pickDue(reviewRef.current, lang, today()); id && !rl; id = pickDue(reviewRef.current, lang, today(), skip)) {
+            rl = reviewLesson(id, kb);
+            skip.push(id);
+          }
           if (rl) {
             sinceReview.current = 0;
             reviewGap.current = 2 + Math.floor(rng.current() * 3);
