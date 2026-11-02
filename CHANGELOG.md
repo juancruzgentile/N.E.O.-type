@@ -14,6 +14,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
 ### Cambiado
 - Los 27 logros tienen nombres nuevos con humor de programador (lo que hay que hacer para ganarlos no cambia).
+- `iniciar.sh` e `iniciar.bat` construyen la app si todavía no existe `NeonType.html`, en lugar de pedir que
+  ejecutes primero el script de construcción.
 
 ## [1.5.0] - 2026-10-28
 
