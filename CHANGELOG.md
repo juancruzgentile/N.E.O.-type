@@ -9,6 +9,12 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Menú principal: la pantalla de inicio ahora es un menú (Continuar, Lenguajes, Desafíos y proyectos, Ajustes).
   El botón **Menú** de la cabecera vuelve a él desde cualquier sección, después de confirmar en un diálogo
   (Enter confirma, Esc cancela). Al volver desde la app, el menú aparece al instante con el foco en Continuar.
+- **Proyectos** (en Desafíos): 10 programas completos para escribir de punta a punta en el menor tiempo posible,
+  de una calculadora en Python hasta un tablero de tareas full stack con Makefile, Docker Compose, SQL, FastAPI,
+  HTML, CSS y TypeScript. Cada uno se desbloquea al terminar el anterior. Las sangrías se escriben: Tab avanza
+  hasta el próximo nivel (o escribe una tabulación real en Go y Makefile) y también valen los espacios. El reloj
+  cuenta solo el tiempo activo (Esc pausa), los errores no avanzan y se guarda el mejor tiempo de cada proyecto.
+  Salir o reiniciar a mitad de un proyecto pide confirmación.
 
 ## [1.6.0] - 2026-11-02
 

@@ -5,7 +5,7 @@
 
 import type {
   AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, KeyStat, LangId, LayoutId, LearnedKey, LessonResult, Mode,
-  Profile, Settings, StepStat, ThemeId,
+  Profile, ProjectRecord, Settings, StepStat, ThemeId,
 } from "./types";
 import { CHAR_KEY_CODES } from "./data/layouts";
 
@@ -193,6 +193,12 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     if (!isObj(v)) continue;
     challenges[k] = { wpm: num(v.wpm, 0, 1000, 0), acc: num(v.acc, 0, 1, 0), ts: num(v.ts, 0, 8.64e15, 0) };
   }
+  // proyectos: p01…p99, con un tiempo positivo (un récord de 0 ms sería trampa)
+  const projects: Record<string, ProjectRecord> = {};
+  for (const [k, v] of entries(r.projects, /^p\d{2}$/, 100)) {
+    if (!isObj(v) || typeof v.ms !== "number" || !Number.isFinite(v.ms) || v.ms < 1000) continue;
+    projects[k] = { ms: num(v.ms, 1000, 8.64e7, 1000), wpm: num(v.wpm, 0, 1000, 0), acc: num(v.acc, 0, 1, 0), ts: num(v.ts, 0, 8.64e15, 0) };
+  }
   const achievements: Record<string, number> = {};
   for (const [k, v] of entries(r.achievements, /^[a-z0-9]{1,24}$/, 100)) achievements[k] = num(v, 0, 8.64e15, 0);
 
@@ -204,6 +210,7 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     profiles,
     days,
     challenges,
+    projects,
     achievements,
   };
 }

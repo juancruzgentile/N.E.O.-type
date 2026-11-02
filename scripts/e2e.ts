@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { type Browser, type Page, chromium } from "playwright-core";
+import { PROJECTS } from "../src/projects/projects";
 
 const FILE = "file://" + resolve("NeonType.html");
 const KEY = "neontype:v1";
@@ -374,6 +375,53 @@ try {
     await page.keyboard.press("Enter");
     await page.locator(".splash").waitFor({ state: "detached" });
     ok(errors.length === 0, `ida y vuelta al menú sin errores${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 10. proyectos: sangrías con Tab, cronómetro, récord y desbloqueo en orden
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "python" }));
+    await page.locator(".nav").getByRole("button", { name: "Desafíos" }).click();
+    const cards = page.locator(".project-card");
+    ok((await cards.count()) === 10, "hay 10 proyectos");
+    ok((await cards.nth(1).locator(".btn").count()) === 0 && /Terminá el proyecto 1/.test((await cards.nth(1).textContent()) ?? ""), "el proyecto 2 empieza bloqueado");
+    await cards.nth(0).getByRole("button", { name: "Empezar" }).click();
+    await page.waitForFunction(() => document.activeElement?.classList.contains("ta-hidden"));
+    // Tab escribe la sangría y no saca el foco
+    const first = PROJECTS[0].files[0].text;
+    const typeProject = async (text: string, useTab: boolean) => {
+      for (const line of text.split("\n").map((l, i, all) => ({ l, last: i === all.length - 1 }))) {
+        const indent = /^ */.exec(line.l)![0].length;
+        if (useTab) for (let k = 0; k < indent / 4; k++) await page.keyboard.press("Tab");
+        else if (indent) await page.keyboard.type(" ".repeat(indent));
+        if (line.l.trim()) await page.keyboard.type(line.l.trimStart());
+        if (!line.last) await page.keyboard.press("Enter");
+      }
+    };
+    const firstTwo = first.split("\n").slice(0, 2).join("\n");
+    await typeProject(firstTwo, true);
+    ok(await page.evaluate(() => document.activeElement?.classList.contains("ta-hidden")), "en un proyecto Tab escribe la sangría sin perder el foco");
+    ok((await page.locator(".code-line.current .ch.ind.pending").count()) === 0 && (await page.locator(".code-line.current .ch.ind.typed").count()) === 4, "la sangría escrita con Tab cuenta como escrita");
+    const before = await page.locator(".project-box .ch.typed").count();
+    await page.keyboard.press("Tab");
+    ok((await page.locator(".project-box .ch.typed").count()) === before, "Tab fuera de la sangría es un error y no avanza");
+    // salir a mitad pide confirmación
+    await page.locator(".nav").getByRole("button", { name: "Logros" }).click();
+    await page.getByRole("alertdialog").waitFor();
+    ok(true, "salir con un proyecto a medias pide confirmación");
+    await page.getByRole("button", { name: "Seguir escribiendo" }).click();
+    ok((await page.locator(".project-panel").count()) === 1, "cancelar deja el proyecto donde estaba");
+    await page.locator(".project-box").click();
+    // resto del archivo, con espacios en vez de Tab
+    await page.keyboard.press("Enter");
+    await typeProject(first.split("\n").slice(2).join("\n"), false);
+    await page.locator(".modal .big").waitFor({ timeout: 10000 });
+    const st = await state(page);
+    ok(st.projects?.p01?.ms > 0 && st.projects.p01.acc > 0.9, "terminar el proyecto guarda el tiempo y la precisión");
+    ok(/Desbloqueaste el proyecto 2/.test((await page.locator(".modal").textContent()) ?? ""), "terminar el primero desbloquea el segundo");
+    await page.getByRole("button", { name: "Volver a desafíos" }).click();
+    ok((await page.locator(".project-card").nth(1).getByRole("button", { name: "Empezar" }).count()) === 1, "el proyecto 2 ya se puede empezar");
+    ok(errors.length === 0, `proyectos sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
 } finally {

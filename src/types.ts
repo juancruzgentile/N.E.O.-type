@@ -97,6 +97,15 @@ export interface ChallengeRecord {
   ts: number;
 }
 
+/** Mejor marca en un proyecto: el menor tiempo. */
+export interface ProjectRecord {
+  /** tiempo activo en ms (sin pausas) */
+  ms: number;
+  wpm: number;
+  acc: number;
+  ts: number;
+}
+
 export interface AppState {
   version: 1;
   settings: Settings;
@@ -106,6 +115,8 @@ export interface AppState {
   /** segundos practicados por día (YYYY-MM-DD) */
   days: Record<string, number>;
   challenges: Record<string, ChallengeRecord>;
+  /** proyectos terminados: id → mejor marca */
+  projects: Record<string, ProjectRecord>;
   /** logros desbloqueados: id → fecha */
   achievements: Record<string, number>;
 }

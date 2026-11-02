@@ -6,9 +6,10 @@ import { IMPLS, findSnippet, randomSnippet, symbolsOf } from "../src/gen/index";
 import { CONCEPTS } from "../src/gen/concepts";
 import { drillLesson } from "../src/gen/drills";
 import { TRACKS, TRACK_ORDER, freeExercise, stepExercise } from "../src/tracks/index";
-import { LAYOUTS } from "../src/data/layouts";
+import { LAYOUTS, comboMap } from "../src/data/layouts";
 import { fullSet } from "../src/engine/stats";
 import { DEFAULT_SETTINGS } from "../src/store";
+import { PROJECTS, projectChars, projectLines } from "../src/projects/projects";
 
 let problems = 0;
 const rng = makeRng(42);
@@ -89,6 +90,38 @@ for (const id of TRACK_ORDER) {
   }
   if (missing.length) console.log(`[${id}] escalones sin ejercicio escribible: ${missing.join(", ")}`);
   console.log(`${id.padEnd(11)} escalones: ${t.steps.length} | temas: ${t.steps.reduce((n, s) => n + s.topics.length, 0)} | títulos distintos: ${titles.size} | fragmentos distintos: ${texts.size}`);
+}
+// ── proyectos ──
+{
+  const bad = (p: string, msg: string) => { problems++; console.log(`[${p}] ${msg}`); };
+  let prev = 0;
+  PROJECTS.forEach((p, i) => {
+    if (p.num !== i + 1 || p.id !== `p${String(i + 1).padStart(2, "0")}`) bad(p.id, "número o id fuera de orden");
+    const size = projectChars(p);
+    // cada proyecto tiene que ser más largo que el anterior
+    if (size <= prev) bad(p.id, `no es más largo que el anterior (${size} <= ${prev})`);
+    prev = size;
+    for (const f of p.files) {
+      const where = `${p.id}/${f.name}`;
+      if (!f.text.length) bad(where, "archivo vacío");
+      if (/[^\x20-\x7e\n\t]/.test(f.text)) bad(where, "carácter no ASCII");
+      if (/[`~]/.test(f.text)) bad(where, "usa ` o ~, que no tienen tecla en el teclado italiano");
+      if (/[ \t]\n|[ \t]$/.test(f.text)) bad(where, "espacios o tabulaciones al final de una línea");
+      f.text.split("\n").forEach((line, n) => {
+        const lead = /^[ \t]*/.exec(line)![0];
+        if (line.slice(lead.length).includes("\t")) bad(where, `línea ${n + 1}: tabulación en medio de la línea`);
+        if (f.tabWidth === 0 && lead.includes(" ")) bad(where, `línea ${n + 1}: sangría con espacios en un archivo con tabulaciones`);
+        if (f.tabWidth > 0 && lead.includes("\t")) bad(where, `línea ${n + 1}: tabulación en un archivo con espacios`);
+        if (f.tabWidth > 0 && f.lang === "python" && lead.length % f.tabWidth) bad(where, `línea ${n + 1}: sangría que no es múltiplo de ${f.tabWidth}`);
+      });
+      for (const layout of Object.values(LAYOUTS)) {
+        const missing = [...new Set(f.text)].filter((c) => !comboMap(layout).has(c) && !/[a-zA-Z0-9]/.test(c));
+        if (missing.length) bad(where, `no se puede escribir con el teclado ${layout.short}: ${missing.join(" ")}`);
+      }
+    }
+    console.log(`proyecto ${p.num.toString().padStart(2)} ${p.title.padEnd(30)} archivos: ${p.files.length} | líneas: ${projectLines(p)} | caracteres: ${size}`);
+  });
+  if (PROJECTS.length !== 10) bad("proyectos", `hay ${PROJECTS.length}, se esperaban 10`);
 }
 console.log(problems ? `PROBLEMAS: ${problems}` : "OK sin problemas");
 // sin esto CI aprobaba aunque hubiera problemas
