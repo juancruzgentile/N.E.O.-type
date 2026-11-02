@@ -152,7 +152,10 @@ mvn test
 gradle build
 gradle test
 java -jar target/app.jar`, "build dependencias jar"),
-    a("Calidad", "JUnit", "Tests unitarios con @Test y aserciones.", code`
+    a("Calidad", "JUnit", "Tests unitarios con @Test y aserciones (JUnit 5). assertThrows recibe una lambda que llama al código que tiene que fallar.", code`
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
 class CalculadoraTest {
     @Test
     void sumaDosNumeros() {
@@ -161,7 +164,7 @@ class CalculadoraTest {
 
     @Test
     void dividirPorCeroFalla() {
-        assertThrows(ArithmeticException.class, () -> 1 / 0);
+        assertThrows(ArithmeticException.class, () -> new Calculadora().dividir(1, 0));
     }
 }`, "test prueba junit"),
   ],

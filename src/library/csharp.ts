@@ -45,24 +45,27 @@ foreach (var item in items)
     if (item.Precio > 100) continue;
     Console.WriteLine(item.Nombre);
 }`, "condicional bucle foreach"),
-    b("Clases", "Clases y propiedades", "Las propiedades encapsulan campos con get/set; init solo permite asignar al crear.", code`
+    b("Clases", "Clases y propiedades", "Las propiedades encapsulan campos con get/set; init solo permite asignar al crear. En un archivo con instrucciones de nivel superior (sin Main), las clases van después del código.", code`
+var p = new Producto { Nombre = "Yerba", Precio = 3.5m };
+Console.WriteLine(p.Nombre);
+
 public class Producto
 {
     public string Nombre { get; init; } = "";
     public decimal Precio { get; set; }
-}
-var p = new Producto { Nombre = "Yerba", Precio = 3.5m };`, "clase propiedad get set"),
+}`, "clase propiedad get set"),
     b("Colecciones", "List y Dictionary", "Colecciones genéricas más usadas.", code`
 var nombres = new List<string> { "Ana", "Luis" };
 nombres.Add("Eva");
 var edades = new Dictionary<string, int> { ["Ana"] = 30 };
 edades.TryGetValue("Luis", out var edad);`, "lista diccionario"),
 
-    m("Clases", "record", "Tipo de datos inmutable con igualdad por valor. with crea una copia con cambios.", code`
-public record Punto(int X, int Y);
+    m("Clases", "record", "Tipo de datos con igualdad por valor; with crea una copia con cambios. Las propiedades de un record posicional son init: no se reasignan después de crearlo. Es una inmutabilidad superficial (una lista adentro se puede modificar) y un record struct sin readonly es mutable.", code`
 var a = new Punto(1, 2);
 var b = a with { Y = 5 };
-Console.WriteLine(a == new Punto(1, 2)); // True`, "registro inmutable with"),
+Console.WriteLine(a == new Punto(1, 2)); // True
+
+public record Punto(int X, int Y);`, "registro inmutable with"),
     m("Consultas", "LINQ", "Consultas sobre colecciones con métodos encadenados: Where, Select, OrderBy, GroupBy.", code`
 var caros = productos
     .Where(p => p.Precio > 100)
