@@ -20,7 +20,7 @@ npm test        # todas las pruebas (detalle abajo)
 | `npm run test:logic` | Progreso, logros, resaltado y canciones guardadas |
 | `npm run test:regression` | Errores ya corregidos (ver `correcciones.txt`) |
 | `npm run test:security` | Validación de datos y CSP del build |
-| `npm run test:e2e` | La app en Chromium real: lección, pegar, Tab, desafío, modo calmo, exportar/importar |
+| `npm run test:e2e` | La app en Chromium real: lección, pegar, Tab, desafío, modo calmo, exportar/importar, menú, proyectos y biblioteca |
 
 `test:e2e` usa el build (`NeonType.html`) y necesita el navegador una sola vez:
 `npx playwright-core install --only-shell chromium`.
@@ -61,6 +61,22 @@ Registrá los cambios visibles en `CHANGELOG.md`, en la sección de la próxima 
 
 1. Agregá el id a `ConceptId` y su título en español a `CONCEPTS` (`src/gen/concepts.ts`).
 2. Implementalo en los lenguajes que tenga sentido. Si un lenguaje no lo implementa, simplemente no aparece ahí.
+
+## Agregar o cambiar un proyecto
+
+Los proyectos están en `src/projects/projects.ts`, en orden de dificultad. Cada archivo indica su resaltado y el ancho
+de la sangría (`tabWidth`; 0 si usa tabulaciones reales, como Go o Makefile, y entonces se escribe con `tabs`).
+`npm run check` verifica que cada proyecto sea más largo que el anterior, que sea ASCII sin espacios finales ni
+`` ` `` o `~`, que las sangrías sean coherentes y que se pueda escribir con los cuatro teclados. El código tiene que
+funcionar de verdad: probalo con el compilador o intérprete del lenguaje antes de sumarlo.
+
+## Agregar un tema a la Biblioteca
+
+1. Creá `src/library/<tema>.ts` exportando un objeto `Topic` (ver `src/library/types.ts`): resumen, datos rápidos,
+   métodos de trabajo y entradas con los atajos `b()`, `m()` y `a()` (básico, intermedio, avanzado).
+2. Escribí los ejemplos con la plantilla `` code`…` ``: las barras invertidas quedan tal cual; `` ` `` y `$` se escapan.
+3. Sumalo a `TOPICS` en `src/library/index.ts`. Si estaba en Próximamente, sacalo de `SOON`.
+4. `npm run test:logic` revisa que tenga los tres niveles, ejemplos y métodos de trabajo, y que los ids no se repitan.
 
 ## Agregar o corregir un teclado
 
