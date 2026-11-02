@@ -130,6 +130,27 @@ ok(st.w.every((x) => x >= 0 && x <= 1000) && st.a.every((x) => x >= 0 && x <= 1)
   ok(JSON.stringify(clean({ version: 1 }).projects) === "{}", "sin proyectos queda un objeto vacío");
 }
 
+// ── ejercicios de memoria ──
+{
+  const st = clean(JSON.parse(`{
+    "version": 1,
+    "recall": {
+      "git-1-1": 1730000000000,
+      "sql-3-4": "ayer",
+      "git-1-1;x": 1,
+      "__proto__": 1,
+      "GIT-1-1": 1,
+      "git-0-1": 1,
+      "linux-2-3": -5
+    }
+  }`));
+  ok(st.recall["git-1-1"] === 1730000000000, "un ejercicio resuelto se conserva");
+  ok(Object.keys(st.recall).every((k) => /^[a-z]{1,16}-[1-9]-[1-9]\d?$/.test(k)), "solo claves de ejercicio válidas");
+  ok(st.recall["sql-3-4"] === 0 && st.recall["linux-2-3"] === 0, "fechas inválidas quedan en 0");
+  ok(Object.getPrototypeOf(st.recall) === Object.prototype && !Object.keys(st.recall).includes("__proto__"), "no se cuelan claves peligrosas");
+  ok(JSON.stringify(clean({ version: 1 }).recall) === "{}", "sin ejercicios queda un objeto vacío");
+}
+
 // ── repaso de la Biblioteca ──
 {
   const st = clean(JSON.parse(`{

@@ -46,6 +46,10 @@ un título que explica qué hace.
 - **Practicar y repasar**: cada ejemplo de la Biblioteca tiene un botón **Practicar este ejemplo** que lo convierte en
   una lección corta. Lo que practicás queda en tu repaso y vuelve cada tanto, intercalado en tus lecciones normales:
   si lo hacés bien tarda más en volver (1, 3, 7, 15 y 30 días); si fallás, vuelve al día siguiente.
+- **Ejercicios de memoria** (en Desafíos): leés una consigna, como «deshacé el último commit sin perder los cambios»,
+  y escribís el comando o el código sin verlo. Git, terminal Linux, SQL, Python y JavaScript, en tres niveles que se
+  abren en orden. Valen varias respuestas; los detalles de estilo se aceptan con un aviso y un error que cambia lo
+  que hace el comando no deja avanzar, pero te dice qué revisar y te da una pista.
 - **Estadísticas**: evolución de velocidad y precisión, mapa de calor del teclado, calendario de práctica.
 - **Música generativa**: 7 estaciones (lo-fi, lluvia, synthwave, espacio, zen, jazz y foco) sintetizadas en vivo con
   Web Audio, sin archivos ni licencias de por medio. Nunca suenan exactamente igual. También podés cargar tus propias

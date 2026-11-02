@@ -8,6 +8,8 @@ import { Background } from "./components/Background";
 import { type MenuDest, Splash } from "./components/Splash";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { ProjectView } from "./components/ProjectView";
+import { RecallView } from "./components/RecallView";
+import { findRecall } from "./recall/exercises";
 import { PROJECTS } from "./projects/projects";
 import { AchBadge } from "./components/AchBadge";
 import { Footer, Header, MobileNav, Sidebar } from "./components/Chrome";
@@ -34,6 +36,8 @@ export default function App() {
   const onProjectBusy = useCallback((b: boolean) => {
     projectBusy.current = b;
   }, []);
+  // ejercicios de memoria abiertos (n cambia para volver a empezar el mismo nivel)
+  const [recallSel, setRecallSel] = useState<{ topic: string; level: number; n: number } | null>(null);
   const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null);
   /** Corre `fn` enseguida, o después de confirmar si hay un proyecto a medias. */
   const guard = (fn: () => void) => {
@@ -76,19 +80,24 @@ export default function App() {
     update((s) => ({ ...s, lang: l }));
     setChallenge(null);
     setProjectId(null);
+    setRecallSel(null);
     setView("practice");
   };
 
   const goto = (v: View) =>
     guard(() => {
       setProjectId(null);
+      setRecallSel(null);
       if (v !== "practice") setChallenge(null);
       setView(v);
     });
 
   const project = projectId ? PROJECTS.find((p) => p.id === projectId) ?? null : null;
+  const recallTopic = recallSel ? findRecall(recallSel.topic) : null;
   const challengeLabel = project
     ? `Proyecto ${String(project.num).padStart(2, "0")}`
+    : recallTopic
+      ? `Memoria · ${recallTopic.name}`
     : challenge
       ? challenge.kind === "sprint" ? `Sprint ${challenge.seconds}s` : "Precisión perfecta"
       : null;
@@ -122,6 +131,10 @@ export default function App() {
           onToggleMode={() => {
             if (project) {
               guard(() => setProjectId(null));
+              return;
+            }
+            if (recallSel) {
+              setRecallSel(null);
               return;
             }
             if (challenge) {
@@ -164,7 +177,18 @@ export default function App() {
                 onOpen={(id) => setProjectId(id)}
               />
             )}
-            {current === "challenges" && lang && !project && (
+            {current === "challenges" && lang && !project && recallTopic && recallSel && (
+              <RecallView
+                key={`${recallSel.topic}-${recallSel.level}-${recallSel.n}`}
+                topic={recallTopic}
+                level={recallSel.level}
+                state={state}
+                update={update}
+                onExit={() => setRecallSel(null)}
+                onOpen={(level) => setRecallSel((r) => ({ topic: r!.topic, level, n: (r?.n ?? 0) + 1 }))}
+              />
+            )}
+            {current === "challenges" && lang && !project && !recallTopic && (
               <ChallengesView
                 state={state}
                 lang={lang}
@@ -175,6 +199,10 @@ export default function App() {
                 onProject={(id) => {
                   setChallenge(null);
                   setProjectId(id);
+                }}
+                onRecall={(topic, level) => {
+                  setChallenge(null);
+                  setRecallSel({ topic, level, n: 0 });
                 }}
               />
             )}
@@ -224,6 +252,7 @@ export default function App() {
             setAskMenu(false);
             setChallenge(null);
             setProjectId(null);
+            setRecallSel(null);
             setFromApp(true);
             setSplash(true);
           }}

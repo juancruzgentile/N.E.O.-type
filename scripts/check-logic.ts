@@ -8,6 +8,8 @@ import { ACHIEVEMENTS, newAchievements } from "../src/engine/achievements";
 import { highlight } from "../src/highlight";
 import { initialState, mergeStates, streakDays, today } from "../src/store";
 import { addTotals, totalsOf } from "../src/engine/totals";
+import { check } from "../src/recall/check";
+import { RECALL, allExercises, levelOpen } from "../src/recall/exercises";
 import { LANGS, stageCount, unlockedChars } from "../src/data/curriculum";
 import { TRACKS } from "../src/tracks/index";
 import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKey } from "../src/data/layouts";
@@ -397,6 +399,74 @@ for (const [lang, code] of [
   const rl = reviewLesson(gitId);
   ok(rl?.label === "REPASO" && rl.review === gitId && rl.hl === git.hl && rl.text === practiceText(git.entries[0].code), "arma la lección de repaso con el ejemplo y su resaltado");
   ok(reviewLesson("lib-no-existe") === null, "una entrada que ya no existe no arma lección");
+}
+
+// ── ejercicios de memoria: corrección ──
+{
+  const st = (input: string, answers: string[], kind: "shell" | "sql" | "code") => check(input, answers, kind).status;
+  const notes = (input: string, answers: string[], kind: "shell" | "sql" | "code") => {
+    const v = check(input, answers, kind);
+    return v.status === "minor" ? v.notes.join(" | ") : "";
+  };
+  const reason = (input: string, answers: string[], kind: "shell" | "sql" | "code") => {
+    const v = check(input, answers, kind);
+    return v.status === "wrong" ? v.reason : "";
+  };
+  ok(st("git status", ["git status"], "shell") === "ok" && st("  git status  ", ["git status"], "shell") === "ok", "respuesta exacta (con espacios alrededor) es correcta");
+  ok(st("git checkout -b login", ["git switch -c login", "git checkout -b login"], "shell") === "ok", "valen varias respuestas");
+  ok(/espacios/.test(notes("git  commit   -m \"x\"", ['git commit -m "x"'], "shell")), "espacios de más: leve");
+  ok(/comillas/.test(notes("git commit -m 'x'", ['git commit -m "x"'], "shell")), "comillas simples en vez de dobles: leve");
+  ok(/comillas/.test(notes("grep -i 'error' app.log", ["grep -i error app.log"], "shell")), "comillas que no hacen falta: leve");
+  ok(/orden/.test(notes("tail app.log -n 20", ["tail -n 20 app.log"], "shell")), "otro orden de opciones (con su valor): leve");
+  ok(/orden/.test(notes("find . -name \"*.log\" -type f", ['find . -type f -name "*.log"'], "shell")), "opciones con valor entre comillas, en otro orden: leve");
+  ok(st("git commit -m \"otro\"", ['git commit -m "x"'], "shell") === "wrong", "otro mensaje: grave");
+  ok(/otra cosa/.test(reason("git merge login", ["git switch -c login"], "shell")), "otro comando: grave y lo dice");
+  ok(/--hard/.test(reason("git reset --hard HEAD~1", ["git reset --soft HEAD~1"], "shell")), "otra opción: grave y la nombra");
+  ok(/Falta una opción/.test(reason("mkdir proyectos/web", ["mkdir -p proyectos/web"], "shell")), "falta una opción: grave");
+  ok(/argumento/.test(reason("cp -r respaldo fotos", ["cp -r fotos respaldo"], "shell")), "argumentos al revés: grave");
+  ok(st("ps aux | grep node", ["ps aux | grep node"], "shell") === "ok" && st("grep node | ps aux", ["ps aux | grep node"], "shell") === "wrong", "las tuberías respetan el orden de los tramos");
+  ok(st('find . -name *.log', ['find . -name "*.log"'], "shell") === "wrong", "un patrón sin comillas no es lo mismo");
+  ok(st("tail -n 2 app.log", ["tail -n 20 app.log"], "shell") === "wrong", "otro número: grave");
+
+  const q = "SELECT nombre, email FROM usuarios;";
+  ok(/MAYÚSCULAS/.test(notes("select nombre, email from usuarios;", [q], "sql")), "SQL en minúsculas: leve");
+  ok(/;/.test(notes("SELECT nombre, email FROM usuarios", [q], "sql")), "SQL sin ; final: leve");
+  ok(st("SELECT nombre,email FROM usuarios ;", [q], "sql") === "minor", "SQL con otros espacios: leve");
+  ok(st("SELECT email, nombre FROM usuarios;", [q], "sql") === "wrong", "SQL con otras columnas en otro orden: grave");
+  ok(/comillas simples/.test(reason('INSERT INTO t (a) VALUES ("Ana");', ["INSERT INTO t (a) VALUES ('Ana');"], "sql")), "SQL con comillas dobles en un texto: grave y lo explica");
+  ok(st("SELECT * FROM usuarios WHERE nombre = 'ana';", ["SELECT * FROM usuarios WHERE nombre = 'Ana';"], "sql") === "wrong", "SQL: las mayúsculas dentro de un texto sí importan");
+  ok(/DELETE/.test(reason("DELETE FROM pedidos;", ["SELECT * FROM pedidos;"], "sql")), "SQL con otra sentencia: grave");
+
+  ok(/comillas/.test(notes("print('Hola mundo')", ['print("Hola mundo")'], "code")), "Python con comillas simples: leve");
+  ok(st("n=len( numeros )", ["n = len(numeros)"], "code") === "minor", "código con otros espacios: leve");
+  ok(st('print("Hola  mundo")', ['print("Hola mundo")'], "code") === "wrong", "los espacios dentro de un texto sí importan");
+  ok(st('saludo = f"Hola,{nombre}"', ['saludo = f"Hola, {nombre}"'], "code") === "wrong", "un espacio menos dentro de una f-string es otro texto");
+  ok(st("const total = 0", ["const total = 0;"], "code") === "minor", "JavaScript sin ; final: leve");
+  ok(st("consttotal = 0;", ["const total = 0;"], "code") === "wrong", "palabras pegadas no son un detalle de espacios");
+  ok(st("let total = 0;", ["const total = 0;"], "code") === "wrong", "let en vez de const: grave");
+  ok(st("", ["pwd"], "shell") === "wrong" && reason("", ["pwd"], "shell") === "Escribí una respuesta.", "vacío no pasa");
+}
+
+// ── ejercicios de memoria: contenido ──
+{
+  const all = allExercises();
+  ok(new Set(all.map((e) => e.id)).size === all.length, `ids únicos (${all.length} ejercicios)`);
+  ok(RECALL.every((t) => t.levels.length === 3 && t.levels.every((l) => l.exercises.length >= 4)), "cada tema tiene 3 niveles con al menos 4 ejercicios");
+  ok(RECALL.every((t) => TOPICS.some((x) => x.id === t.id)), "cada tema existe en la Biblioteca");
+  const self = RECALL.flatMap((t) => t.levels.flatMap((l) => l.exercises.flatMap((e) => e.answers.filter((a) => check(a, e.answers, t.kind).status !== "ok").map((a) => `${e.id}: ${a}`))));
+  ok(self.length === 0, `cada respuesta válida se corrige como correcta${self.length ? " — " + self.join(", ") : ""}`);
+  ok(all.every((e) => e.prompt && e.hint && e.why && e.answers.length > 0 && !e.answers.some((a) => e.hint.includes(a))), "cada ejercicio tiene consigna, pista y explicación, y la pista no da la respuesta");
+  // con cada teclado tiene que haber al menos una respuesta que se pueda escribir
+  const noKey: string[] = [];
+  for (const layout of Object.values(LAYOUTS))
+    for (const e of all) if (!e.answers.some((a) => [...a].every((c) => isTypeable(layout, c)))) noKey.push(`${layout.name} · ${e.id}`);
+  ok(noKey.length === 0, `todos se pueden responder con cualquier teclado${noKey.length ? " — " + noKey.join(", ") : ""}`);
+  const git = RECALL[0];
+  const first = Object.fromEntries(git.levels[0].exercises.map((e) => [e.id, 1]));
+  ok(levelOpen({}, git, 0) && !levelOpen({}, git, 1) && levelOpen(first, git, 1) && !levelOpen(first, git, 2), "cada nivel se abre al completar el anterior");
+  const almost = { ...first };
+  delete almost[git.levels[0].exercises[3].id];
+  ok(!levelOpen(almost, git, 1), "con un ejercicio sin resolver, el siguiente nivel sigue cerrado");
 }
 
 // ── totales históricos ──
