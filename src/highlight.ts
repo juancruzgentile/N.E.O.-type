@@ -38,11 +38,12 @@ const KW: Record<LangId, string[]> = {
   cpp: ["int", "long", "unsigned", "char", "double", "float", "void", "bool", "auto", "const", "constexpr", "static", "struct", "class", "enum", "public", "private", "protected", "virtual", "override", "explicit", "template", "typename", "namespace", "using", "return", "if", "else", "for", "while", "switch", "case", "default", "break", "continue", "new", "delete", "this", "nullptr", "true", "false", "throw", "try", "catch", "noexcept", "std", "include"],
   swift: ["func", "let", "var", "return", "if", "else", "guard", "for", "in", "while", "switch", "case", "default", "where", "struct", "class", "enum", "protocol", "extension", "init", "self", "Self", "true", "false", "nil", "throws", "throw", "try", "do", "catch", "async", "await", "actor", "import", "some", "any", "private", "public", "final", "mutating", "inout", "static", "Int", "Double", "String", "Bool"],
   kotlin: ["fun", "val", "var", "return", "if", "else", "when", "for", "in", "while", "do", "is", "as", "class", "data", "object", "interface", "enum", "sealed", "open", "override", "abstract", "private", "internal", "public", "companion", "this", "it", "true", "false", "null", "throw", "try", "catch", "finally", "import", "package", "suspend", "tailrec", "require", "check", "Int", "Long", "Double", "String", "Boolean", "List", "Map"],
+  php: ["function", "fn", "return", "if", "elseif", "else", "foreach", "as", "for", "while", "match", "default", "class", "final", "readonly", "interface", "trait", "enum", "case", "new", "public", "private", "protected", "static", "use", "namespace", "throw", "try", "catch", "finally", "echo", "true", "false", "null", "array", "int", "float", "string", "bool", "void", "never", "self", "this", "declare", "implements", "extends"],
   rust: ["fn", "let", "mut", "return", "if", "else", "for", "in", "while", "match", "impl", "struct", "enum", "trait", "pub", "use", "self", "Self", "true", "false", "as", "async", "await", "move", "ref", "where", "i32", "u32", "u64", "f64", "usize", "bool", "str"],
 };
 
 const COMMENT: Record<LangId, string> = {
-  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", formats: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//", c: "//", cpp: "//", swift: "//", kotlin: "//",
+  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", formats: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//", c: "//", cpp: "//", swift: "//", kotlin: "//", php: "//",
 };
 
 /** Clase de token para cada carácter del texto. */
