@@ -34,11 +34,13 @@ const KW: Record<LangId, string[]> = {
     "auto", "center", "solid", "important",
   ],
   formats: ["true", "false", "null", "services", "image", "ports", "volumes", "environment", "jobs", "steps", "uses", "run", "with"],
+  c: ["int", "long", "short", "unsigned", "signed", "char", "double", "float", "void", "bool", "size_t", "const", "static", "struct", "typedef", "enum", "union", "return", "if", "else", "for", "while", "do", "switch", "case", "default", "break", "continue", "sizeof", "NULL", "true", "false", "extern", "include", "define"],
+  cpp: ["int", "long", "unsigned", "char", "double", "float", "void", "bool", "auto", "const", "constexpr", "static", "struct", "class", "enum", "public", "private", "protected", "virtual", "override", "explicit", "template", "typename", "namespace", "using", "return", "if", "else", "for", "while", "switch", "case", "default", "break", "continue", "new", "delete", "this", "nullptr", "true", "false", "throw", "try", "catch", "noexcept", "std", "include"],
   rust: ["fn", "let", "mut", "return", "if", "else", "for", "in", "while", "match", "impl", "struct", "enum", "trait", "pub", "use", "self", "Self", "true", "false", "as", "async", "await", "move", "ref", "where", "i32", "u32", "u64", "f64", "usize", "bool", "str"],
 };
 
 const COMMENT: Record<LangId, string> = {
-  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", formats: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//",
+  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", formats: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//", c: "//", cpp: "//",
 };
 
 /** Clase de token para cada carácter del texto. */
@@ -81,7 +83,7 @@ export function highlight(text: string, lang: LangId | null): Tok[] {
       i = j;
       continue;
     }
-    if (ch === "@" || (ch === "#" && lang === "rust")) {
+    if (ch === "@" || (ch === "#" && (lang === "rust" || lang === "c" || lang === "cpp"))) {
       let j = i + 1;
       while (j < text.length && /[\w[\](), ]/.test(text[j]) && text[j] !== "\n") {
         if (ch === "@" && !/\w/.test(text[j])) break;

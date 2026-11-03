@@ -48,10 +48,18 @@ export const LANGS: Record<LangId, LangInfo> = {
     id: "rust", name: "Rust", badge: "Rs", color: "#f46623", kind: "code",
     stages: [["(", ")"], ["_"], [":"], ["{", "}"], ["."], ["&"], ["[", "]"], ["-", ">"], ["|"], [";"], [","], ["="], ["<"], ['"'], ["!"], DIGITS, ["?"], ["'"], ["#"], ["+"], ["*"], ["/"], ["%"], ["@"], ["$"], ["\\"], ["^"], ["`"], ["~"]],
   },
+  c: {
+    id: "c", name: "C", badge: "C", color: "#9fb3c8", kind: "code",
+    stages: [["(", ")"], [";"], ["{", "}"], ["="], ["*"], [","], ["[", "]"], DIGITS, ["<"], [">"], ["+"], ["-"], ["."], ['"'], ["&"], ["!"], ["%"], ["/"], ["\\"], ["'"], ["_"], ["?"], [":"], ["|"], ["#"], ["^"], ["~"]],
+  },
+  cpp: {
+    id: "cpp", name: "C++", badge: "C++", color: "#f34b7d", kind: "code",
+    stages: [["(", ")"], [";"], ["{", "}"], [":"], ["<", ">"], ["&"], ["."], [","], ["="], ["_"], ['"'], ["[", "]"], DIGITS, ["+"], ["-"], ["!"], ["*"], ["|"], ["%"], ["/"], ["\\"], ["'"], ["?"], ["#"], ["^"], ["~"]],
+  },
 };
 
 /** Lenguajes de programación (ruta por símbolos). */
-export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust"];
+export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp"];
 export { TRACK_ORDER, isTrack };
 
 /** Cantidad de niveles: etapas de símbolos o escalones de la ruta Trainee. */
@@ -96,6 +104,42 @@ export const SYMBOL_INFO: Record<string, string> = {
   "0": "Números", "1": "Números", "2": "Números", "3": "Números", "4": "Números",
   "5": "Números", "6": "Números", "7": "Números", "8": "Números", "9": "Números",
 };
+
+/** Descripciones que cambian en algunos lenguajes (en C, # es el preprocesador y no un comentario). */
+const SYMBOL_INFO_BY_LANG: Partial<Record<LangId, Record<string, string>>> = {
+  c: {
+    "#": "Directivas del preprocesador: #include y #define",
+    "*": "Multiplicación, punteros y desreferencia",
+    "&": "Dirección de una variable (&x) y el operador lógico &&",
+    "-": "Resta, negativos y acceso por puntero ->",
+    ">": "Mayor que y acceso por puntero ->",
+    "<": "Menor que e #include <...>",
+    "'": "Caracteres ('a', '\\0')",
+    "!": "Negación y distinto de (!=)",
+    ":": "Etiquetas de case y el operador ternario",
+    "?": "Operador ternario",
+    "|": "El operador lógico || y OR de bits",
+    "{": "Bloques de código e inicializadores",
+    "_": "Nombres en snake_case",
+  },
+  cpp: {
+    "#": "#include y directivas del preprocesador",
+    ":": "El operador de ámbito :: (std::), herencia y case",
+    "<": "Menor que, plantillas <T> y std::cout <<",
+    ">": "Mayor que, plantillas y el operador >>",
+    "&": "Referencias (int&), dirección y el operador lógico &&",
+    "*": "Multiplicación, punteros y desreferencia",
+    "'": "Caracteres ('a', '\\n')",
+    "!": "Negación y distinto de (!=)",
+    "?": "Operador ternario",
+    "|": "El operador lógico || y las vistas de ranges con |",
+    "{": "Bloques de código e inicialización con llaves",
+    "_": "Nombres en snake_case",
+  },
+};
+
+/** Para qué sirve un símbolo, en general o en ese lenguaje. */
+export const symbolInfo = (ch: string, lang?: LangId) => SYMBOL_INFO_BY_LANG[lang!]?.[ch] ?? SYMBOL_INFO[ch] ?? "";
 
 export function allChars(lang: LangId): string[] {
   return isTrack(lang) ? TRACKS[lang].symbols : LANGS[lang].stages.flat();

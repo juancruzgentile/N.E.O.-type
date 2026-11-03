@@ -1,5 +1,5 @@
-import type { Lesson } from "../types";
-import { SYMBOL_INFO } from "../data/curriculum";
+import type { LangId, Lesson } from "../types";
+import { symbolInfo } from "../data/curriculum";
 import { type Rng, int, pick } from "./base";
 
 const WORDS = [
@@ -132,7 +132,7 @@ function hits(p: Pattern, focus: string): boolean {
 }
 
 /** Ejercicio de símbolos: varias líneas con el símbolo foco en todas. */
-export function drillLesson(allowed: Set<string>, focus: string, rng: Rng, lines = 5): Lesson {
+export function drillLesson(allowed: Set<string>, focus: string, rng: Rng, lines = 5, lang?: LangId): Lesson {
   const ok = PATTERNS.filter((p) => usable(p, allowed));
   const withFocus = ok.filter((p) => hits(p, focus));
   const out: string[] = [];
@@ -153,7 +153,7 @@ export function drillLesson(allowed: Set<string>, focus: string, rng: Rng, lines
   const label = DIGITS.includes(focus) ? "números" : focus;
   return {
     kind: "drill",
-    title: `Ejercicio de símbolo ${label} — ${SYMBOL_INFO[focus] ?? ""}`,
+    title: `Ejercicio de símbolo ${label} — ${symbolInfo(focus, lang)}`,
     tags: ["Ejercicio guiado", "Símbolos"],
     text: out.join("\n"),
     focus,

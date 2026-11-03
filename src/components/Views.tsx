@@ -2,7 +2,7 @@ import { type CSSProperties, useMemo, useRef, useState } from "react";
 import type { AppState, ErrorMode, LangId, LayoutId, Settings, ThemeId } from "../types";
 import { ACHIEVEMENTS } from "../engine/achievements";
 import { AchBadge } from "./AchBadge";
-import { LANGS, LANG_ORDER, SYMBOL_INFO, TRACK_ORDER, isTrack, stageCount } from "../data/curriculum";
+import { LANGS, LANG_ORDER, TRACK_ORDER, isTrack, stageCount, symbolInfo } from "../data/curriculum";
 import { TRACKS } from "../tracks/index";
 import { LAYOUTS, comboText, isTypeable, layoutFor } from "../data/layouts";
 import { type KeyInfo, STEP_WINDOW, msToWpm, playableChars, progressToNext, stageInfos, stepInfos } from "../engine/stats";
@@ -149,7 +149,7 @@ export function RoutesView({ state, lang }: { state: AppState; lang: LangId }) {
               <span className="n">{String(i + 1).padStart(2, "0")}</span>
               <span className="syms">{label}</span>
               <span className="desc">
-                {SYMBOL_INFO[chars[0]]}
+                {symbolInfo(chars[0], lang)}
                 {skipped.length > 0 && s.excludeMissing && (
                   <span style={{ color: "var(--dim)" }}> · se salta: {skipped.join(" ")} no tiene tecla</span>
                 )}

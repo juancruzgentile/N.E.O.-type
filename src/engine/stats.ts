@@ -142,14 +142,14 @@ export function buildLesson(lang: LangId, p: Profile, s: Settings, mode: Mode, r
   }
   const allowed = unlockedSet(lang, p.stage, s);
   const focus = pickFocus(lang, p, s);
-  if (!focus) return drillLesson(allowed, "(", rng);
+  if (!focus) return drillLesson(allowed, "(", rng, 5, lang);
   const info = keyInfo(focus, p.keys[focus], s, true);
   // símbolo recién desbloqueado o con pocas muestras → ejercicio dirigido
-  if (info.state === "new" && info.samples < s.minSamples) return drillLesson(allowed, focus, rng);
+  if (info.state === "new" && info.samples < s.minSamples) return drillLesson(allowed, focus, rng, 5, lang);
   // calibrado → código real que lo use; si no hay todavía, ejercicio
   const sn = findSnippet(lang, allowed, focus, rng, avoid);
   if (sn && rng() < 0.75) return snippetLesson(sn, focus);
-  return drillLesson(allowed, focus, rng);
+  return drillLesson(allowed, focus, rng, 5, lang);
 }
 
 export function lessonScore(chars: number, wpm: number, acc: number): number {

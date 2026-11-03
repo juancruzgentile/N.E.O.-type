@@ -8,12 +8,14 @@ import { java } from "./java";
 import { csharp } from "./csharp";
 import { go } from "./go";
 import { rust } from "./rust";
+import { c } from "./c";
+import { cpp } from "./cpp";
 import { sql } from "./sql";
 import { css, html } from "./web";
 import { formats, git, linux } from "./tools";
 
 export const TOPICS: Topic[] = [
-  python, javascript, typescript, java, csharp, go, rust,
+  python, javascript, typescript, java, csharp, go, rust, c, cpp,
   sql, html, css, formats,
   linux, git,
 ];
