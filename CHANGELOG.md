@@ -43,6 +43,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   Linux/Windows o de Mac (nueva opción en Ajustes), con selección, y en Linux también acepta Ctrl+Shift+Alt+↓ para
   duplicar. Los atajos que el navegador no deja practicar se listan aparte. Tab siempre saca el foco del editor.
 
+### Cambiado
+- Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
+
 ### Corregido (auditoría del 2026-11-02 sobre 94b0fcc)
 - Con la app abierta en dos ventanas, la que guardaba última borraba los cambios de la otra. Ahora las ventanas se
   avisan los cambios y, antes de guardar, se combinan clave por clave.

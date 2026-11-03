@@ -70,11 +70,6 @@ export function Header({ state, saved, onToggleMode, onPickLang, onMenu, challen
           N.E.O.-<span className="type">TYPE</span>
         </span>
       </div>
-      <div className="tagline">
-        Escribe un
-        <br />
-        mejor mañana
-      </div>
       <button className="pill" onClick={onToggleMode} title="Cambiar entre modo guiado y libre" data-tour="mode">
         <IconCross size={22} />
         {challengeLabel ?? (state.mode === "guided" ? "Modo guiado" : "Modo libre")}
