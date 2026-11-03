@@ -20,7 +20,7 @@ export const linux: Topic = {
   workflow: [
     { title: "Leer antes de ejecutar", text: "Nunca pegues un comando que no entendés, sobre todo con sudo, rm -rf o | bash. man y --help explican cada opción." },
     { title: "Atajos que ahorran horas", text: "Tab autocompleta, flecha arriba repite, Ctrl+R busca en el historial, Ctrl+C corta y Ctrl+L limpia." },
-    { title: "Scripts seguros", text: "Empezá los scripts con set -euo pipefail: cortan ante el primer error y ante variables sin definir. Citá siempre las variables (\"$var\")." },
+    { title: "Scripts seguros", text: "Empezá los scripts con set -euo pipefail: cortan ante la mayoría de los errores y ante variables sin definir. Ojo: set -e no actúa dentro de condiciones (if, &&, ||), tampoco en las funciones llamadas desde ahí; esos errores revisalos a mano. Citá siempre las variables (\"$var\")." },
     { title: "Permisos mínimos", text: "Trabajá como usuario normal y usá sudo solo para el comando que lo necesita." },
   ],
   entries: [
@@ -83,7 +83,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"ok":true}' localhost:8000
 ssh usuario@servidor.com
 scp archivo.txt usuario@servidor.com:/tmp/`, "http api remoto servidor"),
 
-    a("Scripts", "Script Bash", "Automatiza tareas. set -euo pipefail corta ante errores; las funciones y los if hacen el resto.", code`
+    a("Scripts", "Script Bash", "Automatiza tareas. set -euo pipefail corta ante la mayoría de los errores (no dentro de un if, && o ||) y ante variables sin definir.", code`
 #!/usr/bin/env bash
 set -euo pipefail
 

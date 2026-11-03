@@ -1,5 +1,6 @@
-// Compila el código que generan los lenguajes que se sumaron con su compilador real: cada concepto con cada
-// entidad del vocabulario. Así una lección nunca enseña algo que no compila.
+// Compila con su compilador real una muestra del código que generan los lenguajes que se sumaron: cada concepto con
+// cada entidad del vocabulario (dos contextos por entidad). No son todas las combinaciones posibles, pero cubre cada
+// plantilla y cada nombre de campo, que es donde aparecen los errores (como "extension" en Swift).
 //
 // Cubre C, C++, Swift, Kotlin y PHP. Si falta el compilador, ese lenguaje se saltea con un aviso; con EJEMPLOS_ESTRICTO=1 (CI)
 // falta un compilador es un error.
@@ -225,5 +226,5 @@ if (missing.length && strict) {
   console.log(`Faltan compiladores (${missing.join(", ")}) y EJEMPLOS_ESTRICTO=1`);
   problems++;
 }
-console.log(problems ? `\nPROBLEMAS: ${problems}` : "\nTodo el código generado compila");
+console.log(problems ? `\nPROBLEMAS: ${problems}` : "\nTodos los fragmentos de la muestra compilan");
 process.exit(problems ? 1 : 0);

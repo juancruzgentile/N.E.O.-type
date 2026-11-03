@@ -97,9 +97,11 @@ match msg {
     Mensaje::Escribir(t) => println!("{t}"),
 }`, "enumeracion coincidencia"),
     m("Errores", "Option y Result", "Option<T> es Some(valor) o None; Result<T, E> es Ok(valor) o Err(error). Reemplazan a null y a las excepciones.", code`
-fn buscar(id: u32) -> Option<Usuario> { /* ... */ }
+fn buscar(usuarios: &[Usuario], id: u32) -> Option<&Usuario> {
+    usuarios.iter().find(|u| u.id == id)
+}
 
-match buscar(1) {
+match buscar(&usuarios, 1) {
     Some(u) => println!("{}", u.nombre),
     None => println!("no existe"),
 }

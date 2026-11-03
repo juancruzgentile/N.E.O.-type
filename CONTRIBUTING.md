@@ -56,7 +56,8 @@ Registrá los cambios visibles en `CHANGELOG.md`, en la sección de la próxima 
    el id en `LANG_IDS` (`src/sanitize.ts`).
 5. Si algún símbolo significa otra cosa en ese lenguaje (en C, `#` es el preprocesador), sumá su descripción en
    `SYMBOL_INFO_BY_LANG` (`src/data/curriculum.ts`).
-6. Sumá el lenguaje a `scripts/check-generated.ts` para que el CI compile todo lo que genera: el código tiene que
+6. Sumá el lenguaje a `scripts/check-generated.ts` para que el CI compile una muestra de lo que genera (cada concepto con
+   cada entidad del vocabulario): el código tiene que
    ser válido de verdad, no solo parecerlo.
 
 ## Agregar una ruta Trainee

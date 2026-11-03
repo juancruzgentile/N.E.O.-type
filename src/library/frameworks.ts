@@ -133,7 +133,7 @@ function Barra() {
   return <nav className={tema}>Menú</nav>;
 }`, "context contexto global"),
 
-    a("Estado", "useReducer", "Para estado con varias transiciones: una función recibe el estado y una acción y devuelve el nuevo.", code`
+    a("Estado", "useReducer", "Para estado con varias transiciones: una función (el reducer) recibe el estado y una acción y devuelve el nuevo. El reducer va afuera; useReducer, como todo hook, se llama dentro de un componente.", code`
 type Accion = { tipo: "agregar"; texto: string } | { tipo: "borrar"; id: number };
 
 function tareas(estado: Tarea[], accion: Accion): Tarea[] {
@@ -145,16 +145,26 @@ function tareas(estado: Tarea[], accion: Accion): Tarea[] {
   }
 }
 
-const [lista, despachar] = useReducer(tareas, []);`, "reducer estado complejo"),
-    a("Rendimiento", "useMemo y memo", "Evitan recalcular o volver a dibujar cuando los datos no cambiaron. Medí antes de usarlos.", code`
-const ordenados = useMemo(
-  () => [...productos].sort((x, y) => x.precio - y.precio),
-  [productos],
-);
-
+function Tareas() {
+  const [lista, despachar] = useReducer(tareas, []);
+  return (
+    <button onClick={() => despachar({ tipo: "agregar", texto: "Nueva" })}>
+      Agregar ({lista.length})
+    </button>
+  );
+}`, "reducer estado complejo"),
+    a("Rendimiento", "useMemo y memo", "useMemo (dentro del componente) evita recalcular y memo (afuera, envolviendo un componente) evita volver a dibujarlo si sus props no cambiaron. Medí antes de usarlos.", code`
 const Fila = memo(function Fila({ producto }: { producto: Producto }) {
   return <tr><td>{producto.nombre}</td></tr>;
-});`, "memo rendimiento optimizar"),
+});
+
+function Tabla({ productos }: { productos: Producto[] }) {
+  const ordenados = useMemo(
+    () => [...productos].sort((x, y) => x.precio - y.precio),
+    [productos],
+  );
+  return <table><tbody>{ordenados.map((p) => <Fila key={p.id} producto={p} />)}</tbody></table>;
+}`, "memo rendimiento optimizar"),
     a("Rutas", "React Router", "Páginas con su propia URL dentro de la app; useParams lee los parámetros.", code`
 import { BrowserRouter, Route, Routes, useParams } from "react-router";
 
@@ -175,6 +185,7 @@ export default function App() {
 }`, "router rutas paginas navegacion"),
     a("Herramientas", "Vite y tests", "Vite crea y sirve el proyecto; Vitest con Testing Library prueba los componentes como los usa una persona.", code`
 npm create vite@latest mi-app -- --template react-ts
+cd mi-app
 npm install
 npm run dev
 npm install -D vitest @testing-library/react`, "vite crear proyecto test"),
@@ -374,6 +385,7 @@ from django.db import models
 class Producto(models.Model):
     nombre = models.CharField(max_length=120)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField(default=0)
     disponible = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
 
@@ -466,7 +478,7 @@ class MisPedidos(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return self.request.user.pedidos.order_by("-id")`, "class based view cbv"),
-    a("ORM", "Transacciones y F", "atomic agrupa cambios; F() actualiza en la base sin condiciones de carrera.", code`
+    a("ORM", "Transacciones y F", "atomic agrupa cambios; F() hace la cuenta en la base, sin leer el valor antes, así dos pedidos a la vez no se pisan. Usa el modelo Producto de la entrada Modelos.", code`
 from django.db import transaction
 from django.db.models import F
 
@@ -648,7 +660,7 @@ export const aspnet: Framework = {
   workflow: [
     { title: "Program.cs arma todo", text: "Primero se registran servicios (builder.Services) y después se arma el pipeline y las rutas (app)." },
     { title: "Inyección de dependencias", text: "Los servicios se registran con su ciclo de vida (Singleton, Scoped, Transient) y llegan por parámetro." },
-    { title: "Configuración por capas", text: "appsettings.json, appsettings.{Entorno}.json, variables de entorno y user-secrets, en ese orden." },
+    { title: "Configuración por capas", text: "Se leen en este orden y cada fuente pisa a la anterior: appsettings.json, appsettings.{Entorno}.json, user-secrets (solo en Development), variables de entorno y argumentos de la línea de comandos." },
     { title: "EF Core con migraciones", text: "dotnet ef migrations add y dotnet ef database update mantienen la base al día con el modelo." },
   ],
   entries: [
@@ -676,6 +688,7 @@ public record NuevoUsuario(string Nombre, string Email);
 public record Usuario(int Id, string Nombre, string Email);`, "dto record"),
     b("Herramientas", "dotnet CLI", "Crear, ejecutar con recarga y probar.", code`
 dotnet new webapi -n Tienda
+cd Tienda
 dotnet watch run
 dotnet test`, "crear ejecutar watch"),
 
