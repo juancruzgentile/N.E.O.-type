@@ -46,6 +46,13 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - **4 proyectos nuevos** antes del tablero full stack, para que la dificultad suba de a poco: un gestor de notas en
   C# (no había ninguno en C#), una API de recetas con FastAPI y sus pruebas, copias de seguridad con Bash y Makefile,
   y un acortador de enlaces con SQLite, Dockerfile y Docker Compose. El tablero pasa a ser el proyecto 14.
+- `npm run test:examples`: revisa la sintaxis de los 254 ejemplos de la Biblioteca con el parser real de cada
+  lenguaje (Python, TypeScript, Go, Rust, Java, C#, bash, CSS, HTML, JSON, YAML y TOML). SQL queda afuera porque
+  cada motor tiene su dialecto. Cada revisor se prueba primero con un ejemplo roto, para no aprobar cualquier cosa.
+- `npm run test:projects`: compila los 14 proyectos y, cuando se puede, los ejecuta o corre sus pruebas (pytest,
+  `probar.sh`, el gestor de notas de punta a punta).
+- El CI tiene un job nuevo, `ejemplos`, que instala Python, Go, Java, .NET y Rust y corre las dos pruebas sin
+  saltear nada. Los paquetes de Python que usa van fijados con hash.
 
 ### Cambiado
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
