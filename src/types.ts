@@ -1,6 +1,6 @@
 import type { ConceptId } from "./gen/concepts";
 /** Lenguajes de programación (ruta por símbolos). */
-export type CodeLangId = "python" | "javascript" | "typescript" | "java" | "csharp" | "go" | "rust" | "c" | "cpp";
+export type CodeLangId = "python" | "javascript" | "typescript" | "java" | "csharp" | "go" | "rust" | "c" | "cpp" | "swift";
 /** Rutas Trainee (progreso por escalones de temas). */
 export type TrackId = "sql" | "linux" | "html" | "css" | "formats";
 export type LangId = CodeLangId | TrackId;

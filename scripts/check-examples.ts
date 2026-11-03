@@ -244,6 +244,21 @@ const cFamily = (lang: "c" | "cpp"): Checker => {
 const cLang = cFamily("c");
 const cppLang = cFamily("cpp");
 
+// ── Swift: swiftc -parse solo parsea; un main.swift acepta sentencias sueltas ──
+const swift: Checker = {
+  name: "Swift",
+  missing: needs("swiftc"),
+  broken: "func f( {",
+  check: each((code) => {
+    const f = join(tmp, "main.swift");
+    writeFileSync(f, code);
+    const r = run("swiftc", ["-parse", f]);
+    if (r.ok) return null;
+    const err = r.out.split("\n").find((l) => /error:/.test(l)) ?? r.out;
+    return err.slice(err.indexOf(f) + f.length).replace(/^:(\d+):\d+: error: /, "línea $1: ");
+  }),
+};
+
 // ── CSS: el parser de esbuild ──
 const css: Checker = {
   name: "CSS",
@@ -330,7 +345,7 @@ const yaml = pyParse("yaml", "list(yaml.safe_load_all(sys.stdin))");
 const toml = pyParse("tomllib", "tomllib.loads(sys.stdin.read())");
 
 /** Ejemplos que son comandos de terminal dentro de un tema de lenguaje (pip, npx tsc, go mod, cargo…). */
-const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq|gcc|g\+\+|clang|cmake|ctest|valgrind|make)(?=\s|$)/;
+const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq|gcc|g\+\+|clang|cmake|ctest|valgrind|make|swift (package|build|test|run))(?=\s|$)/;
 
 /** Qué revisor le toca a cada ejemplo, o null si no tiene revisión automática. */
 function checkerFor(topic: string, e: Entry): Checker | null {
@@ -342,6 +357,7 @@ function checkerFor(topic: string, e: Entry): Checker | null {
     case "go": return go;
     case "c": return cLang;
     case "cpp": return cppLang;
+    case "swift": return swift;
     case "rust": return rust;
     case "java": return java;
     case "csharp": return csharp;

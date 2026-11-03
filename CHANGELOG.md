@@ -47,6 +47,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   `( ) ; { } :`), generadores de código propio (structs, punteros, qsort y archivos en C; vector, ranges, optional,
   format y clases en C++) y un tema para cada uno en la Biblioteca. Todo lo que generan se compiló con
   `-Wall -Wextra -Werror` antes de sumarlo.
+- **Swift**: ruta de símbolos (arranca con `( ) { } :`), generador de código (structs, closures con `$0`,
+  opcionales, guard, async/await) y tema en la Biblioteca. El CI compila todo lo que genera con `swiftc`.
 - Las descripciones de los símbolos pueden cambiar según el lenguaje: en C y C++, `#` es el preprocesador y `::`,
   `->` y `&` dicen lo que significan ahí.
 - **4 proyectos nuevos** antes del tablero full stack, para que la dificultad suba de a poco: un gestor de notas en

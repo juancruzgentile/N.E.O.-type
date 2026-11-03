@@ -49,7 +49,7 @@ jobs:
     # compila y prueba los proyectos, y revisa la sintaxis de los ejemplos de la Biblioteca,
     # con la herramienta real de cada lenguaje
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       # si falta alguna herramienta, falla en vez de saltear
       EJEMPLOS_ESTRICTO: "1"

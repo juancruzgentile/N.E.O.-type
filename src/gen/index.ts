@@ -10,8 +10,9 @@ import { go } from "./lang/go";
 import { rust } from "./lang/rust";
 import { c } from "./lang/c";
 import { cpp } from "./lang/cpp";
+import { swift } from "./lang/swift";
 
-export const IMPLS: Record<LangId, LangImpls> = { python, javascript, typescript, java, csharp, go, rust, c, cpp };
+export const IMPLS: Record<LangId, LangImpls> = { python, javascript, typescript, java, csharp, go, rust, c, cpp, swift };
 
 /** Símbolos (no letras ni espacios) que usa un texto. */
 export function symbolsOf(text: string): Set<string> {
