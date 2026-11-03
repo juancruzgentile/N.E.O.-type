@@ -1,6 +1,9 @@
 // Proyectos: programas completos que hay que escribir de punta a punta, sangrías
 // incluidas, en el menor tiempo posible. Se desbloquean en orden.
 //
+// El orden lo da `num`, no el id: los ids no se cambian nunca porque los récords se guardan con ellos.
+// Por eso el tablero full stack sigue siendo "p10" aunque ahora sea el proyecto 14.
+//
 // Reglas del contenido (las verifica `npm run check`):
 // - solo ASCII imprimible, sin espacios al final de línea, sin ` ni ~ (no tienen tecla en el teclado italiano)
 // - las sangrías con espacios son múltiplos de `tabWidth`; Go y Makefile usan tabulaciones reales
@@ -29,8 +32,11 @@ export interface Project {
   files: ProjectFile[];
 }
 
-/** Bloque de código: quita el salto inicial y los espacios finales. Respeta las barras invertidas. */
-const src = (s: TemplateStringsArray) => String.raw(s).replace(/^\n/, "").replace(/\s+$/, "");
+/**
+ * Bloque de código: quita el salto inicial y los espacios finales. Respeta las barras invertidas, salvo en \${,
+ * que se escribe así para que no sea una interpolación de la plantilla.
+ */
+const src = (s: TemplateStringsArray) => String.raw(s).replace(/\\\$\{/g, "${").replace(/^\n/, "").replace(/\s+$/, "");
 /** Igual que `src`, pero cada grupo de 4 espacios al principio de línea pasa a ser una tabulación. */
 const tabs = (s: TemplateStringsArray) =>
   src(s).replace(/^(?: {4})+/gm, (m) => "\t".repeat(m.length / 4));
@@ -939,8 +945,821 @@ public class Main {
     ],
   },
   {
-    id: "p10",
+    id: "p11",
     num: 10,
+    title: "Gestor de notas",
+    level: "Experto",
+    stack: ["C#", "XML"],
+    desc: "Una aplicación de consola en .NET que guarda notas en JSON: agregar, listar, buscar, borrar y un resumen por prioridad.",
+    skills: "records, enums, LINQ, switch con condiciones, interpolación y llaves en su propia línea",
+    files: [
+      {
+        name: "Notas.csproj", lang: "html", tabWidth: 2, text: src`
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
+`,
+      },
+      {
+        name: "Nota.cs", lang: "csharp", tabWidth: 4, text: src`
+namespace Notas;
+
+public enum Prioridad
+{
+    Baja,
+    Media,
+    Alta,
+}
+
+public record Nota(int Id, string Titulo, string Texto, Prioridad Prioridad, DateTime Creada)
+{
+    public bool Contiene(string buscado) =>
+        Titulo.Contains(buscado, StringComparison.OrdinalIgnoreCase)
+        || Texto.Contains(buscado, StringComparison.OrdinalIgnoreCase);
+
+    public override string ToString() =>
+        $"#{Id} [{Prioridad}] {Titulo} ({Creada:yyyy-MM-dd})";
+}
+`,
+      },
+      {
+        name: "Repositorio.cs", lang: "csharp", tabWidth: 4, text: src`
+using System.Text;
+using System.Text.Json;
+
+namespace Notas;
+
+public class Repositorio
+{
+    private static readonly JsonSerializerOptions Opciones = new() { WriteIndented = true };
+
+    private readonly string ruta;
+    private readonly List<Nota> notas;
+
+    public Repositorio(string ruta)
+    {
+        this.ruta = ruta;
+        notas = File.Exists(ruta)
+            ? JsonSerializer.Deserialize<List<Nota>>(File.ReadAllText(ruta)) ?? new List<Nota>()
+            : new List<Nota>();
+    }
+
+    public IReadOnlyList<Nota> Todas => notas;
+
+    public Nota Agregar(string titulo, string texto, Prioridad prioridad)
+    {
+        if (string.IsNullOrWhiteSpace(titulo))
+        {
+            throw new ArgumentException("La nota necesita un titulo", nameof(titulo));
+        }
+
+        var id = notas.Count == 0 ? 1 : notas.Max(n => n.Id) + 1;
+        var nota = new Nota(id, titulo.Trim(), texto.Trim(), prioridad, DateTime.Now);
+        notas.Add(nota);
+        Guardar();
+        return nota;
+    }
+
+    public bool Borrar(int id)
+    {
+        var borradas = notas.RemoveAll(n => n.Id == id);
+        if (borradas > 0)
+        {
+            Guardar();
+        }
+        return borradas > 0;
+    }
+
+    public IEnumerable<Nota> Buscar(string texto) =>
+        notas.Where(n => n.Contiene(texto))
+            .OrderByDescending(n => n.Prioridad)
+            .ThenBy(n => n.Id);
+
+    public Dictionary<Prioridad, int> ContarPorPrioridad() =>
+        notas.GroupBy(n => n.Prioridad)
+            .OrderByDescending(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+    public string ExportarMarkdown()
+    {
+        var md = new StringBuilder("# Notas\n");
+        foreach (var grupo in notas.GroupBy(n => n.Prioridad).OrderByDescending(g => g.Key))
+        {
+            md.AppendLine().AppendLine($"## {grupo.Key} ({grupo.Count()})").AppendLine();
+            foreach (var nota in grupo.OrderBy(n => n.Creada))
+            {
+                md.AppendLine($"- **{nota.Titulo}**: {nota.Texto}");
+            }
+        }
+        return md.ToString();
+    }
+
+    private void Guardar() =>
+        File.WriteAllText(ruta, JsonSerializer.Serialize(notas, Opciones));
+}
+`,
+      },
+      {
+        name: "Program.cs", lang: "csharp", tabWidth: 4, text: src`
+using Notas;
+
+var repo = new Repositorio("notas.json");
+
+if (args.Length == 0)
+{
+    MostrarAyuda();
+    return;
+}
+
+switch (args[0])
+{
+    case "agregar" when args.Length >= 3:
+        var prioridad = args.Length >= 4 && Enum.TryParse<Prioridad>(args[3], true, out var elegida)
+            ? elegida
+            : Prioridad.Media;
+        var nota = repo.Agregar(args[1], args[2], prioridad);
+        Console.WriteLine($"Guardada: {nota}");
+        break;
+
+    case "listar":
+        foreach (var n in repo.Todas.OrderBy(x => x.Id))
+        {
+            Console.WriteLine(n);
+        }
+        break;
+
+    case "buscar" when args.Length >= 2:
+        var encontradas = repo.Buscar(args[1]).ToList();
+        Console.WriteLine($"{encontradas.Count} nota(s) con \"{args[1]}\"");
+        foreach (var n in encontradas)
+        {
+            Console.WriteLine(n);
+        }
+        break;
+
+    case "borrar" when args.Length >= 2 && int.TryParse(args[1], out var id):
+        Console.WriteLine(repo.Borrar(id) ? $"Nota {id} borrada" : $"No existe la nota {id}");
+        break;
+
+    case "resumen":
+        foreach (var (prio, cantidad) in repo.ContarPorPrioridad())
+        {
+            Console.WriteLine($"{prio,-6} {cantidad}");
+        }
+        break;
+
+    case "exportar":
+        var destino = args.Length >= 2 ? args[1] : "notas.md";
+        File.WriteAllText(destino, repo.ExportarMarkdown());
+        Console.WriteLine($"Exportadas {repo.Todas.Count} nota(s) a {destino}");
+        break;
+
+    default:
+        MostrarAyuda();
+        break;
+}
+
+static void MostrarAyuda()
+{
+    Console.WriteLine("Uso:");
+    Console.WriteLine("  notas agregar <titulo> <texto> [baja|media|alta]");
+    Console.WriteLine("  notas listar");
+    Console.WriteLine("  notas buscar <texto>");
+    Console.WriteLine("  notas borrar <id>");
+    Console.WriteLine("  notas resumen");
+    Console.WriteLine("  notas exportar [archivo.md]");
+}
+`,
+      },
+    ],
+  },
+  {
+    id: "p12",
+    num: 11,
+    title: "API de recetas",
+    level: "Experto",
+    stack: ["Python", "FastAPI", "pytest"],
+    desc: "Una API REST chica con FastAPI que guarda recetas en memoria, con validación, filtros y sus propias pruebas.",
+    skills: "decoradores, modelos de Pydantic, anotaciones de tipos, códigos HTTP y pruebas con pytest",
+    files: [
+      {
+        name: "requirements.txt", lang: "formats", tabWidth: 4, text: src`
+fastapi
+httpx2
+pytest
+`,
+      },
+      py("main.py", src`
+from datetime import date
+from typing import Annotated
+
+from fastapi import FastAPI, HTTPException, Query
+from pydantic import BaseModel, Field
+
+app = FastAPI(title="Recetario")
+
+
+class RecetaNueva(BaseModel):
+    nombre: str = Field(min_length=1, max_length=80)
+    minutos: int = Field(gt=0, le=600)
+    ingredientes: list[str] = Field(min_length=1)
+    vegetariana: bool = False
+
+
+class Receta(RecetaNueva):
+    id: int
+    creada: date
+
+
+recetas: dict[int, Receta] = {}
+siguiente_id = 1
+
+
+@app.get("/recetas")
+def listar(
+    vegetariana: bool | None = None,
+    max_minutos: Annotated[int | None, Query(gt=0)] = None,
+) -> list[Receta]:
+    resultado = list(recetas.values())
+    if vegetariana is not None:
+        resultado = [r for r in resultado if r.vegetariana == vegetariana]
+    if max_minutos is not None:
+        resultado = [r for r in resultado if r.minutos <= max_minutos]
+    return sorted(resultado, key=lambda r: r.minutos)
+
+
+@app.get("/recetas/buscar")
+def buscar(texto: Annotated[str, Query(min_length=2)]) -> list[Receta]:
+    buscado = texto.lower()
+    return [
+        r
+        for r in recetas.values()
+        if buscado in r.nombre.lower() or any(buscado in i.lower() for i in r.ingredientes)
+    ]
+
+
+@app.get("/recetas/{receta_id}")
+def obtener(receta_id: int) -> Receta:
+    if receta_id not in recetas:
+        raise HTTPException(status_code=404, detail="La receta no existe")
+    return recetas[receta_id]
+
+
+@app.post("/recetas", status_code=201)
+def crear(nueva: RecetaNueva) -> Receta:
+    global siguiente_id
+    receta = Receta(id=siguiente_id, creada=date.today(), **nueva.model_dump())
+    recetas[receta.id] = receta
+    siguiente_id += 1
+    return receta
+
+
+@app.put("/recetas/{receta_id}")
+def reemplazar(receta_id: int, cambios: RecetaNueva) -> Receta:
+    actual = obtener(receta_id)
+    receta = Receta(id=actual.id, creada=actual.creada, **cambios.model_dump())
+    recetas[receta_id] = receta
+    return receta
+
+
+@app.delete("/recetas/{receta_id}", status_code=204)
+def borrar(receta_id: int) -> None:
+    if recetas.pop(receta_id, None) is None:
+        raise HTTPException(status_code=404, detail="La receta no existe")
+
+
+@app.get("/ingredientes")
+def ingredientes() -> dict[str, int]:
+    conteo: dict[str, int] = {}
+    for receta in recetas.values():
+        for ingrediente in receta.ingredientes:
+            clave = ingrediente.strip().lower()
+            conteo[clave] = conteo.get(clave, 0) + 1
+    return dict(sorted(conteo.items(), key=lambda par: (-par[1], par[0])))
+`),
+      py("test_main.py", src`
+import pytest
+from fastapi.testclient import TestClient
+
+import main
+
+cliente = TestClient(main.app)
+
+
+@pytest.fixture(autouse=True)
+def vaciar():
+    main.recetas.clear()
+    main.siguiente_id = 1
+
+
+def crear(nombre="Tortilla", minutos=30, ingredientes=("huevo", "papa"), vegetariana=True):
+    respuesta = cliente.post(
+        "/recetas",
+        json={
+            "nombre": nombre,
+            "minutos": minutos,
+            "ingredientes": list(ingredientes),
+            "vegetariana": vegetariana,
+        },
+    )
+    assert respuesta.status_code == 201
+    return respuesta.json()
+
+
+def test_crear_y_obtener():
+    receta = crear()
+    assert receta["id"] == 1
+    assert cliente.get("/recetas/1").json()["nombre"] == "Tortilla"
+
+
+def test_valida_los_datos():
+    respuesta = cliente.post("/recetas", json={"nombre": "", "minutos": 0, "ingredientes": []})
+    assert respuesta.status_code == 422
+
+
+def test_filtra_y_ordena():
+    crear("Guiso", 90, ("carne", "papa"), False)
+    crear("Ensalada", 10, ("lechuga",), True)
+    crear("Tortilla", 30)
+    rapidas = cliente.get("/recetas", params={"max_minutos": 40}).json()
+    assert [r["nombre"] for r in rapidas] == ["Ensalada", "Tortilla"]
+    sin_carne = cliente.get("/recetas", params={"vegetariana": True}).json()
+    assert len(sin_carne) == 2
+    assert all(r["vegetariana"] for r in sin_carne)
+
+
+def test_reemplazar_y_borrar():
+    crear()
+    cambios = {"nombre": "Tortilla de papa", "minutos": 35, "ingredientes": ["huevo", "papa", "cebolla"]}
+    assert cliente.put("/recetas/1", json=cambios).json()["minutos"] == 35
+    assert cliente.delete("/recetas/1").status_code == 204
+    assert cliente.get("/recetas/1").status_code == 404
+    assert cliente.delete("/recetas/1").status_code == 404
+
+
+def test_busca_por_nombre_o_ingrediente():
+    crear("Tortilla", 30, ("huevo", "papa"))
+    crear("Ensalada", 10, ("lechuga", "tomate"))
+    assert [r["nombre"] for r in cliente.get("/recetas/buscar", params={"texto": "PAPA"}).json()] == ["Tortilla"]
+    assert [r["nombre"] for r in cliente.get("/recetas/buscar", params={"texto": "ensa"}).json()] == ["Ensalada"]
+    assert cliente.get("/recetas/buscar", params={"texto": "x"}).status_code == 422
+
+
+def test_cuenta_ingredientes():
+    crear("Tortilla", 30, ("Huevo", "papa"))
+    crear("Pure", 25, ("papa", "manteca"))
+    assert cliente.get("/ingredientes").json() == {"papa": 2, "huevo": 1, "manteca": 1}
+`),
+    ],
+  },
+  {
+    id: "p13",
+    num: 12,
+    title: "Copias de seguridad",
+    level: "Experto",
+    stack: ["Bash", "Makefile"],
+    desc:
+      "Un script de Bash que comprime una carpeta, guarda su suma SHA-256, verifica, restaura y borra las copias " +
+      "viejas, con un Makefile para usarlo y un script que lo prueba.",
+    skills: "variables con valor por defecto, arrays, funciones, case, subshells y las tabulaciones de Makefile",
+    files: [
+      {
+        name: "respaldo.sh", lang: "linux", tabWidth: 4, text: src`
+#!/usr/bin/env bash
+# Copias de seguridad comprimidas de una carpeta, con verificacion y rotacion.
+set -euo pipefail
+
+ORIGEN="\${ORIGEN:-./datos}"
+DESTINO="\${DESTINO:-./copias}"
+CONSERVAR="\${CONSERVAR:-5}"
+EXCLUIR="\${EXCLUIR:-.respaldoignore}"
+
+uso() {
+    echo "Uso: $0 {crear|listar|estado|verificar|restaurar <archivo> <carpeta>|rotar}" >&2
+    exit 1
+}
+
+error() {
+    echo "error: $*" >&2
+    exit 1
+}
+
+crear() {
+    [[ -d "$ORIGEN" ]] || error "no existe la carpeta $ORIGEN"
+    mkdir -p "$DESTINO"
+    local nombre
+    nombre="copia-$(date +%Y%m%d-%H%M%S-%3N).tar.gz"
+    local opciones=()
+    if [[ -f "$ORIGEN/$EXCLUIR" ]]; then
+        opciones+=(--exclude-from="$ORIGEN/$EXCLUIR")
+    fi
+    tar -czf "$DESTINO/$nombre" "\${opciones[@]}" -C "$(dirname "$ORIGEN")" "$(basename "$ORIGEN")"
+    (cd "$DESTINO" && sha256sum "$nombre" > "$nombre.sha256")
+    echo "Creada $DESTINO/$nombre ($(du -h "$DESTINO/$nombre" | cut -f1))"
+}
+
+listar() {
+    shopt -s nullglob
+    local copias=("$DESTINO"/copia-*.tar.gz)
+    if (( \${#copias[@]} == 0 )); then
+        echo "No hay copias en $DESTINO"
+        return
+    fi
+    for copia in "\${copias[@]}"; do
+        printf "%-40s %8s\n" "$(basename "$copia")" "$(du -h "$copia" | cut -f1)"
+    done
+}
+
+estado() {
+    shopt -s nullglob
+    local copias=("$DESTINO"/copia-*.tar.gz)
+    echo "Origen:    $ORIGEN"
+    echo "Destino:   $DESTINO"
+    echo "Copias:    \${#copias[@]} (se conservan $CONSERVAR)"
+    if (( \${#copias[@]} > 0 )); then
+        echo "Ocupan:    $(du -ch "\${copias[@]}" | tail -n 1 | cut -f1)"
+        echo "La ultima: $(basename "\${copias[-1]}")"
+    fi
+}
+
+verificar() {
+    shopt -s nullglob
+    local fallas=0
+    for suma in "$DESTINO"/*.sha256; do
+        if (cd "$DESTINO" && sha256sum --quiet -c "$(basename "$suma")"); then
+            echo "OK    $(basename "$suma" .sha256)"
+        else
+            echo "FALLA $(basename "$suma" .sha256)"
+            fallas=$((fallas + 1))
+        fi
+    done
+    (( fallas == 0 )) || error "$fallas copia(s) danadas"
+}
+
+restaurar() {
+    local archivo="\${1:-}" carpeta="\${2:-}"
+    [[ -f "$archivo" && -n "$carpeta" ]] || uso
+    (cd "$(dirname "$archivo")" && sha256sum --quiet -c "$(basename "$archivo").sha256") \
+        || error "la copia $archivo no pasa la verificacion"
+    mkdir -p "$carpeta"
+    tar -xzf "$archivo" -C "$carpeta"
+    echo "Restaurada en $carpeta"
+}
+
+rotar() {
+    shopt -s nullglob
+    local copias=("$DESTINO"/copia-*.tar.gz)
+    local sobran=$(( \${#copias[@]} - CONSERVAR ))
+    if (( sobran <= 0 )); then
+        echo "Nada para borrar (\${#copias[@]} de $CONSERVAR)"
+        return
+    fi
+    for copia in "\${copias[@]:0:sobran}"; do
+        rm -f -- "$copia" "$copia.sha256"
+        echo "Borrada $(basename "$copia")"
+    done
+}
+
+case "\${1:-}" in
+    crear) crear ;;
+    listar) listar ;;
+    estado) estado ;;
+    verificar) verificar ;;
+    restaurar) restaurar "\${2:-}" "\${3:-}" ;;
+    rotar) rotar ;;
+    *) uso ;;
+esac
+`,
+      },
+      {
+        name: "probar.sh", lang: "linux", tabWidth: 4, text: src`
+#!/usr/bin/env bash
+# Prueba respaldo.sh de punta a punta en una carpeta temporal.
+set -euo pipefail
+
+aqui="$(cd "$(dirname "$0")" && pwd)"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+export ORIGEN="$tmp/datos" DESTINO="$tmp/copias" CONSERVAR=2
+mkdir -p "$ORIGEN/sub" "$ORIGEN/cache"
+echo "hola" > "$ORIGEN/a.txt"
+echo "chau" > "$ORIGEN/sub/b.txt"
+echo "temporal" > "$ORIGEN/cache/c.tmp"
+echo "cache" > "$ORIGEN/.respaldoignore"
+
+falla() {
+    echo "FALLA: $*" >&2
+    exit 1
+}
+
+respaldo() {
+    bash "$aqui/respaldo.sh" "$@"
+}
+
+for _ in 1 2 3; do
+    respaldo crear > /dev/null
+done
+[[ $(ls "$DESTINO"/*.tar.gz | wc -l) -eq 3 ]] || falla "se esperaban 3 copias"
+
+respaldo verificar > /dev/null || falla "las copias nuevas no pasan la verificacion"
+
+respaldo rotar > /dev/null
+[[ $(ls "$DESTINO"/*.tar.gz | wc -l) -eq 2 ]] || falla "rotar tenia que dejar 2 copias"
+
+ultima="$(ls "$DESTINO"/*.tar.gz | tail -n 1)"
+respaldo restaurar "$ultima" "$tmp/vuelta" > /dev/null
+[[ ! -e "$tmp/vuelta/datos/cache" ]] || falla "no respeto .respaldoignore"
+diff -r --exclude=cache "$ORIGEN" "$tmp/vuelta/datos" || falla "lo restaurado no coincide con el original"
+[[ "$(respaldo estado)" == *"Copias:    2 "* ]] || falla "estado no cuenta bien las copias"
+
+echo "rota" >> "$ultima"
+if respaldo verificar > /dev/null 2>&1; then
+    falla "una copia danada paso la verificacion"
+fi
+if respaldo restaurar "$ultima" "$tmp/otra" > /dev/null 2>&1; then
+    falla "se restauro una copia danada"
+fi
+
+echo "Todas las pruebas pasaron"
+`,
+      },
+      {
+        name: "Makefile", lang: "linux", tabWidth: 0, text: tabs`
+SHELL := /bin/bash
+ORIGEN ?= ./datos
+DESTINO ?= ./copias
+CONSERVAR ?= 5
+EN ?= ./restaurado
+
+export ORIGEN DESTINO CONSERVAR
+
+.PHONY: copia lista estado verificar rotar restaurar probar limpiar
+
+copia:
+    bash respaldo.sh crear
+
+lista:
+    bash respaldo.sh listar
+
+estado:
+    bash respaldo.sh estado
+
+verificar:
+    bash respaldo.sh verificar
+
+rotar: verificar
+    bash respaldo.sh rotar
+
+restaurar:
+    @test -n "$(ARCHIVO)" || (echo "Falta ARCHIVO=copias/copia-....tar.gz" && exit 1)
+    bash respaldo.sh restaurar "$(ARCHIVO)" "$(EN)"
+
+probar:
+    bash probar.sh
+
+limpiar:
+    rm -rf "$(DESTINO)" "$(EN)"
+`,
+      },
+    ],
+  },
+  {
+    id: "p14",
+    num: 13,
+    title: "Acortador de enlaces en contenedores",
+    level: "Experto",
+    stack: ["Python", "FastAPI", "SQLite", "Docker", "YAML"],
+    desc:
+      "Un acortador de enlaces con FastAPI y SQLite, empaquetado con Dockerfile y Docker Compose, con un volumen " +
+      "para no perder los datos.",
+    skills: "SQL dentro de Python, variables de entorno, Dockerfile, .dockerignore y la sangría de 2 espacios de YAML",
+    files: [
+      {
+        name: "requirements.txt", lang: "formats", tabWidth: 4, text: src`
+fastapi
+uvicorn[standard]
+`,
+      },
+      py("main.py", src`
+import os
+import secrets
+import sqlite3
+from contextlib import asynccontextmanager, closing
+
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
+from pydantic import BaseModel, Field, HttpUrl
+
+RUTA_DB = os.environ.get("RUTA_DB", "enlaces.db")
+URL_BASE = os.environ.get("URL_BASE", "http://localhost:8000")
+
+
+def conectar():
+    conexion = sqlite3.connect(RUTA_DB)
+    conexion.row_factory = sqlite3.Row
+    return conexion
+
+
+@asynccontextmanager
+async def ciclo_de_vida(app: FastAPI):
+    with closing(conectar()) as conexion, conexion:
+        conexion.execute(
+            "CREATE TABLE IF NOT EXISTS enlaces ("
+            " codigo TEXT PRIMARY KEY,"
+            " destino TEXT NOT NULL,"
+            " visitas INTEGER NOT NULL DEFAULT 0)"
+        )
+    yield
+
+
+app = FastAPI(title="Acortador", lifespan=ciclo_de_vida)
+
+
+class EnlaceNuevo(BaseModel):
+    destino: HttpUrl
+    codigo: str | None = Field(default=None, pattern=r"^[A-Za-z0-9_-]{3,20}$")
+
+
+@app.get("/salud")
+def salud():
+    return {"estado": "ok"}
+
+
+@app.post("/enlaces", status_code=201)
+def acortar(enlace: EnlaceNuevo):
+    codigo = enlace.codigo or secrets.token_urlsafe(5)
+    if codigo in ("salud", "enlaces"):
+        raise HTTPException(status_code=409, detail="Ese codigo esta reservado")
+    try:
+        with closing(conectar()) as conexion, conexion:
+            conexion.execute(
+                "INSERT INTO enlaces (codigo, destino) VALUES (?, ?)",
+                (codigo, str(enlace.destino)),
+            )
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="Ese codigo ya esta en uso") from None
+    return {"codigo": codigo, "corto": f"{URL_BASE}/{codigo}"}
+
+
+@app.get("/enlaces")
+def mas_visitados(limite: int = 10):
+    limite = max(1, min(limite, 100))
+    with closing(conectar()) as conexion:
+        filas = conexion.execute(
+            "SELECT * FROM enlaces ORDER BY visitas DESC, codigo LIMIT ?",
+            (limite,),
+        ).fetchall()
+    return [dict(fila) for fila in filas]
+
+
+@app.get("/enlaces/{codigo}")
+def estadisticas(codigo: str):
+    with closing(conectar()) as conexion:
+        fila = conexion.execute("SELECT * FROM enlaces WHERE codigo = ?", (codigo,)).fetchone()
+    if fila is None:
+        raise HTTPException(status_code=404, detail="No existe ese enlace")
+    return dict(fila)
+
+
+@app.delete("/enlaces/{codigo}", status_code=204)
+def borrar(codigo: str):
+    with closing(conectar()) as conexion, conexion:
+        borradas = conexion.execute("DELETE FROM enlaces WHERE codigo = ?", (codigo,)).rowcount
+    if borradas == 0:
+        raise HTTPException(status_code=404, detail="No existe ese enlace")
+
+
+@app.get("/{codigo}")
+def redirigir(codigo: str):
+    with closing(conectar()) as conexion, conexion:
+        filas = conexion.execute(
+            "UPDATE enlaces SET visitas = visitas + 1 WHERE codigo = ? RETURNING destino",
+            (codigo,),
+        ).fetchall()
+    if not filas:
+        raise HTTPException(status_code=404, detail="No existe ese enlace")
+    return RedirectResponse(filas[0]["destino"], status_code=307)
+`),
+      py("test_main.py", src`
+import os
+import tempfile
+
+os.environ["RUTA_DB"] = os.path.join(tempfile.mkdtemp(), "prueba.db")
+
+from fastapi.testclient import TestClient  # noqa: E402
+
+import main  # noqa: E402
+
+
+def test_acorta_redirige_y_cuenta():
+    with TestClient(main.app) as cliente:
+        creado = cliente.post("/enlaces", json={"destino": "https://example.com/una/ruta"})
+        assert creado.status_code == 201
+        codigo = creado.json()["codigo"]
+
+        salto = cliente.get(f"/{codigo}", follow_redirects=False)
+        assert salto.status_code == 307
+        assert salto.headers["location"] == "https://example.com/una/ruta"
+        assert cliente.get(f"/enlaces/{codigo}").json()["visitas"] == 1
+
+
+def test_rechaza_lo_que_no_es_una_url():
+    with TestClient(main.app) as cliente:
+        assert cliente.post("/enlaces", json={"destino": "no es una url"}).status_code == 422
+
+
+def test_codigo_propio_y_repetido():
+    with TestClient(main.app) as cliente:
+        datos = {"destino": "https://example.com", "codigo": "mi-enlace"}
+        assert cliente.post("/enlaces", json=datos).json()["codigo"] == "mi-enlace"
+        assert cliente.post("/enlaces", json=datos).status_code == 409
+        assert cliente.post("/enlaces", json={**datos, "codigo": "salud"}).status_code == 409
+        assert cliente.post("/enlaces", json={**datos, "codigo": "con espacios"}).status_code == 422
+
+
+def test_lista_los_mas_visitados_y_borra():
+    with TestClient(main.app) as cliente:
+        cliente.post("/enlaces", json={"destino": "https://example.com/a", "codigo": "aaa"})
+        cliente.post("/enlaces", json={"destino": "https://example.com/b", "codigo": "bbb"})
+        for _ in range(3):
+            cliente.get("/bbb", follow_redirects=False)
+        primero = cliente.get("/enlaces", params={"limite": 1}).json()
+        assert [e["codigo"] for e in primero] == ["bbb"]
+        assert cliente.delete("/enlaces/bbb").status_code == 204
+        assert cliente.delete("/enlaces/bbb").status_code == 404
+
+
+def test_codigo_que_no_existe():
+    with TestClient(main.app) as cliente:
+        assert cliente.get("/nada", follow_redirects=False).status_code == 404
+        assert cliente.get("/enlaces/nada").status_code == 404
+`),
+      {
+        name: "Dockerfile", lang: "formats", tabWidth: 4, text: src`
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY main.py .
+
+RUN useradd --create-home acortador && mkdir /datos && chown acortador /datos
+USER acortador
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/salud')"
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+`,
+      },
+      {
+        name: ".dockerignore", lang: "formats", tabWidth: 4, text: src`
+__pycache__/
+*.pyc
+*.db
+.env
+.venv/
+test_main.py
+`,
+      },
+      {
+        name: ".env", lang: "formats", tabWidth: 4, text: src`
+URL_BASE=http://localhost:8000
+`,
+      },
+      {
+        name: "docker-compose.yml", lang: "formats", tabWidth: 2, text: src`
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      RUTA_DB: /datos/enlaces.db
+    volumes:
+      - enlaces:/datos
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  enlaces:
+`,
+      },
+    ],
+  },
+  {
+    id: "p10",
+    num: 14,
     title: "Tablero de tareas full stack",
     level: "Maestro",
     stack: ["Makefile", "Docker", "YAML", "SQL", "Python", "HTML", "CSS", "TypeScript"],
@@ -1315,9 +2134,14 @@ dibujar().catch((error) => console.error(error));
 
 export const PROJECT_IDS = PROJECTS.map((p) => p.id);
 
-/** Un proyecto se desbloquea al terminar el anterior. */
+const has = (done: Record<string, unknown>, id: string) => Object.prototype.hasOwnProperty.call(done, id);
+
+/**
+ * Un proyecto se desbloquea al terminar el anterior. Si ya lo terminaste, queda abierto aunque el orden cambie
+ * (el tablero full stack era el 10 y ahora es el 14: los ids no cambian, así que los récords se conservan).
+ */
 export function projectUnlocked(done: Record<string, unknown>, index: number): boolean {
-  return index === 0 || Object.prototype.hasOwnProperty.call(done, PROJECTS[index - 1].id);
+  return index === 0 || has(done, PROJECTS[index].id) || has(done, PROJECTS[index - 1].id);
 }
 
 /** Caracteres a escribir en todo el proyecto (para mostrar el tamaño). */

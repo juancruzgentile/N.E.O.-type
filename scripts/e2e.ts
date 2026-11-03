@@ -388,7 +388,7 @@ try {
     const { page, errors, ctx } = await open(browser, seedState({ lang: "python" }));
     await page.locator(".nav").getByRole("button", { name: "Desafíos" }).click();
     const cards = page.locator(".project-card");
-    ok((await cards.count()) === 10, "hay 10 proyectos");
+    ok((await cards.count()) === 14, "hay 14 proyectos");
     ok((await cards.nth(1).locator(".btn").count()) === 0 && /Terminá el proyecto 1/.test((await cards.nth(1).textContent()) ?? ""), "el proyecto 2 empieza bloqueado");
     await cards.nth(0).getByRole("button", { name: "Empezar" }).click();
     await page.waitForFunction(() => document.activeElement?.classList.contains("ta-hidden"));
