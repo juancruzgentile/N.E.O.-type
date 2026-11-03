@@ -79,7 +79,7 @@ jobs:
         run: rustup toolchain install stable --profile minimal --component rustfmt && rustup default stable
       - run: npm ci
       - name: Paquetes de Python para las pruebas (fijados con hash)
-        run: python -m pip install --require-hashes --only-binary=:all: -r scripts/requisitos-pruebas.txt
+        run: "python -m pip install --require-hashes --only-binary=:all: -r scripts/requisitos-pruebas.txt"
       - name: Sintaxis de los ejemplos de la Biblioteca
         run: npm run test:examples
       - name: Los proyectos compilan y funcionan
