@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { CONCEPTS, ENUM_SETS, type FullCtx, SHAPES } from "../src/gen/concepts";
-import { ENTITIES, type Entity, type Field, type Nm, camel, makeCtx, makeRng, pascal, snake } from "../src/gen/base";
+import { ENTITIES, type Entity, makeCtx, makeRng } from "../src/gen/base";
 import { IMPLS } from "../src/gen/index";
 import type { CodeLangId } from "../src/types";
 
@@ -31,8 +31,8 @@ interface Target {
   compiler: string;
   /** lo que va antes de todo: includes, imports y tipos que los fragmentos suponen */
   prelude: string;
-  /** declaración del tipo de cada entidad, igual que la genera classDef */
-  struct: (e: Entity) => string;
+  /** declaración del tipo de cada entidad: por defecto, la que genera el propio classDef del lenguaje */
+  struct?: (e: Entity) => string;
   /** lo que cierra la cabecera después de los tipos (en PHP, el namespace global) */
   afterStructs?: string;
   /**
@@ -46,12 +46,6 @@ interface Target {
   compile: (files: string[]) => { ok: boolean; out: string };
 }
 
-const cppName = (n: Nm) => ({ explicit: "is_explicit" })[snake(n)] ?? snake(n);
-const cField = (f: Field) => (f.t === "str" ? `const char *${snake(f.n)}` : `${{ int: "int", float: "double", bool: "bool" }[f.t]} ${snake(f.n)}`);
-const cppField = (f: Field) => `${{ int: "int", float: "double", str: "std::string", bool: "bool" }[f.t]} ${cppName(f.n)}{}`;
-const kotlinField = (f: Field) => `val ${camel(f.n)}: ${{ int: "Int", float: "Double", str: "String", bool: "Boolean" }[f.t]}`;
-const phpField = (f: Field) => `public ${{ int: "int", float: "float", str: "string", bool: "bool" }[f.t]} $${camel(f.n)}`;
-const swiftField = (f: Field) => `var ${camel(f.n)}: ${{ int: "Int", float: "Double", str: "String", bool: "Bool" }[f.t]}`;
 const cWarnings = ["-Wall", "-Wextra", "-Werror", "-Wno-unused-function"];
 
 const TARGETS: Target[] = [
@@ -61,8 +55,6 @@ const TARGETS: Target[] = [
     mode: "each",
     ext: "c",
     prelude: ["stdio.h", "stdlib.h", "string.h", "stdbool.h", "stddef.h", "ctype.h"].map((h) => `#include <${h}>`).join("\n"),
-    struct: (e) => `typedef struct {\n${e.fields.map((f) => `    ${cField(f)};`).join("\n")}\n} ${pascal(e.s)};`,
-    // -c en vez de -fsyntax-only: algunos envoltorios de compilador (zig cc) fallan con -fsyntax-only
     compile: ([f]) => run("gcc", ["-std=c17", ...cWarnings, "-c", "-o", `${f}.o`, f]),
   },
   {
@@ -78,7 +70,6 @@ const TARGETS: Target[] = [
         .map((h) => `#include <${h}>`),
       "struct Shape { virtual ~Shape() = default; virtual double area() const = 0; };",
     ].join("\n"),
-    struct: (e) => `struct ${pascal(e.s)} {\n${e.fields.map((f) => `    ${cppField(f)};`).join("\n")}\n};`,
     compile: ([f]) => run("g++", ["-std=c++20", ...cWarnings, "-c", "-o", `${f}.o`, f]),
   },
   {
@@ -93,8 +84,6 @@ const TARGETS: Target[] = [
       "#endif",
       "protocol Shape { var area: Double { get } }",
     ].join("\n"),
-    struct: (e) => `struct ${pascal(e.s)}: Codable {\n${e.fields.map((f) => `    ${swiftField(f)}`).join("\n")}\n}`,
-    // las extensiones no se pueden anidar: esas van en su propio archivo
     wrap: (s, i) => (s.text.startsWith("extension ") ? null : `enum Fragmento${i} {\n${s.text}\n}`),
     compile: (files) => run("swiftc", ["-typecheck", ...files]),
   },
@@ -114,7 +103,6 @@ const TARGETS: Target[] = [
       "",
       "interface Shape { fun area(): Double }",
     ].join("\n"),
-    struct: (e) => `data class ${pascal(e.s)}(${e.fields.map(kotlinField).join(", ")})`,
     wrap: (s, i) => `object Fragmento${i} {\n${s.text}\n}`,
     compile: (files) => run("kotlinc", [...files, "-d", join(dir, "kotlin-clases"), "-nowarn"]),
   },
@@ -125,7 +113,6 @@ const TARGETS: Target[] = [
     ext: "php",
     // namespaces con llaves: lo global va en "namespace { }" y cada fragmento en el suyo, importando los tipos
     prelude: "<?php\ndeclare(strict_types=1);\n\nnamespace {\ninterface Shape { public function area(): float; }",
-    struct: (e) => `final class ${pascal(e.s)}\n{\n    public function __construct(${e.fields.map(phpField).join(", ")})\n    {\n    }\n}`,
     afterStructs: "}",
     // classDef declara su propia clase: no puede importar otra con el mismo nombre
     wrap: (s, i) =>
@@ -135,6 +122,14 @@ const TARGETS: Target[] = [
     compile: ([f]) => run("php", ["-d", "display_errors=stderr", f]),
   },
 ];
+
+/** El tipo de una entidad tal como lo declara el generador del lenguaje (classDef con esa entidad). */
+const structOf = (t: Target, e: Entity): string => {
+  if (t.struct) return t.struct(e);
+  const ctx: FullCtx = { ...makeCtx(makeRng(1), e), enumSet: ENUM_SETS[0], shape: SHAPES[0] };
+  const out = IMPLS[t.lang].classDef!(ctx);
+  return Array.isArray(out) ? out[0] : out;
+};
 
 /** Todos los fragmentos distintos de un lenguaje, con la entidad que necesitan declarada. */
 function snippetsOf(lang: CodeLangId): (Snippet & { ent: Entity })[] {
@@ -181,13 +176,13 @@ for (const t of TARGETS) {
     snippets.forEach((s, i) => {
       const file = join(dir, `${t.lang}-${i}.${t.ext}`);
       // classDef declara el tipo; el resto lo necesita declarado arriba
-      writeFileSync(file, `${t.prelude}\n${s.concept === "classDef" ? "" : t.struct(s.ent)}\n\n${s.text}\n`);
+      writeFileSync(file, `${t.prelude}\n${s.concept === "classDef" ? "" : structOf(t, s.ent)}\n\n${s.text}\n`);
       const r = t.compile([file]);
       if (!r.ok) report(s, r.out);
     });
   } else {
     // un archivo con todas las entidades y los fragmentos envueltos; los que no se pueden envolver van aparte
-    const header = `${t.prelude}\n\n${ENTITIES.map(t.struct).join("\n\n")}\n${t.afterStructs ?? ""}\n`;
+    const header = `${t.prelude}\n\n${ENTITIES.map((e) => structOf(t, e)).join("\n\n")}\n${t.afterStructs ?? ""}\n`;
     const ranges: { from: number; to: number; s: Snippet }[] = [];
     let body = header;
     const alone: Snippet[] = [];
