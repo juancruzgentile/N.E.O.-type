@@ -20,10 +20,16 @@ npm test        # todas las pruebas (detalle abajo)
 | `npm run test:logic` | Progreso, logros, resaltado, canciones guardadas, ejercicios de memoria y atajos de editor |
 | `npm run test:regression` | Errores ya corregidos (ver `correcciones.txt`) |
 | `npm run test:security` | Validación de datos y CSP del build |
+| `npm run test:examples` | Sintaxis de los ejemplos de la Biblioteca, con el parser de cada lenguaje |
+| `npm run test:projects` | Que los proyectos compilen y pasen sus pruebas |
 | `npm run test:e2e` | La app en Chromium real: lección, pegar, Tab, desafío, modo calmo, exportar/importar, menú, proyectos, biblioteca y repaso |
 
 `test:e2e` usa el build (`NeonType.html`) y necesita el navegador una sola vez:
 `npx playwright-core install --only-shell chromium`.
+
+`test:examples` y `test:projects` usan las herramientas de cada lenguaje (Python, Go, javac, dotnet, cargo,
+rustfmt…). Si te falta alguna, esa parte se saltea con un aviso; en el CI están todas y no se saltea nada. Para los
+proyectos de FastAPI hacen falta los paquetes de `scripts/requisitos-pruebas.txt`.
 
 Si arreglás un error, agregá la prueba que lo detecta en `test:regression` o `test:e2e`.
 
@@ -70,7 +76,7 @@ escribir `${` dentro de un proyecto, poné `\${`. Cada archivo indica su resalta
 de la sangría (`tabWidth`; 0 si usa tabulaciones reales, como Go o Makefile, y entonces se escribe con `tabs`).
 `npm run check` verifica que cada proyecto sea más largo que el anterior, que sea ASCII sin espacios finales ni
 `` ` `` o `~`, que las sangrías sean coherentes y que se pueda escribir con los cuatro teclados. El código tiene que
-funcionar de verdad: probalo con el compilador o intérprete del lenguaje antes de sumarlo.
+funcionar de verdad: sumá en `scripts/check-projects.ts` cómo se compila y se prueba, y corré `npm run test:projects`.
 
 ## Agregar un tema a la Biblioteca
 
@@ -79,6 +85,8 @@ funcionar de verdad: probalo con el compilador o intérprete del lenguaje antes 
 2. Escribí los ejemplos con la plantilla `` code`…` ``: las barras invertidas quedan tal cual; `` ` `` y `$` se escapan.
 3. Sumalo a `TOPICS` en `src/library/index.ts`. Si estaba en Próximamente, sacalo de `SOON`.
 4. `npm run test:logic` revisa que tenga los tres niveles, ejemplos y métodos de trabajo, y que los ids no se repitan.
+5. `npm run test:examples` revisa la sintaxis de los ejemplos. Si el tema es de un lenguaje nuevo, sumale un revisor
+   en `scripts/check-examples.ts`.
 
 ## Agregar o corregir un teclado
 

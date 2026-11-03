@@ -40,6 +40,8 @@ y sin telemetría.
 - `.npmrc` con `ignore-scripts=true`: las dependencias no ejecutan código al instalarse.
 - CI con `npm ci`, `npm audit`, verificación de firmas de paquetes y tests de seguridad en cada cambio.
 - Las GitHub Actions están fijadas por hash de commit y el token del workflow es de solo lectura.
+- Los paquetes de Python que usa el CI para probar los proyectos (`scripts/requisitos-pruebas.txt`) van fijados con
+  hash. No son parte de la app.
 - CodeQL analiza el código en cada cambio y una vez por semana.
 - Dependabot propone actualizaciones con 7 días de espera, para no adoptar versiones recién publicadas.
 
