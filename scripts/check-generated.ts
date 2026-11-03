@@ -1,7 +1,7 @@
 // Compila el código que generan los lenguajes que se sumaron con su compilador real: cada concepto con cada
 // entidad del vocabulario. Así una lección nunca enseña algo que no compila.
 //
-// Cubre C, C++ y Swift. Si falta el compilador, ese lenguaje se saltea con un aviso; con EJEMPLOS_ESTRICTO=1 (CI)
+// Cubre C, C++, Swift y Kotlin. Si falta el compilador, ese lenguaje se saltea con un aviso; con EJEMPLOS_ESTRICTO=1 (CI)
 // falta un compilador es un error.
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -35,7 +35,7 @@ interface Target {
   struct: (e: Entity) => string;
   /**
    * "each": un archivo por fragmento (C y C++, rápidos de compilar).
-   * "batch": todos en un archivo, cada uno envuelto para que los nombres no choquen (Swift, lento por archivo).
+   * "batch": todos en un archivo, cada uno envuelto para que los nombres no choquen (Swift y Kotlin, lentos por archivo).
    */
   mode: "each" | "batch";
   /** envoltura de un fragmento en modo batch; null si ese fragmento tiene que ir solo (por ejemplo, una extension) */
@@ -47,6 +47,7 @@ interface Target {
 const cppName = (n: Nm) => ({ explicit: "is_explicit" })[snake(n)] ?? snake(n);
 const cField = (f: Field) => (f.t === "str" ? `const char *${snake(f.n)}` : `${{ int: "int", float: "double", bool: "bool" }[f.t]} ${snake(f.n)}`);
 const cppField = (f: Field) => `${{ int: "int", float: "double", str: "std::string", bool: "bool" }[f.t]} ${cppName(f.n)}{}`;
+const kotlinField = (f: Field) => `val ${camel(f.n)}: ${{ int: "Int", float: "Double", str: "String", bool: "Boolean" }[f.t]}`;
 const swiftField = (f: Field) => `var ${camel(f.n)}: ${{ int: "Int", float: "Double", str: "String", bool: "Bool" }[f.t]}`;
 const cWarnings = ["-Wall", "-Wextra", "-Werror", "-Wno-unused-function"];
 
@@ -91,6 +92,26 @@ const TARGETS: Target[] = [
     // las extensiones no se pueden anidar: esas van en su propio archivo
     wrap: (s, i) => (s.text.startsWith("extension ") ? null : `enum Fragmento${i} {\n${s.text}\n}`),
     compile: (files) => run("swiftc", ["-typecheck", ...files]),
+  },
+  {
+    lang: "kotlin",
+    compiler: "kotlinc",
+    mode: "batch",
+    ext: "kt",
+    prelude: [
+      "import java.io.File",
+      "import java.io.IOException",
+      "import java.net.URI",
+      "import java.net.http.HttpClient",
+      "import java.net.http.HttpRequest",
+      "import java.net.http.HttpResponse",
+      "import kotlin.math.PI",
+      "",
+      "interface Shape { fun area(): Double }",
+    ].join("\n"),
+    struct: (e) => `data class ${pascal(e.s)}(${e.fields.map(kotlinField).join(", ")})`,
+    wrap: (s, i) => `object Fragmento${i} {\n${s.text}\n}`,
+    compile: (files) => run("kotlinc", [...files, "-d", join(dir, "kotlin-clases"), "-nowarn"]),
   },
 ];
 
