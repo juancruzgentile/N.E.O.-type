@@ -37,11 +37,12 @@ const KW: Record<LangId, string[]> = {
   c: ["int", "long", "short", "unsigned", "signed", "char", "double", "float", "void", "bool", "size_t", "const", "static", "struct", "typedef", "enum", "union", "return", "if", "else", "for", "while", "do", "switch", "case", "default", "break", "continue", "sizeof", "NULL", "true", "false", "extern", "include", "define"],
   cpp: ["int", "long", "unsigned", "char", "double", "float", "void", "bool", "auto", "const", "constexpr", "static", "struct", "class", "enum", "public", "private", "protected", "virtual", "override", "explicit", "template", "typename", "namespace", "using", "return", "if", "else", "for", "while", "switch", "case", "default", "break", "continue", "new", "delete", "this", "nullptr", "true", "false", "throw", "try", "catch", "noexcept", "std", "include"],
   swift: ["func", "let", "var", "return", "if", "else", "guard", "for", "in", "while", "switch", "case", "default", "where", "struct", "class", "enum", "protocol", "extension", "init", "self", "Self", "true", "false", "nil", "throws", "throw", "try", "do", "catch", "async", "await", "actor", "import", "some", "any", "private", "public", "final", "mutating", "inout", "static", "Int", "Double", "String", "Bool"],
+  kotlin: ["fun", "val", "var", "return", "if", "else", "when", "for", "in", "while", "do", "is", "as", "class", "data", "object", "interface", "enum", "sealed", "open", "override", "abstract", "private", "internal", "public", "companion", "this", "it", "true", "false", "null", "throw", "try", "catch", "finally", "import", "package", "suspend", "tailrec", "require", "check", "Int", "Long", "Double", "String", "Boolean", "List", "Map"],
   rust: ["fn", "let", "mut", "return", "if", "else", "for", "in", "while", "match", "impl", "struct", "enum", "trait", "pub", "use", "self", "Self", "true", "false", "as", "async", "await", "move", "ref", "where", "i32", "u32", "u64", "f64", "usize", "bool", "str"],
 };
 
 const COMMENT: Record<LangId, string> = {
-  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", formats: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//", c: "//", cpp: "//", swift: "//",
+  python: "#", sql: "--", linux: "#", html: "<!--", css: "/*", formats: "#", javascript: "//", typescript: "//", java: "//", csharp: "//", go: "//", rust: "//", c: "//", cpp: "//", swift: "//", kotlin: "//",
 };
 
 /** Clase de token para cada carácter del texto. */

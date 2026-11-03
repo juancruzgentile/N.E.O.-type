@@ -11,12 +11,13 @@ import { rust } from "./rust";
 import { c } from "./c";
 import { cpp } from "./cpp";
 import { swift } from "./swift";
+import { kotlin } from "./kotlin";
 import { sql } from "./sql";
 import { css, html } from "./web";
 import { formats, git, linux } from "./tools";
 
 export const TOPICS: Topic[] = [
-  python, javascript, typescript, java, csharp, go, rust, c, cpp, swift,
+  python, javascript, typescript, java, csharp, go, rust, c, cpp, swift, kotlin,
   sql, html, css, formats,
   linux, git,
 ];

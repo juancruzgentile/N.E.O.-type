@@ -60,10 +60,14 @@ export const LANGS: Record<LangId, LangInfo> = {
     id: "swift", name: "Swift", badge: "Sw", color: "#ff8a3d", kind: "code",
     stages: [["(", ")"], ["{", "}"], [":"], ["."], ["="], [","], ['"'], ["[", "]"], ["-", ">"], DIGITS, ["$"], ["?"], ["!"], ["<"], ["+"], ["*"], ["\\"], ["_"], ["/"], ["%"], ["&"], ["|"], ["@"], ["#"], ["'"], ["^"], ["~"], ["`"]],
   },
+  kotlin: {
+    id: "kotlin", name: "Kotlin", badge: "Kt", color: "#a97bff", kind: "code",
+    stages: [["(", ")"], ["{", "}"], [":"], ["."], ["="], [","], ['"'], ["<", ">"], ["-"], ["?"], DIGITS, ["[", "]"], ["!"], ["+"], ["$"], ["*"], ["/"], ["%"], ["&"], ["|"], ["_"], ["'"], ["@"], ["\\"], ["#"], ["^"], ["~"], ["`"]],
+  },
 };
 
 /** Lenguajes de programación (ruta por símbolos). */
-export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp", "swift"];
+export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp", "swift", "kotlin"];
 export { TRACK_ORDER, isTrack };
 
 /** Cantidad de niveles: etapas de símbolos o escalones de la ruta Trainee. */
@@ -139,6 +143,17 @@ const SYMBOL_INFO_BY_LANG: Partial<Record<LangId, Record<string, string>>> = {
     "#": "Directivas (#if) y macros como #expect",
     "_": "Omitir la etiqueta de un parámetro (_ nombre)",
     "`": "Usar una palabra reservada como nombre",
+  },
+  kotlin: {
+    "$": "Plantillas de texto ($nombre y ${expresión})",
+    "?": "Tipos que aceptan null (String?), ?. y el operador elvis ?:",
+    "!": "Negación y !! para forzar que no sea null",
+    ":": "Tipos, herencia y :: para referencias a funciones",
+    "-": "Resta, negativos y la flecha -> de lambdas y when",
+    ">": "Mayor que, genéricos y la flecha ->",
+    ".": "Acceso a miembros y rangos (1..10)",
+    "@": "Anotaciones y etiquetas (return@forEach)",
+    "_": "Parámetros que no se usan y separador de miles (1_000)",
   },
   cpp: {
     "#": "#include y directivas del preprocesador",

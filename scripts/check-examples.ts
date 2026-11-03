@@ -259,6 +259,23 @@ const swift: Checker = {
   }),
 };
 
+// ── Kotlin: kotlinc compila; solo cuentan los errores de sintaxis (los fragmentos usan nombres sin declarar) ──
+const KOTLIN_SYNTAX = /error: (expecting|unexpected tokens?|unclosed|incomplete code|syntax error)/i;
+const kotlin: Checker = {
+  name: "Kotlin",
+  missing: needs("kotlinc"),
+  broken: "fun f( {",
+  check: each((code) =>
+    anyOf([code, `fun ejemplo() {\n${code}\n}`, ...splits(code.split("\n")).map(([decls, body]) => `${decls}\nfun ejemplo() {\n${body}\n}`)], (src) => {
+      const f = join(tmp, "ejemplo.kt");
+      writeFileSync(f, src);
+      const r = run("kotlinc", [f, "-d", join(tmp, "kt"), "-nowarn"]);
+      const err = r.out.split("\n").find((l) => KOTLIN_SYNTAX.test(l));
+      return err ? err.slice(err.indexOf(f) + f.length).replace(/^:(\d+):\d+: error: /, "línea $1: ") : null;
+    }),
+  ),
+};
+
 // ── CSS: el parser de esbuild ──
 const css: Checker = {
   name: "CSS",
@@ -358,6 +375,7 @@ function checkerFor(topic: string, e: Entry): Checker | null {
     case "c": return cLang;
     case "cpp": return cppLang;
     case "swift": return swift;
+    case "kotlin": return kotlin;
     case "rust": return rust;
     case "java": return java;
     case "csharp": return csharp;

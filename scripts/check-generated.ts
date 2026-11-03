@@ -1,7 +1,7 @@
 // Compila el código que generan los lenguajes que se sumaron con su compilador real: cada concepto con cada
 // entidad del vocabulario. Así una lección nunca enseña algo que no compila.
 //
-// Cubre C, C++ y Swift. Si falta el compilador, ese lenguaje se saltea con un aviso; con EJEMPLOS_ESTRICTO=1 (CI)
+// Cubre C, C++, Swift y Kotlin. Si falta el compilador, ese lenguaje se saltea con un aviso; con EJEMPLOS_ESTRICTO=1 (CI)
 // falta un compilador es un error.
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -35,7 +35,7 @@ interface Target {
   struct?: (e: Entity) => string;
   /**
    * "each": un archivo por fragmento (C, que no tiene namespaces y compila rápido).
-   * "batch": todos en un archivo, cada uno envuelto para que los nombres no choquen (C++, Swift…).
+   * "batch": todos en un archivo, cada uno envuelto para que los nombres no choquen (C++, Swift, Kotlin…).
    */
   mode: "each" | "batch";
   /** envoltura de un fragmento en modo batch; null si ese fragmento tiene que ir solo (por ejemplo, una extension) */
@@ -84,6 +84,25 @@ const TARGETS: Target[] = [
     ].join("\n"),
     wrap: (s, i) => (s.text.startsWith("extension ") ? null : `enum Fragmento${i} {\n${s.text}\n}`),
     compile: (files) => run("swiftc", ["-typecheck", ...files]),
+  },
+  {
+    lang: "kotlin",
+    compiler: "kotlinc",
+    mode: "batch",
+    ext: "kt",
+    prelude: [
+      "import java.io.File",
+      "import java.io.IOException",
+      "import java.net.URI",
+      "import java.net.http.HttpClient",
+      "import java.net.http.HttpRequest",
+      "import java.net.http.HttpResponse",
+      "import kotlin.math.PI",
+      "",
+      "interface Shape { fun area(): Double }",
+    ].join("\n"),
+    wrap: (s, i) => `object Fragmento${i} {\n${s.text}\n}`,
+    compile: (files) => run("kotlinc", [...files, "-d", join(dir, "kotlin-clases"), "-nowarn"]),
   },
 ];
 

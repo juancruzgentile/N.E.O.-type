@@ -11,8 +11,9 @@ import { rust } from "./lang/rust";
 import { c } from "./lang/c";
 import { cpp } from "./lang/cpp";
 import { swift } from "./lang/swift";
+import { kotlin } from "./lang/kotlin";
 
-export const IMPLS: Record<LangId, LangImpls> = { python, javascript, typescript, java, csharp, go, rust, c, cpp, swift };
+export const IMPLS: Record<LangId, LangImpls> = { python, javascript, typescript, java, csharp, go, rust, c, cpp, swift, kotlin };
 
 /** Símbolos (no letras ni espacios) que usa un texto. */
 export function symbolsOf(text: string): Set<string> {
