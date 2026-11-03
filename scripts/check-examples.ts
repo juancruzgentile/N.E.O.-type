@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { transformSync } from "esbuild";
 import ts from "typescript";
-import { TOPICS } from "../src/library/index";
+import { ALL_TOPICS as TOPICS } from "../src/library/unlock";
 import { entryId } from "../src/library/search";
 import type { Entry } from "../src/library/types";
 
@@ -114,6 +114,7 @@ const tsChecker = (name: string, fileName: string): Checker => ({
 
 const javascript = tsChecker("JavaScript", "ejemplo.js");
 const typescript = tsChecker("TypeScript", "ejemplo.ts");
+const tsx = tsChecker("React (TSX)", "ejemplo.tsx");
 
 // ── Go: gofmt -e (solo parsea). Las declaraciones van arriba y el resto dentro de una función ──
 const goSplit = (code: string) => {
@@ -377,13 +378,18 @@ const yaml = pyParse("yaml", "list(yaml.safe_load_all(sys.stdin))");
 const toml = pyParse("tomllib", "tomllib.loads(sys.stdin.read())");
 
 /** Ejemplos que son comandos de terminal dentro de un tema de lenguaje (pip, npx tsc, go mod, cargo…). */
-const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq|gcc|g\+\+|clang|cmake|ctest|valgrind|make|swift (package|build|test|run)|\.\/gradlew|composer)(?=\s|$)/;
+const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq|gcc|g\+\+|clang|cmake|ctest|valgrind|make|swift (package|build|test|run)|\.\/gradlew|composer|fastapi (dev|run)|django-admin|python3? manage\.py|\.\/mvnw)(?=\s|$)/;
 
 /** Qué revisor le toca a cada ejemplo, o null si no tiene revisión automática. */
 function checkerFor(topic: string, e: Entry): Checker | null {
   if (SHELL_COMMAND.test(e.code.trimStart())) return shell;
   switch (topic) {
-    case "python": return python;
+    case "python":
+    case "fastapi":
+    case "django": return python;
+    case "react": return tsx;
+    case "spring": return java;
+    case "aspnet": return csharp;
     case "javascript": return javascript;
     case "typescript": return typescript;
     case "go": return go;

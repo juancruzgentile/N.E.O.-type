@@ -1,7 +1,8 @@
 import { type CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react";
 import type { AppState, LangId, ReviewItem } from "../types";
 import { highlight } from "../highlight";
-import { GROUPS, SOON, TOPICS, totalEntries } from "../library/index";
+import { GROUPS, SOON } from "../library/index";
+import { visibleTopics } from "../library/unlock";
 import { type Hit, entryId, search } from "../library/search";
 import { type Entry, type Level, LEVELS, type Topic } from "../library/types";
 import { LangEmblem } from "./LangEmblem";
@@ -80,6 +81,9 @@ interface Props {
 }
 
 export function LibraryView({ lang, state, update }: Props) {
+  // los frameworks solo aparecen (también en la búsqueda) una vez ganados
+  const TOPICS = useMemo(() => visibleTopics(state), [state]);
+  const totalEntries = TOPICS.reduce((n, t) => n + t.entries.length, 0);
   const initial = TOPICS.find((t) => t.id === lang)?.id ?? TOPICS[0].id;
   const [sel, setSel] = useState<Selection>({ kind: "topic", id: initial });
   const [query, setQuery] = useState("");
@@ -95,7 +99,7 @@ export function LibraryView({ lang, state, update }: Props) {
   const q = query.trim();
   const hits: Hit[] = useMemo(
     () => (q ? search(onlyTopic && topic ? [topic] : TOPICS, q) : []),
-    [q, onlyTopic, topic],
+    [q, onlyTopic, topic, TOPICS],
   );
 
   // "/" o Ctrl+K enfocan la búsqueda desde cualquier lugar de la biblioteca
@@ -182,7 +186,7 @@ export function LibraryView({ lang, state, update }: Props) {
 
       <div className="lib-layout">
         <nav className="lib-nav" aria-label="Temas de la biblioteca">
-          {GROUPS.map((g) => (
+          {GROUPS.filter((g) => TOPICS.some((t) => t.group === g)).map((g) => (
             <div key={g} className="lib-group">
               <div className="lib-group-name">{g}</div>
               {TOPICS.filter((t) => t.group === g).map((t) => (

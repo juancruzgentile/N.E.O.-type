@@ -22,12 +22,13 @@ npm test        # todas las pruebas (detalle abajo)
 | `npm run test:security` | Validación de datos y CSP del build |
 | `npm run test:examples` | Sintaxis de los ejemplos de la Biblioteca, con el parser de cada lenguaje |
 | `npm run test:projects` | Que los proyectos compilen y pasen sus pruebas |
+| `npm run test:generated` | Que el código que generan C, C++, Swift, Kotlin y PHP compile |
 | `npm run test:e2e` | La app en Chromium real: lección, pegar, Tab, desafío, modo calmo, exportar/importar, menú, proyectos, biblioteca y repaso |
 
 `test:e2e` usa el build (`NeonType.html`) y necesita el navegador una sola vez:
 `npx playwright-core install --only-shell chromium`.
 
-`test:examples` y `test:projects` usan las herramientas de cada lenguaje (Python, Go, javac, dotnet, cargo,
+`test:examples`, `test:projects` y `test:generated` usan las herramientas de cada lenguaje (Python, Go, javac, dotnet, cargo,
 rustfmt…). Si te falta alguna, esa parte se saltea con un aviso; en el CI están todas y no se saltea nada. Para los
 proyectos de FastAPI hacen falta los paquetes de `scripts/requisitos-pruebas.txt`.
 
@@ -92,6 +93,12 @@ funcionar de verdad: sumá en `scripts/check-projects.ts` cómo se compila y se 
 4. `npm run test:logic` revisa que tenga los tres niveles, ejemplos y métodos de trabajo, y que los ids no se repitan.
 5. `npm run test:examples` revisa la sintaxis de los ejemplos. Si el tema es de un lenguaje nuevo, sumale un revisor
    en `scripts/check-examples.ts`.
+
+## Agregar un framework
+
+Los frameworks están en `src/library/frameworks.ts` y se arman igual que un tema de la Biblioteca, más `langs`: los
+lenguajes que lo desbloquean. Tienen que tener un proyecto en alguno de esos lenguajes; si no, nadie podría abrirlo.
+Sumá su revisor en `checkerFor` (`scripts/check-examples.ts`).
 
 ## Agregar o corregir un teclado
 
