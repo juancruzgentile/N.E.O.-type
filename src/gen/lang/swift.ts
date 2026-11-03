@@ -1,8 +1,13 @@
-import { type Field, L, camel, kebab, pascal, plural } from "../base";
+import { type Field, type Nm, L, kebab, pascal, plural } from "../base";
+import { camel as camelBase } from "../base";
 import type { FullCtx, LangImpls } from "../concepts";
 
 // Swift 6: structs con let/var, funciones y propiedades en camelCase, closures con $0 y los métodos de colección
 // (reduce, filter, map, sorted, max).
+
+/** Palabras reservadas de Swift que aparecen como nombre de campo (Document tiene "extension"). */
+const RESERVED: Record<string, string> = { extension: "fileExtension" };
+const camel = (n: Nm) => RESERVED[camelBase(n)] ?? camelBase(n);
 
 const ty = (f: Field) => ({ int: "Int", float: "Double", str: "String", bool: "Bool" })[f.t];
 
