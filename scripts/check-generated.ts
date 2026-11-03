@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { CONCEPTS, ENUM_SETS, type FullCtx, SHAPES } from "../src/gen/concepts";
-import { ENTITIES, type Entity, makeCtx, makeRng } from "../src/gen/base";
+import { ENTITIES, type Entity, makeCtx, makeRng, pascal } from "../src/gen/base";
 import { IMPLS } from "../src/gen/index";
 import type { CodeLangId } from "../src/types";
 
