@@ -154,10 +154,16 @@ const rust: Checker = {
 const javaVariants = (code: string) => {
   const imports = code.split("\n").filter((l) => /^(import|package) /.test(l)).join("\n");
   const rest = code.split("\n").filter((l) => !/^(import|package) /.test(l)).join("\n");
+  // declaraciones (hasta la última llave de cierre en la columna 0) y después el código que las usa
+  const lines = rest.split("\n");
+  const cut = lines.map((l, i) => (l === "}" ? i : -1)).filter((i) => i >= 0).at(-1) ?? -1;
+  const decls = lines.slice(0, cut + 1).join("\n");
+  const body = lines.slice(cut + 1).join("\n");
   return [
     code,
     `${imports}\nclass Ejemplo {\n${rest}\n}`,
     `${imports}\nclass Ejemplo {\nvoid ejemplo() throws Exception {\n${rest}\n}\n}`,
+    `${imports}\nclass Ejemplo {\n${decls}\nvoid ejemplo() throws Exception {\n${body}\n}\n}`,
   ];
 };
 const java: Checker = {

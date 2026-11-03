@@ -71,10 +71,10 @@ public class Cuenta {
 nombre.toUpperCase();
 "a,b,c".split(",");
 String.join("-", partes);
-"""
-Texto
-multilínea
-""";`, "cadena texto equals"),
+String texto = """
+    Texto
+    multilínea
+    """;`, "cadena texto equals"),
 
     m("Colecciones", "List, Map y Set", "Interfaces de colecciones. List.of y Map.of crean colecciones inmutables.", code`
 List<String> nombres = new ArrayList<>();
@@ -89,6 +89,8 @@ public record Punto(int x, int y) {
         if (x < 0) throw new IllegalArgumentException("x negativo");
     }
 }
+
+// donde se usa:
 var p = new Punto(1, 2);
 p.x();`, "registro datos inmutable"),
     m("Clases", "interface y herencia", "Una interface define un contrato; implements lo cumple. extends hereda de una clase.", code`

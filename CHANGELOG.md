@@ -74,6 +74,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   También se precisaron CSS (cascada), Python (asyncio y archivos), YAML (tabulaciones), Rust (unsafe), GitHub
   Actions (v7 y fijar por SHA) y `git reset` (stash y reflog).
 - Los ejercicios de Go capitalizaban palabras cortando el primer byte, lo que rompía texto con tildes o ñ.
+- Biblioteca, Java: el ejemplo de String tenía un text block suelto (`"""…""";`), que no compila; ahora se asigna
+  a una variable. Lo encontró la revisión automática de ejemplos.
 - Node 20 ya no figura como soportado: mínimo 22.12, recomendado una LTS con soporte (24 o 26).
 
 ## [1.6.0] - 2026-11-02
