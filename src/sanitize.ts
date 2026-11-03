@@ -15,7 +15,7 @@ export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 export const byteLength = (s: string) => new TextEncoder().encode(s).length;
 export const MAX_AVATAR_CHARS = 400_000;
 
-const LANG_IDS: LangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp", "swift", "kotlin", "sql", "linux", "html", "css", "formats"];
+const LANG_IDS: LangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp", "swift", "kotlin", "php", "sql", "linux", "html", "css", "formats"];
 const DISTRO_IDS: DistroId[] = ["ubuntu", "debian", "mint", "cachyos", "arch", "fedora"];
 const DB_IDS: DbEngineId[] = ["sqlite", "mysql", "postgresql", "mongodb"];
 const LAYOUT_IDS: LayoutId[] = ["it", "us", "es", "latam"];

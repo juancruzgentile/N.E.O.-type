@@ -3,7 +3,7 @@
 # N.E.O.-type
 
 **Mecanografía para programadores.** Para aprender a teclear código real más rápido: funciones, clases, enums y
-algoritmos de 11 lenguajes, con un modo adaptativo que te hace practicar cada símbolo hasta que te sale solo.
+algoritmos de 12 lenguajes, con un modo adaptativo que te hace practicar cada símbolo hasta que te sale solo.
 
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)
@@ -28,7 +28,7 @@ así de paso se aprende algo.
 
 ## Qué tiene
 
-- **11 lenguajes**: Python, JavaScript, TypeScript, Java, C#, Go, Rust, C, C++, Swift y Kotlin.
+- **12 lenguajes**: Python, JavaScript, TypeScript, Java, C#, Go, Rust, C, C++, Swift, Kotlin y PHP.
 - **5 rutas Trainee** para lo que se usa todos los días: bases de datos (SQLite → MySQL → PostgreSQL → MongoDB),
   terminal Linux (Ubuntu/Mint → Debian → Fedora → CachyOS → Arch), HTML, CSS y formatos (`.env`, `requirements.txt`,
   JSON, `package.json`, YAML, Markdown).
@@ -49,7 +49,7 @@ así de paso se aprende algo.
   stack con Docker, SQL, FastAPI, HTML, CSS y TypeScript. Antes del tablero hay cuatro de transición (C#, una API con
   FastAPI, Bash con Makefile y Docker), para que nada aparezca por primera vez en el último. Se desbloquean en orden y
   guardan tu mejor tiempo.
-- **Biblioteca**: una referencia rápida de 17 temas (los 11 lenguajes, SQL, HTML, CSS, formatos, terminal Linux y Git),
+- **Biblioteca**: una referencia rápida de 18 temas (los 12 lenguajes, SQL, HTML, CSS, formatos, terminal Linux y Git),
   con métodos de trabajo y más de 250 comandos en nivel básico, intermedio y avanzado. Se busca en todo a la vez con `/`
   o `Ctrl+K`, sin importar los acentos. Más adelante quiero sumar IA: Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode,
   Antigravity y Hermes.

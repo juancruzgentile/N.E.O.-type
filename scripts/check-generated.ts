@@ -1,14 +1,14 @@
 // Compila el código que generan los lenguajes que se sumaron con su compilador real: cada concepto con cada
 // entidad del vocabulario. Así una lección nunca enseña algo que no compila.
 //
-// Cubre C, C++, Swift y Kotlin. Si falta el compilador, ese lenguaje se saltea con un aviso; con EJEMPLOS_ESTRICTO=1 (CI)
+// Cubre C, C++, Swift, Kotlin y PHP. Si falta el compilador, ese lenguaje se saltea con un aviso; con EJEMPLOS_ESTRICTO=1 (CI)
 // falta un compilador es un error.
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { CONCEPTS, ENUM_SETS, type FullCtx, SHAPES } from "../src/gen/concepts";
-import { ENTITIES, type Entity, makeCtx, makeRng } from "../src/gen/base";
+import { ENTITIES, type Entity, makeCtx, makeRng, pascal } from "../src/gen/base";
 import { IMPLS } from "../src/gen/index";
 import type { CodeLangId } from "../src/types";
 
@@ -33,6 +33,8 @@ interface Target {
   prelude: string;
   /** declaración del tipo de cada entidad: por defecto, la que genera el propio classDef del lenguaje */
   struct?: (e: Entity) => string;
+  /** lo que cierra la cabecera después de los tipos (en PHP, el namespace global) */
+  afterStructs?: string;
   /**
    * "each": un archivo por fragmento (C, que no tiene namespaces y compila rápido).
    * "batch": todos en un archivo, cada uno envuelto para que los nombres no choquen (C++, Swift, Kotlin…).
@@ -104,6 +106,21 @@ const TARGETS: Target[] = [
     wrap: (s, i) => `object Fragmento${i} {\n${s.text}\n}`,
     compile: (files) => run("kotlinc", [...files, "-d", join(dir, "kotlin-clases"), "-nowarn"]),
   },
+  {
+    lang: "php",
+    compiler: "php",
+    mode: "batch",
+    ext: "php",
+    // namespaces con llaves: lo global va en "namespace { }" y cada fragmento en el suyo, importando los tipos
+    prelude: "<?php\ndeclare(strict_types=1);\n\nnamespace {\ninterface Shape { public function area(): float; }",
+    afterStructs: "}",
+    // classDef declara su propia clase: no puede importar otra con el mismo nombre
+    wrap: (s, i) =>
+      `namespace Fragmento${i} {\nuse Shape, InvalidArgumentException, RuntimeException;\n` +
+      `${s.concept === "classDef" ? "" : ENTITIES.map((e) => `use ${pascal(e.s)};`).join("\n")}\n\n${s.text}\n}`,
+    // ejecutar (no solo php -l): al declarar las clases PHP también verifica herencia, interfaces y firmas
+    compile: ([f]) => run("php", ["-d", "display_errors=stderr", f]),
+  },
 ];
 
 /** El tipo de una entidad tal como lo declara el generador del lenguaje (classDef con esa entidad). */
@@ -137,7 +154,7 @@ function snippetsOf(lang: CodeLangId): (Snippet & { ent: Entity })[] {
   return out;
 }
 
-const errLines = (out: string) => out.split("\n").filter((l) => /error/.test(l));
+const errLines = (out: string) => out.split("\n").filter((l) => /error/i.test(l));
 
 let problems = 0;
 const missing: string[] = [];
@@ -165,7 +182,7 @@ for (const t of TARGETS) {
     });
   } else {
     // un archivo con todas las entidades y los fragmentos envueltos; los que no se pueden envolver van aparte
-    const header = `${t.prelude}\n\n${ENTITIES.map((e) => structOf(t, e)).join("\n\n")}\n`;
+    const header = `${t.prelude}\n\n${ENTITIES.map((e) => structOf(t, e)).join("\n\n")}\n${t.afterStructs ?? ""}\n`;
     const ranges: { from: number; to: number; s: Snippet }[] = [];
     let body = header;
     const alone: Snippet[] = [];
@@ -183,7 +200,8 @@ for (const t of TARGETS) {
       // cada error dice "archivo:línea:": se busca a qué fragmento pertenece
       const hit = new Set<Snippet>();
       for (const line of errLines(r.out)) {
-        const m = /:(\d+):\d+: error/.exec(line);
+        // "archivo:12:3: error" (compiladores) o "... on line 12" (PHP)
+        const m = /:(\d+):\d+: error/.exec(line) ?? / on line (\d+)/.exec(line);
         const owner = m && ranges.find((x) => +m[1] >= x.from && +m[1] <= x.to);
         if (owner && !hit.has(owner.s)) {
           hit.add(owner.s);

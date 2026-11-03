@@ -276,6 +276,21 @@ const kotlin: Checker = {
   ),
 };
 
+// ── PHP: php -l. Si el ejemplo no abre <?php (ni es una plantilla HTML), se le agrega ──
+const php: Checker = {
+  name: "PHP",
+  missing: needs("php"),
+  broken: "<?php function f( {",
+  check: each((code) => {
+    const f = join(tmp, "ejemplo.php");
+    writeFileSync(f, code.startsWith("<") ? code : `<?php\n${code}`);
+    const r = run("php", ["-l", "-d", "display_errors=stdout", f]);
+    if (r.ok) return null;
+    const err = r.out.split("\n").find((l) => /error/i.test(l)) ?? r.out;
+    return err.replace(` in ${f}`, "").replace(/^PHP /, "");
+  }),
+};
+
 // ── CSS: el parser de esbuild ──
 const css: Checker = {
   name: "CSS",
@@ -362,7 +377,7 @@ const yaml = pyParse("yaml", "list(yaml.safe_load_all(sys.stdin))");
 const toml = pyParse("tomllib", "tomllib.loads(sys.stdin.read())");
 
 /** Ejemplos que son comandos de terminal dentro de un tema de lenguaje (pip, npx tsc, go mod, cargo…). */
-const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq|gcc|g\+\+|clang|cmake|ctest|valgrind|make|swift (package|build|test|run))(?=\s|$)/;
+const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq|gcc|g\+\+|clang|cmake|ctest|valgrind|make|swift (package|build|test|run)|\.\/gradlew|composer)(?=\s|$)/;
 
 /** Qué revisor le toca a cada ejemplo, o null si no tiene revisión automática. */
 function checkerFor(topic: string, e: Entry): Checker | null {
@@ -376,6 +391,7 @@ function checkerFor(topic: string, e: Entry): Checker | null {
     case "cpp": return cppLang;
     case "swift": return swift;
     case "kotlin": return kotlin;
+    case "php": return php;
     case "rust": return rust;
     case "java": return java;
     case "csharp": return csharp;

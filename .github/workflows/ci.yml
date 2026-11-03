@@ -75,6 +75,11 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: "10.0.x"
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: "8.4"
+          coverage: none
+          tools: none
       - name: Rust con rustfmt
         run: rustup toolchain install stable --profile minimal --component rustfmt && rustup default stable
       - run: npm ci
@@ -84,5 +89,5 @@ jobs:
         run: npm run test:examples
       - name: Los proyectos compilan y funcionan
         run: npm run test:projects
-      - name: El código que generan C y C++ compila
+      - name: El código que generan C, C++, Swift, Kotlin y PHP compila
         run: npm run test:generated

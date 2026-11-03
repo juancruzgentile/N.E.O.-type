@@ -64,10 +64,14 @@ export const LANGS: Record<LangId, LangInfo> = {
     id: "kotlin", name: "Kotlin", badge: "Kt", color: "#a97bff", kind: "code",
     stages: [["(", ")"], ["{", "}"], [":"], ["."], ["="], [","], ['"'], ["<", ">"], ["-"], ["?"], DIGITS, ["[", "]"], ["!"], ["+"], ["$"], ["*"], ["/"], ["%"], ["&"], ["|"], ["_"], ["'"], ["@"], ["\\"], ["#"], ["^"], ["~"], ["`"]],
   },
+  php: {
+    id: "php", name: "PHP", badge: "PHP", color: "#8892ff", kind: "code",
+    stages: [["(", ")"], ["$"], [";"], ["{", "}"], [":"], ["="], ["-", ">"], [","], ["'"], ["[", "]"], DIGITS, ["!"], ["<"], ["+"], ["?"], ["."], ['"'], ["*"], ["/"], ["%"], ["&"], ["|"], ["_"], ["\\"], ["@"], ["#"], ["^"], ["~"], ["`"]],
+  },
 };
 
 /** Lenguajes de programación (ruta por símbolos). */
-export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp", "swift", "kotlin"];
+export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp", "swift", "kotlin", "php"];
 export { TRACK_ORDER, isTrack };
 
 /** Cantidad de niveles: etapas de símbolos o escalones de la ruta Trainee. */
@@ -154,6 +158,21 @@ const SYMBOL_INFO_BY_LANG: Partial<Record<LangId, Record<string, string>>> = {
     ".": "Acceso a miembros y rangos (1..10)",
     "@": "Anotaciones y etiquetas (return@forEach)",
     "_": "Parámetros que no se usan y separador de miles (1_000)",
+  },
+  php: {
+    "$": "Todas las variables empiezan con $",
+    "-": "Resta, negativos y la flecha -> para entrar a un objeto",
+    ">": "Mayor que, -> y => (arrays y funciones flecha)",
+    "=": "Asignación, => en arrays y la comparación estricta ===",
+    ".": "Concatenación de cadenas",
+    ":": "Tipo de retorno, :: para lo estático y match",
+    "?": "Tipos nullable (?string), ?? y ?->",
+    "\\": "Separador de namespaces (App\\Modelos)",
+    "@": "Silenciar errores de una llamada (con cuidado)",
+    "#": "Atributos #[...] y comentarios",
+    "'": "Cadenas que no interpolan variables",
+    '"': "Cadenas que interpolan variables",
+    "<": "Menor que, <?php y la nave espacial <=>",
   },
   cpp: {
     "#": "#include y directivas del preprocesador",
