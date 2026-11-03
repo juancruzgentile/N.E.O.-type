@@ -21,6 +21,7 @@ import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
 import { TypingSession } from "../src/engine/session";
 import { SOON, TOPICS } from "../src/library/index";
 import { entryId, normalize, search } from "../src/library/search";
+import { PROJECTS, projectUnlocked } from "../src/projects/projects";
 import { INTERVALS, addDays, daysBetween, dueCount, findEntry, grade, pickDue, practiceFor, practiceText, reviewLesson, whenText } from "../src/review/review";
 
 let failed = 0;
@@ -576,6 +577,17 @@ for (const [lang, code] of [
   ok(!("b" in m3.achievements) && m3.achievements.c === 3, "lo que borró esta ventana se borra y lo nuevo de la otra se suma");
   const same = { ...base, settings: { ...base.settings, targetWpm: 50 } };
   ok(mergeStates(base, same, { ...base, settings: { ...base.settings, targetWpm: 35 } }).settings.targetWpm === 50, "si las dos cambiaron lo mismo, gana esta ventana");
+}
+
+// ── desbloqueo de proyectos ──
+{
+  const at = (id: string) => PROJECTS.findIndex((p) => p.id === id);
+  const rec = { ms: 60000, wpm: 30, acc: 1, ts: 1 };
+  ok(projectUnlocked({}, 0) && !projectUnlocked({}, 1), "sin nada hecho, solo el primero está abierto");
+  ok(projectUnlocked({ p09: rec }, at("p11")) && !projectUnlocked({ p09: rec }, at("p10")), "terminar el 9 abre el gestor de notas, no el tablero");
+  ok(projectUnlocked({ p14: rec }, at("p10")), "el tablero se abre al terminar el acortador");
+  ok(projectUnlocked({ p10: rec }, at("p10")), "si ya terminaste el tablero cuando era el 10, sigue abierto");
+  ok(PROJECTS.every((p, i) => p.num === i + 1) && PROJECTS.at(-1)?.id === "p10", "el tablero es el 14 y conserva su id");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de lógica pasaron");

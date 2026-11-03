@@ -64,7 +64,9 @@ Registrá los cambios visibles en `CHANGELOG.md`, en la sección de la próxima 
 
 ## Agregar o cambiar un proyecto
 
-Los proyectos están en `src/projects/projects.ts`, en orden de dificultad. Cada archivo indica su resaltado y el ancho
+Los proyectos están en `src/projects/projects.ts`, en orden de dificultad. El orden lo da `num`; el `id` no se cambia
+nunca, porque los récords se guardan con él (por eso el tablero full stack sigue siendo `p10` aunque sea el 14). Para
+escribir `${` dentro de un proyecto, poné `\${`. Cada archivo indica su resaltado y el ancho
 de la sangría (`tabWidth`; 0 si usa tabulaciones reales, como Go o Makefile, y entonces se escribe con `tabs`).
 `npm run check` verifica que cada proyecto sea más largo que el anterior, que sea ASCII sin espacios finales ni
 `` ` `` o `~`, que las sangrías sean coherentes y que se pueda escribir con los cuatro teclados. El código tiene que

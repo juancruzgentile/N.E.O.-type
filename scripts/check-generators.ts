@@ -95,8 +95,12 @@ for (const id of TRACK_ORDER) {
 {
   const bad = (p: string, msg: string) => { problems++; console.log(`[${p}] ${msg}`); };
   let prev = 0;
+  // los ids no se renumeran (los récords se guardan con ellos), pero tienen que ser únicos y con el formato que acepta sanitize
+  const ids = new Set<string>();
   PROJECTS.forEach((p, i) => {
-    if (p.num !== i + 1 || p.id !== `p${String(i + 1).padStart(2, "0")}`) bad(p.id, "número o id fuera de orden");
+    if (p.num !== i + 1) bad(p.id, `número fuera de orden (${p.num}, se esperaba ${i + 1})`);
+    if (!/^p\d{2}$/.test(p.id) || ids.has(p.id)) bad(p.id, "id repetido o con formato inválido");
+    ids.add(p.id);
     const size = projectChars(p);
     // cada proyecto tiene que ser más largo que el anterior
     if (size <= prev) bad(p.id, `no es más largo que el anterior (${size} <= ${prev})`);
@@ -121,7 +125,9 @@ for (const id of TRACK_ORDER) {
     }
     console.log(`proyecto ${p.num.toString().padStart(2)} ${p.title.padEnd(30)} archivos: ${p.files.length} | líneas: ${projectLines(p)} | caracteres: ${size}`);
   });
-  if (PROJECTS.length !== 10) bad("proyectos", `hay ${PROJECTS.length}, se esperaban 10`);
+  if (PROJECTS.length !== 14) bad("proyectos", `hay ${PROJECTS.length}, se esperaban 14`);
+  // el tablero full stack conserva su id de cuando era el 10
+  if (PROJECTS.at(-1)?.id !== "p10") bad("proyectos", "el último tiene que seguir siendo p10 (el tablero full stack)");
 }
 console.log(problems ? `PROBLEMAS: ${problems}` : "OK sin problemas");
 // sin esto CI aprobaba aunque hubiera problemas

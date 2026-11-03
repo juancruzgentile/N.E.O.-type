@@ -337,7 +337,7 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall, onSh
 
       <div className="section" id="proyectos">PROYECTOS</div>
       <div className="sub">
-        Diez programas completos para escribir de punta a punta, en el menor tiempo posible. Acá las sangrías no se
+        Catorce programas completos para escribir de punta a punta, en el menor tiempo posible. Acá las sangrías no se
         saltan: se escriben con Tab o con espacios, como en un editor. Cada proyecto se desbloquea al terminar el
         anterior, y el último junta varios lenguajes en una aplicación entera. Los errores no avanzan y el reloj solo
         corre mientras escribís.
