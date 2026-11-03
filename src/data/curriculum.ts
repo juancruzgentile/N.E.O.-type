@@ -56,10 +56,14 @@ export const LANGS: Record<LangId, LangInfo> = {
     id: "cpp", name: "C++", badge: "C++", color: "#f34b7d", kind: "code",
     stages: [["(", ")"], [";"], ["{", "}"], [":"], ["<", ">"], ["&"], ["."], [","], ["="], ["_"], ['"'], ["[", "]"], DIGITS, ["+"], ["-"], ["!"], ["*"], ["|"], ["%"], ["/"], ["\\"], ["'"], ["?"], ["#"], ["^"], ["~"]],
   },
+  swift: {
+    id: "swift", name: "Swift", badge: "Sw", color: "#ff8a3d", kind: "code",
+    stages: [["(", ")"], ["{", "}"], [":"], ["."], ["="], [","], ['"'], ["[", "]"], ["-", ">"], DIGITS, ["$"], ["?"], ["!"], ["<"], ["+"], ["*"], ["\\"], ["_"], ["/"], ["%"], ["&"], ["|"], ["@"], ["#"], ["'"], ["^"], ["~"], ["`"]],
+  },
 };
 
 /** Lenguajes de programación (ruta por símbolos). */
-export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp"];
+export const LANG_ORDER: CodeLangId[] = ["python", "javascript", "typescript", "java", "csharp", "go", "rust", "c", "cpp", "swift"];
 export { TRACK_ORDER, isTrack };
 
 /** Cantidad de niveles: etapas de símbolos o escalones de la ruta Trainee. */
@@ -121,6 +125,20 @@ const SYMBOL_INFO_BY_LANG: Partial<Record<LangId, Record<string, string>>> = {
     "|": "El operador lógico || y OR de bits",
     "{": "Bloques de código e inicializadores",
     "_": "Nombres en snake_case",
+  },
+  swift: {
+    "$": "Parámetros abreviados de las closures ($0, $1)",
+    "\\": "Interpolación \\( ) y key paths (\\.nombre)",
+    "?": "Opcionales (Int?), ?. y ??",
+    "!": "Negación y desenvolver un opcional a la fuerza",
+    "-": "Resta, negativos y la flecha -> del tipo de retorno",
+    ">": "Mayor que y la flecha ->",
+    "<": "Menor que, genéricos <T> y rangos ..<",
+    ".": "Acceso a miembros, rangos ... y casos de enum (.algo)",
+    "@": "Atributos como @State y @MainActor",
+    "#": "Directivas (#if) y macros como #expect",
+    "_": "Omitir la etiqueta de un parámetro (_ nombre)",
+    "`": "Usar una palabra reservada como nombre",
   },
   cpp: {
     "#": "#include y directivas del preprocesador",
