@@ -47,7 +47,7 @@ for (const mode of ["advance", "strict"] as const) {
 // ── copias de seguridad ──
 ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF-8 (igual que File.size)");
 {
-  // estado grande y válido: 48 perfiles × 500 lecciones (el caso de la auditoría)
+  // estado grande y válido: un perfil por lenguaje y teclado, con 500 lecciones cada uno (el caso de la auditoría)
   const big: AppState = initialState();
   const lesson: LessonResult = { ts: 1_700_000_000_000, wpm: 61.234567, acc: 0.98765, chars: 240, ms: 52_345, score: 1234, kind: "code" };
   const langs = [...LANG_ORDER, ...TRACK_ORDER];
@@ -56,7 +56,8 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
     big.profiles[`${lang}:${layout}`] = { ...emptyProfile(), lessons, totals: totalsOf(lessons) };
   }
   const json = serializeState(big);
-  ok(Object.keys(big.profiles).length === 48, "estado de prueba con 48 perfiles");
+  const expected = langs.length * Object.keys(LAYOUTS).length;
+  ok(Object.keys(big.profiles).length === expected, `estado de prueba con ${expected} perfiles`);
   ok(!json.includes("\n"), "la exportación es JSON compacto");
   ok(byteLength(json) <= MAX_IMPORT_BYTES, `una exportación grande entra en el límite (${byteLength(json)} bytes)`);
   let restored: AppState | null = null;

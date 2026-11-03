@@ -53,6 +53,22 @@ interface Checker {
 const each = (f: (code: string) => Result) => (codes: string[]) => codes.map(f);
 const needs = (...tools: string[]) => () => tools.find((t) => !has(t)) ?? null;
 
+/**
+ * Formas de separar un fragmento en "declaraciones" y "código que las usa": se corta en cada llave de cierre en la
+ * columna 0, y el código puede ir antes o después de las declaraciones. Devuelve pares [declaraciones, código].
+ */
+const splits = (lines: string[]): [string, string][] => {
+  const cuts = lines.map((l, i) => (/^\};?$/.test(l) ? i : -1)).filter((i) => i >= 0);
+  const out: [string, string][] = [];
+  for (const cut of cuts) {
+    out.push([lines.slice(0, cut + 1).join("\n"), lines.slice(cut + 1).join("\n")]);
+    // código arriba y declaración abajo: la declaración empieza en la primera línea en la columna 0 antes del corte
+    const start = lines.slice(0, cut).findLastIndex((l, i) => /^\S/.test(l) && (i === 0 || lines[i - 1].trim() === ""));
+    if (start > 0) out.push([lines.slice(start, cut + 1).join("\n"), [...lines.slice(0, start), ...lines.slice(cut + 1)].join("\n")]);
+  }
+  return out;
+};
+
 // ── Python: ast.parse, en un solo proceso ──
 const python: Checker = {
   name: "Python",
@@ -154,16 +170,11 @@ const rust: Checker = {
 const javaVariants = (code: string) => {
   const imports = code.split("\n").filter((l) => /^(import|package) /.test(l)).join("\n");
   const rest = code.split("\n").filter((l) => !/^(import|package) /.test(l)).join("\n");
-  // declaraciones (hasta la última llave de cierre en la columna 0) y después el código que las usa
-  const lines = rest.split("\n");
-  const cut = lines.map((l, i) => (l === "}" ? i : -1)).filter((i) => i >= 0).at(-1) ?? -1;
-  const decls = lines.slice(0, cut + 1).join("\n");
-  const body = lines.slice(cut + 1).join("\n");
   return [
     code,
     `${imports}\nclass Ejemplo {\n${rest}\n}`,
     `${imports}\nclass Ejemplo {\nvoid ejemplo() throws Exception {\n${rest}\n}\n}`,
-    `${imports}\nclass Ejemplo {\n${decls}\nvoid ejemplo() throws Exception {\n${body}\n}\n}`,
+    ...splits(rest.split("\n")).map(([decls, body]) => `${imports}\nclass Ejemplo {\n${decls}\nvoid ejemplo() throws Exception {\n${body}\n}\n}`),
   ];
 };
 const java: Checker = {
@@ -193,6 +204,45 @@ const csharp: Checker = {
     return lines.map((l) => (l.startsWith("OK") ? null : l.slice("ERROR ".length)));
   },
 };
+
+// ── C y C++: se compila y solo cuentan los errores de sintaxis (los fragmentos usan variables sin declarar) ──
+const SYNTAX_ERROR = /error: (expected|stray|missing terminating|unterminated|extraneous|expected expression|function definition is not allowed)/;
+const cVariants = (code: string, lang: "c" | "cpp") => {
+  const lines = code.split("\n");
+  // en C++ hace falta saber qué nombres son tipos para poder parsear: se incluyen los headers estándar de uso común
+  const std = lang === "c"
+    ? ["stdio.h", "stdlib.h", "string.h", "stdbool.h", "stddef.h", "errno.h", "ctype.h"]
+    : ["algorithm", "concepts", "format", "iostream", "map", "memory", "optional", "ranges", "stdexcept", "string", "unordered_map", "vector"];
+  const pre = [...std.map((h) => `#include <${h}>`), ...lines.filter((l) => l.startsWith("#"))].join("\n");
+  const rest = lines.filter((l) => !l.startsWith("#"));
+  const fn = lang === "c" ? "void ejemplo_(void)" : "void ejemplo_()";
+  return [
+    `${pre}\n${rest.join("\n")}`,
+    `${pre}\n${fn}\n{\n${rest.join("\n")}\n}`,
+    ...splits(rest).map(([decls, body]) => `${pre}\n${decls}\n${fn}\n{\n${body}\n}`),
+  ];
+};
+const cFamily = (lang: "c" | "cpp"): Checker => {
+  const compiler = lang === "c" ? "gcc" : "g++";
+  return {
+    name: lang === "c" ? "C" : "C++",
+    missing: needs(compiler),
+    broken: "int f( { }",
+    check: each((code) =>
+      anyOf(cVariants(code, lang), (src) => {
+        const f = join(tmp, lang === "c" ? "ejemplo.c" : "ejemplo.cpp");
+        writeFileSync(f, src);
+        // -c en vez de -fsyntax-only: algunos envoltorios de compilador (zig cc) fallan con -fsyntax-only
+        const r = run(compiler, [lang === "c" ? "-std=c17" : "-std=c++20", "-w", "-c", "-o", join(tmp, "ejemplo.o"), f]);
+        if (r.ok) return null;
+        const err = r.out.split("\n").find((l) => SYNTAX_ERROR.test(l));
+        return err ? err.slice(err.indexOf(f) + f.length).replace(/^:(\d+):\d+: error: /, "línea $1: ") : null;
+      }),
+    ),
+  };
+};
+const cLang = cFamily("c");
+const cppLang = cFamily("cpp");
 
 // ── CSS: el parser de esbuild ──
 const css: Checker = {
@@ -280,7 +330,7 @@ const yaml = pyParse("yaml", "list(yaml.safe_load_all(sys.stdin))");
 const toml = pyParse("tomllib", "tomllib.loads(sys.stdin.read())");
 
 /** Ejemplos que son comandos de terminal dentro de un tema de lenguaje (pip, npx tsc, go mod, cargo…). */
-const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq)\b/;
+const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq|gcc|g\+\+|clang|cmake|ctest|valgrind|make)(?=\s|$)/;
 
 /** Qué revisor le toca a cada ejemplo, o null si no tiene revisión automática. */
 function checkerFor(topic: string, e: Entry): Checker | null {
@@ -290,6 +340,8 @@ function checkerFor(topic: string, e: Entry): Checker | null {
     case "javascript": return javascript;
     case "typescript": return typescript;
     case "go": return go;
+    case "c": return cLang;
+    case "cpp": return cppLang;
     case "rust": return rust;
     case "java": return java;
     case "csharp": return csharp;

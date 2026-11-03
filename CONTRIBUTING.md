@@ -51,7 +51,11 @@ Registrá los cambios visibles en `CHANGELOG.md`, en la sección de la próxima 
 2. Registralo en `IMPLS` (`src/gen/index.ts`) y en `LangId` (`src/types.ts`).
 3. Definí su ruta de símbolos en `src/data/curriculum.ts`. Conviene que los primeros símbolos permitan generar
    código real pronto (`npm run check` informa desde qué etapa aparece).
-4. Agregá palabras clave para el resaltado en `src/highlight.ts`.
+4. Agregá palabras clave para el resaltado en `src/highlight.ts`, el monograma en `src/components/LangEmblem.tsx` y
+   el id en `LANG_IDS` (`src/sanitize.ts`).
+5. Si algún símbolo significa otra cosa en ese lenguaje (en C, `#` es el preprocesador), sumá su descripción en
+   `SYMBOL_INFO_BY_LANG` (`src/data/curriculum.ts`).
+6. Compilá lo que genera: el código tiene que ser válido de verdad, no solo parecerlo.
 
 ## Agregar una ruta Trainee
 

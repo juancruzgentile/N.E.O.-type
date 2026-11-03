@@ -43,6 +43,12 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   Linux/Windows o de Mac (nueva opción en Ajustes), con selección, y en Linux también acepta Ctrl+Shift+Alt+↓ para
   duplicar. Los atajos que el navegador no deja practicar se listan aparte. Tab siempre saca el foco del editor.
 
+- **C y C++** como lenguajes nuevos, con su ruta de símbolos (C empieza por `( ) ; { } = *` y C++ por
+  `( ) ; { } :`), generadores de código propio (structs, punteros, qsort y archivos en C; vector, ranges, optional,
+  format y clases en C++) y un tema para cada uno en la Biblioteca. Todo lo que generan se compiló con
+  `-Wall -Wextra -Werror` antes de sumarlo.
+- Las descripciones de los símbolos pueden cambiar según el lenguaje: en C y C++, `#` es el preprocesador y `::`,
+  `->` y `&` dicen lo que significan ahí.
 - **4 proyectos nuevos** antes del tablero full stack, para que la dificultad suba de a poco: un gestor de notas en
   C# (no había ninguno en C#), una API de recetas con FastAPI y sus pruebas, copias de seguridad con Bash y Makefile,
   y un acortador de enlaces con SQLite, Dockerfile y Docker Compose. El tablero pasa a ser el proyecto 14.

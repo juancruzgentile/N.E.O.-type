@@ -84,3 +84,5 @@ jobs:
         run: npm run test:examples
       - name: Los proyectos compilan y funcionan
         run: npm run test:projects
+      - name: El código que generan C y C++ compila
+        run: npm run test:generated

@@ -7,7 +7,7 @@ import { LANGS, LANG_ORDER, TRACK_ORDER } from "../data/curriculum";
  * Es un diseño propio: no usa los logos oficiales, que son marcas registradas.
  */
 
-const MONO: Record<LangId, string> = { python: "PY", javascript: "JS", typescript: "TS", java: "JV", csharp: "C#", go: "GO", rust: "RS", sql: "DB", linux: ">_", html: "<>", css: "{}", formats: "FM" };
+const MONO: Record<LangId, string> = { python: "PY", javascript: "JS", typescript: "TS", java: "JV", csharp: "C#", go: "GO", rust: "RS", c: "C", cpp: "C++", sql: "DB", linux: ">_", html: "<>", css: "{}", formats: "FM" };
 
 /** código de barras determinístico por lenguaje */
 function bars(lang: LangId): [number, number][] {
@@ -43,7 +43,7 @@ export function LangEmblem({ lang, size = 56 }: { lang: LangId; size?: number })
         </>
       )}
       {/* monograma con aberración cromática */}
-      <g fontFamily="'Chakra Petch', sans-serif" fontWeight="700" fontSize={small ? 26 : 22} textAnchor="middle" letterSpacing="-0.5">
+      <g fontFamily="'Chakra Petch', sans-serif" fontWeight="700" fontSize={(small ? 26 : 22) * (mono.length > 2 ? 0.75 : 1)} textAnchor="middle" letterSpacing="-0.5">
         <text x={small ? 33.5 : 34.6} y={small ? 41 : 39} fill="#ff003c" opacity="0.85">{mono}</text>
         <text x={small ? 30.5 : 31.4} y={small ? 41 : 39} fill="#02d7f2" opacity="0.85">{mono}</text>
         <text x={small ? 32 : 33} y={small ? 41 : 39} fill="var(--strong)">{mono}</text>

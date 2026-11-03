@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AppState, LangId, Lesson, LessonResult, Profile, Sample } from "../types";
-import { LANGS, SYMBOL_INFO, isTrack, stageCount } from "../data/curriculum";
+import { LANGS, isTrack, stageCount, symbolInfo } from "../data/curriculum";
 import { TRACKS } from "../tracks/index";
 import type { Step } from "../tracks/types";
 import { KeyLearner, LAYOUTS, comboMap, comboText, keyLabel, layoutFor, readKey } from "../data/layouts";
@@ -543,7 +543,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
           <div className="frame glow modal" onClick={(e) => e.stopPropagation()}>
             <div className="kicker">NUEVO SÍMBOLO DESBLOQUEADO</div>
             <div className="big">{unlock.length > 4 ? "0-9" : unlock.join(" ")}</div>
-            <p>{SYMBOL_INFO[unlock[0]] ?? ""}</p>
+            <p>{symbolInfo(unlock[0], lang)}</p>
             {unlock.slice(0, 4).map((ch) => (
               <div key={ch} className="combo">{ch} → {comboText(layout, ch)}</div>
             ))}
