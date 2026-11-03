@@ -2,8 +2,8 @@
 
 # N.E.O.-type
 
-**Mecanografía para programadores.** Aprendé a teclear código real más rápido: funciones, clases, enums y algoritmos
-de 7 lenguajes, con un sistema adaptativo que te entrena cada símbolo hasta dominarlo.
+**Mecanografía para programadores.** Para aprender a teclear código real más rápido: funciones, clases, enums y
+algoritmos de 7 lenguajes, con un modo adaptativo que te hace practicar cada símbolo hasta que te sale solo.
 
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)
@@ -17,58 +17,66 @@ de 7 lenguajes, con un sistema adaptativo que te entrena cada símbolo hasta dom
 
 </div>
 
-## ¿Qué es?
+## Por qué la hice
 
-Los tutores de mecanografía clásicos entrenan palabras. Al programar, lo que frena son los símbolos: `[] {} () => -> :: != &&`.
-N.E.O.-type te hace tipear **código real** —nunca se ejecuta, es solo para entrenar los dedos— y cada fragmento viene con
-un título que explica qué hace.
+Los tutores de mecanografía entrenan palabras, pero cuando programo lo que me frena no son las palabras: son los
+símbolos. `[] {} () => -> :: != &&`. Quería algo que me hiciera tipear **código de verdad**, en los lenguajes que uso,
+y que insistiera con los símbolos que peor me salen hasta que dejaran de costarme. Como no encontré algo así, lo armé.
+
+El código que aparece nunca se ejecuta: es solo para entrenar los dedos. Cada fragmento trae un título que dice qué hace,
+así de paso se aprende algo.
+
+## Qué tiene
 
 - **7 lenguajes**: Python, JavaScript, TypeScript, Java, C#, Go y Rust.
-- **5 rutas Trainee**: bases de datos (SQLite → MySQL → PostgreSQL → MongoDB), terminal Linux (Ubuntu/Mint → Debian →
-  Fedora → CachyOS → Arch), HTML, CSS y formatos (`.env`, `requirements.txt`, JSON, `package.json`, YAML, Markdown).
-- **Modo guiado adaptativo**: empezás con `(` y `)`. Cada símbolo nuevo se practica con ejercicios dirigidos y después con
-  funciones reales que lo usan. El símbolo más débil es el *foco* y aparece en todas las lecciones.
-- **Desbloqueo exigente**: la siguiente etapa se abre solo cuando todos tus símbolos superan el mínimo de pulsaciones,
-  la velocidad objetivo y la precisión mínima (configurables).
-- **Código infinito**: ~40 conceptos × 22 entidades de dominio × variantes por lenguaje → cientos de funciones distintas.
-- **4 teclados físicos**: italiano, inglés (EE. UU.), español (España) y español (Latinoamérica), con la tecla, el dedo y
-  los modificadores (Shift / AltGr) del siguiente carácter.
-- **Tu teclado real**: si escribís un símbolo con otra tecla o modificador, la app lo aprende sola mientras
-  practicás. También podés calibrarlo de una vez desde Ajustes.
-- **Modo libre y desafíos**: sprints de 30/60/120 s y "precisión perfecta", con récords.
+- **5 rutas Trainee** para lo que se usa todos los días: bases de datos (SQLite → MySQL → PostgreSQL → MongoDB),
+  terminal Linux (Ubuntu/Mint → Debian → Fedora → CachyOS → Arch), HTML, CSS y formatos (`.env`, `requirements.txt`,
+  JSON, `package.json`, YAML, Markdown).
+- **Modo guiado adaptativo**: arrancás solo con `(` y `)`. Cada símbolo nuevo se practica primero con ejercicios
+  dirigidos y después con funciones reales que lo usan. El símbolo que peor te sale pasa a ser el *foco* y aparece en
+  todas las lecciones.
+- **No regala nada**: la siguiente etapa se abre recién cuando todos tus símbolos tienen suficientes pulsaciones, la
+  velocidad objetivo y la precisión mínima. Las tres cosas se pueden ajustar.
+- **Código que no se repite**: ~40 conceptos × 22 entidades de dominio × variantes por lenguaje, así que salen cientos
+  de funciones distintas.
+- **4 teclados físicos**: italiano, inglés (EE. UU.), español (España) y español (Latinoamérica). Te muestra la tecla,
+  el dedo y si hace falta Shift o AltGr para el siguiente carácter.
+- **Se adapta a tu teclado real**: si escribís un símbolo con otra tecla o modificador del que espera, lo aprende solo
+  mientras practicás. También lo podés calibrar de una vez desde Ajustes.
+- **Modo libre y desafíos**: sprints de 30, 60 y 120 s y "precisión perfecta", con récords.
 - **10 proyectos contra reloj**: programas completos para escribir de punta a punta, sangrías incluidas (Tab o
-  espacios, tabulaciones reales en Go y Makefile). Van de una calculadora en Python a un tablero de tareas full stack
-  con Docker, SQL, FastAPI, HTML, CSS y TypeScript, y se desbloquean en orden. Se guarda tu mejor tiempo.
-- **Biblioteca**: referencia rápida de 13 temas (los 7 lenguajes, SQL, HTML, CSS, formatos, terminal Linux y Git) con
-  métodos de trabajo y más de 250 comandos en niveles básico, intermedio y avanzado. Búsqueda instantánea en todo
-  (`/` o `Ctrl+K`), sin importar acentos. Próximamente: IA, Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode,
+  espacios; en Go y Makefile, tabulaciones reales). Van desde una calculadora en Python hasta un tablero de tareas full
+  stack con Docker, SQL, FastAPI, HTML, CSS y TypeScript. Se desbloquean en orden y guardan tu mejor tiempo.
+- **Biblioteca**: una referencia rápida de 13 temas (los 7 lenguajes, SQL, HTML, CSS, formatos, terminal Linux y Git),
+  con métodos de trabajo y más de 250 comandos en nivel básico, intermedio y avanzado. Se busca en todo a la vez con `/`
+  o `Ctrl+K`, sin importar los acentos. Más adelante quiero sumar IA: Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode,
   Antigravity y Hermes.
 - **Practicar y repasar**: cada ejemplo de la Biblioteca tiene un botón **Practicar este ejemplo** que lo convierte en
-  una lección corta. Lo que practicás queda en tu repaso y vuelve cada tanto, intercalado en tus lecciones normales:
-  si lo hacés bien tarda más en volver (1, 3, 7, 15 y 30 días); si fallás, vuelve al día siguiente.
-- **Ejercicios de memoria** (en Desafíos): leés una consigna, como «deshacé el último commit sin perder los cambios»,
-  y escribís el comando o el código sin verlo. Git, terminal Linux, SQL, Python y JavaScript, en tres niveles que se
-  abren en orden. Valen varias respuestas; los detalles de estilo se aceptan con un aviso y un error que cambia lo
-  que hace el comando no deja avanzar, pero te dice qué revisar y te da una pista.
-- **Atajos de editor** (en Desafíos): un editor de práctica donde llegás a un texto objetivo usando los atajos de
-  **Vim** (movimientos, `dw`, `ci"`, `3dd`, `.` …) o de **VS Code** (mover, duplicar, comentar y borrar líneas,
-  saltar por palabras…). Cada ejercicio tiene un par de teclas para las tres estrellas y se guarda tu mejor marca.
-  Los atajos de VS Code siguen el juego de Linux/Windows o el de Mac, según Ajustes. Los que el navegador no deja
-  usar (Ctrl+W, Ctrl+T, Ctrl+N…) se enseñan en una lista aparte.
-- **Estadísticas**: evolución de velocidad y precisión, mapa de calor del teclado, calendario de práctica.
-- **Música generativa**: 7 estaciones (lo-fi, lluvia, synthwave, espacio, zen, jazz y foco) sintetizadas en vivo con
-  Web Audio, sin archivos ni licencias de por medio. Nunca suenan exactamente igual. También podés cargar tus propias
-  canciones: quedan guardadas en el navegador.
-- **Interfaz viva**: teclado flotante, fondo de partículas que late con la música, chispas de la tecla al código,
-  brillo según tu racha de aciertos y animación al desbloquear cada símbolo. Todo se apaga desde Ajustes y respeta
-  la preferencia del sistema de reducir movimiento.
-- **Logros y temas**: 27 logros con insignias y 6 temas de color (Cyber, Neón, Synthwave, Matrix, Tokio noche y Claro),
-  con una estética cyberpunk que nunca toca la legibilidad del código.
-- **Tu perfil y menú principal**: pantalla de inicio con efecto de cartel de neón, tu nombre y tu foto (o uno de los
-  12 avatares incluidos), y un menú para ir a cada sección. El botón Menú vuelve a él después de confirmar.
-- **Tutorial de bienvenida**: un mensaje inicial y un recorrido corto que señala lo básico de la pantalla de
-  práctica. Se maneja con el teclado y se puede repetir desde Ajustes.
-- **100 % offline**: el build es un único `NeonType.html` que se abre con doble clic. El progreso queda en tu navegador.
+  una lección corta. Lo que practicás entra en tu repaso y vuelve cada tanto, mezclado con las lecciones normales: si
+  te sale bien tarda más en volver (1, 3, 7, 15 y 30 días) y si fallás vuelve al día siguiente.
+- **Ejercicios de memoria** (en Desafíos): leés una consigna, por ejemplo «deshacé el último commit sin perder los
+  cambios», y escribís el comando o el código sin verlo. Hay 60, de Git, terminal Linux, SQL, Python y JavaScript, en
+  tres niveles que se abren en orden. Se aceptan varias respuestas. Los detalles de estilo pasan con un aviso; un error
+  que cambia lo que hace el comando no te deja avanzar, pero te dice qué revisar y te da una pista.
+- **Atajos de editor** (en Desafíos): un editor de práctica donde tenés que llegar a un texto objetivo usando los
+  atajos de **Vim** (movimientos, `dw`, `ci"`, `3dd`, `.` …) o de **VS Code** (mover, duplicar, comentar y borrar
+  líneas, saltar por palabras…). Son 24 ejercicios; cada uno tiene una cantidad de teclas para sacar las tres
+  estrellas y se guarda tu mejor marca. Los atajos de VS Code siguen los de Linux/Windows o los de Mac, según lo que
+  elijas en Ajustes. Los que el navegador no deja usar (Ctrl+W, Ctrl+T, Ctrl+N…) están en una lista aparte.
+- **Estadísticas**: evolución de velocidad y precisión, mapa de calor del teclado y calendario de práctica.
+- **Música generativa**: 7 estaciones (lo-fi, lluvia, synthwave, espacio, zen, jazz y foco) que se sintetizan en vivo
+  con Web Audio, sin archivos ni licencias de por medio, así que nunca suenan igual. También podés cargar tus propias
+  canciones y quedan guardadas en el navegador.
+- **Interfaz con vida**: teclado flotante, fondo de partículas que late con la música, chispas de la tecla al código,
+  brillo según tu racha y una animación cada vez que desbloqueás un símbolo. Todo se puede apagar desde Ajustes, y si
+  tu sistema pide reducir el movimiento, la app lo respeta.
+- **Logros y temas**: 27 logros con insignias y 6 temas de color (Cyber, Neón, Synthwave, Matrix, Tokio noche y
+  Claro). La estética es cyberpunk, pero sin sacrificar la legibilidad del código.
+- **Tu perfil y menú principal**: pantalla de inicio con efecto de cartel de neón, tu nombre y tu foto (o uno de los 12
+  avatares que trae), y un menú para ir a cada sección. El botón Menú te devuelve ahí, después de confirmar.
+- **Tutorial de bienvenida**: un mensaje inicial y un recorrido corto por la pantalla de práctica. Se maneja con el
+  teclado y se puede repetir desde Ajustes.
+- **100 % offline**: el build es un único `NeonType.html` que se abre con doble clic. Tu progreso queda en tu navegador.
 
 <table>
   <tr>
@@ -95,7 +103,8 @@ un título que explica qué hace.
 
 ## Empezar
 
-Requiere [Node.js](https://nodejs.org). Recomendado: una versión LTS con soporte, como Node 24 o 26. Mínimo: 22.12 (lo exige Vite 7). Node 20 todavía puede compilarlo, pero ya no recibe actualizaciones de seguridad, así que no lo tomamos como soportado.
+Requiere [Node.js](https://nodejs.org). Te recomiendo una versión LTS con soporte, como Node 24 o 26. El mínimo es 22.12, porque lo exige Vite 7. Node 20
+todavía lo compila, pero ya no recibe parches de seguridad, así que no lo cuento como soportado.
 
 ```bash
 git clone https://github.com/juancruzgentile/N.E.O.-type.git
@@ -106,7 +115,7 @@ npm run build      # genera NeonType.html, autocontenido
 
 Abrí `NeonType.html` con doble clic. Para desarrollar con recarga en caliente: `npm run dev`.
 
-Atajos para quien no quiera usar la terminal:
+Si no querés usar la terminal, tenés estos scripts:
 
 | | Windows | Linux |
 | --- | --- | --- |
@@ -122,7 +131,7 @@ Atajos para quien no quiera usar la terminal:
 | `npm run build` | Typecheck + build de un solo archivo (`dist/index.html` → `NeonType.html`) |
 | `npm run check` | Genera miles de fragmentos y verifica que ninguno use símbolos fuera de la ruta de su lenguaje |
 | `npm test` | Corre todas las pruebas de abajo |
-| `npm run test:logic` | Progreso, desbloqueos, logros, resaltado y canciones guardadas |
+| `npm run test:logic` | Progreso, desbloqueos, logros, resaltado, canciones guardadas, ejercicios de memoria y atajos de editor |
 | `npm run test:regression` | Tests de regresión: motor de sesiones, copias de seguridad, conceptos, música y modo calmo |
 | `npm run test:security` | Tests de validación de datos y de la Content Security Policy del build |
 | `npm run test:e2e` | La app en un Chromium real (requiere `npm run build` y, una vez, `npx playwright-core install --only-shell chromium`) |
@@ -138,7 +147,7 @@ Atajos para quien no quiera usar la terminal:
 
 ## Rutas Trainee
 
-Además de los lenguajes, hay rutas para las herramientas que se usan todos los días. En lugar de símbolos, avanzan por
+Además de los lenguajes, hay rutas para las herramientas de todos los días. En vez de símbolos, avanzan por
 **escalones** ordenados por dificultad:
 
 | Ruta | Escalones |
@@ -174,7 +183,7 @@ src/
 ├── gen/
 │   ├── base.ts          # vocabulario de dominio, nombres (snake/camel/Pascal), español
 │   ├── concepts.ts      # conceptos y sus títulos
-│   ├── lang/            # un generador por lenguaje
+│   ├── lang/            # un generador por lenguaje (jsts.ts sirve para JavaScript y TypeScript)
 │   ├── drills.ts        # ejercicios de símbolos
 │   └── index.ts         # elige fragmentos según los símbolos permitidos
 ├── tracks/
@@ -188,12 +197,24 @@ src/
 │   └── projects.ts      # los 10 proyectos (archivos, sangría de cada uno y orden de desbloqueo)
 ├── library/
 │   ├── types.ts         # estructura de un tema: resumen, datos, métodos de trabajo y entradas por nivel
-│   ├── <tema>.ts        # contenido de cada lenguaje o herramienta
+│   ├── <tema>.ts        # contenido de cada lenguaje o herramienta (web.ts: HTML y CSS; tools.ts: formatos, Linux y Git)
 │   ├── search.ts        # búsqueda sin acentos, por relevancia
 │   └── index.ts         # orden de los temas y la sección Próximamente
+├── recall/
+│   ├── exercises.ts     # los ejercicios de memoria, por tema y nivel
+│   └── check.ts         # corrige la respuesta: qué es un detalle de estilo y qué es un error
+├── review/
+│   └── review.ts        # repaso espaciado de lo practicado en la Biblioteca
+├── shortcuts/
+│   ├── buffer.ts        # el texto y el cursor del editor de práctica
+│   ├── vim.ts           # modos, operadores, movimientos y objetos de texto de Vim
+│   ├── vscode.ts        # atajos de VS Code (Linux/Windows y Mac)
+│   └── exercises.ts     # los ejercicios de atajos y sus estrellas
 ├── engine/
 │   ├── session.ts       # procesa cada pulsación (y las sangrías escritas a mano de los proyectos)
-│   └── stats.ts         # estadísticas, foco, desbloqueo, elección de lección
+│   ├── stats.ts         # estadísticas, foco, desbloqueo, elección de lección
+│   ├── achievements.ts  # los 27 logros
+│   └── totals.ts        # totales de todo el historial
 ├── audio/
 │   ├── music.ts         # motor de música generativa (instrumentos, estaciones, secuenciador)
 │   └── tracks.ts        # canciones del usuario en IndexedDB
@@ -204,10 +225,18 @@ src/
 
 ### Rendimiento
 
-En una app de mecanografía la latencia importa más que cualquier efecto. Por eso las animaciones de cada pulsación
+En una app de mecanografía la latencia importa más que cualquier efecto, así que las animaciones de cada pulsación
 se aplican directo sobre el DOM, el fondo se dibuja en un canvas limitado a ~30 fps que se pausa con la pestaña
 oculta, y los movimientos continuos usan solo `transform` y `opacity`. Los ciclos de las auroras (31, 43 y 59 s) y del
 teclado (13, 17 y 23 s) son números primos para que las capas casi nunca vuelvan a coincidir.
+
+## Cómo la hice
+
+N.E.O.-type la armé con [Claude Code](https://claude.com/claude-code), el asistente de programación de Anthropic.
+Las ideas, qué entra y qué no, cómo se tiene que sentir y probarla son cosa mía; buena parte del código y de los
+textos la fue escribiendo Claude Code a partir de lo que yo le pedía y le corregía. Después de cada tanda de cambios
+le hago auditar el proyecto entero, y lo que aparece queda anotado en `correcciones.txt` y en el
+[CHANGELOG](CHANGELOG.md).
 
 ## Privacidad y seguridad
 
@@ -223,8 +252,8 @@ Detalles y cómo reportar un problema: [SECURITY.md](SECURITY.md). Historial de 
 
 ## Contribuir
 
-Las contribuciones son bienvenidas: nuevos lenguajes, conceptos, teclados o mejoras de la interfaz.
-Mirá [CONTRIBUTING.md](CONTRIBUTING.md).
+Si querés sumar algo (un lenguaje, conceptos, un teclado o mejoras en la interfaz), bienvenido.
+Antes mirá [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licencia
 
@@ -232,5 +261,5 @@ Mirá [CONTRIBUTING.md](CONTRIBUTING.md).
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Los nombres de los lenguajes son marcas de sus titulares y se usan solo para identificarlos; los emblemas son diseños
-propios. La idea de la práctica adaptativa está inspirada en [keybr.com](https://www.keybr.com), pero N.E.O.-type es
-una implementación independiente que no reutiliza su código ni su diseño.
+propios. La idea de la práctica adaptativa la saqué de [keybr.com](https://www.keybr.com), pero N.E.O.-type es una
+implementación independiente: no usa su código ni su diseño.

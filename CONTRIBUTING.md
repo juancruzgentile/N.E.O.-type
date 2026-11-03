@@ -17,10 +17,10 @@ npm test        # todas las pruebas (detalle abajo)
 | Comando | Qué prueba |
 | --- | --- |
 | `npm run check` | Generadores de código |
-| `npm run test:logic` | Progreso, logros, resaltado y canciones guardadas |
+| `npm run test:logic` | Progreso, logros, resaltado, canciones guardadas, ejercicios de memoria y atajos de editor |
 | `npm run test:regression` | Errores ya corregidos (ver `correcciones.txt`) |
 | `npm run test:security` | Validación de datos y CSP del build |
-| `npm run test:e2e` | La app en Chromium real: lección, pegar, Tab, desafío, modo calmo, exportar/importar, menú, proyectos y biblioteca |
+| `npm run test:e2e` | La app en Chromium real: lección, pegar, Tab, desafío, modo calmo, exportar/importar, menú, proyectos, biblioteca y repaso |
 
 `test:e2e` usa el build (`NeonType.html`) y necesita el navegador una sola vez:
 `npx playwright-core install --only-shell chromium`.
