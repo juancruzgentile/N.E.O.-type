@@ -83,7 +83,7 @@ strncat(nombre, " Paz", sizeof nombre - strlen(nombre) - 1);
 if (strcmp(nombre, "Ana Paz") == 0) {
     printf("%s tiene %zu letras\n", nombre, strlen(nombre));
 }`, "string texto strcmp strlen"),
-    b("Entrada y salida", "fgets y sscanf", "fgets lee una línea completa sin desbordar el buffer; después se interpreta con sscanf o strtol.", code`
+    b("Entrada y salida", "fgets y sscanf", "fgets lee hasta el fin de línea o hasta llenar el buffer, sin desbordarlo: si la línea es más larga, el resto queda para la próxima lectura. Después se interpreta con sscanf o strtol.", code`
 char linea[64];
 int edad;
 if (fgets(linea, sizeof linea, stdin) != NULL && sscanf(linea, "%d", &edad) == 1) {
@@ -183,14 +183,17 @@ size_t lista_largo(const Lista *lista);
 void lista_destruir(Lista *lista);
 
 #endif`, "header include define modulo"),
-    a("Errores", "Errores con errno", "Las funciones de la biblioteca indican el fallo con el valor de retorno y dejan el motivo en errno.", code`
+    a("Errores", "Errores con errno", "Muchas funciones de la biblioteca dejan el motivo del fallo en errno; hay que ponerlo en 0 antes y mirarlo solo si la función indica error. Con strtol, además, fin dice hasta dónde leyó: si no avanzó o sobró texto, no era un número.", code`
 #include <errno.h>
 #include <string.h>
 
+char *fin;
 errno = 0;
 long valor = strtol(texto, &fin, 10);
-if (errno == ERANGE || fin == texto) {
-    fprintf(stderr, "numero invalido: %s\n", strerror(errno));
+if (fin == texto || *fin != '\0') {
+    fprintf(stderr, "no es un numero: %s\n", texto);
+} else if (errno == ERANGE) {
+    fprintf(stderr, "fuera de rango: %s\n", strerror(errno));
 }`, "error manejo strtol perror"),
     a("Memoria", "valgrind y sanitizers", "Herramientas para encontrar fugas, accesos inválidos y comportamiento indefinido.", code`
 gcc -g -fsanitize=address,undefined main.c -o app && ./app

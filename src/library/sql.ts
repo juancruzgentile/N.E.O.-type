@@ -67,13 +67,15 @@ SELECT categoria, COUNT(*) AS cantidad, AVG(precio) AS promedio
 FROM productos
 GROUP BY categoria
 HAVING COUNT(*) > 5;`, "agrupar contar sumar promedio having"),
-    m("Esquema", "Claves foráneas", "REFERENCES hace que la relación apunte a una fila que existe y ON DELETE define qué pasa al borrar. PostgreSQL y MySQL (InnoDB) lo controlan siempre; SQLite solo si activás PRAGMA foreign_keys en cada conexión.", code`
+    m("Esquema", "Claves foráneas", "FOREIGN KEY hace que la relación apunte a una fila que existe y ON DELETE define qué pasa al borrar. Escribila como restricción aparte: MySQL ignora el REFERENCES puesto directo en la columna, sin avisar. PostgreSQL y MySQL (InnoDB) la controlan siempre; SQLite solo si activás PRAGMA foreign_keys en cada conexión.", code`
 PRAGMA foreign_keys = ON;   -- solo SQLite, en cada conexión
 
 CREATE TABLE pedidos (
     id INTEGER PRIMARY KEY,
-    cliente_id INTEGER NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
-    total NUMERIC(10, 2) NOT NULL CHECK (total >= 0)
+    cliente_id INTEGER NOT NULL,
+    total NUMERIC(10, 2) NOT NULL CHECK (total >= 0),
+    CONSTRAINT fk_pedidos_cliente
+        FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 );`, "foreign key relacion integridad"),
     m("Esquema", "ALTER TABLE", "Modifica una tabla existente: agregar o renombrar columnas, restricciones. RENAME COLUMN existe desde MySQL 8.0 y SQLite 3.25.", code`
 ALTER TABLE usuarios ADD COLUMN telefono VARCHAR(30);
@@ -126,7 +128,7 @@ SELECT * FROM pedidos WHERE cliente_id = 42;`, "plan optimizar analizar"),
 cur.execute("SELECT * FROM usuarios WHERE email = ?", (email,))
 -- Node (pg)
 await db.query("SELECT * FROM usuarios WHERE email = $1", [email]);`, "inyeccion sql injection seguridad"),
-    a("MongoDB", "MongoDB: find y updateOne", "Base documental: guarda objetos JSON en colecciones. Las consultas son objetos.", code`
+    a("MongoDB", "MongoDB: find y updateOne", "Base documental: guarda documentos BSON (parecidos a JSON, con más tipos, como fechas y ObjectId) en colecciones. Las consultas son objetos.", code`
 db.tareas.insertOne({ titulo: "Comprar", hecha: false, tags: ["casa"] });
 db.tareas.find({ hecha: false, tags: "casa" }).sort({ creada: -1 }).limit(10);
 db.tareas.updateOne({ _id: id }, { $set: { hecha: true } });`, "mongo nosql documentos"),

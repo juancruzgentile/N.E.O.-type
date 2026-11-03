@@ -11,6 +11,7 @@ import { makeRng } from "../src/gen/base";
 import { LANG_ORDER } from "../src/data/curriculum";
 import { TRACK_ORDER } from "../src/tracks/index";
 import { TOPICS } from "../src/library/index";
+import { ALL_TOPICS } from "../src/library/unlock";
 import { go as goGen } from "../src/gen/lang/go";
 import { LAYOUTS } from "../src/data/layouts";
 import type { AppState, LessonResult } from "../src/types";
@@ -221,6 +222,29 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   const out = goGen.capitalize!({} as never);
   const code = Array.isArray(out) ? out.join("\n") : out;
   ok(!/word\[:1\]/.test(code) && /\[\]rune\(word\)/.test(code), "Go: CapitalizeWords trabaja con runas, no con el primer byte");
+}
+
+// ── auditoría de la Biblioteca del 2026-11-03 (bd327bb) ──
+{
+  const entry = (topic: string, name: string) => ALL_TOPICS.find((t) => t.id === topic)!.entries.find((e) => e.name === name)!;
+  const fk = entry("sql", "Claves foráneas");
+  const inline = fk.code.split("\n").filter((l) => /REFERENCES/.test(l) && !/FOREIGN KEY/.test(l));
+  ok(/FOREIGN KEY \(\w+\) REFERENCES/.test(fk.code) && inline.length === 0, "SQL: la clave foránea es una restricción aparte (MySQL ignora REFERENCES en la columna)");
+  // los hooks de React no se llaman sueltos, fuera de un componente
+  const react = ALL_TOPICS.find((t) => t.id === "react")!;
+  const loose = react.entries.filter((e) => /^(const|let) [^=]+= use[A-Z]\w*\(/m.test(e.code)).map((e) => e.name);
+  ok(loose.length === 0, `React: ningún hook fuera de un componente${loose.length ? " — " + loose.join(", ") : ""}`);
+  const modelo = entry("django", "Modelos").code;
+  const usados = [...entry("django", "Transacciones y F").code.matchAll(/F\("(\w+)"\)/g)].map((m) => m[1]);
+  ok(usados.every((campo) => new RegExp(`^\\s+${campo} = models\\.`, "m").test(modelo)), "Django: los campos que usa F() existen en el modelo Producto");
+  ok(/\*fin != '\\0'/.test(entry("c", "Errores con errno").code), "C: strtol revisa que no sobre texto después del número");
+  ok(!/línea completa/.test(entry("c", "fgets y sscanf").desc), "C: fgets no promete leer siempre la línea completa");
+  ok(!/vacío/.test(entry("cpp", "Semántica de movimiento").code), "C++: no promete que el objeto movido quede vacío");
+  // en lenguajes compilados, un cuerpo /* ... */ deja la función sin el valor que promete
+  const compiled = ["rust", "c", "cpp", "java", "csharp", "go", "swift", "kotlin"];
+  const stubs = ALL_TOPICS.filter((t) => compiled.includes(t.id)).flatMap((t) => t.entries.filter((e) => /\{\s*\/\*\s*\.\.\.\s*\*\/\s*\}/.test(e.code)).map((e) => `${t.id}: ${e.name}`));
+  ok(stubs.length === 0, `ningún ejemplo de un lenguaje compilado tiene un cuerpo /* ... */${stubs.length ? " — " + stubs.join(", ") : ""}`);
+  ok(/user-secrets[^.]*variables de entorno/.test(ALL_TOPICS.find((t) => t.id === "aspnet")!.workflow.map((w) => w.text).join(" ")), "ASP.NET: las variables de entorno pisan a user-secrets");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");

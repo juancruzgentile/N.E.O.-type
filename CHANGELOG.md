@@ -45,14 +45,14 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 
 - **C y C++** como lenguajes nuevos, con su ruta de símbolos (C empieza por `( ) ; { } = *` y C++ por
   `( ) ; { } :`), generadores de código propio (structs, punteros, qsort y archivos en C; vector, ranges, optional,
-  format y clases en C++) y un tema para cada uno en la Biblioteca. Todo lo que generan se compiló con
-  `-Wall -Wextra -Werror` antes de sumarlo.
+  format y clases en C++) y un tema para cada uno en la Biblioteca. El CI compila con `-Wall -Wextra -Werror`
+  una muestra de lo que generan: cada concepto con cada entidad del vocabulario.
 - **Swift**: ruta de símbolos (arranca con `( ) { } :`), generador de código (structs, closures con `$0`,
-  opcionales, guard, async/await) y tema en la Biblioteca. El CI compila todo lo que genera con `swiftc`.
+  opcionales, guard, async/await) y tema en la Biblioteca. El CI compila con `swiftc` una muestra de lo que genera.
 - **Kotlin**: ruta de símbolos (arranca con `( ) { } : . =`), generador de código (data classes, funciones de
-  una expresión, `copy`, `require`, operaciones de colección) y tema en la Biblioteca. El CI compila todo con `kotlinc`.
+  una expresión, `copy`, `require`, operaciones de colección) y tema en la Biblioteca. El CI compila con `kotlinc` una muestra de lo que genera.
 - **PHP**: ruta de símbolos (arranca con `( ) $ ; { } :`), generador de código (clases con propiedades promovidas,
-  `fn() =>`, `match`, `<=>` y las funciones `array_*`) y tema en la Biblioteca. El CI ejecuta lo que genera con PHP 8.4.
+  `fn() =>`, `match`, `<=>` y las funciones `array_*`) y tema en la Biblioteca. El CI ejecuta con PHP 8.4 una muestra de lo que genera.
 - **Frameworks**, una sección oculta de la Biblioteca: no aparece en el menú ni en la búsqueda hasta que se gana.
   Cada framework se abre por su lenguaje, al terminar la ruta de ese lenguaje (con cualquier teclado) y al menos un
   proyecto que lo use. Arranca con React (TypeScript o JavaScript), FastAPI y Django (Python), Spring Boot (Java) y
@@ -74,6 +74,21 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ### Cambiado
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
+
+### Corregido (auditoría del 2026-11-03 sobre bd327bb)
+- Biblioteca, SQL: la clave foránea ahora es una restricción aparte (`FOREIGN KEY (...) REFERENCES`). MySQL ignoraba
+  sin avisar el `REFERENCES` puesto en la columna, así que el ejemplo no protegía nada ahí.
+- Biblioteca, React: `useReducer` y `useMemo` se llaman dentro de un componente, como exigen las reglas de los hooks.
+- Biblioteca, Django: el modelo Producto declara `stock`, que usa el ejemplo de transacciones con `F()`.
+- Biblioteca, C: `fgets` puede leer solo parte de una línea larga; el ejemplo de `strtol` ahora rechaza texto sobrante
+  (`12abc`) y solo mira `errno` cuando corresponde.
+- Biblioteca, C++: `std::move` no mueve por sí solo, y el objeto movido queda válido pero con valor no especificado
+  (no necesariamente vacío).
+- Biblioteca, Rust: el ejemplo de `Option` tenía una función vacía que no compilaba; ahora busca de verdad.
+- Biblioteca, ASP.NET Core: el orden de la configuración estaba mal (las variables de entorno pisan a user-secrets).
+- Biblioteca, Bash: `set -e` no corta dentro de `if`, `&&` o `||`; antes se presentaba como garantía total.
+- Biblioteca: faltaban `cd mi-app` (Vite) y `cd Tienda` (ASP.NET); MongoDB guarda documentos BSON, no "objetos JSON".
+- Cada uno de estos errores tiene su prueba en `test:regression`.
 
 ### Corregido (auditoría del 2026-11-02 sobre 94b0fcc)
 - Con la app abierta en dos ventanas, la que guardaba última borraba los cambios de la otra. Ahora las ventanas se

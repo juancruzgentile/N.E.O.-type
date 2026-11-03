@@ -175,15 +175,16 @@ public:
 private:
     double r_;
 };`, "herencia polimorfismo virtual override"),
-    a("Memoria", "Semántica de movimiento", "std::move transfiere los recursos de un objeto a otro en vez de copiarlos.", code`
+    a("Memoria", "Semántica de movimiento", "std::move no mueve nada por sí solo: convierte el objeto en un rvalue para que se elija el constructor o la asignación de movimiento, que se lleva sus recursos en vez de copiarlos. El original queda válido pero con un valor no especificado: solo asignale otro o dejalo destruirse.", code`
 std::vector<std::string> nombres;
 std::string nombre = "un texto largo";
-nombres.push_back(std::move(nombre));   // nombre queda vacío pero válido
+nombres.push_back(std::move(nombre));   // nombre: válido, valor no especificado
+nombre = "otro";                        // reasignarlo sí está bien
 
 std::vector<int> crear()
 {
     std::vector<int> v(1000);
-    return v;   // se mueve, no se copia
+    return v;   // el compilador puede construirlo directo en destino; si no, lo mueve
 }`, "move mover rvalue copia"),
     a("Algoritmos", "std::ranges", "C++20: algoritmos que reciben el contenedor entero y vistas que se encadenan con |.", code`
 #include <ranges>

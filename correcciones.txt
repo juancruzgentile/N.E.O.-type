@@ -180,3 +180,29 @@ AUDITORÍA v1.6.0 (commit 94b0fcc, 2026-11-02)
 14. (Media) CapitalizeWords en Go cortaba el primer byte. → Trabaja con runas. (src/gen/lang/go.ts)
 PENDIENTE: ficha por entrada (fuente, fecha de revisión, versión mínima) y compilar automáticamente los
 ejemplos completos de cada lenguaje.
+
+AUDITORÍA DE LA BIBLIOTECA — 2026-11-03 (Codex, sobre novedades/frameworks, commit bd327bb)
+1. (Media) SQL: la clave foránea iba como REFERENCES en la columna, que MySQL 8 ignora sin avisar.
+   → Restricción aparte: CONSTRAINT ... FOREIGN KEY (...) REFERENCES ... (src/library/sql.ts)
+2. (Media) React: useReducer y useMemo aparecían fuera de un componente.
+   → Los dos ejemplos ahora tienen el componente alrededor. (src/library/frameworks.ts)
+3. (Media) Django: «Transacciones y F» usaba stock, que el modelo Producto no declaraba.
+   → El modelo declara stock y la entrada aclara que usa ese modelo. (src/library/frameworks.ts)
+4. (Media) C: fgets no siempre lee la línea completa; el ejemplo de strtol usaba errno sin que hiciera falta y
+   aceptaba «12abc». → Descripción corregida; el ejemplo revisa fin y *fin. Compilado y probado con
+   42, 12abc, abc y un número fuera de rango. (src/library/c.ts)
+5. (Media) C++: std::move se presentaba como transferencia y el objeto movido como «vacío».
+   → Explica que solo habilita el movimiento y que el origen queda válido con valor no especificado. (src/library/cpp.ts)
+6. (Media) Rust: «Option y Result» tenía una función con cuerpo /* ... */ que no compila (E0308).
+   → La función busca de verdad en un slice. Sin compilador de Rust en la máquina: revisado a mano. (src/library/rust.ts)
+7. (Baja) ASP.NET Core: el orden de configuración ponía user-secrets después de las variables de entorno.
+   → Orden correcto, con los argumentos de la línea de comandos al final. (src/library/frameworks.ts)
+8. (Baja) Bash: set -euo pipefail se presentaba como garantía total. → Aclara las excepciones (if, &&, ||). (src/library/tools.ts)
+9. (Menor) Faltaban cd mi-app y cd Tienda; MongoDB guarda documentos BSON. → Corregidos.
+10. La documentación decía que «todo lo generado compila»: es una muestra (cada concepto con cada entidad).
+    → README, CONTRIBUTING, CHANGELOG y check-generated.ts lo dicen así.
+Pruebas de regresión: las 8 nuevas fallan con el contenido anterior y pasan con el nuevo.
+SIN CAMBIOS, POR DISEÑO: los frameworks se abren con la ruta del lenguaje y cualquier proyecto que lo use, no un
+proyecto con ese framework (fue la opción B elegida). Solo FastAPI tiene proyectos propios hoy.
+PENDIENTE: ficha por entrada (fuente oficial, fecha de revisión, versión mínima); marcar qué ejemplos son
+fragmentos y cuáles completos; compilar (no solo parsear) los ejemplos de Rust, Java y C#.
