@@ -140,6 +140,7 @@ Si no querés usar la terminal, tenés estos scripts:
 | `npm run test:security` | Tests de validación de datos y de la Content Security Policy del build |
 | `npm run test:examples` | Revisa la sintaxis de los ejemplos de la Biblioteca con el parser de cada lenguaje |
 | `npm run test:projects` | Compila los proyectos y corre sus pruebas, para que el código que se escribe funcione de verdad |
+| `npm run test:generated` | Compila el código que generan C, C++, Swift, Kotlin y PHP con su compilador real |
 | `npm run test:e2e` | La app en un Chromium real (requiere `npm run build` y, una vez, `npx playwright-core install --only-shell chromium`) |
 | `npm run audit` | Auditoría de vulnerabilidades y firmas de las dependencias |
 
