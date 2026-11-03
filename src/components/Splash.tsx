@@ -95,7 +95,6 @@ export function Splash({ name, avatar, onEnter, quick = false }: Props) {
             </span>
           ))}
         </h1>
-        <div className="splash-tag">ESCRIBE UN MEJOR MAÑANA</div>
 
         <div className={`splash-body ${ready ? "show" : ""}`} onClick={(e) => firstRun && e.stopPropagation()}>
           {firstRun ? (

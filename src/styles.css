@@ -165,7 +165,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .brand { display: flex; align-items: center; gap: 14px; font-family: var(--brand); font-weight: 800; font-size: 30px; letter-spacing: 1px; white-space: nowrap; }
 .brand .prompt { color: var(--cyan); text-shadow: 0 0 14px var(--cyan); }
 .brand .type { color: var(--cyan); text-shadow: 0 0 18px color-mix(in srgb, var(--cyan) 70%, transparent); }
-.tagline { border-left: 1px solid var(--line2); padding-left: 16px; font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--muted); line-height: 1.6; text-transform: uppercase; }
 .pill {
   display: flex; align-items: center; gap: 10px;
   padding: 9px 20px; border: 1px solid var(--line2); background: var(--panel2);
@@ -456,7 +455,6 @@ button.pill:hover { border-color: var(--cyan); background: var(--cyan-soft); }
   .sidebar { display: none; }
   .app { grid-template-rows: auto auto 1fr auto; }
   .metrics { grid-template-columns: repeat(2, 1fr); }
-  .tagline { display: none; }
   .header { flex-wrap: wrap; row-gap: 10px; }
   .key { --u: 38px; height: 40px; }
   .key .main { font-size: 16px; }
@@ -662,7 +660,6 @@ html.calm .toast { animation: none !important; opacity: 1; transform: none; }
   52% { opacity: 0.35; }
   56%, 100% { opacity: 1; text-shadow: 0 0 10px var(--glow), 0 0 28px var(--glow), 0 0 70px color-mix(in srgb, var(--glow) 50%, transparent); }
 }
-.splash-tag { margin-top: 10px; font-family: var(--mono); letter-spacing: 8px; color: var(--muted); opacity: 0; animation: fadeUp 0.8s ease 1.5s forwards; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .splash-body { margin-top: 34px; opacity: 0; transform: translateY(10px); transition: opacity 0.6s ease, transform 0.6s ease; pointer-events: none; }
 .splash-body.show { opacity: 1; transform: none; pointer-events: auto; }
