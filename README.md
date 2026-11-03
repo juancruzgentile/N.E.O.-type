@@ -53,6 +53,8 @@ así de paso se aprende algo.
   con métodos de trabajo y más de 250 comandos en nivel básico, intermedio y avanzado. Se busca en todo a la vez con `/`
   o `Ctrl+K`, sin importar los acentos. Más adelante quiero sumar IA: Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode,
   Antigravity y Hermes.
+- **Una sección secreta**: hay algo en la Biblioteca que no aparece en ningún lado hasta que te lo ganás. No da
+  pistas en el menú ni en la búsqueda. Lo único que te digo es que tiene que ver con terminar rutas y proyectos.
 - **Practicar y repasar**: cada ejemplo de la Biblioteca tiene un botón **Practicar este ejemplo** que lo convierte en
   una lección corta. Lo que practicás entra en tu repaso y vuelve cada tanto, mezclado con las lecciones normales: si
   te sale bien tarda más en volver (1, 3, 7, 15 y 30 días) y si fallás vuelve al día siguiente.
@@ -202,6 +204,8 @@ src/
 ├── library/
 │   ├── types.ts         # estructura de un tema: resumen, datos, métodos de trabajo y entradas por nivel
 │   ├── <tema>.ts        # contenido de cada lenguaje o herramienta (web.ts: HTML y CSS; tools.ts: formatos, Linux y Git)
+│   ├── frameworks.ts    # la sección oculta: React, FastAPI, Django, Spring Boot y ASP.NET Core
+│   ├── unlock.ts        # cuándo se abre cada framework (ruta del lenguaje + un proyecto en ese lenguaje)
 │   ├── search.ts        # búsqueda sin acentos, por relevancia
 │   └── index.ts         # orden de los temas y la sección Próximamente
 ├── recall/

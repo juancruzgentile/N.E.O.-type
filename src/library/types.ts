@@ -26,7 +26,7 @@ export interface Entry {
 export interface Topic {
   id: string;
   name: string;
-  group: "Lenguajes" | "Web y datos" | "Herramientas";
+  group: "Lenguajes" | "Web y datos" | "Herramientas" | "Frameworks";
   /** emblema de la app si existe; si no, una sigla */
   emblem: LangId | null;
   badge: string;

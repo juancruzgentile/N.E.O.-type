@@ -20,6 +20,8 @@ import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKe
 import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
 import { TypingSession } from "../src/engine/session";
 import { SOON, TOPICS } from "../src/library/index";
+import { ALL_TOPICS, frameworkUnlocked, routeDone, visibleTopics } from "../src/library/unlock";
+import { FRAMEWORKS } from "../src/library/frameworks";
 import { entryId, normalize, search } from "../src/library/search";
 import { PROJECTS, projectUnlocked } from "../src/projects/projects";
 import { INTERVALS, addDays, daysBetween, dueCount, findEntry, grade, pickDue, practiceFor, practiceText, reviewLesson, whenText } from "../src/review/review";
@@ -313,7 +315,7 @@ for (const [lang, code] of [
 
 // ── biblioteca ──
 {
-  for (const t of TOPICS) {
+  for (const t of ALL_TOPICS) {
     const levels = new Set(t.entries.map((e) => e.level));
     ok(levels.size === 3 && t.entries.length >= 12, `${t.name}: tiene entradas de los tres niveles (${t.entries.length})`);
     const ids = t.entries.map((e) => entryId(t, e));
@@ -323,7 +325,7 @@ for (const [lang, code] of [
     const empty = t.entries.filter((e) => !e.code.trim() || !e.desc.trim() || /\s$/.test(e.code));
     ok(empty.length === 0, `${t.name}: ninguna entrada sin ejemplo ni descripción`);
   }
-  ok(new Set(TOPICS.map((t) => t.id)).size === TOPICS.length, "los temas no se repiten");
+  ok(new Set(ALL_TOPICS.map((t) => t.id)).size === ALL_TOPICS.length, "los temas no se repiten (frameworks incluidos)");
   ok(normalize("Función ÁRBOL") === "funcion arbol", "la búsqueda ignora acentos y mayúsculas");
   const rebase = search(TOPICS, "rebase");
   ok(rebase[0]?.entry.name === "git rebase", "buscar por nombre trae primero la coincidencia exacta");
@@ -367,7 +369,7 @@ for (const [lang, code] of [
   const empty: string[] = [];
   let droppedSome = 0;
   for (const layout of Object.values(LAYOUTS)) {
-    for (const t of TOPICS) for (const e of t.entries) {
+    for (const t of ALL_TOPICS) for (const e of t.entries) {
       const pr = practiceFor(e.code, layout);
       if ([...pr.text].some((c) => !isTypeable(layout, c))) notTypeable.push(`${layout.name} · ${t.id}: ${e.name}`);
       if (!pr.text) empty.push(`${layout.name} · ${t.id}: ${e.name}`);
@@ -384,7 +386,7 @@ for (const [lang, code] of [
   const tl = TOPICS.find((t) => t.id === "javascript")!.entries.find((e) => e.code.includes("`"))!;
   const tlId = entryId(TOPICS.find((t) => t.id === "javascript")!, tl);
   ok(!reviewLesson(tlId, itKb)?.text.includes("`") && reviewLesson(tlId, null)!.text.includes("`"), "el repaso intercalado también respeta el teclado");
-  ok(TOPICS.every((t) => t.entries.every((e) => !/[^\x20-\x7e\n]/.test(practiceText(e.code)))), "el texto de práctica no tiene tildes ni símbolos fuera de ASCII");
+  ok(ALL_TOPICS.every((t) => t.entries.every((e) => !/[^\x20-\x7e\n]/.test(practiceText(e.code)))), "el texto de práctica no tiene tildes ni símbolos fuera de ASCII");
 
   const py = TOPICS.find((t) => t.id === "python")!;
   const git = TOPICS.find((t) => t.id === "git")!;
@@ -577,6 +579,29 @@ for (const [lang, code] of [
   ok(!("b" in m3.achievements) && m3.achievements.c === 3, "lo que borró esta ventana se borra y lo nuevo de la otra se suma");
   const same = { ...base, settings: { ...base.settings, targetWpm: 50 } };
   ok(mergeStates(base, same, { ...base, settings: { ...base.settings, targetWpm: 35 } }).settings.targetWpm === 50, "si las dos cambiaron lo mismo, gana esta ventana");
+}
+
+// ── frameworks ocultos ──
+{
+  const base = initialState();
+  const lastPy = LANGS.python.stages.length - 1;
+  const keys = Object.fromEntries(LANGS.python.stages.flat().map((ch) => [ch, { n: 200, ema: 50, hits: 200, misses: 0, recent: "1".repeat(50) }]));
+  const pyDone = { ...base.profiles["python:it"], stage: lastPy, steps: {}, keys, lessons: [], totals: totalsOf([]), score: 0 };
+  const rec = { ms: 60000, wpm: 30, acc: 1, ts: 1 };
+  const route = { ...base, profiles: { "python:it": pyDone } };
+  const project = { ...base, projects: { p01: rec } };
+  const both = { ...route, projects: { p01: rec } };
+  const fw = (id: string) => FRAMEWORKS.find((f) => f.id === id)!;
+  ok(routeDone(route, "python") && !routeDone(base, "python"), "la ruta de Python cuenta como terminada solo con todo dominado");
+  ok(!frameworkUnlocked(base, fw("fastapi")), "sin nada hecho, FastAPI está oculto");
+  ok(!frameworkUnlocked(route, fw("fastapi")) && !frameworkUnlocked(project, fw("fastapi")), "la ruta sola o un proyecto solo no alcanzan");
+  ok(frameworkUnlocked(both, fw("fastapi")) && frameworkUnlocked(both, fw("django")), "ruta de Python + un proyecto en Python abren FastAPI y Django");
+  ok(!frameworkUnlocked(both, fw("react")) && !frameworkUnlocked(both, fw("spring")), "los frameworks de otros lenguajes siguen ocultos");
+  ok(!visibleTopics(base).some((t) => t.group === "Frameworks"), "al principio la Biblioteca no muestra ningún framework");
+  ok(!search(visibleTopics(base), "fastapi").some((h) => h.topic.group === "Frameworks"), "la búsqueda tampoco encuentra frameworks ocultos");
+  ok(visibleTopics(both).filter((t) => t.group === "Frameworks").map((t) => t.id).join() === "fastapi,django", "una vez ganados, aparecen en la Biblioteca");
+  const unreachable = FRAMEWORKS.filter((f) => !PROJECTS.some((p) => p.files.some((x) => (f.langs as string[]).includes(x.lang))));
+  ok(unreachable.length === 0, `cada framework tiene algún proyecto en su lenguaje, si no nadie lo podría abrir${unreachable.length ? " — " + unreachable.map((f) => f.name).join(", ") : ""}`);
 }
 
 // ── desbloqueo de proyectos ──

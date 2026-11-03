@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { type Browser, type Page, chromium } from "playwright-core";
 import { PROJECTS } from "../src/projects/projects";
+import { LANGS } from "../src/data/curriculum";
 import { TOPICS } from "../src/library/index";
 import { entryId } from "../src/library/search";
 
@@ -462,6 +463,34 @@ try {
     ok(soon.length === 9 && soon.every((t) => /PRÓXIMAMENTE/.test(t)), "Próximamente muestra las 9 secciones de IA marcadas como próximamente");
     ok(errors.length === 0, `biblioteca sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
+  }
+
+  // 11b. frameworks: ocultos hasta ganarlos (ruta de Python dominada + un proyecto en Python)
+  {
+    const hidden = await open(browser, seedState({ lang: "python" }));
+    await hidden.page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await hidden.page.locator(".library").waitFor();
+    const groups = await hidden.page.locator(".lib-group-name").allTextContents();
+    await hidden.page.locator(".lib-search input[type=search]").fill("fastapi dev");
+    await hidden.page.waitForTimeout(100);
+    const found = await hidden.page.locator(".lib-entry .lib-topic-tag, .lib-entry").allTextContents();
+    ok(!groups.includes("Frameworks") && !found.some((t) => /FastAPI/.test(t)), "sin ganarlos, los frameworks no aparecen ni en el menú ni en la búsqueda");
+    await hidden.ctx.close();
+
+    const keys = Object.fromEntries(LANGS.python.stages.flat().map((ch) => [ch, { n: 200, ema: 50, hits: 200, misses: 0, recent: "1".repeat(50) }]));
+    const won = await open(browser, seedState({
+      lang: "python",
+      profiles: { "python:it": { stage: LANGS.python.stages.length - 1, steps: {}, keys, lessons: [], totals: { n: 0, ms: 0, chars: 0, best: 0 }, score: 0 } },
+      projects: { p01: { ms: 60000, wpm: 30, acc: 1, ts: 1 } },
+    }));
+    await won.page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await won.page.locator(".library").waitFor();
+    ok((await won.page.locator(".lib-group-name").allTextContents()).includes("Frameworks"), "con la ruta de Python y un proyecto, aparece la sección Frameworks");
+    await won.page.locator(".lib-nav").getByRole("button", { name: /FastAPI/ }).click();
+    ok((await won.page.locator(".lib-head h3").textContent()) === "FastAPI", "se puede abrir FastAPI");
+    ok(!(await won.page.locator(".lib-nav").getByRole("button", { name: /React/ }).count()), "React sigue oculto (no terminaste TypeScript ni JavaScript)");
+    ok(won.errors.length === 0, `frameworks sin errores de consola${won.errors.length ? ": " + won.errors[0] : ""}`);
+    await won.ctx.close();
   }
 
   // 12. practicar un ejemplo de la Biblioteca y repasarlo intercalado en las lecciones

@@ -3,7 +3,7 @@
 // tarda más en volver; si se hace mal vuelve a la primera y reaparece mañana.
 import type { LangId, Lesson, ReviewItem } from "../types";
 import { type LayoutDef, isTypeable } from "../data/layouts";
-import { TOPICS } from "../library/index";
+import { ALL_TOPICS } from "../library/unlock";
 import { entryId } from "../library/search";
 import type { Entry, Topic } from "../library/types";
 
@@ -68,7 +68,7 @@ let byId: Map<string, { topic: Topic; entry: Entry }> | null = null;
 export function findEntry(id: string) {
   if (!byId) {
     byId = new Map();
-    for (const topic of TOPICS) for (const entry of topic.entries) byId.set(entryId(topic, entry), { topic, entry });
+    for (const topic of ALL_TOPICS) for (const entry of topic.entries) byId.set(entryId(topic, entry), { topic, entry });
   }
   return byId.get(id) ?? null;
 }

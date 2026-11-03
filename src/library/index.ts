@@ -23,7 +23,7 @@ export const TOPICS: Topic[] = [
   linux, git,
 ];
 
-export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Herramientas"];
+export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Herramientas", "Frameworks"];
 
 /** Lo que viene: inteligencia artificial y herramientas para programar con ella. */
 export const SOON: Soon[] = [

@@ -93,6 +93,12 @@ funcionar de verdad: sumá en `scripts/check-projects.ts` cómo se compila y se 
 5. `npm run test:examples` revisa la sintaxis de los ejemplos. Si el tema es de un lenguaje nuevo, sumale un revisor
    en `scripts/check-examples.ts`.
 
+## Agregar un framework
+
+Los frameworks están en `src/library/frameworks.ts` y se arman igual que un tema de la Biblioteca, más `langs`: los
+lenguajes que lo desbloquean. Tienen que tener un proyecto en alguno de esos lenguajes; si no, nadie podría abrirlo.
+Sumá su revisor en `checkerFor` (`scripts/check-examples.ts`).
+
 ## Agregar o corregir un teclado
 
 Los teclados están en `src/data/layouts.ts`. Cada tecla define `[normal, Shift, AltGr, Shift+AltGr]` y las teclas

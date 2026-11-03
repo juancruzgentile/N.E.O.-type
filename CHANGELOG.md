@@ -53,6 +53,11 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   una expresión, `copy`, `require`, operaciones de colección) y tema en la Biblioteca. El CI compila todo con `kotlinc`.
 - **PHP**: ruta de símbolos (arranca con `( ) $ ; { } :`), generador de código (clases con propiedades promovidas,
   `fn() =>`, `match`, `<=>` y las funciones `array_*`) y tema en la Biblioteca. El CI ejecuta lo que genera con PHP 8.4.
+- **Frameworks**, una sección oculta de la Biblioteca: no aparece en el menú ni en la búsqueda hasta que se gana.
+  Cada framework se abre por su lenguaje, al terminar la ruta de ese lenguaje (con cualquier teclado) y al menos un
+  proyecto que lo use. Arranca con React (TypeScript o JavaScript), FastAPI y Django (Python), Spring Boot (Java) y
+  ASP.NET Core (C#). Sus ejemplos también pasan por la revisión automática y se pueden practicar y repasar como los
+  demás.
 - Las descripciones de los símbolos pueden cambiar según el lenguaje: en C y C++, `#` es el preprocesador y `::`,
   `->` y `&` dicen lo que significan ahí.
 - **4 proyectos nuevos** antes del tablero full stack, para que la dificultad suba de a poco: un gestor de notas en
