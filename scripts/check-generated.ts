@@ -36,8 +36,8 @@ interface Target {
   /** lo que cierra la cabecera después de los tipos (en PHP, el namespace global) */
   afterStructs?: string;
   /**
-   * "each": un archivo por fragmento (C y C++, rápidos de compilar).
-   * "batch": todos en un archivo, cada uno envuelto para que los nombres no choquen (Swift y Kotlin, lentos por archivo).
+   * "each": un archivo por fragmento (C, que no tiene namespaces y compila rápido).
+   * "batch": todos en un archivo, cada uno envuelto para que los nombres no choquen (C++, Swift, Kotlin…).
    */
   mode: "each" | "batch";
   /** envoltura de un fragmento en modo batch; null si ese fragmento tiene que ir solo (por ejemplo, una extension) */
@@ -68,7 +68,9 @@ const TARGETS: Target[] = [
   {
     lang: "cpp",
     compiler: "g++",
-    mode: "each",
+    // en lote: cada archivo aparte volvía a procesar <format> y <ranges> y tardaba 9 minutos en el CI
+    mode: "batch",
+    wrap: (s, i) => `namespace fragmento_${i} {\n${s.text}\n}`,
     ext: "cpp",
     prelude: [
       ...["algorithm", "cctype", "filesystem", "format", "fstream", "functional", "iostream", "iterator", "map", "numbers",
