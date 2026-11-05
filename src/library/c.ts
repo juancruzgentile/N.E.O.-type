@@ -57,6 +57,8 @@ while (intentos > 0) {
     intentos--;
 }`, "condicional bucle repetir"),
     b("Funciones", "Funciones y prototipos", "Una función se declara (prototipo) antes de usarse; la definición puede ir después o en otro archivo.", code`
+#include <stdio.h>
+
 int sumar(int a, int b);
 
 int main(void)

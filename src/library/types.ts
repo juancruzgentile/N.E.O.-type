@@ -21,6 +21,8 @@ export interface Entry {
   code: string;
   /** sinónimos para la búsqueda (no se muestran) */
   tags?: string;
+  /** qué le falta a este fragmento para correr; si no está, se usa el aviso general del tema */
+  needs?: string;
 }
 
 export interface Topic {
