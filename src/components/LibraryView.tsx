@@ -8,6 +8,7 @@ import { type Entry, type Level, LEVELS, type Topic } from "../library/types";
 import { LangEmblem } from "./LangEmblem";
 import { IconBook, IconKeyboard, IconLock, IconSearch } from "./icons";
 import { EntryPractice } from "./EntryPractice";
+import { kindNote } from "../library/kind";
 import { MAX_BOX, findEntry, whenText } from "../review/review";
 import { today } from "../store";
 
@@ -43,12 +44,14 @@ function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice
   topic: Topic; entry: Entry; showTopic?: boolean; onOpenTopic?: () => void; flash?: boolean;
   rv?: ReviewItem; onPractice: () => void; onForget: () => void;
 }) {
+  const kind = kindNote(topic.id, entry);
   return (
     <article id={entryId(topic, entry)} className={`lib-entry ${flash ? "flash" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
       <header>
         <h4>{entry.name}</h4>
         <span className={`lib-level ${entry.level}`}>{levelName(entry.level)}</span>
         <span className="lib-cat">{entry.cat}</span>
+        {kind && <span className={`lib-kind ${kind.full ? "full" : ""}`} title={kind.note}>{kind.full ? "Programa completo" : "Fragmento"}</span>}
         {showTopic && (
           <button className="lib-topic-link" onClick={onOpenTopic} title={`Ver en ${topic.name}`}>
             <TopicBadge topic={topic} size={20} /> {topic.name}
@@ -57,6 +60,7 @@ function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice
       </header>
       <p>{entry.desc}</p>
       <CodeBlock text={entry.code} lang={topic.hl} />
+      {kind && !kind.full && <p className="lib-note">{kind.note}</p>}
       <footer className="lib-entry-foot">
         <button className="btn small lib-practice" onClick={onPractice} title="Escribir este ejemplo y sumarlo a tu repaso">
           <IconKeyboard size={16} /> Practicar este ejemplo

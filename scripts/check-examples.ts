@@ -14,6 +14,7 @@ import { transformSync } from "esbuild";
 import ts from "typescript";
 import { ALL_TOPICS as TOPICS } from "../src/library/unlock";
 import { entryId } from "../src/library/search";
+import { SHELL_COMMAND, isFullProgram } from "../src/library/kind";
 import type { Entry } from "../src/library/types";
 
 const strict = process.env.EJEMPLOS_ESTRICTO === "1";
@@ -377,8 +378,6 @@ const json: Checker = {
 const yaml = pyParse("yaml", "list(yaml.safe_load_all(sys.stdin))");
 const toml = pyParse("tomllib", "tomllib.loads(sys.stdin.read())");
 
-/** Ejemplos que son comandos de terminal dentro de un tema de lenguaje (pip, npx tsc, go mod, cargo…). */
-const SHELL_COMMAND = /^(python3? -m|pip|uv|npm|npx|node|deno|bun|go (mod|get|build|run|test|vet|install|work)|gofmt|cargo|rustc|rustup|javac|java -|mvn|gradle|\.\/gradlew|dotnet|tsc|jq|gcc|g\+\+|clang|cmake|ctest|valgrind|make|swift (package|build|test|run)|\.\/gradlew|composer|fastapi (dev|run)|django-admin|python3? manage\.py|\.\/mvnw)(?=\s|$)/;
 
 /** Qué revisor le toca a cada ejemplo, o null si no tiene revisión automática. */
 function checkerFor(topic: string, e: Entry): Checker | null {
@@ -462,6 +461,41 @@ for (const [c, items] of groups) {
     } else tally(topic).ok++;
   });
 }
+
+// ── Programas completos: además de la sintaxis se compilan (los fragmentos no pueden) ──
+// Qué es "completo" lo decide src/library/kind.ts, el mismo código que muestra la etiqueta en la Biblioteca.
+// C# no figura porque hoy ningún ejemplo suyo es un programa completo.
+const compileOne = (cmd: string, args: string[], file: string, src: string, cwd = tmp): Result => {
+  writeFileSync(join(cwd, file), src);
+  const r = run(cmd, args, undefined, cwd);
+  return r.ok ? null : firstLine(r.out.split("\n").filter((l) => /error/i.test(l)).join("\n") || r.out);
+};
+const COMPILERS: Record<string, { tool: string; compile: (src: string) => Result }> = {
+  c: { tool: "gcc", compile: (s) => compileOne("gcc", ["main.c", "-o", "c.out"], "main.c", s) },
+  cpp: { tool: "g++", compile: (s) => compileOne("g++", ["main.cpp", "-o", "cpp.out"], "main.cpp", s) },
+  go: { tool: "go", compile: (s) => compileOne("go", ["build", "-o", "go.out", "main.go"], "main.go", s) },
+  rust: { tool: "rustc", compile: (s) => compileOne("rustc", ["--edition", "2024", "-o", "rust.out", "main.rs"], "main.rs", s) },
+  java: { tool: "javac", compile: (s) => compileOne("javac", ["-d", ".", "Main.java"], "Main.java", s) },
+};
+let compiled = 0;
+for (const topic of TOPICS) {
+  const comp = COMPILERS[topic.id];
+  if (!comp) continue;
+  for (const e of topic.entries.filter((x) => isFullProgram(topic.id, x))) {
+    if (!has(comp.tool)) {
+      missingTools.add(comp.tool);
+      skipped++;
+      continue;
+    }
+    const err = comp.compile(e.code);
+    compiled++;
+    if (err) {
+      problems++;
+      console.log(`✗ [${topic.name}] ${e.name} (${entryId(topic, e)}) es un programa completo y no compila: ${err}`);
+    }
+  }
+}
+console.log(`\nProgramas completos compilados: ${compiled}`);
 rmSync(tmp, { recursive: true, force: true });
 
 console.log("");
