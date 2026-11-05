@@ -53,6 +53,7 @@ jobs:
     env:
       # si falta alguna herramienta, falla en vez de saltear
       EJEMPLOS_ESTRICTO: "1"
+      PREGUNTAS_ESTRICTO: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -91,3 +92,5 @@ jobs:
         run: npm run test:projects
       - name: El código que generan C, C++, Swift, Kotlin y PHP compila
         run: npm run test:generated
+      - name: Las preguntas de entrevista que imprimen algo dan la respuesta marcada
+        run: npm run test:preguntas

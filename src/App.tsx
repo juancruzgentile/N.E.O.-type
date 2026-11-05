@@ -22,6 +22,7 @@ import {
   AchievementsView, ChallengesView, LanguagesView, RoutesView, SettingsView, StatsView,
 } from "./components/Views";
 import { LibraryView } from "./components/LibraryView";
+import { InterviewView } from "./components/InterviewView";
 
 export default function App() {
   const { state, update, saved, exportJson, importJson } = useAppState();
@@ -38,13 +39,18 @@ export default function App() {
   const onProjectBusy = useCallback((b: boolean) => {
     projectBusy.current = b;
   }, []);
+  // entrevista simulada en curso
+  const interviewBusy = useRef(false);
+  const onInterviewBusy = useCallback((b: boolean) => {
+    interviewBusy.current = b;
+  }, []);
   // ejercicios de memoria abiertos (n cambia para volver a empezar el mismo nivel)
   const [recallSel, setRecallSel] = useState<{ topic: string; level: number; n: number } | null>(null);
   const [shortcutSel, setShortcutSel] = useState<{ set: string; level: number; n: number } | null>(null);
   const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null);
   /** Corre `fn` enseguida, o después de confirmar si hay un proyecto a medias. */
   const guard = (fn: () => void) => {
-    if (projectBusy.current) setPendingLeave(() => fn);
+    if (projectBusy.current || interviewBusy.current) setPendingLeave(() => fn);
     else fn();
   };
   useMusicInit(state);
@@ -76,7 +82,7 @@ export default function App() {
   }, [state, update]);
 
   const lang = state.lang;
-  const needsLang = !lang && view !== "settings" && view !== "achievements" && view !== "library";
+  const needsLang = !lang && view !== "settings" && view !== "achievements" && view !== "library" && view !== "interview";
   const current: View = needsLang ? "languages" : view;
 
   const pickLang = (l: LangId) => {
@@ -231,6 +237,7 @@ export default function App() {
               />
             )}
             {current === "library" && <LibraryView lang={lang} state={state} update={update} />}
+            {current === "interview" && <InterviewView state={state} update={update} onBusy={onInterviewBusy} />}
             {current === "achievements" && <AchievementsView state={state} />}
             {current === "settings" && (
               <SettingsView
@@ -264,7 +271,9 @@ export default function App() {
           kicker="Menú principal"
           title="¿Volver al menú principal?"
           message={
-            projectBusy.current
+            interviewBusy.current
+              ? "Vas a salir de la entrevista en curso y no se guarda su resultado."
+              : projectBusy.current
               ? "Vas a salir del proyecto en curso y ese intento no se guarda. Tus récords quedan guardados."
               : challenge
               ? "Vas a salir del desafío en curso y ese intento no se guarda. El resto de tu progreso queda guardado."
@@ -286,15 +295,16 @@ export default function App() {
       )}
       {pendingLeave && (
         <ConfirmDialog
-          kicker="Proyecto en curso"
-          title="¿Salir del proyecto?"
-          message="Vas a perder el avance de este intento. Tus récords anteriores quedan guardados."
+          kicker={interviewBusy.current ? "Entrevista en curso" : "Proyecto en curso"}
+          title={interviewBusy.current ? "¿Salir de la entrevista?" : "¿Salir del proyecto?"}
+          message={interviewBusy.current ? "Vas a perder el avance y no se guarda el resultado." : "Vas a perder el avance de este intento. Tus récords anteriores quedan guardados."}
           confirmLabel="Sí, salir"
-          cancelLabel="Seguir escribiendo"
+          cancelLabel={interviewBusy.current ? "Seguir con la entrevista" : "Seguir escribiendo"}
           onConfirm={() => {
             const fn = pendingLeave;
             setPendingLeave(null);
             projectBusy.current = false;
+            interviewBusy.current = false;
             fn();
           }}
           onCancel={() => setPendingLeave(null)}
