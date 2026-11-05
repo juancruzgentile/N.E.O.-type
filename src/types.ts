@@ -143,6 +143,21 @@ export interface ReviewItem {
   ts: number;
 }
 
+/** Una entrevista simulada terminada. */
+export interface InterviewRecord {
+  ts: number;
+  puesto: string;
+  lang: string;
+  nivel: string;
+  minutos: number;
+  /** milisegundos que duró */
+  ms: number;
+  ok: number;
+  total: number;
+  /** por área: [bien, total] */
+  areas: Record<string, [number, number]>;
+}
+
 export interface AppState {
   version: 1;
   settings: Settings;
@@ -162,6 +177,10 @@ export interface AppState {
   shortcuts: Record<string, ShortcutRecord>;
   /** logros desbloqueados: id → fecha */
   achievements: Record<string, number>;
+  /** repaso de las preguntas de entrevista falladas: id de pregunta → estado */
+  interviewReview: Record<string, ReviewItem>;
+  /** entrevistas simuladas terminadas: i + marca de tiempo → resultado */
+  interviews: Record<string, InterviewRecord>;
 }
 
 export interface Lesson {

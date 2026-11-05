@@ -4,11 +4,12 @@
 // (__proto__, constructor), meter URLs externas ni valores que rompan la interfaz.
 
 import type {
-  AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, KeyStat, LangId, LayoutId, LearnedKey, LessonResult, Mode,
+  AppState, ChallengeRecord, DbEngineId, DistroId, ErrorMode, InterviewRecord, KeyStat, LangId, LayoutId, LearnedKey, LessonResult, Mode,
   Profile, ProjectRecord, ReviewItem, Settings, ShortcutRecord, StepStat, ThemeId, Totals,
 } from "./types";
 import { totalsOf } from "./engine/totals";
 import { CHAR_KEY_CODES } from "./data/layouts";
+import { NIVELES, PUESTOS } from "./interview/catalogo";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 /** Tamaño real en bytes (UTF-8), igual que File.size. `string.length` cuenta caracteres, no bytes. */
@@ -232,6 +233,41 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     if (!isObj(v) || typeof v.keys !== "number" || !Number.isFinite(v.keys) || v.keys < 1) continue;
     shortcuts[k] = { stars: int(v.stars, 1, 3, 1), keys: int(v.keys, 1, 100_000, 1), ms: num(v.ms, 1, 8.64e7, 1) };
   }
+  // repaso de entrevistas: area-número (las preguntas que ya no existan se ignoran al usarse)
+  const interviewReview: Record<string, ReviewItem> = {};
+  for (const [k, v] of entries(r.interviewReview, /^[a-z]{1,12}-\d{2,3}$/, 1000)) {
+    if (!isObj(v) || typeof v.due !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v.due)) continue;
+    interviewReview[k] = {
+      box: int(v.box, 0, 4, 0),
+      due: v.due,
+      n: int(v.n, 0, 1_000_000, 0),
+      lapses: int(v.lapses, 0, 1_000_000, 0),
+      ts: num(v.ts, 0, 8.64e15, 0),
+    };
+  }
+  // entrevistas terminadas: puesto, nivel y duración conocidos, y bien <= total
+  const interviews: Record<string, InterviewRecord> = {};
+  for (const [k, v] of entries(r.interviews, /^i\d{10,14}$/, 60)) {
+    if (!isObj(v) || typeof v.total !== "number" || v.total < 1) continue;
+    const total = int(v.total, 1, 100, 1);
+    const areas: Record<string, [number, number]> = {};
+    for (const [a, x] of entries(v.areas, /^[a-z]{1,12}$/, 30)) {
+      if (!Array.isArray(x) || x.length !== 2) continue;
+      const t = int(x[1], 1, 100, 1);
+      areas[a] = [Math.min(t, int(x[0], 0, 100, 0)), t];
+    }
+    interviews[k] = {
+      ts: num(v.ts, 0, 8.64e15, 0),
+      puesto: oneOf(v.puesto, PUESTOS.map((p) => p.id), "general"),
+      lang: typeof v.lang === "string" && /^[a-z]{1,12}$/.test(v.lang) ? v.lang : "python",
+      nivel: oneOf(v.nivel, NIVELES.map((n) => n.id), "junior"),
+      minutos: int(v.minutos, 1, 180, 15),
+      ms: num(v.ms, 0, 8.64e7, 0),
+      ok: Math.min(total, int(v.ok, 0, 100, 0)),
+      total,
+      areas,
+    };
+  }
   const achievements: Record<string, number> = {};
   for (const [k, v] of entries(r.achievements, /^[a-z0-9]{1,24}$/, 100)) achievements[k] = num(v, 0, 8.64e15, 0);
 
@@ -248,5 +284,7 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     recall,
     shortcuts,
     achievements,
+    interviewReview,
+    interviews,
   };
 }
