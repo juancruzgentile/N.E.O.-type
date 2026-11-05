@@ -439,6 +439,12 @@ try {
     ok((await page.locator(".lib-head h3").textContent()) === "Go", "abre en el lenguaje que estás practicando");
     await page.locator(".lib-nav").getByRole("button", { name: /Python/ }).click();
     ok((await page.locator(".lib-head h3").textContent()) === "Python", "cambia de tema desde el índice");
+    const src = page.locator(".lib-entry").first().locator(".lib-source a");
+    ok(
+      /^https:\/\//.test((await src.getAttribute("href")) ?? "") && (await src.getAttribute("target")) === "_blank" && /noopener/.test((await src.getAttribute("rel")) ?? ""),
+      "cada ejemplo enlaza su fuente oficial en una pestaña nueva y sin pasar datos",
+    );
+    ok(/Versión: .+Revisado: .*2026/.test((await page.locator(".lib-entry").first().locator(".lib-source").textContent()) ?? ""), "cada ejemplo dice desde qué versión funciona y cuándo se revisó");
     const all = await page.locator(".lib-entry").count();
     await page.locator(".lib-levels").getByRole("tab", { name: /Avanzado/ }).click();
     const adv = await page.locator(".lib-entry").count();

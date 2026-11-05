@@ -9,6 +9,7 @@ import { LangEmblem } from "./LangEmblem";
 import { IconBook, IconKeyboard, IconLock, IconSearch } from "./icons";
 import { EntryPractice } from "./EntryPractice";
 import { kindNote } from "../library/kind";
+import { fuenteDe } from "../library/fuentes/index";
 import { MAX_BOX, findEntry, whenText } from "../review/review";
 import { today } from "../store";
 
@@ -38,6 +39,8 @@ function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
   );
 }
 
+const fechaLarga = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
 const levelName = (l: Level) => LEVELS.find((x) => x.id === l)!.name;
 
 function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice, onForget }: {
@@ -45,6 +48,7 @@ function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice
   rv?: ReviewItem; onPractice: () => void; onForget: () => void;
 }) {
   const kind = kindNote(topic.id, entry);
+  const fuente = fuenteDe(topic.id, entry.name);
   return (
     <article id={entryId(topic, entry)} className={`lib-entry ${flash ? "flash" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
       <header>
@@ -61,6 +65,13 @@ function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice
       <p>{entry.desc}</p>
       <CodeBlock text={entry.code} lang={topic.hl} />
       {kind && !kind.full && <p className="lib-note">{kind.note}</p>}
+      {fuente && (
+        <p className="lib-source">
+          <span>Fuente: <a href={fuente.url} target="_blank" rel="noopener noreferrer">{fuente.sitio}</a></span>
+          <span>Versión: {fuente.version}</span>
+          <span>Revisado: {fechaLarga(fuente.revisado)}</span>
+        </p>
+      )}
       <footer className="lib-entry-foot">
         <button className="btn small lib-practice" onClick={onPractice} title="Escribir este ejemplo y sumarlo a tu repaso">
           <IconKeyboard size={16} /> Practicar este ejemplo

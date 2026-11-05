@@ -22,6 +22,7 @@ npm test        # todas las pruebas (detalle abajo)
 | `npm run test:security` | Validación de datos y CSP del build |
 | `npm run test:examples` | Sintaxis de los ejemplos de la Biblioteca, con el parser de cada lenguaje |
 | `npm run test:projects` | Que los proyectos compilen y pasen sus pruebas |
+| `npm run test:fuentes` | Que cada ejemplo de la Biblioteca tenga su fuente oficial (con `FUENTES_RED=1` además abre cada link y busca el ancla) |
 | `npm run test:generated` | Que el código que generan C, C++, Swift, Kotlin y PHP compile |
 | `npm run test:e2e` | La app en Chromium real: lección, pegar, Tab, desafío, modo calmo, exportar/importar, menú, proyectos, biblioteca y repaso |
 
