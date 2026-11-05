@@ -462,7 +462,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
       <div className="frame glow code-panel" ref={panelRef} data-tour="code">
         <div className="code-head">
           <span style={{ color: "var(--cyan)" }}><IconCode size={30} /></span>
-          <span className="ttl">ESCRIBE EL CÓDIGO</span>
+          <span className="ttl">Escribí el código</span>
           {freeSetting && track && (
             <select
               className="variant-select"

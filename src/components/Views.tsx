@@ -49,11 +49,13 @@ function LangCard({ state, id, onPick }: { state: AppState; id: LangId; onPick: 
       <div className="progress">
         <span style={{ width: `${pct * 100}%` }} />
       </div>
-      <div className="meta">
-        <span>{p.totals.n} lecciones</span>
-        <span>récord {Math.round(best)} WPM</span>
-      </div>
-      <div className="go">{started ? "CONTINUAR →" : "EMPEZAR →"}</div>
+      {started && (
+        <div className="meta">
+          <span>{p.totals.n} lecciones</span>
+          <span>récord {Math.round(best)} WPM</span>
+        </div>
+      )}
+      <div className="go">{started ? "Continuar →" : "Empezar →"}</div>
     </button>
   );
 }
@@ -61,12 +63,12 @@ function LangCard({ state, id, onPick }: { state: AppState; id: LangId; onPick: 
 export function LanguagesView({ state, onPick }: { state: AppState; onPick: (l: LangId) => void }) {
   return (
     <div className="frame view">
-      <h2>ELEGÍ TU RUTA</h2>
+      <h2>Elegí tu ruta</h2>
       <div className="sub">
         Cada lenguaje tiene su propia ruta de símbolos y su propio progreso. Empezás con pocos símbolos y se van
         desbloqueando a medida que demostrás velocidad y precisión.
       </div>
-      <div className="section">LENGUAJES DE PROGRAMACIÓN</div>
+      <div className="section">Lenguajes de programación</div>
       <div className="grid-langs">
         {LANG_ORDER.map((id) => <LangCard key={id} state={state} id={id} onPick={onPick} />)}
       </div>
@@ -693,7 +695,7 @@ export function SettingsView({ state, update, exportJson, importJson, onTutorial
         <div className="setting">
           <label>Acerca de</label>
           <div className="help">
-            N.E.O.-type v{__APP_VERSION__} · Licencia MIT. Usa React (MIT) y las fuentes JetBrains Mono, Rajdhani y Chakra Petch
+            N.E.O.-type v{__APP_VERSION__} · Licencia MIT. Usa React (MIT) y las fuentes JetBrains Mono, IBM Plex Sans y Chakra Petch
             (SIL Open Font License 1.1). Los nombres de los lenguajes son marcas de sus respectivos dueños y se usan solo
             para identificarlos; los emblemas son diseños propios. El detalle está en THIRD_PARTY_NOTICES.md.
           </div>

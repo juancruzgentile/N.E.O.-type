@@ -261,7 +261,7 @@ export default function App() {
       )}
       {askMenu && (
         <ConfirmDialog
-          kicker="MENÚ PRINCIPAL"
+          kicker="Menú principal"
           title="¿Volver al menú principal?"
           message={
             projectBusy.current
@@ -286,7 +286,7 @@ export default function App() {
       )}
       {pendingLeave && (
         <ConfirmDialog
-          kicker="PROYECTO EN CURSO"
+          kicker="Proyecto en curso"
           title="¿Salir del proyecto?"
           message="Vas a perder el avance de este intento. Tus récords anteriores quedan guardados."
           confirmLabel="Sí, salir"
@@ -308,7 +308,7 @@ export default function App() {
             <div key={t.key} className={`toast ${a.tier}`}>
               <AchBadge id={a.id} tier={a.tier} unlocked size={56} />
               <div>
-                <div className="toast-kicker">LOGRO DESBLOQUEADO</div>
+                <div className="toast-kicker">Logro desbloqueado</div>
                 <div className="toast-name">{a.name}</div>
                 <div className="toast-desc">{a.desc}</div>
               </div>
