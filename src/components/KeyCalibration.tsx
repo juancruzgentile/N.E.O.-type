@@ -82,7 +82,7 @@ export function KeyCalibration({ state, update, onClose }: { state: AppState; up
   return createPortal(
     <div className="modal-back" onClick={onClose}>
       <div className="frame glow modal calib" role="dialog" aria-label="Calibrar teclado" onClick={(e) => e.stopPropagation()}>
-        <div className="kicker">CALIBRAR TECLADO · {LAYOUTS[id].name.toUpperCase()}</div>
+        <div className="kicker">Calibrar teclado · {LAYOUTS[id].name}</div>
         {done ? (
           <>
             <div className="big" style={{ fontSize: 40, letterSpacing: 2 }}>LISTO</div>

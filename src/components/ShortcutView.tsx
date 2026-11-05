@@ -122,7 +122,7 @@ export function ShortcutView({ set, level, state, update, onExit, onOpen }: Prop
 
   return (
     <div className="frame view shortcut">
-      <div className="kicker">ATAJOS · {set.name.toUpperCase()} · {lv.name.toUpperCase()}{set.id === "vscode" ? ` · ${platform === "mac" ? "MAC" : "LINUX / WINDOWS"}` : ""}</div>
+      <div className="kicker">Atajos · {set.name} · {lv.name}{set.id === "vscode" ? ` · ${platform === "mac" ? "Mac" : "Linux / Windows"}` : ""}</div>
       <div className="recall-steps" aria-label={`Ejercicio ${index + 1} de ${lv.exercises.length}`}>
         {lv.exercises.map((e, i) => <span key={e.id} className={(i === index ? "now " : "") + (recs[e.id] ? "done" : "")} />)}
         <span className="recall-count">{index + 1}/{lv.exercises.length}</span>

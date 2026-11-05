@@ -59,7 +59,7 @@ export function RecallView({ topic, level, state, update, onExit, onOpen }: Prop
   if (finished) {
     return (
       <div className="frame view recall">
-        <div className="kicker">EJERCICIOS DE MEMORIA · {topic.name.toUpperCase()} · {lv.name.toUpperCase()}</div>
+        <div className="kicker">Ejercicios de memoria · {topic.name} · {lv.name}</div>
         <h2>{levelDone(done, lv) ? "¡Nivel completo!" : "Fin del nivel"}</h2>
         <p className="sub">
           {nextOpen
@@ -79,7 +79,7 @@ export function RecallView({ topic, level, state, update, onExit, onOpen }: Prop
 
   return (
     <div className="frame view recall">
-      <div className="kicker">EJERCICIOS DE MEMORIA · {topic.name.toUpperCase()} · {lv.name.toUpperCase()}</div>
+      <div className="kicker">Ejercicios de memoria · {topic.name} · {lv.name}</div>
       <div className="recall-steps" aria-label={`Ejercicio ${index + 1} de ${lv.exercises.length}`}>
         {lv.exercises.map((e, i) => (
           <span key={e.id} className={(i === index ? "now " : "") + (done[e.id] ? "done" : "")} />

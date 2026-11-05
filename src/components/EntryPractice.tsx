@@ -153,7 +153,7 @@ export function EntryPractice({ topic, entry, state, update, onClose }: Props) {
   return createPortal(
     <div className="modal-back" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={boxRef} className="frame glow modal entry-practice" role="dialog" aria-modal="true" aria-labelledby="ep-title">
-        <div className="kicker">PRACTICAR EJEMPLO · {topic.name.toUpperCase()}</div>
+        <div className="kicker">Practicar ejemplo · {topic.name}</div>
         <h3 id="ep-title" className="ep-title">{entry.name}</h3>
 
         {!text ? (

@@ -818,7 +818,7 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .mobile-nav button {
   flex: 1 0 auto; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 12px;
   background: none; border: 1px solid transparent; border-radius: 6px; color: var(--text2); cursor: pointer;
-  font-family: var(--brand); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 16px; white-space: nowrap;
+  font-family: var(--brand); font-weight: 600; letter-spacing: 0.3px; font-size: 16px; white-space: nowrap;
 }
 .mobile-nav button svg { width: 20px; height: 20px; flex: none; }
 .mobile-nav button:hover { background: var(--cyan-soft); color: var(--strong); }

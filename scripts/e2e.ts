@@ -373,7 +373,7 @@ try {
     ok(true, "Enter confirma y muestra el menú principal");
     await page.locator(".splash-menu").getByRole("button", { name: /Desafíos y proyectos/ }).click();
     await page.locator(".splash").waitFor({ state: "detached" });
-    ok(/DESAFÍOS/.test((await page.locator(".view h2").first().textContent()) ?? ""), "el menú lleva a la sección elegida");
+    ok(/desafíos/i.test((await page.locator(".view h2").first().textContent()) ?? ""), "el menú lleva a la sección elegida");
     await page.getByTitle("Volver al menú principal").click();
     await page.keyboard.press("Enter");
     await page.locator(".splash-menu").waitFor();
@@ -456,7 +456,7 @@ try {
     await page.waitForTimeout(100);
     ok(/flecha/i.test((await page.locator(".lib-entry").first().textContent()) ?? ""), "busca sin acentos y con varias palabras");
     await page.locator(".lib-search input[type=search]").fill("xyzxyz");
-    ok(/SIN RESULTADOS/.test((await page.locator(".lib-content .section").first().textContent()) ?? ""), "avisa cuando no hay resultados");
+    ok(/sin resultados/i.test((await page.locator(".lib-content .section").first().textContent()) ?? ""), "avisa cuando no hay resultados");
     await page.locator(".lib-search input[type=search]").press("Escape");
     await page.locator(".lib-nav").getByRole("button", { name: /IA y herramientas/ }).click();
     const soon = await page.locator(".lib-soon-card").allTextContents();
@@ -635,7 +635,7 @@ try {
     const st = await state(page);
     ok(["git-1-1", "git-1-2", "git-1-3", "git-1-4"].every((id) => st.recall?.[id] > 0), "se guardan los ejercicios resueltos");
     await page.getByRole("button", { name: "Nivel Intermedio" }).click();
-    ok(/INTERMEDIO/.test((await page.locator(".recall .kicker").textContent()) ?? ""), "se abre el nivel siguiente");
+    ok(/intermedio/i.test((await page.locator(".recall .kicker").textContent()) ?? ""), "se abre el nivel siguiente");
     await page.getByRole("button", { name: "Volver a desafíos" }).click();
     ok(!(await inter.isDisabled()) && /0\/4/.test((await inter.textContent()) ?? ""), "en Desafíos el nivel Intermedio queda abierto");
     ok(errors.length === 0, `ejercicios de memoria sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
@@ -695,7 +695,7 @@ try {
     await page.getByRole("button", { name: "Mac", exact: true }).click();
     await page.locator(".nav").getByRole("button", { name: "Desafíos" }).click();
     await page.getByRole("button", { name: /^VS Code Básico/ }).click();
-    ok(/MAC/.test((await page.locator(".shortcut .kicker").textContent()) ?? "") && /Alt\+↑/.test((await page.locator(".sc-use").textContent()) ?? ""), "con Mac elegido, el ejercicio usa ese juego de atajos");
+    ok(/mac/i.test((await page.locator(".shortcut .kicker").textContent()) ?? "") && /Alt\+↑/.test((await page.locator(".sc-use").textContent()) ?? ""), "con Mac elegido, el ejercicio usa ese juego de atajos");
     ok(errors.length === 0, `atajos sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
