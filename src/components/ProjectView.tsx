@@ -215,7 +215,7 @@ export function ProjectView({ project, state, update, onExit, onOpen, onBusy }: 
       <div className="frame glow code-panel project-panel">
         <div className="code-head">
           <span style={{ color: "var(--cyan)" }}><IconCode size={30} /></span>
-          <span className="ttl">PROYECTO {String(project.num).padStart(2, "0")} · {project.title.toUpperCase()}</span>
+          <span className="ttl">Proyecto {String(project.num).padStart(2, "0")} · {project.title}</span>
           <span className="timer" aria-label="Tiempo activo">{formatTime(shownMs)}</span>
           <div className="tags">
             <span>{project.level}</span>

@@ -27,7 +27,7 @@ export function ProfileModal({ state, update, onClose }: { state: AppState; upda
   return createPortal(
     <div className="modal-back" onClick={onClose}>
       <form className="frame glow modal profile-modal" onClick={(e) => e.stopPropagation()} onSubmit={(e) => { e.preventDefault(); save(); }}>
-        <div className="kicker">TU PERFIL</div>
+        <div className="kicker">Tu perfil</div>
         <Avatar value={avatar} name={name} size={110} />
         <label className="pm-label" htmlFor="pm-name">Nombre</label>
         <input id="pm-name" className="pm-input" value={name} maxLength={24} autoFocus onChange={(e) => setName(e.target.value)} />
@@ -89,7 +89,7 @@ export function Header({ state, saved, onToggleMode, onPickLang, onMenu, challen
       <span className="spacer" />
       <div className="status" title={saved ? "El progreso se guarda en este navegador" : "No se pudo guardar"}>
         <span className={saved ? "dot" : "dot off"} />
-        {saved ? "PROGRESO GUARDADO" : "SIN GUARDAR"}
+        {saved ? "Progreso guardado" : "Sin guardar"}
       </div>
       <MusicMini />
       <button className="icon-btn" onClick={fullscreen} title="Pantalla completa">
@@ -156,11 +156,10 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
           <span className="avatar-edit">EDITAR</span>
         </button>
         <div className="uname">{state.settings.userName || "Programador"}</div>
-        <div className="umotto">Code. Practice. Improve.</div>
       </div>
       <div className="lvl">
         <div className="lvl-head">
-          {lang && isTrack(lang) ? "ESCALÓN" : "NIVEL"} <b>{profile ? String(profile.stage + 1).padStart(2, "0") : "--"}</b>
+          {lang && isTrack(lang) ? "Escalón" : "Nivel"} <b>{profile ? String(profile.stage + 1).padStart(2, "0") : "--"}</b>
           <span style={{ color: "var(--dim)", fontSize: 13 }}> / {String(maxStage).padStart(2, "0")}</span>
         </div>
         <div className="progress"><span style={{ width: `${pct}%` }} /></div>
@@ -178,7 +177,7 @@ export function Sidebar({ state, view, setView, update }: SidebarProps) {
         ))}
       </nav>
       <div className="goal">
-        <h4>OBJETIVO DIARIO</h4>
+        <h4>Objetivo diario</h4>
         <div className="goal-row">
           <svg width="110" height="110" viewBox="0 0 110 110" aria-hidden="true">
             <circle cx="55" cy="55" r={R} stroke="#0a2133" strokeWidth="8" fill="none" />

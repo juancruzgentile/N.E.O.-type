@@ -42,7 +42,7 @@ Las fuentes se incluyen sin modificar, a través de los paquetes de [Fontsource]
 | Fuente | Licencia | Copyright |
 | --- | --- | --- |
 | JetBrains Mono | SIL OFL 1.1 | Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) |
-| Rajdhani | SIL OFL 1.1 | Copyright (c) 2014 Indian Type Foundry (info@indiantypefoundry.com) |
+| IBM Plex Sans | SIL OFL 1.1 | Copyright © 2017 IBM Corp. |
 | Chakra Petch | SIL OFL 1.1 | Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch) |
 
 ```
