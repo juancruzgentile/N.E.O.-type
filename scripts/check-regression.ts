@@ -255,5 +255,22 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   ok(/#include <stdio\.h>/.test(cEntry("c", "Funciones y prototipos").code), "C: el ejemplo completo de funciones incluye stdio.h para compilar");
 }
 
+// ── proyectos: lo que hacen de verdad ──
+{
+  const ts = (await import("typescript")).default;
+  const { PROJECTS } = await import("../src/projects/projects");
+  const texto = PROJECTS.find((p) => p.id === "p05")!.files.find((f) => f.name === "inventario.ts")!.text.split("\nconst inv = new Inventario")[0];
+  const js = ts.transpileModule(texto.replace(/^import .*$/m, ""), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const mod: { exports: { Inventario?: new () => any } } = { exports: {} };
+  new Function("module", "exports", js)(mod, mod.exports);
+  const inv = new mod.exports.Inventario!();
+  const prod = inv.agregar({ nombre: "Yerba", categoria: "comida", precio: 3.5, stock: 10 });
+  const falla = (n: number) => { try { inv.mover(prod.id, n, "salida"); return false; } catch { return true; } };
+  ok(falla(-5) && falla(0) && falla(NaN) && falla(Infinity), "inventario: rechaza cantidades negativas, cero, NaN e Infinity");
+  ok(prod.stock === 10, "inventario: una cantidad inválida no cambia el stock");
+  inv.mover(prod.id, 4, "salida");
+  ok(prod.stock === 6 && inv.historial(prod.id).length === 1, "inventario: una salida válida resta y queda en el historial");
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);

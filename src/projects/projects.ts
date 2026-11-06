@@ -371,6 +371,9 @@ export class Inventario {
     if (!producto) {
       throw new Error("Producto inexistente: " + productoId);
     }
+    if (!Number.isFinite(cantidad) || cantidad <= 0) {
+      throw new Error("La cantidad tiene que ser mayor que cero");
+    }
     if (tipo === "salida" && producto.stock < cantidad) {
       throw new Error("No hay stock suficiente de " + producto.nombre);
     }
@@ -1770,16 +1773,13 @@ volumes:
     files: [
       {
         name: "Makefile", lang: "linux", tabWidth: 0, text: tabs`
-.PHONY: dev web test db clean
+.PHONY: dev web db clean
 
 dev:
     docker compose up --build
 
 web:
     npx tsc web/app.ts --target es2022 --lib es2022,dom --outDir web
-
-test:
-    cd api && python -m pytest -q
 
 db:
     docker compose exec db psql -U tablero -d tablero -f /schema/schema.sql
@@ -2029,11 +2029,11 @@ form {
   margin-left: 0;
 }
 
-.prioridad-1 {
+.columna li.prioridad-1 {
   border-left-color: #f87171;
 }
 
-.prioridad-3 {
+.columna li.prioridad-3 {
   border-left-color: #4ade80;
 }
 
