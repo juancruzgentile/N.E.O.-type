@@ -375,7 +375,7 @@ export class Inventario {
       throw new Error("Producto inexistente: " + productoId);
     }
     if (!Number.isFinite(cantidad) || cantidad <= 0) {
-      throw new Error("La cantidad tiene que ser mayor que cero");
+      throw new Error("Cantidad invalida");
     }
     if (tipo === "salida" && producto.stock < cantidad) {
       throw new Error("No hay stock suficiente de " + producto.nombre);
@@ -2180,6 +2180,10 @@ export default function App() {
     setTareas(tareas.filter((t) => t.id !== id));
   }
 
+  function limpiar() {
+    setTareas(tareas.filter((t) => !t.hecha));
+  }
+
   const visibles = tareas.filter((t) => {
     if (filtro === "pendientes") return !t.hecha;
     if (filtro === "hechas") return t.hecha;
@@ -2211,6 +2215,7 @@ export default function App() {
         ))}
       </ul>
       <p>{pendientes} pendientes</p>
+      <button onClick={limpiar}>Borrar las hechas</button>
     </main>
   );
 }`,
@@ -2295,7 +2300,7 @@ def nuevo(request):
         if form.is_valid():
             articulo = form.save()
             if not articulo.publicado:
-                # un borrador no se muestra al público (detalle daría 404): se revisa en el admin
+                # un borrador no se muestra al publico (detalle daria 404): se revisa en el admin
                 return redirect("lista")
             return redirect("detalle", pk=articulo.pk)
     else:
