@@ -282,5 +282,14 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   ok(/valor\.isFinite, abs\(valor\) < 1_000_000_000/.test(swift), "Swift: parsear rechaza valores infinitos o demasiado grandes para Int");
 }
 
+// el blog de Django no manda a un 404 después de guardar un borrador
+{
+  const { PROJECTS } = await import("../src/projects/projects");
+  const views = PROJECTS.find((p) => p.id === "p19")!.files.find((f) => f.name === "blog/views.py")!.text;
+  const nuevo = views.slice(views.indexOf("def nuevo"));
+  ok(/if not articulo\.publicado:\s+#[^\n]*\n\s+return redirect\("lista"\)/.test(nuevo) && /return redirect\("detalle", pk=articulo\.pk\)/.test(nuevo), "Django: un borrador vuelve a la lista y solo lo publicado redirige al detalle");
+  ok(/get_object_or_404\(Articulo, pk=pk, publicado=True\)/.test(views), "Django: el detalle público sigue exigiendo publicado=True");
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);

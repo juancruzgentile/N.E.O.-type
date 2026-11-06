@@ -2294,6 +2294,9 @@ def nuevo(request):
         form = ArticuloForm(request.POST)
         if form.is_valid():
             articulo = form.save()
+            if not articulo.publicado:
+                # un borrador no se muestra al público (detalle daría 404): se revisa en el admin
+                return redirect("lista")
             return redirect("detalle", pk=articulo.pk)
     else:
         form = ArticuloForm()
