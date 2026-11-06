@@ -40,10 +40,17 @@ const outside = (s: string, fn: (t: string) => string) =>
 const doubleQuotes = (s: string) =>
   pieces(s).map((p) => (p.quoted && p.text[0] === "'" ? `"${p.text.slice(1, p.text.endsWith("'") && p.text.length > 1 ? -1 : undefined)}"` : p.text)).join("");
 
-/** Espacios: uno solo entre palabras y ninguno junto a signos. */
+// operadores de más de un carácter: partirlos con un espacio los convierte en otra cosa (`= >` no es `=>`)
+const OPERATORS = [">>>=", "...", "===", "!==", "<<=", ">>=", ">>>", "**=", "&&=", "||=", "??=", "=>", "==", "!=", "<=", ">=", "&&", "||", "??", "?.", "**", "++", "--", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<", ">>", "->", "::", ":=", "//", "<>", "<-", "=~"];
+const TOKEN = new RegExp(
+  `\\d[\\d_]*(?:\\.\\d+)?(?:[eE][+-]?\\d+)?|[\\p{L}_$][\\p{L}\\p{N}_$]*|${OPERATORS.map((o) => o.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}|\\S`,
+  "gu",
+);
+
+/** Espacios: no importan, salvo los que separan lo que sería otra palabra u otro operador. */
 function tightSpaces(s: string): string {
   // solo fuera de las comillas: el texto de un string tiene que quedar igual
-  return outside(s, (t) => t.replace(/\s+/g, " ").replace(/ (?=[^\w"' ])|(?<=[^\w"' ]) /g, "")).trim();
+  return outside(s, (t) => (t.match(TOKEN) ?? []).join(" ")).trim();
 }
 
 const oneSpace = (s: string) => outside(s, (t) => t.replace(/\s+/g, " ")).trim();

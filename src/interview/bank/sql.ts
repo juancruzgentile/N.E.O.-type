@@ -54,7 +54,7 @@ export const sql = area("sql", [
   op("x", "¿En qué consiste el problema de las consultas N+1?",
     ["En hacer una consulta para la lista y otra por cada fila para sus datos relacionados; se evita con JOIN o carga conjunta", "En hacer una consulta con N+1 columnas, que supera el límite de columnas que permite el motor y obliga a dividir la tabla en dos partes", "En tener N+1 índices sobre una misma tabla, lo que hace lentas las escrituras", "En repetir la misma consulta dos veces para comprobar que el resultado no cambió"],
     "Con 100 filas son 101 viajes a la base de datos en vez de uno o dos.", "https://docs.djangoproject.com/en/5.2/ref/models/querysets/#select-related"),
-  op("x", "En un índice compuesto (a, b), ¿para qué consultas sirve?",
-    ["Para buscar por a, o por a y b juntas; no ayuda si solo se filtra por b", "Solo para buscar por b, porque el motor ignora la primera columna del índice", "Para cualquier combinación de columnas, sin importar el orden en que se escribieron", "Solo para ordenar los resultados, pero no sirve para filtrar con WHERE"],
-    "El orden de las columnas importa: se aprovecha desde la primera hacia la derecha.", P + "indexes-multicolumn.html"),
+  op("x", "En un índice B-tree compuesto (a, b), ¿para qué consultas rinde mejor?",
+    ["Para buscar por a, o por a y b juntas; filtrar solo por b suele aprovecharlo mal", "Solo para buscar por b, porque el motor ignora la primera columna del índice", "Para cualquier combinación de columnas, sin importar el orden en que se escribieron", "Solo para ordenar los resultados, pero no sirve para filtrar con WHERE"],
+    "El orden de las columnas importa: un B-tree rinde más con condiciones sobre las primeras. Con solo b puede usarse, pero es poco eficiente (algunos motores lo mejoran).", P + "indexes-multicolumn.html"),
 ]);

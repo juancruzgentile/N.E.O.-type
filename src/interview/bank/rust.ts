@@ -37,9 +37,9 @@ fn main() {
   op("s", "¿Qué hace el operador `?` en una función que devuelve `Result`?",
     ["Si el valor es Err, devuelve ese error de inmediato; si es Ok, sigue con el valor", "Ignora el error y sigue con la línea siguiente de la función sin avisar", "Convierte el Result en un Option y descarta el mensaje del error original", "Detiene todo el programa con un mensaje y un código de salida distinto de cero"],
     "Reemplaza a un match largo cuando solo querés propagar el error hacia arriba.", B + "ch09-02-recoverable-errors-with-result.html"),
-  op("s", "¿Qué reglas de préstamo aplica Rust?",
-    ["Se permiten muchas referencias inmutables o una sola mutable a la vez, nunca las dos juntas", "Se permiten muchas referencias mutables a la vez, si apuntan a datos distintos", "Se permite una referencia mutable junto con varias inmutables al mismo tiempo", "No hay reglas: el compilador deja usar las referencias como quien programa quiera"],
-    "Evita carreras de datos y referencias que apuntan a algo que cambió.", B + "ch04-02-references-and-borrowing.html"),
+  op("s", "¿Qué reglas de préstamo aplica Rust sobre un mismo dato?",
+    ["Se permiten muchas referencias inmutables o una sola mutable a la vez, nunca las dos juntas", "Se permiten muchas referencias mutables al mismo dato, siempre que todas estén vivas a la vez", "Se permite una referencia mutable junto con varias inmutables al mismo tiempo", "No hay reglas: el compilador deja usar las referencias como quien programa quiera"],
+    "Evita carreras de datos y referencias que apuntan a algo que cambió. Dos &mut a datos distintos sí pueden convivir.", B + "ch04-02-references-and-borrowing.html"),
   sa("s", code`
 fn main() {
     let s = String::from("hola");

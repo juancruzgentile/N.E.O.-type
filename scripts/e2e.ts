@@ -764,6 +764,15 @@ try {
     await page.getByRole("button", { name: "Volver a practicar" }).click();
     ok(await page.getByRole("button", { name: "Repasar las de hoy" }).isDisabled(), "lo fallado hoy vuelve mañana: hoy no hay nada para repasar");
 
+    // terminar sin pulsar Siguiente no pierde la respuesta fallada
+    await page.getByRole("button", { name: "Empezar a practicar" }).click();
+    const antes = Object.keys((await state(page)).interviewReview);
+    const qFallada = await preguntaActual();
+    await responder(false, false);
+    await page.locator(".iv-feedback").waitFor();
+    await page.locator(".iv-progress").getByRole("button", { name: "Terminar" }).click();
+    ok(Object.keys((await state(page)).interviewReview).includes(qFallada.id) && antes.length <= Object.keys((await state(page)).interviewReview).length, "una respuesta fallada se guarda en el repaso aunque se termine sin pulsar Siguiente");
+
     // entrevista simulada: reloj, sin corrección en el medio, aviso al salir e informe
     await page.getByRole("tab", { name: "Entrevista simulada" }).click();
     await page.getByRole("button", { name: "Empezar la entrevista" }).click();
@@ -776,6 +785,10 @@ try {
     ok(await page.getByText("¿Salir de la entrevista?").isVisible(), "salir a mitad de la entrevista pide confirmar");
     await page.getByRole("button", { name: "Seguir con la entrevista" }).click();
     ok(await page.locator(".iv-live").isVisible(), "seguir con la entrevista no la pierde");
+    await page.locator("[data-tour=mode]").click();
+    ok(await page.getByText("¿Salir de la entrevista?").isVisible(), "cambiar de modo a mitad de la entrevista también pide confirmar");
+    await page.getByRole("button", { name: "Seguir con la entrevista" }).click();
+    ok(await page.locator(".iv-live").isVisible(), "cancelar el cambio de modo no pierde la entrevista");
     for (let n = 0; n < 8; n++) {
       await responder(true, true);
       if (n === 0) ok((await page.locator(".iv-feedback").count()) === 0, "en la entrevista no hay corrección hasta el informe");
