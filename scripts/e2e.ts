@@ -814,7 +814,8 @@ try {
     await page.locator(".iv-run").waitFor();
     ok(/Repaso · pregunta 1 de 8/.test((await page.locator(".iv-progress").textContent()) ?? ""), "las falladas del informe se repasan directo");
 
-    // persistencia
+    // persistencia (el guardado va con retraso: se espera a que estén las dos antes de recargar)
+    for (let i = 0; i < 50 && Object.keys((await state(page)).interviews).length < 2; i++) await page.waitForTimeout(100);
     await page.reload();
     await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
     ok((await page.locator(".iv-history li").count()) === 2, "las entrevistas guardadas siguen después de recargar");
