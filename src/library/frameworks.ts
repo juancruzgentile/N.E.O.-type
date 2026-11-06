@@ -1,6 +1,6 @@
 // Frameworks: una sección de la Biblioteca que no aparece en ningún lado (ni en el menú, ni en la búsqueda) hasta
-// que se gana. Cada framework se abre por su lenguaje: terminar la ruta de ese lenguaje y al menos un proyecto que
-// lo use. Las condiciones están en unlock.ts.
+// que se gana. Cada framework se abre con la ruta de su lenguaje y el proyecto de ese framework. Las condiciones están
+// en unlock.ts.
 import type { CodeLangId } from "../types";
 import { type Topic, a, b, code, m } from "./types";
 import { compose, laravel, swiftui } from "./frameworks-moviles";
@@ -8,8 +8,8 @@ import { compose, laravel, swiftui } from "./frameworks-moviles";
 export interface Framework extends Topic {
   /** se desbloquea con cualquiera de estos lenguajes: su ruta completa y un proyecto que lo use */
   langs: CodeLangId[];
-  /** ids de los proyectos que lo abren (junto con la ruta del lenguaje); si falta, vale cualquier proyecto en ese lenguaje */
-  projects?: string[];
+  /** ids de los proyectos que lo abren, junto con la ruta del lenguaje: alcanza con terminar uno de ellos */
+  projects: string[];
 }
 
 export const react: Framework = {
@@ -21,6 +21,7 @@ export const react: Framework = {
   color: "#61dafb",
   hl: "typescript",
   langs: ["typescript", "javascript"],
+  projects: ["p18"],
   summary:
     "Biblioteca de Meta para armar interfaces con componentes: funciones que reciben datos (props) y devuelven lo que " +
     "se ve, escrito en JSX. Cuando cambia el estado, React vuelve a dibujar solo lo necesario. Con TypeScript, los " +
@@ -204,6 +205,7 @@ export const fastapi: Framework = {
   color: "#05998b",
   hl: "python",
   langs: ["python"],
+  projects: ["p12", "p14", "p10"],
   summary:
     "Framework de Python para APIs web. Los tipos de Python definen qué entra y qué sale: con ellos valida los datos " +
     "(con Pydantic), convierte a JSON y arma la documentación interactiva en /docs sin escribir nada más.",
@@ -365,6 +367,7 @@ export const django: Framework = {
   color: "#44b78b",
   hl: "python",
   langs: ["python"],
+  projects: ["p19"],
   summary:
     "Framework web de Python \"con pilas incluidas\": ORM, migraciones, panel de administración, autenticación, " +
     "formularios y plantillas vienen de fábrica. Un proyecto se divide en apps, cada una con sus modelos, vistas y URLs.",
@@ -510,6 +513,7 @@ export const spring: Framework = {
   color: "#6db33f",
   hl: "java",
   langs: ["java"],
+  projects: ["p20"],
   summary:
     "El framework más usado en back-end con Java. Spring Boot arranca una aplicación lista para producción con " +
     "configuración automática: servidor web embebido, inyección de dependencias, acceso a datos con JPA, seguridad " +
@@ -650,6 +654,7 @@ export const aspnet: Framework = {
   color: "#7a5cff",
   hl: "csharp",
   langs: ["csharp"],
+  projects: ["p21"],
   summary:
     "El framework web de .NET para APIs, sitios y servicios en tiempo real. Con las minimal APIs, una API entera entra " +
     "en Program.cs; para proyectos grandes están los controladores. Trae inyección de dependencias, configuración y " +

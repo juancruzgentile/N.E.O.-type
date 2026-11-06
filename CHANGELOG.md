@@ -6,6 +6,14 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Cuatro proyectos con un framework: una **lista de tareas con React**, un **blog con Django**, una **API de libros con
+  Spring Boot** y una **API de tareas con ASP.NET Core**. Se abren con el proyecto de su lenguaje (el de TypeScript, el
+  de SQLite, el de reservas en Java y el gestor de notas en C#), así que el tablero full stack sigue abriéndose con el
+  acortador de enlaces. Ahora hay 21 proyectos.
+- Los frameworks de la sección oculta (React, FastAPI, Django, Spring Boot y ASP.NET Core) se abren con la ruta de su
+  lenguaje **y el proyecto de ese framework**: ya no alcanza con cualquier proyecto en el lenguaje. FastAPI se abre con
+  cualquiera de sus tres proyectos. Lo que ya tenías abierto no se pierde: la primera vez que entrás se guarda y queda
+  abierto para siempre, y lo que ganás de ahora en adelante también se guarda.
 - Tres proyectos de nivel medio, uno por lenguaje que todavía no tenía: un **conversor de unidades** en Swift, una
   **biblioteca de préstamos** en Kotlin y un **mini router de URLs** en PHP. Se abren al terminar el contador de
   palabras y entre ellos en ese orden; el de SQLite sigue abriéndose con el contador, así que nadie queda bloqueado.

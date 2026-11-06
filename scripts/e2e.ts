@@ -391,7 +391,7 @@ try {
     const { page, errors, ctx } = await open(browser, seedState({ lang: "python" }));
     await page.locator(".nav").getByRole("button", { name: "Desafíos" }).click();
     const cards = page.locator(".project-card");
-    ok((await cards.count()) === 17, "hay 17 proyectos");
+    ok((await cards.count()) === 21, "hay 21 proyectos");
     ok((await cards.nth(1).locator(".btn").count()) === 0 && /Terminá el proyecto 1/.test((await cards.nth(1).textContent()) ?? ""), "el proyecto 2 empieza bloqueado");
     await cards.nth(0).getByRole("button", { name: "Empezar" }).click();
     await page.waitForFunction(() => document.activeElement?.classList.contains("ta-hidden"));
@@ -473,7 +473,7 @@ try {
     await ctx.close();
   }
 
-  // 11b. frameworks: ocultos hasta ganarlos (ruta de Python dominada + un proyecto en Python)
+  // 11b. frameworks: ocultos hasta ganarlos (ruta de Python dominada + el proyecto del framework)
   {
     const hidden = await open(browser, seedState({ lang: "python" }));
     await hidden.page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
@@ -489,16 +489,36 @@ try {
     const won = await open(browser, seedState({
       lang: "python",
       profiles: { "python:it": { stage: LANGS.python.stages.length - 1, steps: {}, keys, lessons: [], totals: { n: 0, ms: 0, chars: 0, best: 0 }, score: 0 } },
-      projects: { p01: { ms: 60000, wpm: 30, acc: 1, ts: 1 } },
+      projects: { p12: { ms: 60000, wpm: 30, acc: 1, ts: 1 } },
+      frameworksChecked: true, // alguien que ya pasó por la revisión de la regla anterior
     }));
     await won.page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
     await won.page.locator(".library").waitFor();
-    ok((await won.page.locator(".lib-group-name").allTextContents()).includes("Frameworks"), "con la ruta de Python y un proyecto, aparece la sección Frameworks");
+    ok((await won.page.locator(".lib-group-name").allTextContents()).includes("Frameworks"), "con la ruta de Python y la API de recetas, aparece la sección Frameworks");
     await won.page.locator(".lib-nav").getByRole("button", { name: /FastAPI/ }).click();
     ok((await won.page.locator(".lib-head h3").textContent()) === "FastAPI", "se puede abrir FastAPI");
     ok(!(await won.page.locator(".lib-nav").getByRole("button", { name: /React/ }).count()), "React sigue oculto (no terminaste TypeScript ni JavaScript)");
+    ok(!(await won.page.locator(".lib-nav").getByRole("button", { name: /Django/ }).count()), "Django sigue oculto: hace falta su propio proyecto, no cualquiera en Python");
     ok(won.errors.length === 0, `frameworks sin errores de consola${won.errors.length ? ": " + won.errors[0] : ""}`);
     await won.ctx.close();
+
+    // quien ya tenía frameworks con la regla anterior (ruta + cualquier proyecto en Python) no los pierde, una sola vez
+    const rec = { ms: 60000, wpm: 30, acc: 1, ts: 1 };
+    const profile = { stage: LANGS.python.stages.length - 1, steps: {}, keys, lessons: [], totals: { n: 0, ms: 0, chars: 0, best: 0 }, score: 0 };
+    const viejo = await open(browser, seedState({ lang: "python", profiles: { "python:it": profile }, projects: { p01: rec } }));
+    await viejo.page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await viejo.page.locator(".library").waitFor();
+    ok(
+      (await viejo.page.locator(".lib-nav").getByRole("button", { name: /Django/ }).count()) === 1 && (await viejo.page.locator(".lib-nav").getByRole("button", { name: /FastAPI/ }).count()) === 1,
+      "quien ya tenía Django y FastAPI con la regla anterior los conserva",
+    );
+    ok(Object.keys((await state(viejo.page)).frameworks).sort().join() === "django,fastapi" && (await state(viejo.page)).frameworksChecked === true, "y quedan guardados para no volver a ocultarse");
+    await viejo.ctx.close();
+    const nuevo = await open(browser, seedState({ lang: "python", profiles: { "python:it": profile }, projects: { p01: rec }, frameworksChecked: true }));
+    await nuevo.page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await nuevo.page.locator(".library").waitFor();
+    ok(!(await nuevo.page.locator(".lib-group-name").allTextContents()).includes("Frameworks"), "con la revisión ya hecha, un proyecto cualquiera en Python no abre nada");
+    await nuevo.ctx.close();
   }
 
   // 12. practicar un ejemplo de la Biblioteca y repasarlo intercalado en las lecciones

@@ -45,6 +45,8 @@ export const initialState = (): AppState => ({
   achievements: {},
   interviewReview: {},
   interviews: {},
+  frameworks: {},
+  frameworksChecked: false,
 });
 
 const stagesOf = (l: LangId) => stageCount(l);
@@ -81,7 +83,7 @@ function readRaw(): string | null {
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** Partes del estado que se combinan clave por clave. */
-const MAPS = ["settings", "profiles", "days", "challenges", "projects", "review", "recall", "shortcuts", "achievements", "interviewReview", "interviews"] as const;
+const MAPS = ["settings", "profiles", "days", "challenges", "projects", "review", "recall", "shortcuts", "achievements", "interviewReview", "interviews", "frameworks"] as const;
 
 /**
  * Combina los cambios de esta ventana (`ours`) con los de otra (`theirs`),
@@ -92,6 +94,8 @@ export function mergeStates(base: AppState, ours: AppState, theirs: AppState): A
   const out = { ...theirs } as AppState;
   if (ours.lang !== base.lang) out.lang = ours.lang;
   if (ours.mode !== base.mode) out.mode = ours.mode;
+  // la revisión de frameworks solo pasa de falso a verdadero
+  out.frameworksChecked = theirs.frameworksChecked || ours.frameworksChecked;
   for (const k of MAPS) {
     const b = base[k] as Record<string, unknown>;
     const o = ours[k] as Record<string, unknown>;

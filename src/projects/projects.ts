@@ -44,6 +44,7 @@ const tabs = (s: TemplateStringsArray) =>
   src(s).replace(/^(?: {4})+/gm, (m) => "\t".repeat(m.length / 4));
 
 const py = (name: string, text: string): ProjectFile => ({ name, lang: "python", tabWidth: 4, text });
+const html = (name: string, text: string): ProjectFile => ({ name, lang: "html", tabWidth: 2, text });
 
 export const PROJECTS: Project[] = [
   {
@@ -2100,8 +2101,681 @@ volumes:
     ],
   },
   {
-    id: "p10",
+    id: "p18",
     num: 17,
+    title: "Lista de tareas con React",
+    level: "Avanzado",
+    stack: ["TypeScript", "React"],
+    desc: "Una aplicación de tareas con componentes: se agregan, se marcan, se borran y se filtran, con el estado en un solo lugar.",
+    skills: "componentes, props tipadas, useState y listas con key de React",
+    after: "p05",
+    files: [
+      {
+        name: "Tarea.tsx",
+        lang: "typescript",
+        tabWidth: 2,
+        text: src`
+export interface Tarea {
+  id: number;
+  titulo: string;
+  hecha: boolean;
+}
+
+interface Props {
+  tarea: Tarea;
+  alCambiar: (id: number) => void;
+  alBorrar: (id: number) => void;
+}
+
+export function FilaTarea({ tarea, alCambiar, alBorrar }: Props) {
+  return (
+    <li className={tarea.hecha ? "hecha" : ""}>
+      <label>
+        <input
+          type="checkbox"
+          checked={tarea.hecha}
+          onChange={() => alCambiar(tarea.id)}
+        />
+        {tarea.titulo}
+      </label>
+      <button onClick={() => alBorrar(tarea.id)}>Borrar</button>
+    </li>
+  );
+}`,
+      },
+      {
+        name: "App.tsx",
+        lang: "typescript",
+        tabWidth: 2,
+        text: src`
+import { type FormEvent, useState } from "react";
+import { FilaTarea, type Tarea } from "./Tarea";
+
+type Filtro = "todas" | "pendientes" | "hechas";
+const FILTROS: Filtro[] = ["todas", "pendientes", "hechas"];
+
+export default function App() {
+  const [tareas, setTareas] = useState<Tarea[]>([]);
+  const [texto, setTexto] = useState("");
+  const [filtro, setFiltro] = useState<Filtro>("todas");
+
+  function agregar(e: FormEvent) {
+    e.preventDefault();
+    const titulo = texto.trim();
+    if (!titulo) return;
+    setTareas([...tareas, { id: Date.now(), titulo, hecha: false }]);
+    setTexto("");
+  }
+
+  function cambiar(id: number) {
+    setTareas(tareas.map((t) => (t.id === id ? { ...t, hecha: !t.hecha } : t)));
+  }
+
+  function borrar(id: number) {
+    setTareas(tareas.filter((t) => t.id !== id));
+  }
+
+  const visibles = tareas.filter((t) => {
+    if (filtro === "pendientes") return !t.hecha;
+    if (filtro === "hechas") return t.hecha;
+    return true;
+  });
+  const pendientes = tareas.filter((t) => !t.hecha).length;
+
+  return (
+    <main>
+      <h1>Tareas</h1>
+      <form onSubmit={agregar}>
+        <input
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          placeholder="Nueva tarea"
+        />
+        <button type="submit">Agregar</button>
+      </form>
+      <nav>
+        {FILTROS.map((f) => (
+          <button key={f} disabled={f === filtro} onClick={() => setFiltro(f)}>
+            {f}
+          </button>
+        ))}
+      </nav>
+      <ul>
+        {visibles.map((t) => (
+          <FilaTarea key={t.id} tarea={t} alCambiar={cambiar} alBorrar={borrar} />
+        ))}
+      </ul>
+      <p>{pendientes} pendientes</p>
+    </main>
+  );
+}`,
+      },
+    ],
+  },
+  {
+    id: "p19",
+    num: 18,
+    title: "Blog con Django",
+    level: "Experto",
+    stack: ["Python", "Django"],
+    desc: "Las piezas de una app Django: modelos con relación, un formulario con validación, vistas, rutas y el panel de administración.",
+    skills: "modelos, ModelForm, vistas, urls y admin de Django",
+    after: "p07",
+    files: [
+      py("blog/models.py", src`
+from django.db import models
+
+
+class Autor(models.Model):
+    nombre = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name_plural = "autores"
+
+    def __str__(self):
+        return self.nombre
+
+
+class Articulo(models.Model):
+    autor = models.ForeignKey(Autor, on_delete=models.CASCADE, related_name="articulos")
+    titulo = models.CharField(max_length=200)
+    cuerpo = models.TextField()
+    publicado = models.BooleanField(default=False)
+    creado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-creado"]
+
+    def __str__(self):
+        return self.titulo
+
+    def resumen(self):
+        return self.cuerpo[:100]`),
+      py("blog/forms.py", src`
+from django import forms
+
+from .models import Articulo
+
+
+class ArticuloForm(forms.ModelForm):
+    class Meta:
+        model = Articulo
+        fields = ["autor", "titulo", "cuerpo", "publicado"]
+
+    def clean_titulo(self):
+        titulo = self.cleaned_data["titulo"].strip()
+        if len(titulo) < 5:
+            raise forms.ValidationError("El titulo es muy corto")
+        return titulo`),
+      py("blog/views.py", src`
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import ArticuloForm
+from .models import Articulo
+
+
+def lista(request):
+    articulos = Articulo.objects.filter(publicado=True).select_related("autor")
+    return render(request, "blog/lista.html", {"articulos": articulos})
+
+
+def detalle(request, pk):
+    articulo = get_object_or_404(Articulo, pk=pk, publicado=True)
+    return render(request, "blog/detalle.html", {"articulo": articulo})
+
+
+def nuevo(request):
+    if request.method == "POST":
+        form = ArticuloForm(request.POST)
+        if form.is_valid():
+            articulo = form.save()
+            return redirect("detalle", pk=articulo.pk)
+    else:
+        form = ArticuloForm()
+    return render(request, "blog/formulario.html", {"form": form})`),
+      py("blog/urls.py", src`
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("", views.lista, name="lista"),
+    path("articulos/nuevo/", views.nuevo, name="nuevo"),
+    path("articulos/<int:pk>/", views.detalle, name="detalle"),
+]`),
+      html("blog/templates/blog/lista.html", src`
+<h1>Blog</h1>
+<ul>
+  {% for articulo in articulos %}
+    <li>
+      <a href="{% url 'detalle' articulo.pk %}">{{ articulo.titulo }}</a>
+      por {{ articulo.autor }}
+    </li>
+  {% empty %}
+    <li>Todavia no hay articulos.</li>
+  {% endfor %}
+</ul>
+<a href="{% url 'nuevo' %}">Escribir un articulo</a>`),
+      html("blog/templates/blog/detalle.html", src`
+<h1>{{ articulo.titulo }}</h1>
+<p>Por {{ articulo.autor }} el {{ articulo.creado|date:"d/m/Y" }}</p>
+<div>{{ articulo.cuerpo|linebreaks }}</div>
+<a href="{% url 'lista' %}">Volver</a>`),
+      html("blog/templates/blog/formulario.html", src`
+<h1>Nuevo articulo</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Guardar</button>
+</form>
+<a href="{% url 'lista' %}">Cancelar</a>`),
+      py("blog/admin.py", src`
+from django.contrib import admin
+
+from .models import Articulo, Autor
+
+
+@admin.register(Articulo)
+class ArticuloAdmin(admin.ModelAdmin):
+    list_display = ["titulo", "autor", "publicado", "creado"]
+    list_filter = ["publicado", "autor"]
+    search_fields = ["titulo", "cuerpo"]
+
+
+admin.site.register(Autor)`),
+    ],
+  },
+  {
+    id: "p20",
+    num: 19,
+    title: "API de libros con Spring Boot",
+    level: "Experto",
+    stack: ["Java", "Spring Boot"],
+    desc: "Una API REST con las capas de Spring: controlador, servicio, un registro como DTO validado y un manejador de errores.",
+    skills: "controladores, inyección por constructor, validación y manejo de errores de Spring Boot",
+    after: "p09",
+    files: [
+      {
+        name: "src/main/java/ejemplo/biblioteca/BibliotecaApplication.java",
+        lang: "java",
+        tabWidth: 4,
+        text: src`
+package ejemplo.biblioteca;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class BibliotecaApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(BibliotecaApplication.class, args);
+    }
+}`,
+      },
+      {
+        name: "src/main/java/ejemplo/biblioteca/Libro.java",
+        lang: "java",
+        tabWidth: 4,
+        text: src`
+package ejemplo.biblioteca;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+
+public record Libro(
+        Long id,
+        @NotBlank(message = "El titulo es obligatorio") String titulo,
+        @NotBlank(message = "El autor es obligatorio") String autor,
+        @Positive(message = "Las paginas tienen que ser positivas") int paginas) {
+}`,
+      },
+      {
+        name: "src/main/java/ejemplo/biblioteca/LibroNoEncontradoException.java",
+        lang: "java",
+        tabWidth: 4,
+        text: src`
+package ejemplo.biblioteca;
+
+public class LibroNoEncontradoException extends RuntimeException {
+
+    public LibroNoEncontradoException(long id) {
+        super("No existe el libro " + id);
+    }
+}`,
+      },
+      {
+        name: "src/main/java/ejemplo/biblioteca/LibroService.java",
+        lang: "java",
+        tabWidth: 4,
+        text: src`
+package ejemplo.biblioteca;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.stereotype.Service;
+
+@Service
+public class LibroService {
+
+    private final List<Libro> libros = new ArrayList<>();
+    private final AtomicLong siguiente = new AtomicLong(1);
+
+    public synchronized List<Libro> todos(String autor) {
+        return libros.stream()
+                .filter(libro -> autor == null || libro.autor().equalsIgnoreCase(autor))
+                .toList();
+    }
+
+    public synchronized Libro buscar(long id) {
+        return libros.stream()
+                .filter(libro -> libro.id() == id)
+                .findFirst()
+                .orElseThrow(() -> new LibroNoEncontradoException(id));
+    }
+
+    public synchronized Libro crear(Libro datos) {
+        Libro libro = new Libro(siguiente.getAndIncrement(), datos.titulo(), datos.autor(), datos.paginas());
+        libros.add(libro);
+        return libro;
+    }
+
+    public synchronized void borrar(long id) {
+        Libro libro = buscar(id);
+        libros.remove(libro);
+    }
+}`,
+      },
+      {
+        name: "src/main/java/ejemplo/biblioteca/LibroController.java",
+        lang: "java",
+        tabWidth: 4,
+        text: src`
+package ejemplo.biblioteca;
+
+import jakarta.validation.Valid;
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/libros")
+public class LibroController {
+
+    private final LibroService servicio;
+
+    public LibroController(LibroService servicio) {
+        this.servicio = servicio;
+    }
+
+    @GetMapping
+    public List<Libro> listar(@RequestParam(required = false) String autor) {
+        return servicio.todos(autor);
+    }
+
+    @GetMapping("/{id}")
+    public Libro mostrar(@PathVariable long id) {
+        return servicio.buscar(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Libro crear(@Valid @RequestBody Libro datos) {
+        return servicio.crear(datos);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void borrar(@PathVariable long id) {
+        servicio.borrar(id);
+    }
+}`,
+      },
+      {
+        name: "src/main/java/ejemplo/biblioteca/ManejadorErrores.java",
+        lang: "java",
+        tabWidth: 4,
+        text: src`
+package ejemplo.biblioteca;
+
+import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class ManejadorErrores {
+
+    @ExceptionHandler(LibroNoEncontradoException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> noEncontrado(LibroNoEncontradoException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> invalido(MethodArgumentNotValidException e) {
+        String mensaje = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .findFirst()
+                .orElse("Datos invalidos");
+        return Map.of("error", mensaje);
+    }
+}`,
+      },
+    ],
+  },
+  {
+    id: "p21",
+    num: 20,
+    title: "API de tareas con ASP.NET Core",
+    level: "Experto",
+    stack: ["C#", "ASP.NET Core"],
+    desc: "Una minimal API con grupo de rutas, un servicio por inyección de dependencias, validación, un middleware y un resumen.",
+    skills: "minimal APIs, Results, inyección de dependencias, validación y middleware de ASP.NET Core",
+    after: "p11",
+    files: [
+      {
+        name: "Tareas.csproj",
+        lang: "html",
+        tabWidth: 2,
+        text: src`
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>`,
+      },
+      {
+        name: "Reloj.cs",
+        lang: "csharp",
+        tabWidth: 4,
+        text: src`
+namespace Tareas;
+
+public interface IReloj
+{
+    DateTime Ahora();
+}
+
+public class RelojSistema : IReloj
+{
+    public DateTime Ahora() => DateTime.UtcNow;
+}`,
+      },
+      {
+        name: "Modelos.cs",
+        lang: "csharp",
+        tabWidth: 4,
+        text: src`
+namespace Tareas;
+
+public record Tarea(int Id, string Titulo, bool Hecha, DateTime Creada);
+
+public record Resumen(int Total, int Hechas, int Pendientes);
+
+public class NuevaTarea
+{
+    public string? Titulo { get; set; }
+
+    public Dictionary<string, string[]> Validar()
+    {
+        var errores = new Dictionary<string, string[]>();
+        if (string.IsNullOrWhiteSpace(Titulo))
+        {
+            errores["titulo"] = new[] { "El titulo es obligatorio" };
+        }
+        else if (Titulo.Length > 100)
+        {
+            errores["titulo"] = new[] { "El titulo no puede pasar de 100 caracteres" };
+        }
+        return errores;
+    }
+}`,
+      },
+      {
+        name: "Repositorio.cs",
+        lang: "csharp",
+        tabWidth: 4,
+        text: src`
+namespace Tareas;
+
+public class RepositorioTareas
+{
+    private readonly List<Tarea> _tareas = new();
+    private readonly object _candado = new();
+    private readonly IReloj _reloj;
+    private int _siguiente = 1;
+
+    public RepositorioTareas(IReloj reloj)
+    {
+        _reloj = reloj;
+    }
+
+    public IReadOnlyList<Tarea> Todas(bool? hechas = null, int pagina = 1, int porPagina = 10)
+    {
+        lock (_candado)
+        {
+            return _tareas
+                .Where(t => hechas is null || t.Hecha == hechas)
+                .OrderBy(t => t.Creada)
+                .Skip((Math.Max(pagina, 1) - 1) * porPagina)
+                .Take(porPagina)
+                .ToList();
+        }
+    }
+
+    public Tarea? Buscar(int id)
+    {
+        lock (_candado)
+        {
+            return _tareas.FirstOrDefault(t => t.Id == id);
+        }
+    }
+
+    public Tarea Crear(string titulo)
+    {
+        lock (_candado)
+        {
+            var tarea = new Tarea(_siguiente++, titulo.Trim(), false, _reloj.Ahora());
+            _tareas.Add(tarea);
+            return tarea;
+        }
+    }
+
+    public Tarea? MarcarHecha(int id)
+    {
+        lock (_candado)
+        {
+            var indice = _tareas.FindIndex(t => t.Id == id);
+            if (indice < 0)
+            {
+                return null;
+            }
+            _tareas[indice] = _tareas[indice] with { Hecha = true };
+            return _tareas[indice];
+        }
+    }
+
+    public Tarea? Renombrar(int id, string titulo)
+    {
+        lock (_candado)
+        {
+            var indice = _tareas.FindIndex(t => t.Id == id);
+            if (indice < 0)
+            {
+                return null;
+            }
+            _tareas[indice] = _tareas[indice] with { Titulo = titulo.Trim() };
+            return _tareas[indice];
+        }
+    }
+
+    public bool Borrar(int id)
+    {
+        lock (_candado)
+        {
+            return _tareas.RemoveAll(t => t.Id == id) > 0;
+        }
+    }
+
+    public Resumen Resumir()
+    {
+        lock (_candado)
+        {
+            var hechas = _tareas.Count(t => t.Hecha);
+            return new Resumen(_tareas.Count, hechas, _tareas.Count - hechas);
+        }
+    }
+}`,
+      },
+      {
+        name: "Program.cs",
+        lang: "csharp",
+        tabWidth: 4,
+        text: src`
+using Tareas;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<IReloj, RelojSistema>();
+builder.Services.AddSingleton<RepositorioTareas>();
+
+var app = builder.Build();
+
+app.Use(async (contexto, siguiente) =>
+{
+    var inicio = DateTime.UtcNow;
+    await siguiente();
+    var ms = (DateTime.UtcNow - inicio).TotalMilliseconds;
+    app.Logger.LogInformation("{Metodo} {Ruta} -> {Estado} en {Ms} ms",
+        contexto.Request.Method, contexto.Request.Path, contexto.Response.StatusCode, ms);
+});
+
+app.MapGet("/", () => "API de tareas");
+
+var tareas = app.MapGroup("/tareas");
+
+tareas.MapGet("/", (RepositorioTareas repo, bool? hechas, int? pagina) =>
+    Results.Ok(repo.Todas(hechas, pagina ?? 1)));
+
+tareas.MapGet("/resumen", (RepositorioTareas repo) =>
+    Results.Ok(repo.Resumir()));
+
+tareas.MapGet("/{id:int}", (int id, RepositorioTareas repo) =>
+    repo.Buscar(id) is Tarea tarea ? Results.Ok(tarea) : Results.NotFound());
+
+tareas.MapPost("/", (NuevaTarea datos, RepositorioTareas repo) =>
+{
+    var errores = datos.Validar();
+    if (errores.Count > 0)
+    {
+        return Results.ValidationProblem(errores);
+    }
+
+    var tarea = repo.Crear(datos.Titulo!);
+    return Results.Created("/tareas/" + tarea.Id, tarea);
+});
+
+tareas.MapPut("/{id:int}", (int id, NuevaTarea datos, RepositorioTareas repo) =>
+{
+    var errores = datos.Validar();
+    if (errores.Count > 0)
+    {
+        return Results.ValidationProblem(errores);
+    }
+
+    return repo.Renombrar(id, datos.Titulo!) is Tarea tarea ? Results.Ok(tarea) : Results.NotFound();
+});
+
+tareas.MapPut("/{id:int}/hecha", (int id, RepositorioTareas repo) =>
+    repo.MarcarHecha(id) is Tarea tarea ? Results.Ok(tarea) : Results.NotFound());
+
+tareas.MapDelete("/{id:int}", (int id, RepositorioTareas repo) =>
+    repo.Borrar(id) ? Results.NoContent() : Results.NotFound());
+
+app.Run();`,
+      },
+    ],
+  },
+  {
+    id: "p10",
+    num: 21,
+    after: "p14",
     title: "Tablero de tareas full stack",
     level: "Maestro",
     stack: ["Makefile", "Docker", "YAML", "SQL", "Python", "HTML", "CSS", "TypeScript"],

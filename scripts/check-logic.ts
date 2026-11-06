@@ -20,7 +20,7 @@ import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKe
 import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
 import { TypingSession } from "../src/engine/session";
 import { SOON, TOPICS } from "../src/library/index";
-import { ALL_TOPICS, frameworkUnlocked, routeDone, visibleTopics } from "../src/library/unlock";
+import { ALL_TOPICS, frameworkUnlocked, frameworksToGrant, routeDone, visibleTopics } from "../src/library/unlock";
 import { FRAMEWORKS } from "../src/library/frameworks";
 import { entryId, normalize, search } from "../src/library/search";
 import { PROJECTS, projectUnlocked, requiredNum } from "../src/projects/projects";
@@ -595,17 +595,27 @@ for (const [lang, code] of [
   const pyDone = { ...base.profiles["python:it"], stage: lastPy, steps: {}, keys, lessons: [], totals: totalsOf([]), score: 0 };
   const rec = { ms: 60000, wpm: 30, acc: 1, ts: 1 };
   const route = { ...base, profiles: { "python:it": pyDone } };
-  const project = { ...base, projects: { p01: rec } };
-  const both = { ...route, projects: { p01: rec } };
+  const project = { ...base, projects: { p12: rec } };
+  const both = { ...route, projects: { p12: rec } };
   const fw = (id: string) => FRAMEWORKS.find((f) => f.id === id)!;
   ok(routeDone(route, "python") && !routeDone(base, "python"), "la ruta de Python cuenta como terminada solo con todo dominado");
   ok(!frameworkUnlocked(base, fw("fastapi")), "sin nada hecho, FastAPI está oculto");
   ok(!frameworkUnlocked(route, fw("fastapi")) && !frameworkUnlocked(project, fw("fastapi")), "la ruta sola o un proyecto solo no alcanzan");
-  ok(frameworkUnlocked(both, fw("fastapi")) && frameworkUnlocked(both, fw("django")), "ruta de Python + un proyecto en Python abren FastAPI y Django");
+  ok(frameworkUnlocked(both, fw("fastapi")) && !frameworkUnlocked(both, fw("django")), "la ruta de Python + la API de recetas abren FastAPI, pero no Django");
+  ok(frameworkUnlocked({ ...route, projects: { p19: rec } }, fw("django")) && !frameworkUnlocked({ ...route, projects: { p19: rec } }, fw("fastapi")), "la ruta de Python + el blog abren Django, pero no FastAPI");
+  ok(!frameworkUnlocked({ ...route, projects: { p01: rec, p02: rec } }, fw("django")), "un proyecto cualquiera en Python ya no alcanza");
   ok(!frameworkUnlocked(both, fw("react")) && !frameworkUnlocked(both, fw("spring")), "los frameworks de otros lenguajes siguen ocultos");
   ok(!visibleTopics(base).some((t) => t.group === "Frameworks"), "al principio la Biblioteca no muestra ningún framework");
   ok(!search(visibleTopics(base), "fastapi").some((h) => h.topic.group === "Frameworks"), "la búsqueda tampoco encuentra frameworks ocultos");
-  ok(visibleTopics(both).filter((t) => t.group === "Frameworks").map((t) => t.id).join() === "fastapi,django", "una vez ganados, aparecen en la Biblioteca");
+  ok(visibleTopics(both).filter((t) => t.group === "Frameworks").map((t) => t.id).join() === "fastapi", "una vez ganados, aparecen en la Biblioteca");
+  // lo ganado queda guardado y no se oculta, y lo que se tenía con la regla anterior se respeta una sola vez
+  const antes = { ...route, projects: { p01: rec } };
+  ok(frameworksToGrant(antes).map((f) => f.id).join() === "fastapi,django", "la primera vez se guardan los frameworks que ya tenías con la regla anterior");
+  ok(frameworksToGrant({ ...antes, frameworksChecked: true }).length === 0, "después de esa primera revisión ya no se regalan");
+  ok(frameworksToGrant(base).length === 0, "sin nada hecho no se guarda ningún framework");
+  ok(frameworksToGrant({ ...both, frameworksChecked: true }).map((f) => f.id).join() === "fastapi", "con la regla de hoy se guarda el que se gana");
+  ok(frameworkUnlocked({ ...base, frameworks: { django: 1 } }, fw("django")), "un framework guardado sigue abierto aunque ya no se cumpla la regla");
+  ok(frameworksToGrant({ ...base, frameworks: { fastapi: 1 }, frameworksChecked: true, projects: { p12: rec }, profiles: route.profiles }).length === 0, "no se vuelve a guardar el que ya está guardado");
   // SwiftUI, Compose y Laravel: la ruta de su lenguaje y SU proyecto (no cualquiera)
   const rutaDe = (lang: "swift" | "kotlin" | "php") => {
     const last = LANGS[lang].stages.length - 1;
@@ -620,8 +630,8 @@ for (const [lang, code] of [
     const otro = moviles.find(([, , pr]) => pr !== proj)![2];
     ok(!frameworkUnlocked({ ...ruta, projects: { [otro]: rec } }, fw(id)), `${id}: el proyecto de otro lenguaje no lo abre`);
   }
-  const unreachable = FRAMEWORKS.filter((f) => !PROJECTS.some((p) => p.files.some((x) => (f.langs as string[]).includes(x.lang))));
-  ok(unreachable.length === 0, `cada framework tiene algún proyecto en su lenguaje, si no nadie lo podría abrir${unreachable.length ? " — " + unreachable.map((f) => f.name).join(", ") : ""}`);
+  const sinProyecto = FRAMEWORKS.filter((f) => !f.projects.length || f.projects.some((id) => !PROJECTS.some((p) => p.id === id && p.files.some((x) => (f.langs as string[]).includes(x.lang)))));
+  ok(sinProyecto.length === 0, `cada framework tiene su proyecto, y ese proyecto existe y usa su lenguaje, si no nadie lo podría abrir${sinProyecto.length ? " — " + sinProyecto.map((f) => f.name).join(", ") : ""}`);
 }
 
 // ── desbloqueo de proyectos ──
@@ -636,7 +646,7 @@ for (const [lang, code] of [
   ok(projectUnlocked({ p15: rec }, at("p16")) && projectUnlocked({ p16: rec }, at("p17")) && !projectUnlocked({ p15: rec }, at("p17")), "Swift, Kotlin y PHP se abren en ese orden");
   ok(projectUnlocked({ p06: rec }, at("p07")) && requiredNum(at("p07")) === 6, "el de SQLite sigue abriéndose con el 6, aunque ahora haya tres proyectos en el medio");
   ok(requiredNum(at("p16")) === 7 && requiredNum(at("p11")) === 12, "cada proyecto sabe cuál hay que terminar antes");
-  ok(PROJECTS.every((p, i) => p.num === i + 1) && PROJECTS.at(-1)?.id === "p10", "el tablero es el 17 y conserva su id");
+  ok(PROJECTS.every((p, i) => p.num === i + 1) && PROJECTS.at(-1)?.id === "p10", "el tablero es el 21 y conserva su id");
 }
 
 // ── entrevistas ──
@@ -722,6 +732,8 @@ for (const [lang, code] of [
   const rec = limpio.interviews.i1762300000000;
   ok(Object.keys(limpio.interviews).length === 1 && rec.puesto === "general" && rec.nivel === "junior" && rec.ok === 8 && rec.total === 8, "las entrevistas guardadas se corrigen: puesto y nivel conocidos, bien <= total");
   ok(Object.keys(rec.areas).join() === "python" && rec.areas.python[0] === 8, "las áreas de una entrevista guardada se validan");
+  ok(Object.keys(sanitizeState({ frameworks: { react: 5, "__proto__": 1, "A B": 2, spring: "x" } }, initialState(), stages).frameworks).join() === "react,spring", "los frameworks guardados se validan: solo claves con forma de id");
+  ok(sanitizeState({}, initialState(), stages).frameworksChecked === false && sanitizeState({ frameworksChecked: true }, initialState(), stages).frameworksChecked === true, "frameworksChecked es falso si falta, y verdadero si lo guardaron");
   const base = initialState();
   const unos = { ...base, interviews: { i1762300000000: rec } };
   const otros = { ...base, interviews: { i1762300000999: { ...rec, ts: 1762300000999 } } };

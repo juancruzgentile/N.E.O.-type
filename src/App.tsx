@@ -23,6 +23,7 @@ import {
 } from "./components/Views";
 import { LibraryView } from "./components/LibraryView";
 import { InterviewView } from "./components/InterviewView";
+import { frameworksToGrant } from "./library/unlock";
 
 export default function App() {
   const { state, update, saved, exportJson, importJson } = useAppState();
@@ -79,6 +80,19 @@ export default function App() {
     setToasts((t) => [...t, ...show]);
     if (state.settings.sound) sound.unlock();
     for (const t of show) setTimeout(() => setToasts((x) => x.filter((y) => y.key !== t.key)), 4800);
+  }, [state, update]);
+
+  // frameworks ganados: quedan guardados, así que no se vuelven a ocultar. La primera vez también se guardan los que la
+  // persona ya tenía con la regla anterior (sin avisos: la sección sigue siendo secreta)
+  useEffect(() => {
+    const ganar = frameworksToGrant(state);
+    if (!ganar.length && state.frameworksChecked) return;
+    const now = Date.now();
+    update((s) => ({
+      ...s,
+      frameworksChecked: true,
+      frameworks: { ...s.frameworks, ...Object.fromEntries(frameworksToGrant(s).map((fw) => [fw.id, now])) },
+    }));
   }, [state, update]);
 
   const lang = state.lang;
