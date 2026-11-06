@@ -617,7 +617,8 @@ struct Medida {
     }
 
     var texto: String {
-        let redondeado = Double(Int(valor * 100 + 0.5)) / 100
+        let centesimas = valor * 100
+        let redondeado = Double(Int(centesimas + (centesimas < 0 ? -0.5 : 0.5))) / 100
         return "\(redondeado) \(unidad.rawValue)"
     }
 }
@@ -638,6 +639,7 @@ func parsear(_ texto: String) -> Medida? {
     let partes = texto.split(separator: " ")
     guard partes.count == 2,
           let valor = Double(partes[0]),
+          valor.isFinite, abs(valor) < 1_000_000_000,
           let unidad = Unidad(rawValue: String(partes[1])) else {
         return nil
     }
