@@ -102,9 +102,11 @@ for (const id of TRACK_ORDER) {
     if (!/^p\d{2}$/.test(p.id) || ids.has(p.id)) bad(p.id, "id repetido o con formato inválido");
     ids.add(p.id);
     const size = projectChars(p);
-    // cada proyecto tiene que ser más largo que el anterior
-    if (size <= prev) bad(p.id, `no es más largo que el anterior (${size} <= ${prev})`);
-    prev = size;
+    // cada proyecto tiene que ser más largo que el que lo abre (el anterior de la lista, o el que indica `after`)
+    const opener = p.after ? PROJECTS.find((x) => x.id === p.after) : PROJECTS[i - 1];
+    if (!opener && p.after) bad(p.id, `after apunta a un proyecto que no existe (${p.after})`);
+    const before = opener ? projectChars(opener) : 0;
+    if (size <= before) bad(p.id, `no es más largo que el que lo abre (${size} <= ${before})`);
     for (const f of p.files) {
       const where = `${p.id}/${f.name}`;
       if (!f.text.length) bad(where, "archivo vacío");
@@ -125,7 +127,7 @@ for (const id of TRACK_ORDER) {
     }
     console.log(`proyecto ${p.num.toString().padStart(2)} ${p.title.padEnd(30)} archivos: ${p.files.length} | líneas: ${projectLines(p)} | caracteres: ${size}`);
   });
-  if (PROJECTS.length !== 14) bad("proyectos", `hay ${PROJECTS.length}, se esperaban 14`);
+  if (PROJECTS.length !== 17) bad("proyectos", `hay ${PROJECTS.length}, se esperaban 17`);
   // el tablero full stack conserva su id de cuando era el 10
   if (PROJECTS.at(-1)?.id !== "p10") bad("proyectos", "el último tiene que seguir siendo p10 (el tablero full stack)");
 }

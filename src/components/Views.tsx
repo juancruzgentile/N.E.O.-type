@@ -13,7 +13,7 @@ import { KeyCalibration } from "./KeyCalibration";
 import { MAX_IMPORT_BYTES } from "../sanitize";
 import { Keyboard, heatColor } from "./Keyboard";
 import type { Challenge } from "./PracticeView";
-import { PROJECTS, formatTime, projectLines, projectUnlocked } from "../projects/projects";
+import { PROJECTS, formatTime, projectLines, projectUnlocked, requiredNum } from "../projects/projects";
 import { IconLock } from "./icons";
 import { RECALL, levelDone, levelOpen } from "../recall/exercises";
 import { TOPICS } from "../library/index";
@@ -339,7 +339,7 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall, onSh
 
       <div className="section" id="proyectos">Proyectos</div>
       <div className="sub">
-        Catorce programas completos para escribir de punta a punta, en el menor tiempo posible. Acá las sangrías no se
+        Diecisiete programas completos para escribir de punta a punta, en el menor tiempo posible. Acá las sangrías no se
         saltan: se escriben con Tab o con espacios, como en un editor. Cada proyecto se desbloquea al terminar el
         anterior, y el último junta varios lenguajes en una aplicación entera. Los errores no avanzan y el reloj solo
         corre mientras escribís.
@@ -369,7 +369,7 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall, onSh
                     <button className="btn primary" onClick={() => onProject(p.id)}>{rec ? "Mejorar tiempo" : "Empezar"}</button>
                   </>
                 ) : (
-                  <div className="pc-lock"><IconLock size={20} /> Terminá el proyecto {i} para desbloquearlo</div>
+                  <div className="pc-lock"><IconLock size={20} /> Terminá el proyecto {requiredNum(i)} para desbloquearlo</div>
                 )}
               </div>
             </div>

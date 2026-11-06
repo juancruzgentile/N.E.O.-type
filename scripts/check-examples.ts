@@ -279,6 +279,21 @@ const kotlin: Checker = {
 };
 
 // ── PHP: php -l. Si el ejemplo no abre <?php (ni es una plantilla HTML), se le agrega ──
+// Compose: sin las bibliotecas de Android no se puede compilar, así que solo cuentan los errores de sintaxis
+const KOTLIN_SYNTAX = /error: (expecting|unexpected|unclosed|unterminated|illegal|syntax|missing)/i;
+const kotlinSyntax: Checker = {
+  name: "Kotlin (sintaxis)",
+  missing: needs("kotlinc"),
+  broken: "fun f( {",
+  check: each((code) =>
+    anyOf([code, `fun ejemplo() {\n${code}\n}`, ...splits(code.split("\n")).map(([decls, body]) => `${decls}\nfun ejemplo() {\n${body}\n}`)], (src) => {
+      const f = join(tmp, "compose.kt");
+      writeFileSync(f, src);
+      const r = run("kotlinc", [f, "-d", join(tmp, "kt"), "-nowarn"]);
+      return r.ok || !KOTLIN_SYNTAX.test(r.out) ? null : firstLine(r.out.split("\n").filter((l) => KOTLIN_SYNTAX.test(l)).join("\n"));
+    }),
+  ),
+};
 const php: Checker = {
   name: "PHP",
   missing: needs("php"),
@@ -389,6 +404,9 @@ function checkerFor(topic: string, e: Entry): Checker | null {
     case "react": return tsx;
     case "spring": return java;
     case "aspnet": return csharp;
+    case "swiftui": return swift;
+    case "compose": return kotlinSyntax;
+    case "laravel": return /^Blade/.test(e.name) ? null : php;
     case "javascript": return javascript;
     case "typescript": return typescript;
     case "go": return go;

@@ -6,6 +6,13 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tres proyectos de nivel medio, uno por lenguaje que todavía no tenía: un **conversor de unidades** en Swift, una
+  **biblioteca de préstamos** en Kotlin y un **mini router de URLs** en PHP. Se abren al terminar el contador de
+  palabras y entre ellos en ese orden; el de SQLite sigue abriéndose con el contador, así que nadie queda bloqueado.
+  Ahora hay 17 proyectos.
+- Tres frameworks nuevos en la sección oculta: **SwiftUI**, **Jetpack Compose** y **Laravel**, con 12 ejemplos cada uno,
+  su fuente y su revisión. Cada uno se abre con la ruta de su lenguaje y su proyecto (el conversor, la biblioteca o
+  el router); el proyecto de otro lenguaje no alcanza.
 - **Entrevistas**: una sección nueva, con entrada propia en el menú. Tiene casi 300 preguntas (los 12 lenguajes, SQL, HTML,
   CSS, terminal, Git, algoritmos y conducta), cada una con explicación y fuente, y tres partes: el **banco** para
   estudiar con buscador y filtros, la **práctica** con corrección al instante y la **entrevista simulada**, con puesto,

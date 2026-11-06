@@ -44,11 +44,12 @@ así de paso se aprende algo.
 - **Se adapta a tu teclado real**: si escribís un símbolo con otra tecla o modificador del que espera, lo aprende solo
   mientras practicás. También lo podés calibrar de una vez desde Ajustes.
 - **Modo libre y desafíos**: sprints de 30, 60 y 120 s y "precisión perfecta", con récords.
-- **14 proyectos contra reloj**: programas completos para escribir de punta a punta, sangrías incluidas (Tab o
+- **17 proyectos contra reloj**: programas completos para escribir de punta a punta, sangrías incluidas (Tab o
   espacios; en Go y Makefile, tabulaciones reales). Van desde una calculadora en Python hasta un tablero de tareas full
   stack con Docker, SQL, FastAPI, HTML, CSS y TypeScript. Antes del tablero hay cuatro de transición (C#, una API con
-  FastAPI, Bash con Makefile y Docker), para que nada aparezca por primera vez en el último. Se desbloquean en orden y
-  guardan tu mejor tiempo.
+  FastAPI, Bash con Makefile y Docker), para que nada aparezca por primera vez en el último, y tres de nivel medio en
+  Swift, Kotlin y PHP (un conversor de unidades, una biblioteca de préstamos y un mini router). Se desbloquean en orden
+  y guardan tu mejor tiempo.
 - **Biblioteca**: una referencia rápida de 18 temas (los 12 lenguajes, SQL, HTML, CSS, formatos, terminal Linux y Git),
   con métodos de trabajo y más de 250 comandos en nivel básico, intermedio y avanzado. Se busca en todo a la vez con `/`
   o `Ctrl+K`, sin importar los acentos. Más adelante quiero sumar IA: Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode,
@@ -210,11 +211,12 @@ src/
 │   ├── formats.ts       # .env, requirements.txt, JSON, package.json, YAML y Markdown
 │   └── index.ts         # registro de rutas y elección de ejercicios
 ├── projects/
-│   └── projects.ts      # los 14 proyectos (archivos, sangría de cada uno y orden de desbloqueo)
+│   └── projects.ts      # los 17 proyectos (archivos, sangría de cada uno y orden de desbloqueo)
 ├── library/
 │   ├── types.ts         # estructura de un tema: resumen, datos, métodos de trabajo y entradas por nivel
 │   ├── <tema>.ts        # contenido de cada lenguaje o herramienta (web.ts: HTML y CSS; tools.ts: formatos, Linux y Git)
 │   ├── frameworks.ts    # la sección oculta: React, FastAPI, Django, Spring Boot y ASP.NET Core
+│   ├── frameworks-moviles.ts  # SwiftUI, Jetpack Compose y Laravel, cada uno con su proyecto
 │   ├── unlock.ts        # cuándo se abre cada framework (ruta del lenguaje + un proyecto en ese lenguaje)
 │   ├── search.ts        # búsqueda sin acentos, por relevancia
 │   └── index.ts         # orden de los temas y la sección Próximamente

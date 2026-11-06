@@ -23,8 +23,12 @@ export function routeDone(s: AppState, lang: CodeLangId): boolean {
 export const projectDoneIn = (s: AppState, lang: CodeLangId) =>
   PROJECTS.some((p) => Object.prototype.hasOwnProperty.call(s.projects, p.id) && p.files.some((f) => f.lang === lang));
 
+/** Un proyecto terminado, por id. */
+const projectDone = (s: AppState, id: string) => Object.prototype.hasOwnProperty.call(s.projects, id);
+
+/** La ruta del lenguaje completa más el proyecto del framework (o, si no tiene uno propio, cualquiera en ese lenguaje). */
 export const frameworkUnlocked = (s: AppState, fw: Framework) =>
-  fw.langs.some((lang) => routeDone(s, lang) && projectDoneIn(s, lang));
+  fw.langs.some((lang) => routeDone(s, lang) && (fw.projects ? fw.projects.some((id) => projectDone(s, id)) : projectDoneIn(s, lang)));
 
 /** Temas que se muestran: los de siempre más los frameworks ganados. */
 export const visibleTopics = (s: AppState): Topic[] => [...TOPICS, ...FRAMEWORKS.filter((fw) => frameworkUnlocked(s, fw))];

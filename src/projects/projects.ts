@@ -30,6 +30,8 @@ export interface Project {
   /** qué se practica, en pocas palabras */
   skills: string;
   files: ProjectFile[];
+  /** id del proyecto que lo abre; si falta, se abre al terminar el anterior de la lista */
+  after?: string;
 }
 
 /**
@@ -550,8 +552,348 @@ func main() {
     ],
   },
   {
-    id: "p07",
+    id: "p15",
     num: 7,
+    title: "Conversor de unidades",
+    level: "Intermedio",
+    stack: ["Swift"],
+    desc: "Un programa de consola que convierte longitudes y temperaturas, avisa cuando no entiende un pedido y cuenta cuántas conversiones hizo.",
+    skills: "enums con propiedades, structs, opcionales, guard y bucles de Swift",
+    files: [
+      {
+        name: "main.swift",
+        lang: "swift",
+        tabWidth: 4,
+        text: src`
+enum Unidad: String, CaseIterable {
+    case metros
+    case kilometros
+    case millas
+    case pies
+
+    // cuantos metros vale una unidad
+    var enMetros: Double {
+        switch self {
+        case .metros: return 1
+        case .kilometros: return 1000
+        case .millas: return 1609.344
+        case .pies: return 0.3048
+        }
+    }
+}
+
+enum Escala: String {
+    case celsius
+    case fahrenheit
+    case kelvin
+
+    func aCelsius(_ valor: Double) -> Double {
+        switch self {
+        case .celsius: return valor
+        case .fahrenheit: return (valor - 32) * 5 / 9
+        case .kelvin: return valor - 273.15
+        }
+    }
+
+    func desdeCelsius(_ valor: Double) -> Double {
+        switch self {
+        case .celsius: return valor
+        case .fahrenheit: return valor * 9 / 5 + 32
+        case .kelvin: return valor + 273.15
+        }
+    }
+}
+
+struct Medida {
+    let valor: Double
+    let unidad: Unidad
+
+    func convertir(a destino: Unidad) -> Medida {
+        let metros = valor * unidad.enMetros
+        return Medida(valor: metros / destino.enMetros, unidad: destino)
+    }
+
+    var texto: String {
+        let redondeado = (valor * 100).rounded() / 100
+        return "\(redondeado) \(unidad.rawValue)"
+    }
+}
+
+struct Historial {
+    private(set) var lineas: [String] = []
+
+    mutating func anotar(_ linea: String) {
+        lineas.append(linea)
+    }
+
+    var cantidad: Int {
+        return lineas.count
+    }
+}
+
+func parsear(_ texto: String) -> Medida? {
+    let partes = texto.split(separator: " ")
+    guard partes.count == 2,
+          let valor = Double(partes[0]),
+          let unidad = Unidad(rawValue: String(partes[1])) else {
+        return nil
+    }
+    return Medida(valor: valor, unidad: unidad)
+}
+
+func convertirTemperatura(_ valor: Double, de origen: Escala, a destino: Escala) -> Double {
+    let enCelsius = origen.aCelsius(valor)
+    return destino.desdeCelsius(enCelsius)
+}
+
+var historial = Historial()
+let pedidos = ["10 kilometros", "5 millas", "100 pies", "3 leguas"]
+for pedido in pedidos {
+    guard let medida = parsear(pedido) else {
+        print("No entiendo: \(pedido)")
+        continue
+    }
+    for destino in Unidad.allCases where destino != medida.unidad {
+        let linea = "\(medida.texto) = \(medida.convertir(a: destino).texto)"
+        print(linea)
+        historial.anotar(linea)
+    }
+}
+
+let temperaturas = [
+    "100 celsius = \(convertirTemperatura(100, de: .celsius, a: .fahrenheit)) fahrenheit",
+    "32 fahrenheit = \(convertirTemperatura(32, de: .fahrenheit, a: .kelvin)) kelvin",
+]
+for linea in temperaturas {
+    print(linea)
+    historial.anotar(linea)
+}
+print("Conversiones hechas: \(historial.cantidad)")`,
+      },
+    ],
+  },
+  {
+    id: "p16",
+    num: 8,
+    title: "Biblioteca de préstamos",
+    level: "Intermedio",
+    stack: ["Kotlin"],
+    desc: "Una biblioteca en memoria: se agregan libros, se prestan a una persona por unos días, se devuelven y se calculan las multas por atraso.",
+    skills: "data class, sealed class, when, colecciones y funciones de extensión de Kotlin",
+    files: [
+      {
+        name: "Prestamos.kt",
+        lang: "kotlin",
+        tabWidth: 4,
+        text: src`
+data class Libro(val id: Int, val titulo: String, val autor: String)
+
+sealed class Estado {
+    object Disponible : Estado()
+    data class Prestado(val persona: String, val dias: Int) : Estado()
+}
+
+fun List<Libro>.deAutor(autor: String): List<Libro> = filter { it.autor == autor }
+
+fun multaPorAtraso(diasPrestado: Int, limite: Int = 14, porDia: Int = 50): Int {
+    val atraso = diasPrestado - limite
+    return if (atraso > 0) atraso * porDia else 0
+}
+
+class Biblioteca {
+    private val libros = mutableListOf<Libro>()
+    private val estados = mutableMapOf<Int, Estado>()
+
+    fun agregar(titulo: String, autor: String): Libro {
+        val libro = Libro(libros.size + 1, titulo, autor)
+        libros.add(libro)
+        estados[libro.id] = Estado.Disponible
+        return libro
+    }
+
+    fun prestar(id: Int, persona: String, dias: Int): Boolean {
+        if (estados[id] != Estado.Disponible) return false
+        estados[id] = Estado.Prestado(persona, dias)
+        return true
+    }
+
+    fun devolver(id: Int): Boolean {
+        if (estados[id] !is Estado.Prestado) return false
+        estados[id] = Estado.Disponible
+        return true
+    }
+
+    fun catalogo(): List<Libro> = libros.toList()
+
+    fun libroDe(id: Int): Libro? = libros.firstOrNull { it.id == id }
+
+    fun disponibles(): List<Libro> = libros.filter { estados[it.id] == Estado.Disponible }
+
+    fun prestadosA(persona: String): List<Libro> = libros.filter { libro ->
+        val estado = estados[libro.id]
+        estado is Estado.Prestado && estado.persona == persona
+    }
+
+    fun porAutor(): Map<String, List<String>> = libros.groupBy({ it.autor }, { it.titulo })
+
+    fun resumen(): List<String> = libros.map { libro ->
+        val estado = when (val e = estados[libro.id]) {
+            is Estado.Prestado -> "prestado a \${e.persona} por \${e.dias} dias"
+            else -> "disponible"
+        }
+        "\${libro.id}. \${libro.titulo} (\${libro.autor}) - $estado"
+    }
+}
+
+fun main() {
+    val biblioteca = Biblioteca()
+    biblioteca.agregar("Rayuela", "Cortazar")
+    biblioteca.agregar("Ficciones", "Borges")
+    biblioteca.agregar("El Aleph", "Borges")
+
+    println(biblioteca.prestar(1, "Ana", 14))
+    println(biblioteca.prestar(1, "Luis", 7))
+    println(biblioteca.prestar(3, "Luis", 7))
+    println(biblioteca.devolver(2))
+    println(biblioteca.devolver(1))
+    println(biblioteca.catalogo().deAutor("Borges").size)
+    println(biblioteca.libroDe(2)?.titulo ?: "no existe")
+    println(biblioteca.libroDe(9)?.titulo ?: "no existe")
+    println(biblioteca.disponibles().size)
+    println(biblioteca.prestadosA("Luis").map { it.titulo })
+    biblioteca.porAutor().forEach { (autor, titulos) ->
+        println("$autor: \${titulos.joinToString(", ")}")
+    }
+    println(multaPorAtraso(20))
+    println(multaPorAtraso(10))
+    biblioteca.resumen().forEach { println(it) }
+}`,
+      },
+    ],
+  },
+  {
+    id: "p17",
+    num: 9,
+    title: "Mini router de URLs",
+    level: "Intermedio",
+    stack: ["PHP"],
+    desc: "Un enrutador como el de los frameworks: se registran rutas con parámetros, se agrupan bajo un prefijo y cada pedido se resuelve en la función que le toca.",
+    skills: "clases, closures, expresiones regulares y argumentos con nombre de PHP",
+    files: [
+      {
+        name: "router.php",
+        lang: "php",
+        tabWidth: 4,
+        text: src`
+<?php
+
+declare(strict_types=1);
+
+function pagina(string $titulo, string $cuerpo = ''): string
+{
+    $html = "<h1>$titulo</h1>";
+    if ($cuerpo !== '') {
+        $html .= "<p>$cuerpo</p>";
+    }
+    return $html;
+}
+
+class Router
+{
+    private array $rutas = [];
+    private array $filtros = [];
+
+    public function agregar(string $metodo, string $patron, callable $accion): void
+    {
+        $regex = preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $patron);
+        $this->rutas[] = [$metodo, '#^' . $regex . '$#', $accion];
+    }
+
+    public function antes(callable $filtro): void
+    {
+        $this->filtros[] = $filtro;
+    }
+
+    public function grupo(string $prefijo, callable $definir): void
+    {
+        $definir(new Grupo($this, $prefijo));
+    }
+
+    public function cantidad(): int
+    {
+        return count($this->rutas);
+    }
+
+    public function resolver(string $metodo, string $ruta): string
+    {
+        foreach ($this->filtros as $filtro) {
+            $respuesta = $filtro($metodo, $ruta);
+            if ($respuesta !== null) {
+                return $respuesta;
+            }
+        }
+        $otroMetodo = false;
+        foreach ($this->rutas as [$m, $regex, $accion]) {
+            if (!preg_match($regex, $ruta, $coincidencia)) {
+                continue;
+            }
+            if ($m !== $metodo) {
+                $otroMetodo = true;
+                continue;
+            }
+            $parametros = array_filter($coincidencia, 'is_string', ARRAY_FILTER_USE_KEY);
+            return $accion(...$parametros);
+        }
+        return $otroMetodo ? '405 Metodo no permitido' : '404 No encontrado';
+    }
+}
+
+class Grupo
+{
+    public function __construct(private Router $router, private string $prefijo)
+    {
+    }
+
+    public function agregar(string $metodo, string $patron, callable $accion): void
+    {
+        $this->router->agregar($metodo, $this->prefijo . $patron, $accion);
+    }
+}
+
+$router = new Router();
+$router->antes(function (string $metodo, string $ruta): ?string {
+    return str_starts_with($ruta, '/admin') ? '403 Prohibido' : null;
+});
+$router->agregar('GET', '/', fn() => pagina('Inicio', 'Bienvenida'));
+$router->agregar('GET', '/usuarios/{id}', fn(string $id) => pagina("Usuario $id"));
+$router->agregar('GET', '/posts/{anio}/{slug}', fn(string $anio, string $slug) => "Post $slug de $anio");
+$router->grupo('/api', function (Grupo $g) {
+    $g->agregar('GET', '/ping', fn() => 'pong');
+    $g->agregar('GET', '/libros/{id}', fn(string $id) => "Libro $id");
+});
+
+$pruebas = [
+    ['GET', '/'],
+    ['GET', '/usuarios/42'],
+    ['GET', '/posts/2026/hola-mundo'],
+    ['GET', '/api/ping'],
+    ['GET', '/api/libros/7'],
+    ['GET', '/admin/panel'],
+    ['POST', '/usuarios/42'],
+    ['GET', '/nada'],
+];
+
+foreach ($pruebas as [$metodo, $ruta]) {
+    echo $metodo . ' ' . $ruta . ' -> ' . $router->resolver($metodo, $ruta) . PHP_EOL;
+}
+echo 'Rutas: ' . $router->cantidad() . PHP_EOL;`,
+      },
+    ],
+  },
+  {
+    id: "p07",
+    num: 10,
+    after: "p06",
     title: "Biblioteca con SQLite",
     level: "Avanzado",
     stack: ["SQL", "Python"],
@@ -667,7 +1009,7 @@ if __name__ == "__main__":
   },
   {
     id: "p08",
-    num: 8,
+    num: 11,
     title: "Control de gastos",
     level: "Avanzado",
     stack: ["Rust"],
@@ -796,7 +1138,7 @@ fn main() {
   },
   {
     id: "p09",
-    num: 9,
+    num: 12,
     title: "Sistema de reservas",
     level: "Experto",
     stack: ["Java"],
@@ -946,7 +1288,7 @@ public class Main {
   },
   {
     id: "p11",
-    num: 10,
+    num: 13,
     title: "Gestor de notas",
     level: "Experto",
     stack: ["C#", "XML"],
@@ -1142,7 +1484,7 @@ static void MostrarAyuda()
   },
   {
     id: "p12",
-    num: 11,
+    num: 14,
     title: "API de recetas",
     level: "Experto",
     stack: ["Python", "FastAPI", "pytest"],
@@ -1321,7 +1663,7 @@ def test_cuenta_ingredientes():
   },
   {
     id: "p13",
-    num: 12,
+    num: 15,
     title: "Copias de seguridad",
     level: "Experto",
     stack: ["Bash", "Makefile"],
@@ -1533,7 +1875,7 @@ limpiar:
   },
   {
     id: "p14",
-    num: 13,
+    num: 16,
     title: "Acortador de enlaces en contenedores",
     level: "Experto",
     stack: ["Python", "FastAPI", "SQLite", "Docker", "YAML"],
@@ -1759,7 +2101,7 @@ volumes:
   },
   {
     id: "p10",
-    num: 14,
+    num: 17,
     title: "Tablero de tareas full stack",
     level: "Maestro",
     stack: ["Makefile", "Docker", "YAML", "SQL", "Python", "HTML", "CSS", "TypeScript"],
@@ -2141,8 +2483,15 @@ const has = (done: Record<string, unknown>, id: string) => Object.prototype.hasO
  * (el tablero full stack era el 10 y ahora es el 14: los ids no cambian, así que los récords se conservan).
  */
 export function projectUnlocked(done: Record<string, unknown>, index: number): boolean {
-  return index === 0 || has(done, PROJECTS[index].id) || has(done, PROJECTS[index - 1].id);
+  const p = PROJECTS[index];
+  return index === 0 || has(done, p.id) || has(done, p.after ?? PROJECTS[index - 1].id);
 }
+
+/** Número del proyecto que hay que terminar para abrir el que está en la posición `index`. */
+export const requiredNum = (index: number): number => {
+  const after = PROJECTS[index].after;
+  return after ? (PROJECTS.find((p) => p.id === after)?.num ?? index) : index;
+};
 
 /** Caracteres a escribir en todo el proyecto (para mostrar el tamaño). */
 export const projectChars = (p: Project) => p.files.reduce((n, f) => n + f.text.length, 0);

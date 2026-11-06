@@ -23,7 +23,7 @@ import { SOON, TOPICS } from "../src/library/index";
 import { ALL_TOPICS, frameworkUnlocked, routeDone, visibleTopics } from "../src/library/unlock";
 import { FRAMEWORKS } from "../src/library/frameworks";
 import { entryId, normalize, search } from "../src/library/search";
-import { PROJECTS, projectUnlocked } from "../src/projects/projects";
+import { PROJECTS, projectUnlocked, requiredNum } from "../src/projects/projects";
 import { INTERVALS, addDays, daysBetween, dueCount, findEntry, grade, pickDue, practiceFor, practiceText, reviewLesson, whenText } from "../src/review/review";
 
 import { BANCO } from "../src/interview/bank/index";
@@ -606,6 +606,20 @@ for (const [lang, code] of [
   ok(!visibleTopics(base).some((t) => t.group === "Frameworks"), "al principio la Biblioteca no muestra ningún framework");
   ok(!search(visibleTopics(base), "fastapi").some((h) => h.topic.group === "Frameworks"), "la búsqueda tampoco encuentra frameworks ocultos");
   ok(visibleTopics(both).filter((t) => t.group === "Frameworks").map((t) => t.id).join() === "fastapi,django", "una vez ganados, aparecen en la Biblioteca");
+  // SwiftUI, Compose y Laravel: la ruta de su lenguaje y SU proyecto (no cualquiera)
+  const rutaDe = (lang: "swift" | "kotlin" | "php") => {
+    const last = LANGS[lang].stages.length - 1;
+    const ks = Object.fromEntries(LANGS[lang].stages.flat().map((ch) => [ch, { n: 200, ema: 50, hits: 200, misses: 0, recent: "1".repeat(50) }]));
+    return { ...base.profiles["python:it"], stage: last, steps: {}, keys: ks, lessons: [], totals: totalsOf([]), score: 0 };
+  };
+  const moviles = [["swiftui", "swift", "p15"], ["compose", "kotlin", "p16"], ["laravel", "php", "p17"]] as const;
+  for (const [id, lang, proj] of moviles) {
+    const ruta = { ...base, profiles: { [`${lang}:it`]: rutaDe(lang) } };
+    ok(!frameworkUnlocked(ruta, fw(id)) && !frameworkUnlocked({ ...base, projects: { [proj]: rec } }, fw(id)), `${id}: la ruta sola o el proyecto solo no alcanzan`);
+    ok(frameworkUnlocked({ ...ruta, projects: { [proj]: rec } }, fw(id)), `${id}: la ruta de ${lang} más su proyecto lo abren`);
+    const otro = moviles.find(([, , pr]) => pr !== proj)![2];
+    ok(!frameworkUnlocked({ ...ruta, projects: { [otro]: rec } }, fw(id)), `${id}: el proyecto de otro lenguaje no lo abre`);
+  }
   const unreachable = FRAMEWORKS.filter((f) => !PROJECTS.some((p) => p.files.some((x) => (f.langs as string[]).includes(x.lang))));
   ok(unreachable.length === 0, `cada framework tiene algún proyecto en su lenguaje, si no nadie lo podría abrir${unreachable.length ? " — " + unreachable.map((f) => f.name).join(", ") : ""}`);
 }
@@ -618,7 +632,11 @@ for (const [lang, code] of [
   ok(projectUnlocked({ p09: rec }, at("p11")) && !projectUnlocked({ p09: rec }, at("p10")), "terminar el 9 abre el gestor de notas, no el tablero");
   ok(projectUnlocked({ p14: rec }, at("p10")), "el tablero se abre al terminar el acortador");
   ok(projectUnlocked({ p10: rec }, at("p10")), "si ya terminaste el tablero cuando era el 10, sigue abierto");
-  ok(PROJECTS.every((p, i) => p.num === i + 1) && PROJECTS.at(-1)?.id === "p10", "el tablero es el 14 y conserva su id");
+  ok(!projectUnlocked({}, at("p15")) && projectUnlocked({ p06: rec }, at("p15")), "el conversor de Swift se abre al terminar el contador de palabras");
+  ok(projectUnlocked({ p15: rec }, at("p16")) && projectUnlocked({ p16: rec }, at("p17")) && !projectUnlocked({ p15: rec }, at("p17")), "Swift, Kotlin y PHP se abren en ese orden");
+  ok(projectUnlocked({ p06: rec }, at("p07")) && requiredNum(at("p07")) === 6, "el de SQLite sigue abriéndose con el 6, aunque ahora haya tres proyectos en el medio");
+  ok(requiredNum(at("p16")) === 7 && requiredNum(at("p11")) === 12, "cada proyecto sabe cuál hay que terminar antes");
+  ok(PROJECTS.every((p, i) => p.num === i + 1) && PROJECTS.at(-1)?.id === "p10", "el tablero es el 17 y conserva su id");
 }
 
 // ── entrevistas ──
