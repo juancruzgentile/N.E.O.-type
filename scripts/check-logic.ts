@@ -23,8 +23,14 @@ import { SOON, TOPICS } from "../src/library/index";
 import { ALL_TOPICS, frameworkUnlocked, routeDone, visibleTopics } from "../src/library/unlock";
 import { FRAMEWORKS } from "../src/library/frameworks";
 import { entryId, normalize, search } from "../src/library/search";
-import { PROJECTS, projectUnlocked } from "../src/projects/projects";
+import { PROJECTS, projectUnlocked, requiredNum } from "../src/projects/projects";
 import { INTERVALS, addDays, daysBetween, dueCount, findEntry, grade, pickDue, practiceFor, practiceText, reviewLesson, whenText } from "../src/review/review";
+
+import { BANCO } from "../src/interview/bank/index";
+import { AREAS, PREGUNTAS_POR_DURACION, PUESTOS } from "../src/interview/catalogo";
+import { anotarRepaso, armarEntrevista, corregirCodigo, opcionesMezcladas, repasoPendiente, resultadoDe } from "../src/interview/engine";
+import { makeRng } from "../src/gen/base";
+import { sanitizeState } from "../src/sanitize";
 
 let failed = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -600,6 +606,20 @@ for (const [lang, code] of [
   ok(!visibleTopics(base).some((t) => t.group === "Frameworks"), "al principio la Biblioteca no muestra ningún framework");
   ok(!search(visibleTopics(base), "fastapi").some((h) => h.topic.group === "Frameworks"), "la búsqueda tampoco encuentra frameworks ocultos");
   ok(visibleTopics(both).filter((t) => t.group === "Frameworks").map((t) => t.id).join() === "fastapi,django", "una vez ganados, aparecen en la Biblioteca");
+  // SwiftUI, Compose y Laravel: la ruta de su lenguaje y SU proyecto (no cualquiera)
+  const rutaDe = (lang: "swift" | "kotlin" | "php") => {
+    const last = LANGS[lang].stages.length - 1;
+    const ks = Object.fromEntries(LANGS[lang].stages.flat().map((ch) => [ch, { n: 200, ema: 50, hits: 200, misses: 0, recent: "1".repeat(50) }]));
+    return { ...base.profiles["python:it"], stage: last, steps: {}, keys: ks, lessons: [], totals: totalsOf([]), score: 0 };
+  };
+  const moviles = [["swiftui", "swift", "p15"], ["compose", "kotlin", "p16"], ["laravel", "php", "p17"]] as const;
+  for (const [id, lang, proj] of moviles) {
+    const ruta = { ...base, profiles: { [`${lang}:it`]: rutaDe(lang) } };
+    ok(!frameworkUnlocked(ruta, fw(id)) && !frameworkUnlocked({ ...base, projects: { [proj]: rec } }, fw(id)), `${id}: la ruta sola o el proyecto solo no alcanzan`);
+    ok(frameworkUnlocked({ ...ruta, projects: { [proj]: rec } }, fw(id)), `${id}: la ruta de ${lang} más su proyecto lo abren`);
+    const otro = moviles.find(([, , pr]) => pr !== proj)![2];
+    ok(!frameworkUnlocked({ ...ruta, projects: { [otro]: rec } }, fw(id)), `${id}: el proyecto de otro lenguaje no lo abre`);
+  }
   const unreachable = FRAMEWORKS.filter((f) => !PROJECTS.some((p) => p.files.some((x) => (f.langs as string[]).includes(x.lang))));
   ok(unreachable.length === 0, `cada framework tiene algún proyecto en su lenguaje, si no nadie lo podría abrir${unreachable.length ? " — " + unreachable.map((f) => f.name).join(", ") : ""}`);
 }
@@ -612,7 +632,108 @@ for (const [lang, code] of [
   ok(projectUnlocked({ p09: rec }, at("p11")) && !projectUnlocked({ p09: rec }, at("p10")), "terminar el 9 abre el gestor de notas, no el tablero");
   ok(projectUnlocked({ p14: rec }, at("p10")), "el tablero se abre al terminar el acortador");
   ok(projectUnlocked({ p10: rec }, at("p10")), "si ya terminaste el tablero cuando era el 10, sigue abierto");
-  ok(PROJECTS.every((p, i) => p.num === i + 1) && PROJECTS.at(-1)?.id === "p10", "el tablero es el 14 y conserva su id");
+  ok(!projectUnlocked({}, at("p15")) && projectUnlocked({ p06: rec }, at("p15")), "el conversor de Swift se abre al terminar el contador de palabras");
+  ok(projectUnlocked({ p15: rec }, at("p16")) && projectUnlocked({ p16: rec }, at("p17")) && !projectUnlocked({ p15: rec }, at("p17")), "Swift, Kotlin y PHP se abren en ese orden");
+  ok(projectUnlocked({ p06: rec }, at("p07")) && requiredNum(at("p07")) === 6, "el de SQLite sigue abriéndose con el 6, aunque ahora haya tres proyectos en el medio");
+  ok(requiredNum(at("p16")) === 7 && requiredNum(at("p11")) === 12, "cada proyecto sabe cuál hay que terminar antes");
+  ok(PROJECTS.every((p, i) => p.num === i + 1) && PROJECTS.at(-1)?.id === "p10", "el tablero es el 17 y conserva su id");
+}
+
+// ── entrevistas ──
+{
+  const q = (id: string) => BANCO.find((x) => x.id === id)!;
+  ok(BANCO.length >= 280 && AREAS.every((a) => BANCO.some((x) => x.area === a.id)), "el banco tiene al menos 280 preguntas y todas las áreas tienen alguna");
+
+  // armado de la entrevista
+  for (const minutos of [15, 30, 45] as const) {
+    const plan = armarEntrevista({ puesto: "backend", lang: "python", nivel: "semi", minutos }, BANCO, makeRng(7));
+    ok(plan.length === PREGUNTAS_POR_DURACION[minutos], `${minutos} minutos: ${PREGUNTAS_POR_DURACION[minutos]} preguntas`);
+    ok(new Set(plan.map((x) => x.id)).size === plan.length, `${minutos} minutos: sin preguntas repetidas`);
+    ok(plan[0].area === "conductual" && plan.at(-1)!.area === "conductual", `${minutos} minutos: abre y cierra con una pregunta de conducta`);
+    ok(plan.some((x) => x.area === "python") && plan.some((x) => x.formato === "codigo"), `${minutos} minutos: hay preguntas del lenguaje, con una de código`);
+  }
+  const permitidas = (puesto: string, lang: string) => new Set(["conductual", lang, ...PUESTOS.find((p) => p.id === puesto)!.areas]);
+  ok(
+    PUESTOS.every((p) => armarEntrevista({ puesto: p.id, lang: "go", nivel: "junior", minutos: 30 }, BANCO, makeRng(3)).every((x) => permitidas(p.id, "go").has(x.area))),
+    "cada puesto solo trae las áreas que le tocan",
+  );
+  const mismo = (s: number) => armarEntrevista({ puesto: "fullstack", lang: "javascript", nivel: "senior", minutos: 30 }, BANCO, makeRng(s)).map((x) => x.id).join();
+  ok(mismo(5) === mismo(5) && mismo(5) !== mismo(6), "con la misma semilla sale la misma entrevista, y con otra, distinta");
+  // el nivel pedido pesa: senior trae más preguntas senior que junior
+  const cuenta = (nivel: "junior" | "senior") => {
+    let n = 0;
+    for (let s = 0; s < 30; s++) n += armarEntrevista({ puesto: "backend", lang: "python", nivel, minutos: 30 }, BANCO, makeRng(s)).filter((x) => x.nivel === "senior").length;
+    return n;
+  };
+  ok(cuenta("senior") > cuenta("junior") * 1.5, "pedir nivel senior trae bastantes más preguntas senior que pedir junior");
+
+  // opciones mezcladas
+  const py = q("python-01");
+  const m = opcionesMezcladas(py, makeRng(11));
+  ok(m.opciones[m.correcta] === py.opciones![0] && [...m.opciones].sort().join() === [...py.opciones!].sort().join(), "al mezclar las opciones se sigue sabiendo cuál es la correcta");
+  ok([1, 2, 3, 4, 5, 6, 7, 8].some((s) => opcionesMezcladas(py, makeRng(s)).correcta !== 0), "la correcta no queda siempre en el mismo lugar");
+
+  // corrección de código
+  const sq = q("python-07");
+  ok(corregirCodigo(sq, "[n * n for n in nums]").ok && corregirCodigo(sq, "[n ** 2 for n in nums]").ok, "código: valen las respuestas aceptadas");
+  ok(!corregirCodigo(sq, "[n + n for n in nums]").ok && !corregirCodigo(sq, "nums").ok, "código: una respuesta distinta no vale");
+  ok(corregirCodigo(q("git-03"), "git   switch -c login").ok, "código: los espacios de más se aceptan");
+  // partir un operador con un espacio es un error de sintaxis, no una diferencia de estilo
+  const flecha = q("javascript-08");
+  ok(!corregirCodigo(flecha, "const cuadrado = n = > n * n;").ok, "código: `= >` no vale por `=>`");
+  ok(corregirCodigo(flecha, "const cuadrado=n=>n*n;").ok && corregirCodigo(flecha, "const  cuadrado = n  =>  n * n").ok, "código: los espacios alrededor de `=>` sí son libres");
+  ok(!corregirCodigo(q("algoritmos-05"), "s = = s[::-1]").ok, "código: `= =` no vale por `==`");
+  ok(check("a ! = b", ["a != b"], "code").status === "wrong" && check("a<= b", ["a <= b"], "code").status !== "wrong" && check("a < = b", ["a <= b"], "code").status === "wrong", "código: `! =` y `< =` no valen por `!=` y `<=`");
+  ok(check("x = 1 0", ["x = 10"], "code").status === "wrong" && check("x = 1 . 5", ["x = 1.5"], "code").status === "wrong", "código: un número partido no vale");
+
+  // resultado
+  const res = resultadoDe([{ id: "python-01", ok: true, ms: 1 }, { id: "python-02", ok: true, ms: 1 }, { id: "git-01", ok: false, ms: 1 }, { id: "sql-01", ok: false, ms: 1 }], BANCO);
+  ok(res.ok === 2 && res.total === 4 && res.pct === 50 && res.nota === 5 && res.veredicto === "casi", "el resultado cuenta aciertos, nota y veredicto");
+  ok(res.porArea[0].ok === 0 && res.porArea.at(-1)!.area === "python", "el informe ordena las áreas de peor a mejor");
+  ok(resultadoDe(Array(10).fill(0).map((_, i) => ({ id: "python-01", ok: i < 7, ms: 1 })), BANCO).veredicto === "aprobado", "70 % o más es aprobado");
+  ok(resultadoDe([{ id: "python-01", ok: false, ms: 1 }], BANCO).veredicto === "reforzar", "menos de 50 % es reforzar");
+
+  // repaso de falladas
+  const hoy = "2026-11-05";
+  let rev = anotarRepaso({}, "python-01", true, hoy);
+  ok(Object.keys(rev).length === 0, "una pregunta acertada que no estaba en el repaso no entra");
+  rev = anotarRepaso(rev, "python-01", false, hoy);
+  ok(rev["python-01"]?.box === 0 && rev["python-01"].due === "2026-11-06", "una pregunta fallada entra al repaso y vuelve mañana");
+  ok(repasoPendiente(rev, BANCO, hoy).length === 0 && repasoPendiente(rev, BANCO, "2026-11-06").map((x) => x.id).join() === "python-01", "toca repasarla desde el día siguiente");
+  const sube = anotarRepaso(rev, "python-01", true, "2026-11-06");
+  ok(sube["python-01"].box === 1 && sube["python-01"].due === "2026-11-09", "acertarla cuando toca la sube de caja y tarda más en volver");
+  ok(anotarRepaso(rev, "python-01", true, hoy)["python-01"].box === 0, "acertarla antes de que toque no la sube de caja");
+  ok(anotarRepaso(sube, "python-01", false, "2026-11-09")["python-01"].box === 0 && anotarRepaso(sube, "python-01", false, "2026-11-09")["python-01"].lapses === 1, "fallarla otra vez la devuelve a la primera caja");
+  ok(repasoPendiente({ "python-99": { box: 0, due: hoy, n: 1, lapses: 0, ts: 1 } }, BANCO, hoy).length === 0, "una pregunta que ya no existe en el banco se ignora");
+
+  // datos guardados
+  const stages = (l: Parameters<typeof stageCount>[0]) => stageCount(l);
+  const limpio = sanitizeState(
+    {
+      interviewReview: {
+        "python-01": { box: 9, due: "2026-11-06", n: 2, lapses: 0, ts: 1 },
+        "x": { box: 0, due: "mañana" },
+        "__proto__": { box: 0, due: "2026-11-06" },
+        "Python-01": { box: 0, due: "2026-11-06" },
+      },
+      interviews: {
+        i1762300000000: { ts: 1762300000000, puesto: "inventado", lang: "python", nivel: "genio", minutos: 15, ms: 5000, ok: 12, total: 8, areas: { python: [9, 8], "A B": [1, 1], git: "mal" } },
+        i12: { ts: 1, ok: 1, total: 1 },
+        i1762300000001: { ts: 1, ok: 1, total: 0 },
+      },
+    },
+    initialState(),
+    stages,
+  );
+  ok(Object.keys(limpio.interviewReview).join() === "python-01" && limpio.interviewReview["python-01"].box === 4, "el repaso de entrevistas descarta claves raras y limita la caja");
+  const rec = limpio.interviews.i1762300000000;
+  ok(Object.keys(limpio.interviews).length === 1 && rec.puesto === "general" && rec.nivel === "junior" && rec.ok === 8 && rec.total === 8, "las entrevistas guardadas se corrigen: puesto y nivel conocidos, bien <= total");
+  ok(Object.keys(rec.areas).join() === "python" && rec.areas.python[0] === 8, "las áreas de una entrevista guardada se validan");
+  const base = initialState();
+  const unos = { ...base, interviews: { i1762300000000: rec } };
+  const otros = { ...base, interviews: { i1762300000999: { ...rec, ts: 1762300000999 } } };
+  const unidos = mergeStates(base, unos, otros);
+  ok(Object.keys(unidos.interviews).length === 2, "dos ventanas que terminan una entrevista cada una no se pisan");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de lógica pasaron");

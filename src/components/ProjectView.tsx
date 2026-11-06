@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { AppState, ProjectRecord } from "../types";
-import { type Project, PROJECTS, formatTime } from "../projects/projects";
+import { type Project, PROJECTS, formatTime, projectUnlocked } from "../projects/projects";
 import { comboMap, layoutFor } from "../data/layouts";
 import { TypingSession } from "../engine/session";
 import { keyHit } from "../fx/fx";
@@ -113,8 +113,10 @@ export function ProjectView({ project, state, update, onExit, onOpen, onBusy }: 
     const prev = state.projects[project.id];
     const record = !prev || ms < prev.ms;
     // la primera vez que se termina, se desbloquea el siguiente
-    const next = PROJECTS[PROJECTS.findIndex((p) => p.id === project.id) + 1];
-    const unlockedNext = !prev && next ? next : null;
+    const nextIndex = PROJECTS.findIndex((p) => p.id === project.id) + 1;
+    const next = PROJECTS[nextIndex];
+    // solo se avisa si el siguiente estaba cerrado: algunos ya se abren con otro proyecto
+    const unlockedNext = !prev && next && !projectUnlocked(state.projects, nextIndex) ? next : null;
     update((s) => ({
       ...s,
       projects: record ? { ...s.projects, [project.id]: { ms, wpm, acc, ts: Date.now() } } : s.projects,
@@ -300,7 +302,7 @@ export function ProjectView({ project, state, update, onExit, onOpen, onBusy }: 
 
       {finished && (
         <Modal labelledBy="pf-title">
-          <div className="kicker">{finished.record ? (finished.prev ? "¡NUEVO RÉCORD!" : "¡PROYECTO TERMINADO!") : "PROYECTO TERMINADO"}</div>
+          <div className="kicker">{finished.record ? (finished.prev ? "¡Nuevo récord!" : "¡Proyecto terminado!") : "Proyecto terminado"}</div>
           <div id="pf-title" className="big" style={{ letterSpacing: 2 }}>{formatTime(finished.ms)}</div>
           <p>{project.title} · {Math.round(finished.wpm)} WPM · precisión {(finished.acc * 100).toFixed(1)}%</p>
           {finished.prev && !finished.record && <p>Tu récord: {formatTime(finished.prev.ms)}</p>}

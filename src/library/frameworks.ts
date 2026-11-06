@@ -3,10 +3,13 @@
 // lo use. Las condiciones están en unlock.ts.
 import type { CodeLangId } from "../types";
 import { type Topic, a, b, code, m } from "./types";
+import { compose, laravel, swiftui } from "./frameworks-moviles";
 
 export interface Framework extends Topic {
   /** se desbloquea con cualquiera de estos lenguajes: su ruta completa y un proyecto que lo use */
   langs: CodeLangId[];
+  /** ids de los proyectos que lo abren (junto con la ruta del lenguaje); si falta, vale cualquier proyecto en ese lenguaje */
+  projects?: string[];
 }
 
 export const react: Framework = {
@@ -771,4 +774,4 @@ public class ApiTests(WebApplicationFactory<Program> fabrica) : IClassFixture<We
   ],
 };
 
-export const FRAMEWORKS: Framework[] = [react, fastapi, django, spring, aspnet];
+export const FRAMEWORKS: Framework[] = [react, fastapi, django, spring, aspnet, swiftui, compose, laravel];

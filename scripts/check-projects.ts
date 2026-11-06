@@ -41,6 +41,33 @@ const PLAN: Record<string, { steps: Step[]; extra?: Record<string, string> }> = 
   p04: { steps: [step("compila", [py], `${py} -m py_compile agenda.py`)] },
   p05: { steps: [step("tipos de TypeScript", [], `${tsc} --noEmit --strict --target es2022 --module esnext --moduleResolution bundler tipos.ts inventario.ts`)] },
   p06: { steps: [step("go vet y go build", ["go"], "go vet ./... && go build -o /dev/null .")] },
+  p15: {
+    steps: [
+      step(
+        "compila y convierte",
+        ["swiftc"],
+        "swiftc -o conversor main.swift && ./conversor > salida.txt && grep -q '^10.0 kilometros = 10000.0 metros$' salida.txt && grep -q '^5.0 millas = 8.05 kilometros$' salida.txt && grep -q '^No entiendo: 3 leguas$' salida.txt && grep -q '^100 celsius = 212.0 fahrenheit$' salida.txt && grep -q '^32 fahrenheit = 273.15 kelvin$' salida.txt && grep -q '^Conversiones hechas: 11$' salida.txt",
+      ),
+    ],
+  },
+  p16: {
+    steps: [
+      step(
+        "compila y presta libros",
+        ["kotlinc", "java"],
+        "kotlinc Prestamos.kt -include-runtime -d prestamos.jar && java -jar prestamos.jar > salida.txt && grep -q '^true$' salida.txt && grep -q '^false$' salida.txt && grep -q '^Ficciones$' salida.txt && grep -q '^no existe$' salida.txt && grep -q '^\\[El Aleph\\]$' salida.txt && grep -q '^Borges: Ficciones, El Aleph$' salida.txt && grep -q '^300$' salida.txt && grep -q '^0$' salida.txt && grep -q '^1. Rayuela (Cortazar) - disponible$' salida.txt && grep -q '^3. El Aleph (Borges) - prestado a Luis por 7 dias$' salida.txt",
+      ),
+    ],
+  },
+  p17: {
+    steps: [
+      step(
+        "sintaxis y rutas",
+        ["php"],
+        "php -l router.php && php router.php > salida.txt && grep -q '^GET / -> <h1>Inicio</h1><p>Bienvenida</p>$' salida.txt && grep -q '^GET /usuarios/42 -> <h1>Usuario 42</h1>$' salida.txt && grep -q '^GET /posts/2026/hola-mundo -> Post hola-mundo de 2026$' salida.txt && grep -q '^GET /api/ping -> pong$' salida.txt && grep -q '^GET /api/libros/7 -> Libro 7$' salida.txt && grep -q '^GET /admin/panel -> 403 Prohibido$' salida.txt && grep -q '^POST /usuarios/42 -> 405 Metodo no permitido$' salida.txt && grep -q '^GET /nada -> 404 No encontrado$' salida.txt && grep -q '^Rutas: 5$' salida.txt",
+      ),
+    ],
+  },
   p07: {
     steps: [
       step("compila", [py], `${py} -m py_compile biblioteca.py`),

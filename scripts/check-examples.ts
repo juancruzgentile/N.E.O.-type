@@ -389,6 +389,9 @@ function checkerFor(topic: string, e: Entry): Checker | null {
     case "react": return tsx;
     case "spring": return java;
     case "aspnet": return csharp;
+    case "swiftui": return swift;
+    case "compose": return kotlin; // solo cuentan los errores de sintaxis: sin las bibliotecas de Android no compila
+    case "laravel": return /^Blade/.test(e.name) ? null : php;
     case "javascript": return javascript;
     case "typescript": return typescript;
     case "go": return go;

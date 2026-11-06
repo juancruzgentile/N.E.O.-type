@@ -671,6 +671,9 @@ html.calm .toast { animation: none !important; opacity: 1; transform: none; }
 .splash-sub { color: var(--muted); margin-top: 6px; }
 .splash-form .btn { margin-top: 8px; padding: 12px 40px; font-size: 16px; letter-spacing: 3px; }
 .splash-form .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn:disabled:hover { border-color: var(--line2); color: inherit; }
+.btn.primary:disabled:hover { border-color: var(--cyan); color: var(--on-accent); background: var(--cyan); }
 .splash-welcome { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .splash-hello { font-size: 24px; }
 .splash-hello b { color: var(--cyan); }
@@ -952,6 +955,8 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .lib-level { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 1px 7px; border: 1px solid currentColor; }
 .lib-kind { font-family: var(--ui); font-size: 12px; font-weight: 600; padding: 1px 7px; border: 1px solid var(--line2); color: var(--muted); }
 .lib-kind.full { color: var(--green); border-color: currentColor; }
+.lib-source { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+.lib-source a { color: var(--accent-text); }
 .lib-note { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
 .lib-cat { font-size: 14px; color: var(--muted); }
 .lib-topic-link { margin-left: auto; display: flex; align-items: center; gap: 6px; padding: 3px 10px; background: none; border: 1px solid var(--line2); color: var(--text2); font-size: 14px; }
@@ -1093,3 +1098,88 @@ kbd {
   .sc-panes { grid-template-columns: 1fr; }
 }
 .sc-ready { color: var(--green); }
+
+/* ───────── Entrevistas ───────── */
+.iv-tabs { margin: 12px 0 16px; }
+.iv-box, .iv-card, .iv-q, .iv-report, .iv-done { background: var(--panel2); border: 1px solid var(--line); padding: 16px 20px; }
+.iv-setup { display: flex; flex-direction: column; gap: 14px; }
+.iv-box h3 { margin: 0 0 6px; font-family: var(--brand); font-size: 20px; color: var(--strong); }
+.iv-box p, .iv-report p, .iv-done p { margin: 6px 0; color: var(--text2); font-size: 16px; line-height: 1.45; }
+.iv-label { margin: 14px 0 6px !important; color: var(--muted) !important; font-size: 14px !important; font-weight: 600; }
+.iv-hint { color: var(--muted); font-size: 14px; }
+.iv-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+.iv-big { margin: 0 0 4px; font-family: var(--brand); font-size: 28px; color: var(--strong); }
+
+.iv-tag { font-size: 12px; font-weight: 600; padding: 1px 8px; border: 1px solid var(--line2); color: var(--muted); }
+.iv-q-head { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.iv-q-text { margin: 0 0 10px; font-size: 20px; font-weight: 600; color: var(--strong); line-height: 1.35; }
+.iv-q .lib-code, .iv-card .lib-code { margin: 4px 0 12px; }
+
+.iv-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.iv-opt { display: flex; gap: 12px; align-items: flex-start; text-align: left; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--line2); color: var(--text); cursor: pointer; font-size: 16px; line-height: 1.4; }
+.iv-opt:hover:not(:disabled) { border-color: var(--cyan); }
+.iv-opt.sel { border-color: var(--cyan); background: var(--cyan-soft); }
+.iv-opt.right { border-color: var(--green); background: color-mix(in srgb, var(--green) 14%, transparent); }
+.iv-opt.wrong { border-color: var(--red); background: color-mix(in srgb, var(--red) 14%, transparent); }
+.iv-opt:disabled { cursor: default; }
+.iv-letter { flex: 0 0 auto; width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid var(--line2); font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.iv-opt-text { white-space: pre-wrap; font-family: inherit; }
+
+.iv-input { width: 100%; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--line2); color: var(--strong); font-family: var(--mono); font-size: 16px; }
+.iv-input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.iv-code-in { margin-top: 4px; }
+
+.iv-feedback { margin-top: 14px; padding: 12px 16px; border: 1px solid var(--line2); border-left-width: 4px; background: var(--input-bg); }
+.iv-feedback.ok { border-left-color: var(--green); }
+.iv-feedback.no { border-left-color: var(--red); }
+.iv-feedback strong { font-size: 16px; color: var(--strong); }
+.iv-feedback p { margin: 6px 0; font-size: 16px; color: var(--text2); }
+.iv-feedback code, .iv-answer-text { font-family: var(--mono); color: var(--green); }
+.iv-src { font-size: 14px !important; color: var(--muted) !important; }
+.iv-src a { color: var(--accent-text); }
+
+.iv-search { margin-bottom: 12px; }
+.iv-filters { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+.iv-filters label { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; font-weight: 600; }
+.iv-filters select { padding: 7px 10px; background: var(--input-bg); border: 1px solid var(--line2); color: var(--text); font: inherit; font-size: 14px; }
+.iv-count { margin: 8px 0; color: var(--muted); font-size: 14px; }
+.iv-list { display: flex; flex-direction: column; gap: 12px; }
+.iv-bank-opts { margin: 0 0 12px; padding-left: 20px; color: var(--text2); font-size: 16px; line-height: 1.5; }
+.iv-bank-opts li { white-space: pre-wrap; }
+.iv-answer { margin-top: 12px; padding: 10px 14px; border-left: 4px solid var(--green); background: var(--input-bg); }
+.iv-answer p { margin: 4px 0; color: var(--text2); font-size: 16px; }
+
+.iv-progress { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; color: var(--muted); font-size: 14px; }
+.iv-progress .progress { flex: 1; }
+.iv-failed { list-style: none; padding: 0; margin: 8px 0; display: flex; flex-direction: column; gap: 10px; }
+.iv-failed li { display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; border: 1px solid var(--line); background: var(--input-bg); font-size: 16px; color: var(--text2); }
+.iv-failed li strong { color: var(--strong); font-weight: 600; }
+
+.iv-live-head { display: flex; align-items: center; gap: 16px; justify-content: space-between; margin-bottom: 8px; color: var(--muted); font-size: 14px; }
+.iv-timer { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--strong); }
+.iv-timer.low { color: var(--red); }
+.iv-says { display: flex; flex-direction: column; gap: 2px; margin: 14px 0; padding: 10px 14px; border-left: 4px solid var(--cyan); color: var(--text); font-size: 16px; }
+.iv-who { font-size: 12px; font-weight: 600; color: var(--muted); }
+
+.iv-puestos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.iv-puesto { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 12px 14px; background: var(--input-bg); border: 1px solid var(--line2); color: var(--text2); cursor: pointer; font-size: 14px; }
+.iv-puesto strong { color: var(--strong); font-size: 16px; }
+.iv-puesto.on { border-color: var(--cyan); background: var(--cyan-soft); }
+
+.iv-verdict { font-size: 16px; font-weight: 600; }
+.iv-verdict.aprobado { color: var(--green); }
+.iv-verdict.casi { color: var(--yellow); }
+.iv-verdict.reforzar { color: var(--red); }
+.iv-report h4 { margin: 18px 0 6px; font-family: var(--brand); font-size: 16px; color: var(--strong); }
+.iv-areas { list-style: none; padding: 0; margin: 6px 0; display: flex; flex-direction: column; gap: 8px; }
+.iv-areas li { display: grid; grid-template-columns: minmax(120px, 220px) 1fr 48px; gap: 12px; align-items: center; font-size: 14px; color: var(--text2); }
+.iv-n { font-family: var(--mono); text-align: right; }
+.iv-history { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.iv-history li { display: grid; grid-template-columns: 110px 1fr 40px; gap: 12px; font-size: 14px; color: var(--text2); }
+.iv-history strong { color: var(--strong); font-family: var(--mono); text-align: right; }
+@media (max-width: 700px) {
+  .iv-areas li { grid-template-columns: 1fr 48px; }
+  .iv-areas li .progress { grid-column: 1 / -1; order: 3; }
+  .iv-history li { grid-template-columns: 1fr 40px; }
+  .iv-history li span:first-child { grid-column: 1 / -1; }
+}

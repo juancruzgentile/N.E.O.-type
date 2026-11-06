@@ -6,6 +6,20 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tres proyectos de nivel medio, uno por lenguaje que todavía no tenía: un **conversor de unidades** en Swift, una
+  **biblioteca de préstamos** en Kotlin y un **mini router de URLs** en PHP. Se abren al terminar el contador de
+  palabras y entre ellos en ese orden; el de SQLite sigue abriéndose con el contador, así que nadie queda bloqueado.
+  Ahora hay 17 proyectos.
+- Tres frameworks nuevos en la sección oculta: **SwiftUI**, **Jetpack Compose** y **Laravel**, con 12 ejemplos cada uno,
+  su fuente y su revisión. Cada uno se abre con la ruta de su lenguaje y su proyecto (el conversor, la biblioteca o
+  el router); el proyecto de otro lenguaje no alcanza.
+- **Entrevistas**: una sección nueva, con entrada propia en el menú. Tiene casi 300 preguntas (los 12 lenguajes, SQL, HTML,
+  CSS, terminal, Git, algoritmos y conducta), cada una con explicación y fuente, y tres partes: el **banco** para
+  estudiar con buscador y filtros, la **práctica** con corrección al instante y la **entrevista simulada**, con puesto,
+  lenguaje, nivel y duración de 15, 30 o 45 minutos. La entrevista tiene reloj, no da pistas ni deja volver atrás, y
+  la corrección llega al final en un informe con la nota, el resultado por área y las preguntas para repasar. Se guardan
+  tus entrevistas para comparar. Lo que fallás entra a un repaso espaciado propio (1, 3, 7, 15 y 30 días). Salir a mitad de
+  una entrevista pide confirmar. `npm run test:preguntas` revisa el banco y corre de verdad las preguntas de «¿qué imprime?».
 - Menú principal: la pantalla de inicio ahora es un menú (Continuar, Lenguajes, Desafíos y proyectos, Biblioteca,
   Ajustes). El botón **Menú** de la cabecera vuelve a él desde cualquier sección, después de confirmar en un diálogo
   (Enter confirma, Esc cancela). Al volver desde la app, el menú aparece al instante con el foco en Continuar.
@@ -72,6 +86,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   saltear nada. Los paquetes de Python que usa van fijados con hash.
 
 ### Cambiado
+- Biblioteca: cada ejemplo muestra de dónde sale (un link a la documentación oficial), desde qué versión funciona y cuándo se revisó. Los 399 links se abrieron uno por uno y se comprobó que la página y la sección existan. `npm run test:fuentes` revisa que ningún ejemplo quede sin fuente; con `FUENTES_RED=1` vuelve a abrir todos los links. Son los primeros links de la app: no hace ninguna conexión por su cuenta, solo se abren si hacés clic.
 - Biblioteca: cada ejemplo avisa si es un **programa completo** (se copia a un archivo y corre tal cual) o un **fragmento**, y en los fragmentos dice qué les falta. El CI ahora también compila los programas completos de C, C++, Go, Rust y Java, no solo revisa que estén bien escritos. Con eso apareció un error: el ejemplo de funciones de C no tenía el `#include <stdio.h>`.
 - Retoques estéticos: la letra de la interfaz pasa de Rajdhani a IBM Plex Sans, que se lee mejor en textos largos (Chakra Petch queda para el logo y los títulos). Los tamaños de letra bajan a una escala fija, los títulos, botones y menús van en minúscula normal y el brillo queda solo en el logo y en la línea actual del código. Saco los adornos que no informaban: el "// SYS.OK", la numeración del menú, las barritas de las métricas, las rayitas de color de los paneles, el efecto glitch al abrir una pantalla y el eslogan del perfil. Lo mismo en el resto de las pantallas: los títulos y las etiquetas de Biblioteca, Desafíos, Rutas, Estadísticas, Logros y Ajustes ya no van en mayúsculas, y los cuatro sprints dejan de competir con el proyecto en curso por el botón amarillo. Las tarjetas de lenguajes que todavía no empezaste ya no muestran ceros.
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.

@@ -10,6 +10,7 @@ const MENU: { dest: MenuDest; label: string; hint: string }[] = [
   { dest: "languages", label: "Lenguajes", hint: "Elegí qué practicar" },
   { dest: "challenges", label: "Desafíos y proyectos", hint: "Sprints, precisión y proyectos completos" },
   { dest: "library", label: "Biblioteca", hint: "Comandos y métodos de trabajo de cada lenguaje" },
+  { dest: "interview", label: "Entrevistas", hint: "Preguntas, práctica y entrevistas simuladas" },
   { dest: "settings", label: "Ajustes", hint: "Teclado, tema y copia de seguridad" },
 ];
 
