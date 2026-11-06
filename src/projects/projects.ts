@@ -374,6 +374,9 @@ export class Inventario {
     if (!producto) {
       throw new Error("Producto inexistente: " + productoId);
     }
+    if (!Number.isFinite(cantidad) || cantidad <= 0) {
+      throw new Error("La cantidad tiene que ser mayor que cero");
+    }
     if (tipo === "salida" && producto.stock < cantidad) {
       throw new Error("No hay stock suficiente de " + producto.nombre);
     }
@@ -615,7 +618,8 @@ struct Medida {
     }
 
     var texto: String {
-        let redondeado = Double(Int(valor * 100 + 0.5)) / 100
+        let centesimas = valor * 100
+        let redondeado = Double(Int(centesimas + (centesimas < 0 ? -0.5 : 0.5))) / 100
         return "\(redondeado) \(unidad.rawValue)"
     }
 }
@@ -636,6 +640,7 @@ func parsear(_ texto: String) -> Medida? {
     let partes = texto.split(separator: " ")
     guard partes.count == 2,
           let valor = Double(partes[0]),
+          valor.isFinite, abs(valor) < 1_000_000_000,
           let unidad = Unidad(rawValue: String(partes[1])) else {
         return nil
     }
@@ -2786,16 +2791,13 @@ app.Run();`,
     files: [
       {
         name: "Makefile", lang: "linux", tabWidth: 0, text: tabs`
-.PHONY: dev web test db clean
+.PHONY: dev web db clean
 
 dev:
     docker compose up --build
 
 web:
     npx tsc web/app.ts --target es2022 --lib es2022,dom --outDir web
-
-test:
-    cd api && python -m pytest -q
 
 db:
     docker compose exec db psql -U tablero -d tablero -f /schema/schema.sql
@@ -3045,11 +3047,11 @@ form {
   margin-left: 0;
 }
 
-.prioridad-1 {
+.columna li.prioridad-1 {
   border-left-color: #f87171;
 }
 
-.prioridad-3 {
+.columna li.prioridad-3 {
   border-left-color: #4ade80;
 }
 

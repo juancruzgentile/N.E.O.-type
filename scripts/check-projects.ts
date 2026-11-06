@@ -117,7 +117,7 @@ const PLAN: Record<string, { steps: Step[]; extra?: Record<string, string> }> = 
     steps: [
       step("la API compila", [py], `${py} -m py_compile api/main.py`),
       step("tipos del front-end", [], `${tsc} --noEmit --strict --target es2022 --lib es2022,dom web/app.ts`),
-      step("el Makefile se entiende", ["make"], "make -n dev web test db clean > /dev/null"),
+      step("el Makefile se entiende", ["make"], "make -n dev web db clean > /dev/null"),
       yamlOk("docker-compose.yml"),
     ],
   },

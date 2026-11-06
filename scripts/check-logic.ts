@@ -688,6 +688,13 @@ for (const [lang, code] of [
   ok(corregirCodigo(sq, "[n * n for n in nums]").ok && corregirCodigo(sq, "[n ** 2 for n in nums]").ok, "código: valen las respuestas aceptadas");
   ok(!corregirCodigo(sq, "[n + n for n in nums]").ok && !corregirCodigo(sq, "nums").ok, "código: una respuesta distinta no vale");
   ok(corregirCodigo(q("git-03"), "git   switch -c login").ok, "código: los espacios de más se aceptan");
+  // partir un operador con un espacio es un error de sintaxis, no una diferencia de estilo
+  const flecha = q("javascript-08");
+  ok(!corregirCodigo(flecha, "const cuadrado = n = > n * n;").ok, "código: `= >` no vale por `=>`");
+  ok(corregirCodigo(flecha, "const cuadrado=n=>n*n;").ok && corregirCodigo(flecha, "const  cuadrado = n  =>  n * n").ok, "código: los espacios alrededor de `=>` sí son libres");
+  ok(!corregirCodigo(q("algoritmos-05"), "s = = s[::-1]").ok, "código: `= =` no vale por `==`");
+  ok(check("a ! = b", ["a != b"], "code").status === "wrong" && check("a<= b", ["a <= b"], "code").status !== "wrong" && check("a < = b", ["a <= b"], "code").status === "wrong", "código: `! =` y `< =` no valen por `!=` y `<=`");
+  ok(check("x = 1 0", ["x = 10"], "code").status === "wrong" && check("x = 1 . 5", ["x = 1.5"], "code").status === "wrong", "código: un número partido no vale");
 
   // resultado
   const res = resultadoDe([{ id: "python-01", ok: true, ms: 1 }, { id: "python-02", ok: true, ms: 1 }, { id: "git-01", ok: false, ms: 1 }, { id: "sql-01", ok: false, ms: 1 }], BANCO);

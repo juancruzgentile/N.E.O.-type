@@ -52,6 +52,6 @@ enum Color { Rojo, Verde }
 console.log(Color.Verde, Color[0]);`, ["1 Rojo", "Verde Rojo", "1 0", "Error"],
     "Los enums numéricos generan un objeto con mapeo en las dos direcciones: Color.Verde es 1 y Color[0] es 'Rojo'.", T + "enums.html", "typescript"),
   op("x", "¿Qué tipo tiene `keyof typeof obj`?",
-    ["La unión de los nombres de las propiedades de obj como textos literales", "El tipo de los valores de obj, unidos en una sola unión de tipos", "El tipo del objeto completo, con todas sus propiedades y sus valores", "Siempre string, porque las claves de los objetos siempre son texto"],
-    "typeof obj toma el tipo del objeto y keyof saca sus claves.", T + "2/keyof-types.html"),
+    ["La unión de las claves de obj, como tipos literales (por ejemplo \"nombre\" | \"edad\")", "El tipo de los valores de obj, unidos en una sola unión de tipos", "El tipo del objeto completo, con todas sus propiedades y sus valores", "Siempre string, porque las claves de los objetos siempre son texto"],
+    "typeof obj toma el tipo del objeto y keyof saca sus claves (string, number o symbol, según cómo estén declaradas).", T + "2/keyof-types.html"),
 ]);

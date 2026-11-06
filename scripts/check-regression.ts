@@ -255,5 +255,32 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   ok(/#include <stdio\.h>/.test(cEntry("c", "Funciones y prototipos").code), "C: el ejemplo completo de funciones incluye stdio.h para compilar");
 }
 
+// ── proyectos: lo que hacen de verdad ──
+{
+  const ts = (await import("typescript")).default;
+  const { PROJECTS } = await import("../src/projects/projects");
+  const texto = PROJECTS.find((p) => p.id === "p05")!.files.find((f) => f.name === "inventario.ts")!.text.split("\nconst inv = new Inventario")[0];
+  const js = ts.transpileModule(texto.replace(/^import .*$/m, ""), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const mod: { exports: { Inventario?: new () => any } } = { exports: {} };
+  new Function("module", "exports", js)(mod, mod.exports);
+  const inv = new mod.exports.Inventario!();
+  const prod = inv.agregar({ nombre: "Yerba", categoria: "comida", precio: 3.5, stock: 10 });
+  const falla = (n: number) => { try { inv.mover(prod.id, n, "salida"); return false; } catch { return true; } };
+  ok(falla(-5) && falla(0) && falla(NaN) && falla(Infinity), "inventario: rechaza cantidades negativas, cero, NaN e Infinity");
+  ok(prod.stock === 10, "inventario: una cantidad inválida no cambia el stock");
+  inv.mover(prod.id, 4, "salida");
+  ok(prod.stock === 6 && inv.historial(prod.id).length === 1, "inventario: una salida válida resta y queda en el historial");
+}
+
+// el conversor de Swift redondea bien con signo y no se cae con valores enormes
+{
+  const { PROJECTS } = await import("../src/projects/projects");
+  const swift = PROJECTS.find((p) => p.id === "p15")!.files.find((f) => f.name === "main.swift")!.text;
+  ok(/let redondeado = Double\(Int\(centesimas \+ \(centesimas < 0 \? -0\.5 : 0\.5\)\)\) \/ 100/.test(swift), "Swift: el redondeo suma o resta media centésima según el signo");
+  const redondear = (v: number) => Math.trunc(v * 100 + (v * 100 < 0 ? -0.5 : 0.5)) / 100; // misma cuenta que el programa; Int() trunca
+  ok(redondear(-1) === -1 && redondear(-10) === -10 && redondear(-2.5) === -2.5 && redondear(2.5) === 2.5 && redondear(-0.126) === -0.13 && redondear(0.126) === 0.13, "Swift: los negativos no se corren (-1 sigue siendo -1)");
+  ok(/valor\.isFinite, abs\(valor\) < 1_000_000_000/.test(swift), "Swift: parsear rechaza valores infinitos o demasiado grandes para Int");
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);

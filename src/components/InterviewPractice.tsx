@@ -53,12 +53,14 @@ export function InterviewPractice({ state, update, empezarCon }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onDone = (r: { ok: boolean }) => {
+  // el intento se guarda apenas se corrige: terminar o cambiar de pestaña sin pulsar Siguiente no lo pierde
+  const onAnswered = (r: { ok: boolean }) => {
     if (!sesion) return;
     const q = sesion.lista[sesion.i];
     update((s) => ({ ...s, interviewReview: anotarRepaso(s.interviewReview, q.id, r.ok, today()) }));
-    setSesion({ ...sesion, i: sesion.i + 1, ok: sesion.ok + (r.ok ? 1 : 0), falladas: r.ok ? sesion.falladas : [...sesion.falladas, q], seed: Date.now() });
+    setSesion((c) => c && { ...c, ok: c.ok + (r.ok ? 1 : 0), falladas: r.ok ? c.falladas : [...c.falladas, q] });
   };
+  const onDone = () => setSesion((c) => c && { ...c, i: c.i + 1, seed: Date.now() });
 
   if (sesion && sesion.i < sesion.lista.length) {
     const q = sesion.lista[sesion.i];
@@ -70,7 +72,7 @@ export function InterviewPractice({ state, update, empezarCon }: Props) {
           <div className="progress"><span style={{ width: `${(sesion.i / sesion.lista.length) * 100}%` }} /></div>
           <button className="btn small" onClick={() => setSesion(null)}>Terminar</button>
         </div>
-        <InterviewQuestion key={`${q.id}-${sesion.i}`} q={q} modo="practica" seed={sesion.seed + sesion.i} onDone={onDone} siguiente={ultima ? "Ver resultado" : "Siguiente"} />
+        <InterviewQuestion key={`${q.id}-${sesion.i}`} q={q} modo="practica" seed={sesion.seed + sesion.i} onDone={onDone} onAnswered={onAnswered} siguiente={ultima ? "Ver resultado" : "Siguiente"} />
       </div>
     );
   }

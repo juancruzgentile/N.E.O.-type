@@ -170,8 +170,10 @@ export default function App() {
               setChallenge(null);
               return;
             }
-            update((s) => ({ ...s, mode: s.mode === "guided" ? "free" : "guided" }));
-            setView(lang ? "practice" : "languages");
+            guard(() => {
+              update((s) => ({ ...s, mode: s.mode === "guided" ? "free" : "guided" }));
+              setView(lang ? "practice" : "languages");
+            });
           }}
           onPickLang={() => goto("languages")}
           onMenu={() => setAskMenu(true)}
