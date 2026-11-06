@@ -4,7 +4,7 @@ const D = "https://docs.python.org/3/";
 export const python = area("python", [
   op("j", "¿Cuál es la diferencia principal entre una lista y una tupla?",
     ["La lista se puede modificar; la tupla no (es inmutable)", "La tupla se puede modificar con append; la lista no (es inmutable)", "La lista solo guarda texto y la tupla puede guardar cualquier tipo", "La lista usa paréntesis y la tupla usa corchetes; no hay otra diferencia"],
-    "Las listas son mutables (append, remove, asignación por índice). Las tuplas no cambian después de crearse, por eso pueden ser claves de un diccionario.", D + "tutorial/datastructures.html#tuples-and-sequences"),
+    "Las listas son mutables (append, remove, asignación por índice). Las tuplas no cambian después de crearse, por eso pueden ser claves de un diccionario, siempre que todo lo que contienen también sea hashable (una tupla con una lista adentro no lo es).", D + "tutorial/datastructures.html#tuples-and-sequences"),
   op("j", "¿Qué tipo tiene el resultado de 7 / 2 en Python 3?",
     ["float (3.5)", "int (3)", "int (4)", "Decimal"],
     "La división con / siempre devuelve float. Para la división entera se usa //.", D + "tutorial/introduction.html#numbers"),

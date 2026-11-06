@@ -13,13 +13,15 @@ interface Props {
   /** semilla del orden de las opciones */
   seed: number;
   onDone: (r: { ok: boolean; ms: number }) => void;
+  /** en práctica: se avisa una sola vez apenas se corrige, antes de pulsar Siguiente */
+  onAnswered?: (r: { ok: boolean; ms: number }) => void;
   /** texto del botón al terminar la pregunta en práctica */
   siguiente?: string;
 }
 
 const LETRAS = "ABCDE";
 
-export function InterviewQuestion({ q, modo, seed, onDone, siguiente = "Siguiente" }: Props) {
+export function InterviewQuestion({ q, modo, seed, onDone, onAnswered, siguiente = "Siguiente" }: Props) {
   const mez = useMemo(() => (q.opciones ? opcionesMezcladas(q, makeRng(seed)) : null), [q, seed]);
   const [sel, setSel] = useState<number | null>(null);
   const [texto, setTexto] = useState("");
@@ -35,7 +37,10 @@ export function InterviewQuestion({ q, modo, seed, onDone, siguiente = "Siguient
   const resolver = (r: { ok: boolean; aviso?: string; esperada?: string }) => {
     const ms = Date.now() - t0.current;
     if (modo === "examen") onDone({ ok: r.ok, ms });
-    else setRes({ ...r, ms });
+    else {
+      setRes({ ...r, ms });
+      onAnswered?.({ ok: r.ok, ms });
+    }
   };
   const responder = (i: number | null = sel) => {
     if (res) return;
