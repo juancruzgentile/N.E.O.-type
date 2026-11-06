@@ -17,7 +17,8 @@ y sin telemetría.
 **Privacidad**
 
 - No hace ninguna conexión de red. La Content Security Policy del build lo impide (`connect-src 'none'`), así que
-  ningún dato puede salir de tu equipo aunque una dependencia lo intentara.
+  ningún dato puede salir de tu equipo aunque una dependencia lo intentara. Los links a la documentación oficial de la
+  Biblioteca son enlaces comunes: solo se abren si hacés clic, en una pestaña nueva y con `rel="noopener noreferrer"`.
 - El progreso, el perfil y las canciones propias se guardan solo en tu navegador (`localStorage` e `IndexedDB`).
 - Las fotos de perfil se recortan y se vuelven a codificar en el propio navegador: se descartan metadatos como la
   ubicación GPS.

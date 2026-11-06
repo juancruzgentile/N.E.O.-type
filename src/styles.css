@@ -952,6 +952,8 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .lib-level { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 1px 7px; border: 1px solid currentColor; }
 .lib-kind { font-family: var(--ui); font-size: 12px; font-weight: 600; padding: 1px 7px; border: 1px solid var(--line2); color: var(--muted); }
 .lib-kind.full { color: var(--green); border-color: currentColor; }
+.lib-source { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+.lib-source a { color: var(--accent-text); }
 .lib-note { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
 .lib-cat { font-size: 14px; color: var(--muted); }
 .lib-topic-link { margin-left: auto; display: flex; align-items: center; gap: 6px; padding: 3px 10px; background: none; border: 1px solid var(--line2); color: var(--text2); font-size: 14px; }
