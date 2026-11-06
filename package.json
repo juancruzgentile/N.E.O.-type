@@ -14,7 +14,7 @@
     "test": "npm run check && npm run test:logic && npm run test:regression && npm run test:security && npm run test:examples && npm run test:projects && npm run test:generated && npm run test:e2e",
     "test:logic": "esbuild scripts/check-logic.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/logic.mjs --log-level=warning && node node_modules/.cache/logic.mjs",
     "test:e2e": "esbuild scripts/e2e.ts --bundle --platform=node --format=esm --packages=external --outfile=node_modules/.cache/e2e.mjs --log-level=warning && node node_modules/.cache/e2e.mjs",
-    "test:regression": "esbuild scripts/check-regression.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/regression.mjs --log-level=warning && node node_modules/.cache/regression.mjs",
+    "test:regression": "esbuild scripts/check-regression.ts --bundle --platform=node --external:typescript --format=esm --outfile=node_modules/.cache/regression.mjs --log-level=warning && node node_modules/.cache/regression.mjs",
     "test:security": "esbuild scripts/check-security.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/security.mjs --log-level=warning && node node_modules/.cache/security.mjs",
     "test:examples": "esbuild scripts/check-examples.ts --bundle --platform=node --format=esm --packages=external --outfile=node_modules/.cache/examples.mjs --log-level=warning && node node_modules/.cache/examples.mjs",
     "test:projects": "esbuild scripts/check-projects.ts --bundle --platform=node --format=esm --packages=external --outfile=node_modules/.cache/projects.mjs --log-level=warning && node node_modules/.cache/projects.mjs",
