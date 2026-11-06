@@ -181,6 +181,10 @@ export interface AppState {
   interviewReview: Record<string, ReviewItem>;
   /** entrevistas simuladas terminadas: i + marca de tiempo → resultado */
   interviews: Record<string, InterviewRecord>;
+  /** frameworks ganados: id → fecha. Una vez ganado, no se vuelve a ocultar */
+  frameworks: Record<string, number>;
+  /** ya se revisó qué frameworks tenía ganados la persona con la regla anterior (se hace una sola vez) */
+  frameworksChecked: boolean;
 }
 
 export interface Lesson {

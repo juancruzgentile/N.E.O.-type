@@ -268,6 +268,9 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
       areas,
     };
   }
+  // frameworks ganados: solo ids con forma de id (los que ya no existan se ignoran al usarse)
+  const frameworks: Record<string, number> = {};
+  for (const [k, v] of entries(r.frameworks, /^[a-z0-9]{2,12}$/, 30)) frameworks[k] = num(v, 0, 8.64e15, 0);
   const achievements: Record<string, number> = {};
   for (const [k, v] of entries(r.achievements, /^[a-z0-9]{1,24}$/, 100)) achievements[k] = num(v, 0, 8.64e15, 0);
 
@@ -286,5 +289,7 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     achievements,
     interviewReview,
     interviews,
+    frameworks,
+    frameworksChecked: bool(r.frameworksChecked, false),
   };
 }

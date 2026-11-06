@@ -68,6 +68,20 @@ const PLAN: Record<string, { steps: Step[]; extra?: Record<string, string> }> = 
       ),
     ],
   },
+  p18: { steps: [] }, // los .tsx se revisan abajo con esbuild
+  p19: {
+    steps: [step("compila", [py], `${py} -m py_compile blog/models.py blog/forms.py blog/views.py blog/urls.py blog/admin.py`)],
+  },
+  p20: {
+    steps: [
+      step(
+        "sintaxis de Java (sin las bibliotecas de Spring)",
+        ["javac"],
+        "javac -XDshould-stop.ifNoError=PARSE -XDshould-stop.ifError=PARSE -d out $(find src -name '*.java')",
+      ),
+    ],
+  },
+  p21: { steps: [step("dotnet build", ["dotnet"], "dotnet build --nologo -v q")] },
   p07: {
     steps: [
       step("compila", [py], `${py} -m py_compile biblioteca.py`),
@@ -129,6 +143,16 @@ for (const p of PROJECTS) {
   for (const f of p.files.filter((x) => x.lang === "css")) {
     try {
       transformSync(readFileSync(join(dir, f.name), "utf8"), { loader: "css", logLevel: "silent" });
+      done.push(`${f.name} bien escrito`);
+    } catch (e) {
+      problems++;
+      console.log(`✗ proyecto ${p.num} ${f.name}: ${String(e).split("\n")[0]}`);
+    }
+  }
+  // JSX y TypeScript de React: sin las bibliotecas no se puede compilar, pero la sintaxis sí se revisa
+  for (const f of p.files.filter((x) => x.name.endsWith(".tsx"))) {
+    try {
+      transformSync(readFileSync(join(dir, f.name), "utf8"), { loader: "tsx", logLevel: "silent" });
       done.push(`${f.name} bien escrito`);
     } catch (e) {
       problems++;

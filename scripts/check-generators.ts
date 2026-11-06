@@ -127,7 +127,7 @@ for (const id of TRACK_ORDER) {
     }
     console.log(`proyecto ${p.num.toString().padStart(2)} ${p.title.padEnd(30)} archivos: ${p.files.length} | líneas: ${projectLines(p)} | caracteres: ${size}`);
   });
-  if (PROJECTS.length !== 17) bad("proyectos", `hay ${PROJECTS.length}, se esperaban 17`);
+  if (PROJECTS.length !== 21) bad("proyectos", `hay ${PROJECTS.length}, se esperaban 21`);
   // el tablero full stack conserva su id de cuando era el 10
   if (PROJECTS.at(-1)?.id !== "p10") bad("proyectos", "el último tiene que seguir siendo p10 (el tablero full stack)");
 }

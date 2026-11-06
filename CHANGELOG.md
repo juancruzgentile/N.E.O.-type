@@ -6,6 +6,14 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Cuatro proyectos con un framework: una **lista de tareas con React**, un **blog con Django**, una **API de libros con
+  Spring Boot** y una **API de tareas con ASP.NET Core**. Se abren con el proyecto de su lenguaje (el de TypeScript, el
+  de SQLite, el de reservas en Java y el gestor de notas en C#), así que el tablero full stack sigue abriéndose con el
+  acortador de enlaces. Ahora hay 21 proyectos.
+- Los frameworks de la sección oculta (React, FastAPI, Django, Spring Boot y ASP.NET Core) se abren con la ruta de su
+  lenguaje **y el proyecto de ese framework**: ya no alcanza con cualquier proyecto en el lenguaje. FastAPI se abre con
+  cualquiera de sus tres proyectos. Lo que ya tenías abierto no se pierde: la primera vez que entrás se guarda y queda
+  abierto para siempre, y lo que ganás de ahora en adelante también se guarda.
 - Tres proyectos de nivel medio, uno por lenguaje que todavía no tenía: un **conversor de unidades** en Swift, una
   **biblioteca de préstamos** en Kotlin y un **mini router de URLs** en PHP. Se abren al terminar el contador de
   palabras y entre ellos en ese orden; el de SQLite sigue abriéndose con el contador, así que nadie queda bloqueado.
@@ -91,6 +99,18 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Retoques estéticos: la letra de la interfaz pasa de Rajdhani a IBM Plex Sans, que se lee mejor en textos largos (Chakra Petch queda para el logo y los títulos). Los tamaños de letra bajan a una escala fija, los títulos, botones y menús van en minúscula normal y el brillo queda solo en el logo y en la línea actual del código. Saco los adornos que no informaban: el "// SYS.OK", la numeración del menú, las barritas de las métricas, las rayitas de color de los paneles, el efecto glitch al abrir una pantalla y el eslogan del perfil. Lo mismo en el resto de las pantallas: los títulos y las etiquetas de Biblioteca, Desafíos, Rutas, Estadísticas, Logros y Ajustes ya no van en mayúsculas, y los cuatro sprints dejan de competir con el proyecto en curso por el botón amarillo. Las tarjetas de lenguajes que todavía no empezaste ya no muestran ceros.
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
+
+### Corregido (auditoría del 2026-11-06 sobre 52c0c98)
+- El corrector de respuestas escritas ya no acepta operadores partidos con un espacio: `= >`, `= =`, `! =` o `< =`
+  dejaban pasar código con error de sintaxis. Los espacios alrededor de los operadores siguen siendo libres.
+- Cambiar de modo (guiado o libre) a mitad de una entrevista ahora pide confirmar, como las demás salidas.
+- En la práctica de Entrevistas, una respuesta fallada entra al repaso apenas se corrige, aunque termines o cambies de
+  pestaña sin pulsar Siguiente.
+- Preguntas del banco con una respuesta de más o una afirmación demasiado absoluta: Rust (referencias mutables), SQL
+  (índice compuesto), TypeScript (`keyof`) y Python (tuplas como claves).
+- Proyectos: el inventario rechaza cantidades negativas, cero o inválidas; el tablero full stack ya no ofrece un
+  `make test` sin pruebas y sus prioridades alta y baja se ven con su color; el conversor de Swift muestra bien los
+  valores negativos; el blog de Django ya no manda a un 404 al guardar un borrador.
 
 ### Corregido (auditoría del 2026-11-03 sobre bd327bb)
 - Biblioteca, SQL: la clave foránea ahora es una restricción aparte (`FOREIGN KEY (...) REFERENCES`). MySQL ignoraba
