@@ -9,6 +9,7 @@ import { PROJECTS } from "../src/projects/projects";
 import { LANGS } from "../src/data/curriculum";
 import { TOPICS } from "../src/library/index";
 import { entryId } from "../src/library/search";
+import { BANCO } from "../src/interview/bank/index";
 
 const FILE = "file://" + resolve("NeonType.html");
 const KEY = "neontype:v1";
@@ -36,13 +37,14 @@ const seedState = (extra: Seed = {}) => ({
 async function open(
   browser: Browser,
   seed = seedState(),
-  opts: { reducedMotion?: "reduce" | "no-preference"; viewport?: { width: number; height: number } } = {},
+  opts: { reducedMotion?: "reduce" | "no-preference"; viewport?: { width: number; height: number }; clock?: boolean } = {},
 ) {
   const ctx = await browser.newContext({
     reducedMotion: opts.reducedMotion ?? "no-preference",
     acceptDownloads: true,
     ...(opts.viewport ? { viewport: opts.viewport } : {}),
   });
+  if (opts.clock) await ctx.clock.install();
   const page = await ctx.newPage();
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
@@ -703,6 +705,138 @@ try {
     await page.getByRole("button", { name: /^VS Code Básico/ }).click();
     ok(/mac/i.test((await page.locator(".shortcut .kicker").textContent()) ?? "") && /Alt\+↑/.test((await page.locator(".sc-use").textContent()) ?? ""), "con Mac elegido, el ejercicio usa ese juego de atajos");
     ok(errors.length === 0, `atajos sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 17. entrevistas: banco, práctica con repaso y entrevista simulada con informe
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "python" }));
+    const preguntaActual = async () => {
+      const texto = ((await page.locator(".iv-q .iv-q-text").textContent()) ?? "").trim();
+      const codigo = (await page.locator(".iv-q .lib-code").count()) ? ((await page.locator(".iv-q .lib-code").textContent()) ?? "").trim() : "";
+      const q = BANCO.find((x) => x.texto === texto && (x.codigo ?? "").trim() === codigo);
+      if (!q) throw new Error(`pregunta que no está en el banco: ${texto}`);
+      return q;
+    };
+    /** Contesta bien o mal la pregunta que está en pantalla. En el examen hay que confirmar con Responder. */
+    const responder = async (bien: boolean, examen: boolean) => {
+      const q = await preguntaActual();
+      if (q.formato === "codigo") {
+        await page.locator(".iv-input").fill(bien ? q.respuestas![0] : "zzz");
+        if (examen) await page.getByRole("button", { name: "Responder", exact: true }).click();
+        else await page.locator(".iv-input").press("Enter");
+        return;
+      }
+      const textos = await page.locator(".iv-opt-text").allTextContents();
+      await page.locator(".iv-opt").nth(textos.findIndex((x) => (x === q.opciones![0]) === bien)).click();
+      if (examen) await page.getByRole("button", { name: "Responder", exact: true }).click();
+    };
+
+    await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
+    await page.locator(".iv").waitFor();
+
+    // banco
+    await page.getByRole("tab", { name: "Banco de preguntas" }).click();
+    ok((await page.locator(".iv-count").textContent())?.startsWith(`${BANCO.length} preguntas`) === true, "el banco muestra todas las preguntas");
+    await page.getByRole("searchbox", { name: "Buscar preguntas" }).fill("decorador");
+    const halladas = await page.locator(".iv-card").count();
+    ok(halladas >= 1 && halladas < 10, "el buscador del banco filtra por texto");
+    await page.locator(".iv-card").first().getByRole("button", { name: "Ver respuesta" }).click();
+    const fuente = page.locator(".iv-card .iv-answer a").first();
+    ok(
+      /^https:\/\//.test((await fuente.getAttribute("href")) ?? "") && (await fuente.getAttribute("target")) === "_blank" && /noopener/.test((await fuente.getAttribute("rel")) ?? ""),
+      "la respuesta del banco enlaza su fuente en una pestaña nueva y sin pasar datos",
+    );
+
+    // práctica: lo que se falla entra al repaso
+    await page.getByRole("tab", { name: "Practicar" }).click();
+    await page.getByRole("group", { name: "Cantidad" }).getByRole("button", { name: "5", exact: true }).click();
+    await page.getByRole("button", { name: "Empezar a practicar" }).click();
+    for (let n = 0; n < 5; n++) {
+      await responder(n !== 0, false);
+      await page.locator(".iv-feedback").waitFor();
+      if (n === 0) ok(/No era esa/.test((await page.locator(".iv-feedback").textContent()) ?? ""), "al fallar, la práctica corrige al instante y explica");
+      await page.locator(".iv-feedback .btn").click();
+    }
+    ok(/4 de 5 bien/.test((await page.locator(".iv-done .iv-big").textContent()) ?? ""), "la práctica termina con el resultado");
+    const st1 = await state(page);
+    ok(Object.keys(st1.interviewReview).length === 1, "la pregunta fallada entra al repaso y las acertadas, no");
+    await page.getByRole("button", { name: "Volver a practicar" }).click();
+    ok(await page.getByRole("button", { name: "Repasar las de hoy" }).isDisabled(), "lo fallado hoy vuelve mañana: hoy no hay nada para repasar");
+
+    // terminar sin pulsar Siguiente no pierde la respuesta fallada
+    await page.getByRole("button", { name: "Empezar a practicar" }).click();
+    const antes = Object.keys((await state(page)).interviewReview);
+    const qFallada = await preguntaActual();
+    await responder(false, false);
+    await page.locator(".iv-feedback").waitFor();
+    await page.locator(".iv-progress").getByRole("button", { name: "Terminar" }).click();
+    ok(Object.keys((await state(page)).interviewReview).includes(qFallada.id) && antes.length <= Object.keys((await state(page)).interviewReview).length, "una respuesta fallada se guarda en el repaso aunque se termine sin pulsar Siguiente");
+
+    // entrevista simulada: reloj, sin corrección en el medio, aviso al salir e informe
+    await page.getByRole("tab", { name: "Entrevista simulada" }).click();
+    await page.getByRole("button", { name: "Empezar la entrevista" }).click();
+    await page.locator(".iv-live").waitFor();
+    ok(/Pregunta 1 de 8/.test((await page.locator(".iv-live-head").textContent()) ?? ""), "la entrevista de 15 minutos tiene 8 preguntas");
+    ok(/^1[45]:\d\d$/.test(((await page.locator(".iv-timer").textContent()) ?? "").trim()), "el reloj arranca en 15 minutos");
+    ok((await page.locator(".iv-q .iv-tag").first().textContent()) === "Conducta y trabajo en equipo", "la entrevista abre con una pregunta de conducta");
+    ok((await page.getByRole("tab").count()) === 0, "durante la entrevista no hay pestañas para distraerse");
+    await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    ok(await page.getByText("¿Salir de la entrevista?").isVisible(), "salir a mitad de la entrevista pide confirmar");
+    await page.getByRole("button", { name: "Seguir con la entrevista" }).click();
+    ok(await page.locator(".iv-live").isVisible(), "seguir con la entrevista no la pierde");
+    await page.locator("[data-tour=mode]").click();
+    ok(await page.getByText("¿Salir de la entrevista?").isVisible(), "cambiar de modo a mitad de la entrevista también pide confirmar");
+    await page.getByRole("button", { name: "Seguir con la entrevista" }).click();
+    ok(await page.locator(".iv-live").isVisible(), "cancelar el cambio de modo no pierde la entrevista");
+    for (let n = 0; n < 8; n++) {
+      await responder(true, true);
+      if (n === 0) ok((await page.locator(".iv-feedback").count()) === 0, "en la entrevista no hay corrección hasta el informe");
+      if (n < 7) await page.locator(".iv-live-head").getByText(new RegExp(`Pregunta ${n + 2} de`)).waitFor();
+    }
+    await page.locator(".iv-report").waitFor();
+    ok(/Nota 10\.0 sobre 10/.test((await page.locator(".iv-report .iv-big").textContent()) ?? "") && /Aprobado/.test((await page.locator(".iv-verdict").textContent()) ?? ""), "todo bien da nota 10 y aprobado");
+    const st2 = await state(page);
+    const recs = Object.values(st2.interviews) as { ok: number; total: number }[];
+    ok(recs.length === 1 && recs[0].ok === 8 && recs[0].total === 8, "la entrevista terminada se guarda");
+
+    // segunda entrevista, toda mal: el informe lista lo fallado y se repasa directo
+    await page.getByRole("button", { name: "Otra entrevista" }).click();
+    ok((await page.locator(".iv-history li").count()) === 1 && /10\.0/.test((await page.locator(".iv-history li").first().textContent()) ?? ""), "el historial muestra la entrevista anterior");
+    await page.getByRole("button", { name: "Empezar la entrevista" }).click();
+    for (let n = 0; n < 8; n++) {
+      await responder(false, true);
+      if (n < 7) await page.locator(".iv-live-head").getByText(new RegExp(`Pregunta ${n + 2} de`)).waitFor();
+    }
+    await page.locator(".iv-report").waitFor();
+    ok(/Nota 0\.0/.test((await page.locator(".iv-report .iv-big").textContent()) ?? "") && /Para repasar \(8\)/.test((await page.locator(".iv-report").textContent()) ?? ""), "todo mal da nota 0 y lista las 8 para repasar");
+    await page.getByRole("button", { name: "Repasar las falladas" }).click();
+    await page.locator(".iv-run").waitFor();
+    ok(/Repaso · pregunta 1 de 8/.test((await page.locator(".iv-progress").textContent()) ?? ""), "las falladas del informe se repasan directo");
+
+    // persistencia (el guardado va con retraso: se espera a que estén las dos antes de recargar)
+    for (let i = 0; i < 50 && Object.keys((await state(page)).interviews).length < 2; i++) await page.waitForTimeout(100);
+    await page.reload();
+    await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
+    await page.getByRole("tab", { name: "Entrevista simulada" }).click();
+    await page.locator(".iv-history li").first().waitFor();
+    ok((await page.locator(".iv-history li").count()) === 2, "las entrevistas guardadas siguen después de recargar");
+    ok(errors.length === 0, `entrevistas sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 17b. el reloj termina la entrevista solo y lo no respondido cuenta como no respondido
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "python" }), { clock: true });
+    await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
+    await page.getByRole("button", { name: "Empezar la entrevista" }).click();
+    await page.locator(".iv-live").waitFor();
+    await page.clock.fastForward("16:00");
+    await page.locator(".iv-report").waitFor();
+    ok(/0 de 8 bien/.test((await page.locator(".iv-report").textContent()) ?? ""), "al acabarse el tiempo, la entrevista termina sola");
+    const recs = Object.values((await state(page)).interviews) as { ok: number; total: number; ms: number }[];
+    ok(recs.length === 1 && recs[0].total === 8 && recs[0].ms <= 15 * 60_000, "la entrevista cortada por el reloj se guarda con el tiempo límite");
+    ok(errors.length === 0, `reloj de la entrevista sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
 } finally {

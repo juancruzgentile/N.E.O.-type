@@ -34,3 +34,5 @@ export const IconMedal = (p: { size?: number }) => <Svg {...p}><circle cx="12" c
 export const IconHome = (p: { size?: number }) => <Svg {...p}><path d="m3 11 9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5" /></Svg>;
 export const IconBook = (p: { size?: number }) => <Svg {...p}><path d="M4 4h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v15h-6a2 2 0 0 0-2 2 2 2 0 0 0-2-2H4zM12 5v16" /></Svg>;
 export const IconSearch = (p: { size?: number }) => <Svg {...p}><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></Svg>;
+
+export const IconChat = (p: { size?: number }) => <Svg {...p}><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5" /></Svg>;

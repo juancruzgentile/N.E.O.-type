@@ -14,7 +14,7 @@ import { MAX_BOX, findEntry, whenText } from "../review/review";
 import { today } from "../store";
 
 /** Bloque de código con resaltado; agrupa caracteres seguidos del mismo tipo en un solo span. */
-const CodeBlock = memo(function CodeBlock({ text, lang }: { text: string; lang: LangId }) {
+export const CodeBlock = memo(function CodeBlock({ text, lang }: { text: string; lang: LangId }) {
   const parts = useMemo(() => {
     const toks = highlight(text, lang);
     const out: { t: string; s: string }[] = [];

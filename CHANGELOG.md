@@ -6,6 +6,13 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Entrevistas**: una sección nueva, con entrada propia en el menú. Tiene casi 300 preguntas (los 12 lenguajes, SQL, HTML,
+  CSS, terminal, Git, algoritmos y conducta), cada una con explicación y fuente, y tres partes: el **banco** para
+  estudiar con buscador y filtros, la **práctica** con corrección al instante y la **entrevista simulada**, con puesto,
+  lenguaje, nivel y duración de 15, 30 o 45 minutos. La entrevista tiene reloj, no da pistas ni deja volver atrás, y
+  la corrección llega al final en un informe con la nota, el resultado por área y las preguntas para repasar. Se guardan
+  tus entrevistas para comparar. Lo que fallás entra a un repaso espaciado propio (1, 3, 7, 15 y 30 días). Salir a mitad de
+  una entrevista pide confirmar. `npm run test:preguntas` revisa el banco y corre de verdad las preguntas de «¿qué imprime?».
 - Menú principal: la pantalla de inicio ahora es un menú (Continuar, Lenguajes, Desafíos y proyectos, Biblioteca,
   Ajustes). El botón **Menú** de la cabecera vuelve a él desde cualquier sección, después de confirmar en un diálogo
   (Enter confirma, Esc cancela). Al volver desde la app, el menú aparece al instante con el foco en Continuar.

@@ -52,12 +52,19 @@ así de paso se aprende algo.
 - **Biblioteca**: una referencia rápida de 18 temas (los 12 lenguajes, SQL, HTML, CSS, formatos, terminal Linux y Git),
   con métodos de trabajo y más de 250 comandos en nivel básico, intermedio y avanzado. Se busca en todo a la vez con `/`
   o `Ctrl+K`, sin importar los acentos. Más adelante quiero sumar IA: Claude, ChatGPT, Gemini, Codex, Cursor, OpenCode,
-  Antigravity y Hermes.
+  Antigravity y Hermes. Cada ejemplo dice si es un programa completo (se copia a un archivo y corre) o un fragmento,
+  y muestra de dónde sale (un link a la documentación oficial), desde qué versión funciona y cuándo lo revisé.
 - **Una sección secreta**: hay algo en la Biblioteca que no aparece en ningún lado hasta que te lo ganás. No da
   pistas en el menú ni en la búsqueda. Lo único que te digo es que tiene que ver con terminar rutas y proyectos.
 - **Practicar y repasar**: cada ejemplo de la Biblioteca tiene un botón **Practicar este ejemplo** que lo convierte en
   una lección corta. Lo que practicás entra en tu repaso y vuelve cada tanto, mezclado con las lecciones normales: si
   te sale bien tarda más en volver (1, 3, 7, 15 y 30 días) y si fallás vuelve al día siguiente.
+- **Entrevistas**: casi 300 preguntas de entrevista técnica y de conducta, de los 12 lenguajes, SQL, HTML, CSS, Git,
+  terminal, algoritmos y trabajo en equipo, cada una con su explicación y su fuente. Hay tres partes: un **banco** para
+  estudiarlas con buscador y filtros; **práctica**, que corrige al instante y manda lo que fallás a un repaso
+  espaciado; y una **entrevista simulada** con reloj, sin pistas y sin volver atrás, que termina en un informe con tu
+  nota y lo que te conviene repasar. Las preguntas de «¿qué imprime?» se corren de verdad en los tests, para que la
+  respuesta marcada sea la correcta.
 - **Ejercicios de memoria** (en Desafíos): leés una consigna, por ejemplo «deshacé el último commit sin perder los
   cambios», y escribís el comando o el código sin verlo. Hay 60, de Git, terminal Linux, SQL, Python y JavaScript, en
   tres niveles que se abren en orden. Se aceptan varias respuestas. Los detalles de estilo pasan con un aviso; un error
@@ -139,6 +146,8 @@ Si no querés usar la terminal, tenés estos scripts:
 | `npm run test:regression` | Tests de regresión: motor de sesiones, copias de seguridad, conceptos, música y modo calmo |
 | `npm run test:security` | Tests de validación de datos y de la Content Security Policy del build |
 | `npm run test:examples` | Revisa la sintaxis de los ejemplos de la Biblioteca con el parser de cada lenguaje |
+| `npm run test:fuentes` | Que cada ejemplo de la Biblioteca tenga su fuente oficial (con `FUENTES_RED=1` abre cada link) |
+| `npm run test:preguntas` | El banco de preguntas de entrevista: estructura y, en las de «¿qué imprime?», que el código dé la respuesta marcada |
 | `npm run test:projects` | Compila los proyectos y corre sus pruebas, para que el código que se escribe funcione de verdad |
 | `npm run test:generated` | Compila el código que generan C, C++, Swift, Kotlin y PHP con su compilador real |
 | `npm run test:e2e` | La app en un Chromium real (requiere `npm run build` y, una vez, `npx playwright-core install --only-shell chromium`) |
@@ -209,6 +218,10 @@ src/
 │   ├── unlock.ts        # cuándo se abre cada framework (ruta del lenguaje + un proyecto en ese lenguaje)
 │   ├── search.ts        # búsqueda sin acentos, por relevancia
 │   └── index.ts         # orden de los temas y la sección Próximamente
+├── interview/
+│   ├── bank/            # el banco de preguntas de entrevista, un archivo por área
+│   ├── engine.ts        # arma la entrevista, corrige y lleva el repaso de las falladas
+│   └── catalogo.ts      # áreas, puestos y niveles
 ├── recall/
 │   ├── exercises.ts     # los ejercicios de memoria, por tema y nivel
 │   └── check.ts         # corrige la respuesta: qué es un detalle de estilo y qué es un error
