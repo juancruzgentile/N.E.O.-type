@@ -838,6 +838,8 @@ try {
     for (let i = 0; i < 50 && Object.keys((await state(page)).interviews).length < 2; i++) await page.waitForTimeout(100);
     await page.reload();
     await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
+    await page.getByRole("tab", { name: "Entrevista simulada" }).click();
+    await page.locator(".iv-history li").first().waitFor();
     ok((await page.locator(".iv-history li").count()) === 2, "las entrevistas guardadas siguen después de recargar");
     ok(errors.length === 0, `entrevistas sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
