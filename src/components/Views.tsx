@@ -72,7 +72,7 @@ export function LanguagesView({ state, onPick }: { state: AppState; onPick: (l: 
       <div className="grid-langs">
         {LANG_ORDER.map((id) => <LangCard key={id} state={state} id={id} onPick={onPick} />)}
       </div>
-      <div className="section">RUTAS TRAINEE</div>
+      <div className="section">Rutas trainee</div>
       <div className="sub">
         Herramientas de todos los días, por escalones de dificultad. Cada escalón nuevo se mezcla con los anteriores y
         las lecciones se enfocan en el que tengas más flojo.
@@ -92,7 +92,7 @@ function TrackRoute({ state, lang }: { state: AppState; lang: LangId }) {
   const infos = stepInfos(lang, getProfile(state, lang), s);
   return (
     <div className="frame view">
-      <h2>RUTA DE {LANGS[lang].name.toUpperCase()}</h2>
+      <h2>Ruta de {LANGS[lang].name}</h2>
       <div className="sub">
         Escalones en orden de dificultad. Cada uno suma temas nuevos y se mezcla con los anteriores. Para pasar al
         siguiente, todos los escalones desbloqueados tienen que estar en verde: tus últimas {STEP_WINDOW} lecciones de
@@ -131,7 +131,7 @@ export function RoutesView({ state, lang }: { state: AppState; lang: LangId }) {
   const infos = new Map(stageInfos(lang, profile, s).map((k) => [k.char, k]));
   return (
     <div className="frame view">
-      <h2>RUTA DE {LANGS[lang].name.toUpperCase()}</h2>
+      <h2>Ruta de {LANGS[lang].name}</h2>
       <div className="sub">
         Orden en que se desbloquean los símbolos para tu teclado {layout.name}. Para pasar a la siguiente etapa, todos los
         símbolos desbloqueados tienen que estar en verde: al menos {s.minSamples} pulsaciones, {s.targetWpm} WPM y{" "}
@@ -238,7 +238,7 @@ export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
 
   return (
     <div className="frame view">
-      <h2>ESTADÍSTICAS · {LANGS[lang].name.toUpperCase()}</h2>
+      <h2>Estadísticas · {LANGS[lang].name}</h2>
       <div className="sub">Teclado {layout.name}. El mapa de calor muestra qué tan cerca está cada tecla del objetivo.</div>
       <div className="cards">
         <div className="stat-card"><div className="l">LECCIONES</div><div className="v">{totalLessons}</div></div>
@@ -249,10 +249,10 @@ export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
         <div className="stat-card"><div className="l">PRECISIÓN (ÚLT. 20)</div><div className="v">{(acc20 * 100).toFixed(1)}%</div></div>
       </div>
 
-      <div className="section">EVOLUCIÓN <span style={{ fontSize: 12, color: "var(--cyan)" }}>━ WPM</span> <span style={{ fontSize: 12, color: "var(--yellow)" }}>━ precisión</span></div>
+      <div className="section">Evolución <span style={{ fontSize: 12, color: "var(--cyan)" }}>━ WPM</span> <span style={{ fontSize: 12, color: "var(--yellow)" }}>━ precisión</span></div>
       <LineChart data={ls.slice(-80)} />
 
-      <div className="section">MAPA DE CALOR</div>
+      <div className="section">Mapa de calor</div>
       <Keyboard layout={layout} heat={heat} />
       <div className="legend">
         <span><i style={{ background: "#4f6f86" }} />sin calibrar</span>
@@ -263,7 +263,7 @@ export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
         <span><i style={{ background: "#173246" }} />bloqueada</span>
       </div>
 
-      <div className="section">SÍMBOLOS</div>
+      <div className="section">Símbolos</div>
       <div className="table-wrap">
         <table className="table">
           <thead>
@@ -288,7 +288,7 @@ export function StatsView({ state, lang }: { state: AppState; lang: LangId }) {
         </table>
       </div>
 
-      <div className="section">CALENDARIO</div>
+      <div className="section">Calendario</div>
       <div className="cal">
         {cal.map((c) => {
           const m = c.secs / 60;
@@ -320,7 +320,7 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall, onSh
   ];
   return (
     <div className="frame view">
-      <h2>DESAFÍOS · {LANGS[lang].name.toUpperCase()}</h2>
+      <h2>Desafíos · {LANGS[lang].name}</h2>
       <div className="sub">Los desafíos usan todos los símbolos del lenguaje, sin importar tu nivel. También suman a tus estadísticas.</div>
       <div className="cards">
         {items.map(({ c, title, desc }) => {
@@ -331,13 +331,13 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall, onSh
               <h3>{title}</h3>
               <p>{desc}</p>
               <div className="rec">{rec ? `Récord: ${Math.round(rec.wpm)} WPM · ${(rec.acc * 100).toFixed(0)}%` : "Sin récord todavía"}</div>
-              <button className="btn primary" onClick={() => onStart(c)}>Empezar</button>
+              <button className="btn" onClick={() => onStart(c)}>Empezar</button>
             </div>
           );
         })}
       </div>
 
-      <div className="section" id="proyectos">PROYECTOS</div>
+      <div className="section" id="proyectos">Proyectos</div>
       <div className="sub">
         Catorce programas completos para escribir de punta a punta, en el menor tiempo posible. Acá las sangrías no se
         saltan: se escriben con Tab o con espacios, como en un editor. Cada proyecto se desbloquea al terminar el
@@ -377,7 +377,7 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall, onSh
         })}
       </div>
 
-      <div className="section" id="memoria">EJERCICIOS DE MEMORIA</div>
+      <div className="section" id="memoria">Ejercicios de memoria</div>
       <div className="sub">
         Leés una consigna y escribís el comando o el código sin verlo. Valen varias respuestas, y los detalles de
         estilo (espacios, comillas, orden de las opciones) se aceptan con un aviso. Un comando, una opción o un
@@ -415,7 +415,7 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall, onSh
         })}
       </div>
 
-      <div className="section" id="atajos">ATAJOS DE EDITOR</div>
+      <div className="section" id="atajos">Atajos de editor</div>
       <div className="sub">
         Un editor de práctica con un objetivo: llegá al texto pedido usando los atajos de Vim o de VS Code. Cada
         ejercicio tiene un par de teclas: si lo igualás, tres estrellas. Se guarda tu mejor marca y cada nivel se abre
@@ -470,7 +470,7 @@ export function AchievementsView({ state }: { state: AppState }) {
   const got = ACHIEVEMENTS.filter((a) => state.achievements[a.id]).length;
   return (
     <div className="frame view">
-      <h2>LOGROS</h2>
+      <h2>Logros</h2>
       <div className="sub">
         {got} de {ACHIEVEMENTS.length} desbloqueados. Se cuentan con el teclado actual ({LAYOUTS[state.settings.layout].name}).
       </div>
@@ -577,7 +577,7 @@ export function SettingsView({ state, update, exportJson, importJson, onTutorial
 
   return (
     <div className="frame view">
-      <h2>AJUSTES</h2>
+      <h2>Ajustes</h2>
       <div className="sub">Todo se guarda en este navegador. El progreso es independiente para cada lenguaje y cada teclado.</div>
       <div className="settings">
         <div className="setting">

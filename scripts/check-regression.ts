@@ -12,6 +12,7 @@ import { LANG_ORDER } from "../src/data/curriculum";
 import { TRACK_ORDER } from "../src/tracks/index";
 import { TOPICS } from "../src/library/index";
 import { ALL_TOPICS } from "../src/library/unlock";
+import { isFullProgram, kindNote } from "../src/library/kind";
 import { go as goGen } from "../src/gen/lang/go";
 import { LAYOUTS } from "../src/data/layouts";
 import type { AppState, LessonResult } from "../src/types";
@@ -245,6 +246,30 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   const stubs = ALL_TOPICS.filter((t) => compiled.includes(t.id)).flatMap((t) => t.entries.filter((e) => /\{\s*\/\*\s*\.\.\.\s*\*\/\s*\}/.test(e.code)).map((e) => `${t.id}: ${e.name}`));
   ok(stubs.length === 0, `ningún ejemplo de un lenguaje compilado tiene un cuerpo /* ... */${stubs.length ? " — " + stubs.join(", ") : ""}`);
   ok(/user-secrets[^.]*variables de entorno/.test(ALL_TOPICS.find((t) => t.id === "aspnet")!.workflow.map((w) => w.text).join(" ")), "ASP.NET: las variables de entorno pisan a user-secrets");
+  // programas completos vs. fragmentos: la Biblioteca lo avisa y el CI compila los completos
+  const cEntry = (topic: string, name: string) => ALL_TOPICS.find((t) => t.id === topic)!.entries.find((e) => e.name === name)!;
+  ok(isFullProgram("rust", cEntry("rust", "fn main y println!")), "un ejemplo con fn main se marca como programa completo");
+  ok(!isFullProgram("rust", cEntry("rust", "let y mut")), "un fragmento de Rust no se marca como completo");
+  ok(kindNote("python", cEntry("python", ALL_TOPICS.find((t) => t.id === "python")!.entries[0].name))?.full === false, "un fragmento de Python avisa que le falta el resto");
+  ok(kindNote("git", cEntry("git", ALL_TOPICS.find((t) => t.id === "git")!.entries[0].name)) === null, "los comandos de terminal no se marcan ni como fragmento ni como completo");
+  ok(/#include <stdio\.h>/.test(cEntry("c", "Funciones y prototipos").code), "C: el ejemplo completo de funciones incluye stdio.h para compilar");
+}
+
+// ── proyectos: lo que hacen de verdad ──
+{
+  const ts = (await import("typescript")).default;
+  const { PROJECTS } = await import("../src/projects/projects");
+  const texto = PROJECTS.find((p) => p.id === "p05")!.files.find((f) => f.name === "inventario.ts")!.text.split("\nconst inv = new Inventario")[0];
+  const js = ts.transpileModule(texto.replace(/^import .*$/m, ""), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const mod: { exports: { Inventario?: new () => any } } = { exports: {} };
+  new Function("module", "exports", js)(mod, mod.exports);
+  const inv = new mod.exports.Inventario!();
+  const prod = inv.agregar({ nombre: "Yerba", categoria: "comida", precio: 3.5, stock: 10 });
+  const falla = (n: number) => { try { inv.mover(prod.id, n, "salida"); return false; } catch { return true; } };
+  ok(falla(-5) && falla(0) && falla(NaN) && falla(Infinity), "inventario: rechaza cantidades negativas, cero, NaN e Infinity");
+  ok(prod.stock === 10, "inventario: una cantidad inválida no cambia el stock");
+  inv.mover(prod.id, 4, "salida");
+  ok(prod.stock === 6 && inv.historial(prod.id).length === 1, "inventario: una salida válida resta y queda en el historial");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
