@@ -614,7 +614,7 @@ struct Medida {
     }
 
     var texto: String {
-        let redondeado = (valor * 100).rounded() / 100
+        let redondeado = Double(Int(valor * 100 + 0.5)) / 100
         return "\(redondeado) \(unidad.rawValue)"
     }
 }
