@@ -21,6 +21,7 @@ export const IconClock = (p: { size?: number }) => <Svg {...p}><circle cx="12" c
 export const IconChevron = (p: { size?: number }) => <Svg {...p}><path d="m9 6 6 6-6 6" /></Svg>;
 export const IconExpand = (p: { size?: number }) => <Svg {...p}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Svg>;
 export const IconLock = (p: { size?: number }) => <Svg {...p}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></Svg>;
+export const IconWarn = (p: { size?: number }) => <Svg {...p}><path d="M12 3 2 20h20z" /><path d="M12 10v5M12 17.5v.01" /></Svg>;
 export const IconRefresh = (p: { size?: number }) => <Svg {...p}><path d="M20 11a8 8 0 1 0-2 6M20 4v7h-7" /></Svg>;
 export const IconSkip = (p: { size?: number }) => <Svg {...p}><path d="m5 5 9 7-9 7zM19 5v14" /></Svg>;
 export const IconPulse = (p: { size?: number }) => <Svg {...p}><path d="M2 12h5l2-6 4 12 2-6h7" /></Svg>;

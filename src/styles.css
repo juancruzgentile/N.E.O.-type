@@ -933,6 +933,16 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .lib-head { display: flex; gap: 18px; align-items: flex-start; margin-bottom: 14px; }
 .lib-head h3 { margin: 0 0 6px; font-family: var(--brand); font-size: 28px; letter-spacing: 1px; color: var(--strong); }
 .lib-head p { margin: 0; color: var(--text2); font-size: 16px; line-height: 1.5; }
+.lib-alert { margin: 0 0 16px; padding: 14px 18px; border: 1.5px solid var(--red); border-left-width: 6px; background: color-mix(in srgb, var(--red) 10%, transparent); }
+.lib-alert h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-family: var(--brand); font-size: 18px; letter-spacing: 1px; color: var(--red); }
+.lib-alert ul { margin: 0; padding-left: 20px; color: var(--text); font-size: 16px; line-height: 1.5; }
+.lib-alert li + li { margin-top: 4px; }
+.lib-alert p { margin: 10px 0 0; color: var(--strong); font-size: 16px; font-weight: 600; }
+.lib-head.lib-claude { align-items: center; padding: 16px 18px; border: 1.5px solid var(--lc); border-radius: 10px; background: color-mix(in srgb, var(--lc) 8%, var(--panel2)); }
+.lib-claude .claude-buddy { margin-left: auto; flex: none; }
+.claude-mark { flex: none; }
+.lib-claude h3 { font-family: var(--mono); font-size: 24px; letter-spacing: 0; }
+.lib-claude h3::before { content: "\2733  "; color: var(--lc); }
 .lib-facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 6px; }
 .lib-facts div { padding: 6px 12px; border: 1px solid var(--line2); background: var(--panel2); }
 .lib-facts dt { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
@@ -983,6 +993,7 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 }
 @media (max-width: 640px) {
   .lib-head { flex-direction: column; }
+  .lib-claude .claude-buddy { margin-left: 0; }
   .lib-code { font-size: 12px; }
   .lib-search kbd { display: none; }
 }

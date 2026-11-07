@@ -6,6 +6,11 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Claude** en la Biblioteca, en un grupo nuevo "IA" (sale de Próximamente). 35 entradas con su fuente oficial: comandos de
+  `/`, opciones de la terminal, atajos, planes y límites de uso (sin precios), los cuatro modelos y cómo combinarlos, modo plan,
+  modos de permisos y auto mode, `CLAUDE.md` y `AGENTS.md`, hooks, skills, agentes, MCP, plugins, el Agent SDK, y los conceptos
+  de harness, capa de orquestación y RAG. Arriba de todo lleva un aviso rojo con recomendaciones de seguridad y de uso
+  responsable. Tiene su logo y la mascota de Claude Code en un recuadro estilo terminal.
 - Cuatro proyectos con un framework: una **lista de tareas con React**, un **blog con Django**, una **API de libros con
   Spring Boot** y una **API de tareas con ASP.NET Core**. Se abren con el proyecto de su lenguaje (el de TypeScript, el
   de SQLite, el de reservas en Java y el gestor de notas en C#), así que el tablero full stack sigue abriéndose con el
