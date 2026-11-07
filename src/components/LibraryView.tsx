@@ -6,7 +6,8 @@ import { visibleTopics } from "../library/unlock";
 import { type Hit, entryId, search } from "../library/search";
 import { type Entry, type Level, LEVELS, type Topic } from "../library/types";
 import { LangEmblem } from "./LangEmblem";
-import { IconBook, IconKeyboard, IconLock, IconSearch } from "./icons";
+import { ClaudeBuddy, ClaudeMark } from "./ClaudeMark";
+import { IconBook, IconKeyboard, IconLock, IconSearch, IconWarn } from "./icons";
 import { EntryPractice } from "./EntryPractice";
 import { kindNote } from "../library/kind";
 import { fuenteDe } from "../library/fuentes/index";
@@ -31,6 +32,7 @@ export const CodeBlock = memo(function CodeBlock({ text, lang }: { text: string;
 });
 
 function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
+  if (topic.id === "claude") return <ClaudeMark size={size} />;
   if (topic.emblem) return <LangEmblem lang={topic.emblem} size={size} />;
   return (
     <span className="lib-badge" style={{ "--lc": topic.color, width: size, height: size, fontSize: Math.max(7, Math.round(size * 0.28)) } as CSSProperties} aria-hidden="true">
@@ -271,12 +273,20 @@ export function LibraryView({ lang, state, update }: Props) {
             </>
           ) : topic ? (
             <>
-              <div className="lib-head" style={{ "--lc": topic.color } as CSSProperties}>
+              {topic.alert && (
+                <aside className="lib-alert" role="alert">
+                  <h4><IconWarn size={20} /> {topic.alert.title}</h4>
+                  <ul>{topic.alert.items.map((t) => <li key={t}>{t}</li>)}</ul>
+                  {topic.alert.closing && <p>{topic.alert.closing}</p>}
+                </aside>
+              )}
+              <div className={`lib-head ${topic.id === "claude" ? "lib-claude" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
                 <TopicBadge topic={topic} size={56} />
                 <div>
                   <h3>{topic.name}</h3>
                   <p>{topic.summary}</p>
                 </div>
+                {topic.id === "claude" && <ClaudeBuddy size={84} />}
               </div>
               <dl className="lib-facts">
                 {topic.facts.map((f) => (

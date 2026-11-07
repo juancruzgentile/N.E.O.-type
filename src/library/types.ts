@@ -28,7 +28,7 @@ export interface Entry {
 export interface Topic {
   id: string;
   name: string;
-  group: "Lenguajes" | "Web y datos" | "Herramientas" | "Frameworks";
+  group: "Lenguajes" | "Web y datos" | "Herramientas" | "IA" | "Frameworks";
   /** emblema de la app si existe; si no, una sigla */
   emblem: LangId | null;
   badge: string;
@@ -37,6 +37,8 @@ export interface Topic {
   hl: LangId;
   /** qué es y para qué se usa */
   summary: string;
+  /** aviso destacado en rojo arriba de todo (seguridad, uso responsable) */
+  alert?: { title: string; items: string[]; closing?: string };
   /** datos rápidos: archivos, cómo se ejecuta, herramientas */
   facts: { label: string; value: string }[];
   /** métodos de trabajo: cómo se organiza un proyecto y buenas prácticas */

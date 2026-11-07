@@ -16,19 +16,20 @@ import { php } from "./php";
 import { sql } from "./sql";
 import { css, html } from "./web";
 import { formats, git, linux } from "./tools";
+import { claude } from "./claude";
 
 export const TOPICS: Topic[] = [
   python, javascript, typescript, java, csharp, go, rust, c, cpp, swift, kotlin, php,
   sql, html, css, formats,
   linux, git,
+  claude,
 ];
 
-export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Herramientas", "Frameworks"];
+export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Herramientas", "IA", "Frameworks"];
 
 /** Lo que viene: inteligencia artificial y herramientas para programar con ella. */
 export const SOON: Soon[] = [
   { id: "ia", name: "IA: conceptos", desc: "Modelos de lenguaje, tokens, ventana de contexto, prompts, agentes, RAG y cómo evaluar respuestas." },
-  { id: "claude", name: "Claude", desc: "Los modelos y asistentes de Anthropic, Claude Code en la terminal y cómo pedirle tareas de programación." },
   { id: "chatgpt", name: "ChatGPT", desc: "El asistente de OpenAI: buenas prácticas para programar, depurar y aprender con él." },
   { id: "gemini", name: "Gemini", desc: "Los modelos y el asistente de Google, y su integración con las herramientas de desarrollo." },
   { id: "codex", name: "Codex", desc: "El agente de programación de OpenAI: tareas en la terminal y en la nube." },
