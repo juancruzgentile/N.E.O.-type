@@ -44,6 +44,8 @@ export interface Topic {
   /** métodos de trabajo: cómo se organiza un proyecto y buenas prácticas */
   workflow: { title: string; text: string }[];
   entries: Entry[];
+  /** clase completa aparte (teoría + práctica), si el tema tiene una */
+  clase?: Clase;
 }
 
 /** Temas que se van a sumar. */
@@ -51,6 +53,23 @@ export interface Soon {
   id: string;
   name: string;
   desc: string;
+}
+
+/** Qué diagrama dibujar en una sección de la clase (ver ClaseDiagramas.tsx). */
+export type DiagramaId = "neurona" | "entrenamiento" | "prompt" | "bucle";
+
+export interface ClaseSeccion {
+  heading: string;
+  /** cada string es un párrafo */
+  parrafos: string[];
+  diagrama?: DiagramaId;
+}
+
+/** Una clase completa y escrita sobre el tema, aparte de la referencia rápida de siempre. */
+export interface Clase {
+  titulo: string;
+  bajada: string;
+  secciones: ClaseSeccion[];
 }
 
 /**

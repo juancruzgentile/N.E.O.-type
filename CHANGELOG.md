@@ -11,6 +11,14 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   modos de permisos y auto mode, `CLAUDE.md` y `AGENTS.md`, hooks, skills, agentes, MCP, plugins, el Agent SDK, y los conceptos
   de harness, capa de orquestación y RAG. Arriba de todo lleva un aviso rojo con recomendaciones de seguridad y de uso
   responsable. Tiene su logo y la mascota de Claude Code en un recuadro estilo terminal.
+- **Codex** en la Biblioteca, en el mismo grupo "IA" que Claude (sale de Próximamente). 31 entradas con su fuente oficial:
+  instalar y actualizar, comandos de `/`, modos de aprobación y sandbox, `config.toml` y `AGENTS.md`, MCP, el SDK y el
+  app server, las cuatro plataformas (CLI, extensión de IDE, ChatGPT, Codex Cloud y GitHub), modelos y planes, y una
+  comparación punto por punto con Claude Code. Tiene el mismo tipo de aviso rojo de seguridad arriba, y su propio logo
+  y mascota. Además, una pestaña nueva **"Día de trabajo"**: una clase completa, en 10 secciones y con 4 diagramas en
+  SVG dibujados a mano, sobre qué es la inteligencia artificial y el machine learning, cómo aprende una red neuronal,
+  cómo se entrena un modelo, qué es un prompt y cómo armar uno bueno, y el bucle de trabajo de un agente — todo aplicado
+  a usar Codex en la práctica.
 - Cuatro proyectos con un framework: una **lista de tareas con React**, un **blog con Django**, una **API de libros con
   Spring Boot** y una **API de tareas con ASP.NET Core**. Se abren con el proyecto de su lenguaje (el de TypeScript, el
   de SQLite, el de reservas en Java y el gestor de notas en C#), así que el tablero full stack sigue abriéndose con el

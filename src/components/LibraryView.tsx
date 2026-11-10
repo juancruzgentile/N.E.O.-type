@@ -7,7 +7,9 @@ import { type Hit, entryId, search } from "../library/search";
 import { type Entry, type Level, LEVELS, type Topic } from "../library/types";
 import { LangEmblem } from "./LangEmblem";
 import { ClaudeBuddy, ClaudeMark } from "./ClaudeMark";
-import { IconBook, IconKeyboard, IconLock, IconSearch, IconWarn } from "./icons";
+import { CodexBuddy, CodexMark } from "./CodexMark";
+import { ClaseView } from "./ClaseView";
+import { IconBook, IconChalk, IconKeyboard, IconLock, IconSearch, IconWarn } from "./icons";
 import { EntryPractice } from "./EntryPractice";
 import { kindNote } from "../library/kind";
 import { fuenteDe } from "../library/fuentes/index";
@@ -33,6 +35,7 @@ export const CodeBlock = memo(function CodeBlock({ text, lang }: { text: string;
 
 function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
   if (topic.id === "claude") return <ClaudeMark size={size} />;
+  if (topic.id === "codex") return <CodexMark size={size} />;
   if (topic.emblem) return <LangEmblem lang={topic.emblem} size={size} />;
   return (
     <span className="lib-badge" style={{ "--lc": topic.color, width: size, height: size, fontSize: Math.max(7, Math.round(size * 0.28)) } as CSSProperties} aria-hidden="true">
@@ -103,6 +106,7 @@ export function LibraryView({ lang, state, update }: Props) {
   const totalEntries = TOPICS.reduce((n, t) => n + t.entries.length, 0);
   const initial = TOPICS.find((t) => t.id === lang)?.id ?? TOPICS[0].id;
   const [sel, setSel] = useState<Selection>({ kind: "topic", id: initial });
+  const [claseOpen, setClaseOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [onlyTopic, setOnlyTopic] = useState(false);
   const [level, setLevel] = useState<Level | "all">("all");
@@ -147,6 +151,7 @@ export function LibraryView({ lang, state, update }: Props) {
   const openTopic = (id: string) => {
     setSel({ kind: "topic", id });
     setLevel("all");
+    setClaseOpen(false);
     contentRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
   };
 
@@ -154,6 +159,7 @@ export function LibraryView({ lang, state, update }: Props) {
     setSel({ kind: "topic", id: h.topic.id });
     setQuery("");
     setLevel("all");
+    setClaseOpen(false);
     setFlash(entryId(h.topic, h.entry));
   };
 
@@ -280,62 +286,81 @@ export function LibraryView({ lang, state, update }: Props) {
                   {topic.alert.closing && <p>{topic.alert.closing}</p>}
                 </aside>
               )}
-              <div className={`lib-head ${topic.id === "claude" ? "lib-claude" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
+              <div className={`lib-head ${topic.id === "claude" ? "lib-claude" : ""} ${topic.id === "codex" ? "lib-codex" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
                 <TopicBadge topic={topic} size={56} />
                 <div>
                   <h3>{topic.name}</h3>
                   <p>{topic.summary}</p>
                 </div>
                 {topic.id === "claude" && <ClaudeBuddy size={84} />}
-              </div>
-              <dl className="lib-facts">
-                {topic.facts.map((f) => (
-                  <div key={f.label}>
-                    <dt>{f.label}</dt>
-                    <dd>{f.value}</dd>
-                  </div>
-                ))}
-              </dl>
-
-              <div className="section"><IconBook size={18} /> MÉTODOS DE TRABAJO</div>
-              <div className="lib-workflow">
-                {topic.workflow.map((w) => (
-                  <div key={w.title} className="lib-tip">
-                    <h4>{w.title}</h4>
-                    <p>{w.text}</p>
-                  </div>
-                ))}
+                {topic.id === "codex" && <CodexBuddy size={84} />}
               </div>
 
-              <div className="section">
-                COMANDOS Y CONCEPTOS
-                {inReview > 0 && <span className="lib-in-review">{inReview} en tu repaso</span>}
-              </div>
-              <div className="seg lib-levels" role="tablist" aria-label="Nivel">
-                {[{ id: "all" as const, name: "Todo" }, ...LEVELS].map((l) => (
-                  <button
-                    key={l.id}
-                    role="tab"
-                    aria-selected={level === l.id}
-                    className={level === l.id ? "on" : ""}
-                    onClick={() => setLevel(l.id)}
-                  >
-                    {l.name} ({l.id === "all" ? topic.entries.length : topic.entries.filter((e) => e.level === l.id).length})
+              {topic.clase && (
+                <div className="seg lib-clase-toggle" role="tablist" aria-label="Vista">
+                  <button role="tab" aria-selected={!claseOpen} className={!claseOpen ? "on" : ""} onClick={() => setClaseOpen(false)}>
+                    <IconBook size={16} /> Referencia
                   </button>
-                ))}
-              </div>
-              {LEVELS.filter((l) => level === "all" || level === l.id).map((l) => {
-                const list = entries.filter((e) => e.level === l.id);
-                if (!list.length) return null;
-                return (
-                  <section key={l.id} className="lib-level-block">
-                    <h3 className={`lib-level-title ${l.id}`}>{l.name}</h3>
-                    <div className="lib-entries">
-                      {list.map((e) => card(topic, e, { flash: flash === entryId(topic, e) }))}
-                    </div>
-                  </section>
-                );
-              })}
+                  <button role="tab" aria-selected={claseOpen} className={claseOpen ? "on" : ""} onClick={() => setClaseOpen(true)}>
+                    <IconChalk size={16} /> Día de trabajo
+                  </button>
+                </div>
+              )}
+
+              {topic.clase && claseOpen ? (
+                <ClaseView clase={topic.clase} />
+              ) : (
+                <>
+                  <dl className="lib-facts">
+                    {topic.facts.map((f) => (
+                      <div key={f.label}>
+                        <dt>{f.label}</dt>
+                        <dd>{f.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+
+                  <div className="section"><IconBook size={18} /> MÉTODOS DE TRABAJO</div>
+                  <div className="lib-workflow">
+                    {topic.workflow.map((w) => (
+                      <div key={w.title} className="lib-tip">
+                        <h4>{w.title}</h4>
+                        <p>{w.text}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="section">
+                    COMANDOS Y CONCEPTOS
+                    {inReview > 0 && <span className="lib-in-review">{inReview} en tu repaso</span>}
+                  </div>
+                  <div className="seg lib-levels" role="tablist" aria-label="Nivel">
+                    {[{ id: "all" as const, name: "Todo" }, ...LEVELS].map((l) => (
+                      <button
+                        key={l.id}
+                        role="tab"
+                        aria-selected={level === l.id}
+                        className={level === l.id ? "on" : ""}
+                        onClick={() => setLevel(l.id)}
+                      >
+                        {l.name} ({l.id === "all" ? topic.entries.length : topic.entries.filter((e) => e.level === l.id).length})
+                      </button>
+                    ))}
+                  </div>
+                  {LEVELS.filter((l) => level === "all" || level === l.id).map((l) => {
+                    const list = entries.filter((e) => e.level === l.id);
+                    if (!list.length) return null;
+                    return (
+                      <section key={l.id} className="lib-level-block">
+                        <h3 className={`lib-level-title ${l.id}`}>{l.name}</h3>
+                        <div className="lib-entries">
+                          {list.map((e) => card(topic, e, { flash: flash === entryId(topic, e) }))}
+                        </div>
+                      </section>
+                    );
+                  })}
+                </>
+              )}
             </>
           ) : null}
         </div>
