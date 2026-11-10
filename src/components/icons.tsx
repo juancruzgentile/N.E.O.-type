@@ -37,3 +37,4 @@ export const IconBook = (p: { size?: number }) => <Svg {...p}><path d="M4 4h6a3 
 export const IconSearch = (p: { size?: number }) => <Svg {...p}><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></Svg>;
 
 export const IconChat = (p: { size?: number }) => <Svg {...p}><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5" /></Svg>;
+export const IconChalk = (p: { size?: number }) => <Svg {...p}><rect x="3" y="4" width="18" height="12" rx="1" /><path d="M7 8h7M7 11h4M7 20h10M9 16v4M15 16v4" /></Svg>;

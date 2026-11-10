@@ -468,9 +468,13 @@ try {
     await page.locator(".lib-search input[type=search]").press("Escape");
     await page.locator(".lib-nav").getByRole("button", { name: /IA y herramientas/ }).click();
     const soon = await page.locator(".lib-soon-card").allTextContents();
-    ok(soon.length === 8 && soon.every((t) => /PRÓXIMAMENTE/.test(t)), "Próximamente muestra las 8 secciones de IA marcadas como próximamente");
+    ok(soon.length === 7 && soon.every((t) => /PRÓXIMAMENTE/.test(t)), "Próximamente muestra las 7 secciones de IA marcadas como próximamente");
     await page.locator(".lib-nav").getByRole("button", { name: /^Claude/ }).click();
     ok(/seguridad/i.test((await page.locator(".lib-alert").first().textContent()) ?? "") && (await page.locator(".claude-mark").count()) > 0, "Claude abre con el aviso rojo de seguridad y su logo");
+    await page.locator(".lib-nav").getByRole("button", { name: /^Codex/ }).click();
+    ok(/seguridad/i.test((await page.locator(".lib-alert").first().textContent()) ?? "") && (await page.locator(".codex-mark").count()) > 0, "Codex abre con el aviso rojo de seguridad y su logo");
+    await page.locator(".lib-clase-toggle").getByRole("tab", { name: /Día de trabajo/ }).click();
+    ok((await page.locator(".clase-seccion").count()) >= 6 && (await page.locator(".clase-diagrama svg").count()) >= 1, "la clase de Codex tiene varias secciones y al menos un diagrama");
     ok(errors.length === 0, `biblioteca sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
