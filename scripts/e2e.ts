@@ -4,6 +4,9 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
+import { once } from "node:events";
 import { type Browser, type Page, chromium } from "playwright-core";
 import { PROJECTS } from "../src/projects/projects";
 import { LANGS } from "../src/data/curriculum";
@@ -11,7 +14,12 @@ import { TOPICS } from "../src/library/index";
 import { entryId } from "../src/library/search";
 import { BANCO } from "../src/interview/bank/index";
 
-const FILE = "file://" + resolve("NeonType.html");
+// Se sirve por http local y no se abre como file://: con file:// Chromium no garantiza que todas las páginas
+// del contexto lean el mismo localStorage, y en el CI la recarga o una segunda ventana arrancaban vacías a veces.
+const html = readFileSync(resolve("NeonType.html"));
+const server = createServer((_, res) => res.writeHead(200, { "content-type": "text/html; charset=utf-8" }).end(html)).listen(0, "127.0.0.1");
+await once(server, "listening");
+const APP = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
 const KEY = "neontype:v1";
 
 let failed = 0;
@@ -51,16 +59,13 @@ async function open(
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   page.on("dialog", (d) => void d.accept());
   await page.addInitScript(([k, v]) => {
-    // solo en la primera carga: después la app maneja su propio estado.
-    // Además de la marca de la sesión se mira que no haya ya un estado guardado: si al recargar la
-    // marca no estuviera a tiempo, sembrar de nuevo borraría lo que la app guardó.
-    localStorage.setItem("__e2e_cargas", String(Number(localStorage.getItem("__e2e_cargas") ?? 0) + 1));
-    if (!sessionStorage.getItem("seeded") && localStorage.getItem(k) === null) {
+    // solo en la primera carga: después la app maneja su propio estado
+    if (!sessionStorage.getItem("seeded")) {
       localStorage.setItem(k, v);
+      sessionStorage.setItem("seeded", "1");
     }
-    sessionStorage.setItem("seeded", "1");
   }, [KEY, JSON.stringify(seed)] as const);
-  await page.goto(FILE);
+  await page.goto(APP);
   await page.locator(".code-box").waitFor();
   return { page, errors, ctx };
 }
@@ -632,7 +637,7 @@ try {
     const { page: a, errors, ctx } = await open(browser);
     const b = await ctx.newPage();
     b.on("pageerror", (e) => errors.push(e.message));
-    await b.goto(FILE);
+    await b.goto(APP);
     await b.locator(".code-box").waitFor();
     for (const p of [a, b]) await p.getByRole("button", { name: "Ajustes" }).click();
     await a.locator("input[placeholder='Tu nombre']").fill("Ventana A");
@@ -847,24 +852,13 @@ try {
     await page.locator(".iv-run").waitFor();
     ok(/Repaso · pregunta 1 de 8/.test((await page.locator(".iv-progress").textContent()) ?? ""), "las falladas del informe se repasan directo");
 
-    // persistencia: lo que lee la propia página sale de su copia en memoria, no de lo que ya recibió el navegador;
-    // una segunda pestaña del mismo origen lee lo que de verdad va a encontrar la página al recargar
-    const lector = await ctx.newPage();
-    await lector.goto(FILE);
-    for (let i = 0; i < 300 && Object.keys((await state(lector)).interviews ?? {}).length < 2; i++) await page.waitForTimeout(100);
-    ok(Object.keys((await state(lector)).interviews ?? {}).length === 2, "las dos entrevistas se guardaron antes de recargar");
-    // la segunda pestaña sigue abierta durante la recarga: el contexto de prueba guarda localStorage solo en memoria y,
-    // si en ese instante ninguna página del origen lo tiene abierto, el navegador puede soltarlo y la página nueva arranca vacía
+    // persistencia (el guardado va con retraso: se espera a que estén las dos antes de recargar)
+    for (let i = 0; i < 50 && Object.keys((await state(page)).interviews).length < 2; i++) await page.waitForTimeout(100);
     await page.reload();
-    const trasRecargar = await page.evaluate((k) => ({ cargas: localStorage.getItem("__e2e_cargas"), seeded: sessionStorage.getItem("seeded"), n: Object.keys(JSON.parse(localStorage.getItem(k) ?? "{}").interviews ?? {}).length }), KEY);
-    const hayMenu = await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).waitFor({ timeout: 15000 }).then(() => true, () => false);
-    if (!hayMenu) console.log("DIAGNÓSTICO sin menú tras recargar:", JSON.stringify({ trasRecargar, ahora: await page.evaluate((k) => ({ raw: (localStorage.getItem(k) ?? "").length, cargas: localStorage.getItem("__e2e_cargas"), texto: document.body.innerText.slice(0, 300) }), KEY), errores: errors }));
     await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
     await page.getByRole("tab", { name: "Entrevista simulada" }).click();
-    const aparece = await page.locator(".iv-history li").first().waitFor({ timeout: 15000 }).then(() => true, () => false);
-    if (!aparece) console.log("DIAGNÓSTICO entrevistas:", JSON.stringify({ trasRecargar, guardadas: Object.keys((await state(page)).interviews), pantalla: ((await page.locator(".iv").innerText().catch(() => "sin .iv")) as string).slice(0, 500), errores: errors }));
-    ok(aparece && (await page.locator(".iv-history li").count()) === 2, "las entrevistas guardadas siguen después de recargar");
-    await lector.close();
+    await page.locator(".iv-history li").first().waitFor();
+    ok((await page.locator(".iv-history li").count()) === 2, "las entrevistas guardadas siguen después de recargar");
     ok(errors.length === 0, `entrevistas sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
@@ -885,6 +879,7 @@ try {
   }
 } finally {
   await browser.close();
+  server.close();
 }
 
 console.log(failed ? `\n${failed} prueba(s) fallaron` : "\nTodas las pruebas en navegador pasaron");
