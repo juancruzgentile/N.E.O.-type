@@ -8,6 +8,7 @@ import { claseDjango } from "./clases/django";
 import { claseFastapi } from "./clases/fastapi";
 import { claseReact } from "./clases/react";
 import { claseSpring } from "./clases/spring";
+import { claseAspnet } from "./clases/aspnet";
 
 export interface Framework extends Topic {
   /** se desbloquea con cualquiera de estos lenguajes: su ruta completa y un proyecto que lo use */
@@ -785,6 +786,7 @@ public class ApiTests(WebApplicationFactory<Program> fabrica) : IClassFixture<We
     }
 }`, "test integracion xunit"),
   ],
+  clase: claseAspnet,
 };
 
 export const FRAMEWORKS: Framework[] = [react, fastapi, django, spring, aspnet, swiftui, compose, laravel];
