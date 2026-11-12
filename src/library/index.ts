@@ -18,15 +18,20 @@ import { css, html } from "./web";
 import { formats, git, linux } from "./tools";
 import { claude } from "./claude";
 import { codex } from "./codex";
+import { elegirBd } from "./elegir-bd";
+import { postgresql } from "./postgresql";
+import { mongodb } from "./mongodb";
+import { redis } from "./redis";
 
 export const TOPICS: Topic[] = [
   python, javascript, typescript, java, csharp, go, rust, c, cpp, swift, kotlin, php,
   sql, html, css, formats,
+  elegirBd, postgresql, mongodb, redis,
   linux, git,
   claude, codex,
 ];
 
-export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Herramientas", "IA", "Frameworks"];
+export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Bases de datos", "Herramientas", "IA", "Frameworks"];
 
 /** Lo que viene: inteligencia artificial y herramientas para programar con ella. */
 export const SOON: Soon[] = [
