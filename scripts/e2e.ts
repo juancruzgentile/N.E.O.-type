@@ -475,6 +475,10 @@ try {
     ok(/seguridad/i.test((await page.locator(".lib-alert").first().textContent()) ?? "") && (await page.locator(".codex-mark").count()) > 0, "Codex abre con el aviso rojo de seguridad y su logo");
     await page.locator(".lib-clase-toggle").getByRole("tab", { name: /Día de trabajo/ }).click();
     ok((await page.locator(".clase-seccion").count()) >= 6 && (await page.locator(".clase-diagrama svg").count()) >= 1, "la clase de Codex tiene varias secciones y al menos un diagrama");
+    await page.locator(".lib-nav").getByRole("button", { name: /^Python/ }).click();
+    await page.locator(".lib-clase-toggle").getByRole("tab", { name: /^Clase$/ }).click();
+    ok((await page.locator(".clase-seccion").count()) >= 9 && (await page.locator(".clase .lib-code").count()) >= 3 && (await page.locator(".clase-tabla table").count()) >= 2, "la clase de Python muestra secciones, código resaltado y tablas");
+    ok((await page.locator(".clase-fuentes a").count()) >= 1, "la clase de Python lista sus fuentes oficiales");
     ok(errors.length === 0, `biblioteca sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
