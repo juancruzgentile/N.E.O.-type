@@ -20,7 +20,7 @@ export function ClaseView({ clase, hl }: { clase: Clase; hl: LangId }) {
           <h4><span className="clase-num">{String(i + 1).padStart(2, "0")}</span> {s.heading}</h4>
           {s.parrafos.map((p, j) => <p key={j}>{p}</p>)}
           {s.lista && <ul>{s.lista.map((x, j) => <li key={j}>{x}</li>)}</ul>}
-          {s.codigo?.map((c, j) => <CodeBlock key={j} text={c} lang={hl} />)}
+          {s.codigo?.map((c, j) => (typeof c === "string" ? <CodeBlock key={j} text={c} lang={hl} /> : <CodeBlock key={j} text={c.text} lang={c.lang} />))}
           {s.tabla && (
             <div className="clase-tabla">
               <table>
