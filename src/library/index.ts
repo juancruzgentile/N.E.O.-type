@@ -22,11 +22,15 @@ import { elegirBd } from "./elegir-bd";
 import { postgresql } from "./postgresql";
 import { mongodb } from "./mongodb";
 import { redis } from "./redis";
+import { vectoriales } from "./vectoriales";
+import { asincronia } from "./asincronia";
+import { storage } from "./storage";
+import { seguridadDatos } from "./seguridad-datos";
 
 export const TOPICS: Topic[] = [
   python, javascript, typescript, java, csharp, go, rust, c, cpp, swift, kotlin, php,
   sql, html, css, formats,
-  elegirBd, postgresql, mongodb, redis,
+  elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, seguridadDatos,
   linux, git,
   claude, codex,
 ];
