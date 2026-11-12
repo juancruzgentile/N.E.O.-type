@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Clases completas de **HTML**, **CSS**, **Formatos de datos**, **Linux** y **Git**, con la misma plantilla que las de los
+  lenguajes: cómo procesa el navegador el HTML, la cascada y el modelo de caja, las trampas de JSON y YAML, la filosofía
+  de Unix, y cómo guarda Git un proyecto por dentro, con errores típicos y tablas de cuándo conviene cada uno.
 - Cuatro temas más en el grupo **Bases de datos**, de 12 ejemplos con fuente cada uno y una clase completa: **Bases de datos
   vectoriales** (embeddings, HNSW e IVF, RAG, con ejemplos de pgvector), **Procesos asíncronos y colas** (asyncio, Celery,
   RabbitMQ, Kafka, reintentos, idempotencia y el patrón outbox), **Almacenamiento y copias de seguridad** (bloques, archivos
