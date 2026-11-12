@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseSwift } from "./clases/swift";
 
 export const swift: Topic = {
   id: "swift",
@@ -174,4 +175,5 @@ struct ContadorView: View {
     }
 }`, "interfaz ui vista ios"),
   ],
+  clase: claseSwift,
 };
