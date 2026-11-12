@@ -21,7 +21,7 @@ export const claseTypescript: Clase = {
         "Se volvió estándar en el mundo web cuando grandes proyectos lo adoptaron, entre ellos Angular, y los editores (sobre todo Visual Studio Code) mostraron lo bien que se sentía programar con autocompletado preciso.",
       ],
       lista: [
-        "2016: TypeScript 2.0 trae el modo estricto con control de null y undefined, la mejora que más errores evita.",
+        "2016: TypeScript 2.0 trae el control estricto de null y undefined (strictNullChecks), la mejora que más errores evita.",
         "2025: el equipo anuncia que reescribe el compilador en Go para hacerlo mucho más rápido. TypeScript 6.0 es la última versión escrita en TypeScript, y la 7.0 es la primera del compilador nativo.",
         "Hoy: Node.js puede ejecutar archivos .ts quitándoles los tipos, con límites (ver más abajo).",
       ],
