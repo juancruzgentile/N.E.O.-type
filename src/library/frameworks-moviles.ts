@@ -2,6 +2,9 @@
 // más un proyecto), pero cada uno con su proyecto: ver `projects` y unlock.ts.
 import type { Framework } from "./frameworks";
 import { a, b, code, m } from "./types";
+import { claseSwiftui } from "./clases/swiftui";
+import { claseCompose } from "./clases/compose";
+import { claseLaravel } from "./clases/laravel";
 
 export const swiftui: Framework = {
   id: "swiftui",
@@ -159,6 +162,7 @@ struct Registro: View {
     Saludo(nombre: "Ana")
 }`, "preview lienzo xcode prueba"),
   ],
+  clase: claseSwiftui,
 };
 
 export const compose: Framework = {
@@ -289,6 +293,7 @@ fun SaludoPreview() {
     Saludo("Ana")
 }`, "preview vista previa android studio"),
   ],
+  clase: claseCompose,
 };
 
 export const laravel: Framework = {
@@ -487,4 +492,5 @@ class LibrosTest extends TestCase
     }
 }`, "test prueba http phpunit pest"),
   ],
+  clase: claseLaravel,
 };
