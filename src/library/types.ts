@@ -62,14 +62,26 @@ export interface ClaseSeccion {
   heading: string;
   /** cada string es un párrafo */
   parrafos: string[];
+  /** viñetas, debajo de los párrafos */
+  lista?: string[];
+  /** ejemplos de código, resaltados con el lenguaje del tema */
+  codigo?: string[];
+  /** tabla corta, por ejemplo "dónde conviene y dónde no" */
+  tabla?: { cabeza: string[]; filas: string[][] };
   diagrama?: DiagramaId;
 }
 
 /** Una clase completa y escrita sobre el tema, aparte de la referencia rápida de siempre. */
 export interface Clase {
+  /** nombre de la pestaña; si no está, "Clase" */
+  tab?: string;
   titulo: string;
   bajada: string;
   secciones: ClaseSeccion[];
+  /** documentación oficial en la que se apoya la clase */
+  fuentes?: { texto: string; url: string }[];
+  /** día en que se comprobó contra las fuentes (AAAA-MM-DD) */
+  revisada?: string;
 }
 
 /**

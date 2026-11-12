@@ -222,6 +222,7 @@ codex review   # revisa el diff y busca problemas antes de aceptarlo`, "untruste
 # el resultado depende mas de estos 4 pasos que del agente elegido`, "comparacion claude codex eleccion cual conviene"),
   ],
   clase: {
+    tab: "Día de trabajo",
     titulo: "Día de trabajo: cómo piensa Codex y cómo hablarle",
     bajada:
       "Esto no es la referencia rápida de comandos (esa está en la pestaña Referencia): es la teoría que explica por qué Codex funciona como funciona, " +

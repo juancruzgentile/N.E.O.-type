@@ -1,3 +1,4 @@
+import { clasePython } from "./clases/python";
 import { type Topic, a, b, code, m } from "./types";
 
 export const python: Topic = {
@@ -263,4 +264,5 @@ def test_cero():
     with pytest.raises(ZeroDivisionError):
         dividir(1, 0)`, "test prueba unitaria testing"),
   ],
+  clase: clasePython,
 };

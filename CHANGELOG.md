@@ -6,6 +6,11 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Las clases de la Biblioteca ahora pueden llevar **listas, ejemplos de código resaltado, tablas y fuentes con fecha de
+  revisión**, y la pestaña se llama "Clase" (la de Codex sigue siendo "Día de trabajo"). Con esto empieza una serie de clases
+  completas para cada lenguaje, framework y base de datos. La primera es la de **Python**: qué es, historia, cómo corre por
+  dentro (bytecode, memoria y el GIL), un primer programa explicado línea por línea, los cinco conceptos base, los errores
+  típicos, una tabla de dónde conviene usarlo y dónde no, y la comparación con otros lenguajes.
 - **Claude** en la Biblioteca, en un grupo nuevo "IA" (sale de Próximamente). 35 entradas con su fuente oficial: comandos de
   `/`, opciones de la terminal, atajos, planes y límites de uso (sin precios), los cuatro modelos y cómo combinarlos, modo plan,
   modos de permisos y auto mode, `CLAUDE.md` y `AGENTS.md`, hooks, skills, agentes, MCP, plugins, el Agent SDK, y los conceptos

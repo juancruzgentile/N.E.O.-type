@@ -4,6 +4,9 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
+import { once } from "node:events";
 import { type Browser, type Page, chromium } from "playwright-core";
 import { PROJECTS } from "../src/projects/projects";
 import { LANGS } from "../src/data/curriculum";
@@ -11,7 +14,12 @@ import { TOPICS } from "../src/library/index";
 import { entryId } from "../src/library/search";
 import { BANCO } from "../src/interview/bank/index";
 
-const FILE = "file://" + resolve("NeonType.html");
+// Se sirve por http local y no se abre como file://: con file:// Chromium no garantiza que todas las páginas
+// del contexto lean el mismo localStorage, y en el CI la recarga o una segunda ventana arrancaban vacías a veces.
+const html = readFileSync(resolve("NeonType.html"));
+const server = createServer((_, res) => res.writeHead(200, { "content-type": "text/html; charset=utf-8" }).end(html)).listen(0, "127.0.0.1");
+await once(server, "listening");
+const APP = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
 const KEY = "neontype:v1";
 
 let failed = 0;
@@ -57,7 +65,7 @@ async function open(
       sessionStorage.setItem("seeded", "1");
     }
   }, [KEY, JSON.stringify(seed)] as const);
-  await page.goto(FILE);
+  await page.goto(APP);
   await page.locator(".code-box").waitFor();
   return { page, errors, ctx };
 }
@@ -475,6 +483,10 @@ try {
     ok(/seguridad/i.test((await page.locator(".lib-alert").first().textContent()) ?? "") && (await page.locator(".codex-mark").count()) > 0, "Codex abre con el aviso rojo de seguridad y su logo");
     await page.locator(".lib-clase-toggle").getByRole("tab", { name: /Día de trabajo/ }).click();
     ok((await page.locator(".clase-seccion").count()) >= 6 && (await page.locator(".clase-diagrama svg").count()) >= 1, "la clase de Codex tiene varias secciones y al menos un diagrama");
+    await page.locator(".lib-nav").getByRole("button", { name: /^Python/ }).click();
+    await page.locator(".lib-clase-toggle").getByRole("tab", { name: /^Clase$/ }).click();
+    ok((await page.locator(".clase-seccion").count()) >= 9 && (await page.locator(".clase .lib-code").count()) >= 3 && (await page.locator(".clase-tabla table").count()) >= 2, "la clase de Python muestra secciones, código resaltado y tablas");
+    ok((await page.locator(".clase-fuentes a").count()) >= 1, "la clase de Python lista sus fuentes oficiales");
     ok(errors.length === 0, `biblioteca sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
@@ -625,7 +637,7 @@ try {
     const { page: a, errors, ctx } = await open(browser);
     const b = await ctx.newPage();
     b.on("pageerror", (e) => errors.push(e.message));
-    await b.goto(FILE);
+    await b.goto(APP);
     await b.locator(".code-box").waitFor();
     for (const p of [a, b]) await p.getByRole("button", { name: "Ajustes" }).click();
     await a.locator("input[placeholder='Tu nombre']").fill("Ventana A");
@@ -867,6 +879,7 @@ try {
   }
 } finally {
   await browser.close();
+  server.close();
 }
 
 console.log(failed ? `\n${failed} prueba(s) fallaron` : "\nTodas las pruebas en navegador pasaron");

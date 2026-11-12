@@ -291,5 +291,21 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   ok(/get_object_or_404\(Articulo, pk=pk, publicado=True\)/.test(views), "Django: el detalle público sigue exigiendo publicado=True");
 }
 
+// las clases de la Biblioteca respetan la plantilla: secciones con texto, tablas rectangulares y fuentes https con fecha
+{
+  const conClase = ALL_TOPICS.filter((t) => t.clase);
+  ok(conClase.some((t) => t.id === "python"), "Biblioteca: Python tiene su clase");
+  for (const t of conClase) {
+    const c = t.clase!;
+    const secciones = c.secciones;
+    const mal = secciones.filter((x) => !x.heading || x.parrafos.length === 0 || x.parrafos.some((p) => !p.trim()));
+    const tablas = secciones.filter((x) => x.tabla && x.tabla.filas.some((f) => f.length !== x.tabla!.cabeza.length));
+    ok(mal.length === 0 && tablas.length === 0, `clase de ${t.name}: secciones con texto y tablas rectangulares${mal.length ? " — " + mal[0].heading : ""}`);
+    ok(!c.fuentes || (c.fuentes.every((f) => f.url.startsWith("https://")) && /^\d{4}-\d{2}-\d{2}$/.test(c.revisada ?? "")), `clase de ${t.name}: las fuentes son https y traen la fecha de revisión`);
+  }
+  const py = TOPICS.find((t) => t.id === "python")!.clase!;
+  ok(py.secciones.length >= 9 && py.secciones.some((x) => x.tabla) && py.secciones.some((x) => x.codigo) && !!py.fuentes?.length, "clase de Python: al menos 9 secciones, con tabla, código y fuentes");
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);

@@ -44,5 +44,6 @@ export const codex: FuentesTema = {
     "Codex vs. Claude Code: memoria y configuración": [AGENTS],
     "Codex vs. Claude Code: permisos y sandbox": [SANDBOX],
     "Codex vs. Claude Code: cómo se extienden": [SDK],
+    "Cuál conviene para qué": [PLATFORMS],
   },
 };
