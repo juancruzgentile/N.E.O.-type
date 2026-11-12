@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseJava } from "./clases/java";
 
 export const java: Topic = {
   id: "java",
@@ -170,4 +171,5 @@ class CalculadoraTest {
     }
 }`, "test prueba junit"),
   ],
+  clase: claseJava,
 };

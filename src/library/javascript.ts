@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseJavascript } from "./clases/javascript";
 
 export const javascript: Topic = {
   id: "javascript",
@@ -200,4 +201,5 @@ test("suma dos números", () => {
   assert.equal(sumar(2, 3), 5);
 });`, "test prueba testing vitest jest"),
   ],
+  clase: claseJavascript,
 };

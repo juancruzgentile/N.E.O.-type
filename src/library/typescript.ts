@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseTypescript } from "./clases/typescript";
 
 export const typescript: Topic = {
   id: "typescript",
@@ -143,4 +144,5 @@ function nombre(e: Estado): string {
 type Evento = "click" | "focus";
 type Handler = \`on\${Capitalize<Evento>}\`;   // "onClick" | "onFocus"`, "plantilla string literal"),
   ],
+  clase: claseTypescript,
 };
