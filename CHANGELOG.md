@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Clases completas de **JavaScript**, **TypeScript** y **Java** en la Biblioteca, con la misma plantilla que la de Python: qué
+  es, historia, cómo funciona por dentro (el bucle de eventos, el borrado de tipos y la JVM), primer programa explicado, cinco
+  conceptos base, errores típicos, tablas de dónde conviene usarlo y comparación con otros lenguajes.
 - Las clases de la Biblioteca ahora pueden llevar **listas, ejemplos de código resaltado, tablas y fuentes con fecha de
   revisión**, y la pestaña se llama "Clase" (la de Codex sigue siendo "Día de trabajo"). Con esto empieza una serie de clases
   completas para cada lenguaje, framework y base de datos. La primera es la de **Python**: qué es, historia, cómo corre por

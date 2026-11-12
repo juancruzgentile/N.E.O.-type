@@ -303,8 +303,10 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
     ok(mal.length === 0 && tablas.length === 0, `clase de ${t.name}: secciones con texto y tablas rectangulares${mal.length ? " — " + mal[0].heading : ""}`);
     ok(!c.fuentes || (c.fuentes.every((f) => f.url.startsWith("https://")) && /^\d{4}-\d{2}-\d{2}$/.test(c.revisada ?? "")), `clase de ${t.name}: las fuentes son https y traen la fecha de revisión`);
   }
-  const py = TOPICS.find((t) => t.id === "python")!.clase!;
-  ok(py.secciones.length >= 9 && py.secciones.some((x) => x.tabla) && py.secciones.some((x) => x.codigo) && !!py.fuentes?.length, "clase de Python: al menos 9 secciones, con tabla, código y fuentes");
+  for (const t of conClase.filter((x) => x.group !== "IA")) {
+    const c = t.clase!;
+    ok(c.secciones.length >= 9 && c.secciones.some((x) => x.tabla) && c.secciones.some((x) => x.codigo) && !!c.fuentes?.length, `clase de ${t.name}: al menos 9 secciones, con tabla, código y fuentes`);
+  }
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
