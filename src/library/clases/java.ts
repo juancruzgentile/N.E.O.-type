@@ -21,7 +21,7 @@ export const claseJava: Clase = {
         "Hoy Java se desarrolla como un proyecto abierto, OpenJDK, y hay varias distribuciones gratuitas del mismo código.",
       ],
       lista: [
-        "Desde 2017 (Java 9), sale una versión nueva cada seis meses. Algunas son de soporte largo (LTS) y las empresas se quedan en ellas: Java 8, 11, 17, 21 y 25.",
+        "Desde 2018 (Java 10), sale una versión nueva cada seis meses. Algunas son de soporte largo (LTS) y las empresas se quedan en ellas: Java 8, 11, 17, 21 y 25.",
         "Java 8 (2014) sumó las expresiones lambda y los streams, que cambiaron cómo se escribe el código.",
         "Java 16 sumó los records, clases de datos inmutables de una sola línea.",
         "Java 21 sumó los hilos virtuales, que hacen barato manejar miles de tareas esperando a la vez.",
