@@ -1,4 +1,7 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseFormats } from "./clases/formats";
+import { claseLinux } from "./clases/linux";
+import { claseGit } from "./clases/git";
 
 export const linux: Topic = {
   id: "linux",
@@ -119,6 +122,7 @@ docker logs -f web
 docker compose up --build
 docker compose down`, "contenedor imagen compose"),
   ],
+  clase: claseLinux,
 };
 
 export const git: Topic = {
@@ -222,6 +226,7 @@ git bisect reset`, "buscar error bug"),
 git tag -a v1.6.0 -m "Versión 1.6.0"
 git push origin v1.6.0`, "etiqueta version release"),
   ],
+  clase: claseGit,
 };
 
 export const formats: Topic = {
@@ -347,4 +352,5 @@ id,nombre,ciudad
 1,Ana,"Roma, Italia"
 2,Luis,Madrid`, "csv tabla planilla"),
   ],
+  clase: claseFormats,
 };
