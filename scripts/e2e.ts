@@ -51,11 +51,14 @@ async function open(
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   page.on("dialog", (d) => void d.accept());
   await page.addInitScript(([k, v]) => {
-    // solo en la primera carga: después la app maneja su propio estado
-    if (!sessionStorage.getItem("seeded")) {
+    // solo en la primera carga: después la app maneja su propio estado.
+    // Además de la marca de la sesión se mira que no haya ya un estado guardado: si al recargar la
+    // marca no estuviera a tiempo, sembrar de nuevo borraría lo que la app guardó.
+    localStorage.setItem("__e2e_cargas", String(Number(localStorage.getItem("__e2e_cargas") ?? 0) + 1));
+    if (!sessionStorage.getItem("seeded") && localStorage.getItem(k) === null) {
       localStorage.setItem(k, v);
-      sessionStorage.setItem("seeded", "1");
     }
+    sessionStorage.setItem("seeded", "1");
   }, [KEY, JSON.stringify(seed)] as const);
   await page.goto(FILE);
   await page.locator(".code-box").waitFor();
@@ -848,7 +851,7 @@ try {
     for (let i = 0; i < 300 && Object.keys((await state(page)).interviews).length < 2; i++) await page.waitForTimeout(100);
     ok(Object.keys((await state(page)).interviews).length === 2, "las dos entrevistas se guardaron antes de recargar");
     await page.reload();
-    const trasRecargar = await page.evaluate((k) => ({ seeded: sessionStorage.getItem("seeded"), n: Object.keys(JSON.parse(localStorage.getItem(k) ?? "{}").interviews ?? {}).length }), KEY);
+    const trasRecargar = await page.evaluate((k) => ({ cargas: localStorage.getItem("__e2e_cargas"), seeded: sessionStorage.getItem("seeded"), n: Object.keys(JSON.parse(localStorage.getItem(k) ?? "{}").interviews ?? {}).length }), KEY);
     await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
     await page.getByRole("tab", { name: "Entrevista simulada" }).click();
     const aparece = await page.locator(".iv-history li").first().waitFor({ timeout: 15000 }).then(() => true, () => false);
