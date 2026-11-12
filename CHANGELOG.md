@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Clases completas de **Kotlin**, **PHP** y **SQL** en la Biblioteca, con la misma plantilla: qué es, historia, cómo funciona por
+  dentro (corrutinas, el modelo de un pedido por programa de PHP, el plan y el orden lógico de una consulta SQL), primer
+  programa explicado, conceptos base, errores típicos (incluidos la inyección SQL y el XSS) y tablas de dónde conviene usarlos.
 - Clases completas de **C**, **C++** y **Swift** en la Biblioteca, con la misma plantilla: qué es, historia, cómo funciona por
   dentro (las etapas de compilación y la memoria en C, RAII en C++, ARC y los tipos por valor en Swift), primer programa
   explicado, conceptos base, errores típicos y tablas de dónde conviene usarlo.
