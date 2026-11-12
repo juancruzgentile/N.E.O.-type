@@ -44,7 +44,7 @@ function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
   );
 }
 
-const fechaLarga = (iso: string) =>
+export const fechaLarga = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
 const levelName = (l: Level) => LEVELS.find((x) => x.id === l)!.name;
 
@@ -302,13 +302,13 @@ export function LibraryView({ lang, state, update }: Props) {
                     <IconBook size={16} /> Referencia
                   </button>
                   <button role="tab" aria-selected={claseOpen} className={claseOpen ? "on" : ""} onClick={() => setClaseOpen(true)}>
-                    <IconChalk size={16} /> Día de trabajo
+                    <IconChalk size={16} /> {topic.clase.tab ?? "Clase"}
                   </button>
                 </div>
               )}
 
               {topic.clase && claseOpen ? (
-                <ClaseView clase={topic.clase} />
+                <ClaseView clase={topic.clase} hl={topic.hl} />
               ) : (
                 <>
                   <dl className="lib-facts">
