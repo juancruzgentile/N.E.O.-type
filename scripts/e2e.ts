@@ -850,8 +850,9 @@ try {
     await page.reload();
     await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
     await page.getByRole("tab", { name: "Entrevista simulada" }).click();
-    await page.locator(".iv-history li").first().waitFor();
-    ok((await page.locator(".iv-history li").count()) === 2, "las entrevistas guardadas siguen después de recargar");
+    const aparece = await page.locator(".iv-history li").first().waitFor({ timeout: 15000 }).then(() => true, () => false);
+    if (!aparece) console.log("DIAGNÓSTICO entrevistas:", JSON.stringify({ guardadas: Object.keys((await state(page)).interviews), pantalla: ((await page.locator(".iv").innerText().catch(() => "sin .iv")) as string).slice(0, 500), errores: errors }));
+    ok(aparece && (await page.locator(".iv-history li").count()) === 2, "las entrevistas guardadas siguen después de recargar");
     ok(errors.length === 0, `entrevistas sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
