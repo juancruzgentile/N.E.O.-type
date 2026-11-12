@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseSql } from "./clases/sql";
 
 export const sql: Topic = {
   id: "sql",
@@ -139,4 +140,5 @@ db.pedidos.aggregate([
   { $sort: { total: -1 } },
 ]);`, "pipeline agrupar nosql"),
   ],
+  clase: claseSql,
 };
