@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Clases completas de **C**, **C++** y **Swift** en la Biblioteca, con la misma plantilla: qué es, historia, cómo funciona por
+  dentro (las etapas de compilación y la memoria en C, RAII en C++, ARC y los tipos por valor en Swift), primer programa
+  explicado, conceptos base, errores típicos y tablas de dónde conviene usarlo.
 - Clases completas de **C#**, **Go** y **Rust** en la Biblioteca, con la misma plantilla: qué es, historia, cómo corre por dentro
   (el CLR y LINQ perezoso, goroutines y canales, propiedad y préstamos), primer programa explicado, conceptos base, errores
   típicos, y tablas de dónde conviene usarlo y comparación con otros lenguajes.
