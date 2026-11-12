@@ -6,6 +6,10 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Clases completas de **ASP.NET Core**, **SwiftUI**, **Jetpack Compose** y **Laravel**, en la sección oculta de Frameworks: qué
+  problema resuelve cada uno, historia, cómo funciona por dentro (el pipeline de middleware, vistas como descripción del
+  estado, composición y recomposición, el camino de un pedido en Laravel), primer proyecto explicado, conceptos base, errores
+  típicos y cuándo conviene usarlos.
 - Clases completas de **React**, **FastAPI**, **Django** y **Spring Boot**, dentro de la sección oculta de Frameworks, con la
   misma plantilla que las de los lenguajes: qué problema resuelve, historia, cómo funciona por dentro (reconciliación y estado,
   validación por tipos, el camino de un pedido, el contenedor de inyección), primer proyecto explicado, conceptos base, errores
