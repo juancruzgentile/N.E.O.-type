@@ -856,6 +856,8 @@ try {
     await lector.close();
     await page.reload();
     const trasRecargar = await page.evaluate((k) => ({ cargas: localStorage.getItem("__e2e_cargas"), seeded: sessionStorage.getItem("seeded"), n: Object.keys(JSON.parse(localStorage.getItem(k) ?? "{}").interviews ?? {}).length }), KEY);
+    const hayMenu = await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).waitFor({ timeout: 15000 }).then(() => true, () => false);
+    if (!hayMenu) console.log("DIAGNÓSTICO sin menú tras recargar:", JSON.stringify({ trasRecargar, ahora: await page.evaluate((k) => ({ raw: (localStorage.getItem(k) ?? "").length, cargas: localStorage.getItem("__e2e_cargas"), texto: document.body.innerText.slice(0, 300) }), KEY), errores: errors }));
     await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).click();
     await page.getByRole("tab", { name: "Entrevista simulada" }).click();
     const aparece = await page.locator(".iv-history li").first().waitFor({ timeout: 15000 }).then(() => true, () => false);
