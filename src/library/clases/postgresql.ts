@@ -16,7 +16,7 @@ export const clasePostgresql: Clase = {
     {
       heading: "Historia corta",
       parrafos: [
-        "Viene del proyecto POSTGRES, que Michael Stonebraker lideró en la Universidad de California en Berkeley a partir de 1986, como sucesor de Ingres (de ahí el nombre: post-Ingres). En 1996 se le agregó un intérprete de SQL y pasó a llamarse PostgreSQL. Desde entonces lo desarrolla una comunidad independiente, sin una empresa dueña, y sale una versión mayor por año.",
+        "Viene del proyecto POSTGRES, que Michael Stonebraker lideró en la Universidad de California en Berkeley a partir de 1986, como sucesor de Ingres (de ahí el nombre: post-Ingres). En 1994 se le agregó un intérprete de SQL (salió como Postgres95) y en 1996 pasó a llamarse PostgreSQL. Desde entonces lo desarrolla una comunidad independiente, sin una empresa dueña, y sale una versión mayor por año.",
       ],
       lista: [
         "Tiene licencia propia muy permisiva (parecida a MIT), lo que permite usarlo y vender productos basados en él sin restricciones.",
