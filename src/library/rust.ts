@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseRust } from "./clases/rust";
 
 export const rust: Topic = {
   id: "rust",
@@ -187,4 +188,5 @@ mod tests {
     }
 }`, "test prueba"),
   ],
+  clase: claseRust,
 };
