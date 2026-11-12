@@ -853,7 +853,8 @@ try {
     await lector.goto(FILE);
     for (let i = 0; i < 300 && Object.keys((await state(lector)).interviews ?? {}).length < 2; i++) await page.waitForTimeout(100);
     ok(Object.keys((await state(lector)).interviews ?? {}).length === 2, "las dos entrevistas se guardaron antes de recargar");
-    await lector.close();
+    // la segunda pestaña sigue abierta durante la recarga: el contexto de prueba guarda localStorage solo en memoria y,
+    // si en ese instante ninguna página del origen lo tiene abierto, el navegador puede soltarlo y la página nueva arranca vacía
     await page.reload();
     const trasRecargar = await page.evaluate((k) => ({ cargas: localStorage.getItem("__e2e_cargas"), seeded: sessionStorage.getItem("seeded"), n: Object.keys(JSON.parse(localStorage.getItem(k) ?? "{}").interviews ?? {}).length }), KEY);
     const hayMenu = await page.locator(".nav").getByRole("button", { name: "Entrevistas" }).waitFor({ timeout: 15000 }).then(() => true, () => false);
@@ -863,6 +864,7 @@ try {
     const aparece = await page.locator(".iv-history li").first().waitFor({ timeout: 15000 }).then(() => true, () => false);
     if (!aparece) console.log("DIAGNÓSTICO entrevistas:", JSON.stringify({ trasRecargar, guardadas: Object.keys((await state(page)).interviews), pantalla: ((await page.locator(".iv").innerText().catch(() => "sin .iv")) as string).slice(0, 500), errores: errors }));
     ok(aparece && (await page.locator(".iv-history li").count()) === 2, "las entrevistas guardadas siguen después de recargar");
+    await lector.close();
     ok(errors.length === 0, `entrevistas sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
