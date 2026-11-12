@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseCsharp } from "./clases/csharp";
 
 export const csharp: Topic = {
   id: "csharp",
@@ -145,4 +146,5 @@ public class CalculadoraTests
         => Assert.Equal(esperado, Calculadora.Sumar(a, b));
 }`, "test prueba"),
   ],
+  clase: claseCsharp,
 };

@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseGo } from "./clases/go";
 
 export const go: Topic = {
   id: "go",
@@ -177,4 +178,5 @@ func TestDividir(t *testing.T) {
 	}
 }`, "test prueba testing"),
   ],
+  clase: claseGo,
 };
