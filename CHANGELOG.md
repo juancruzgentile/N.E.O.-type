@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Clases completas de **C#**, **Go** y **Rust** en la Biblioteca, con la misma plantilla: qué es, historia, cómo corre por dentro
+  (el CLR y LINQ perezoso, goroutines y canales, propiedad y préstamos), primer programa explicado, conceptos base, errores
+  típicos, y tablas de dónde conviene usarlo y comparación con otros lenguajes.
 - Clases completas de **JavaScript**, **TypeScript** y **Java** en la Biblioteca, con la misma plantilla que la de Python: qué
   es, historia, cómo funciona por dentro (el bucle de eventos, el borrado de tipos y la JVM), primer programa explicado, cinco
   conceptos base, errores típicos, tablas de dónde conviene usarlo y comparación con otros lenguajes.
