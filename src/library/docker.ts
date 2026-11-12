@@ -99,7 +99,7 @@ volumes:
 
 # docker compose up -d     ·     docker compose logs -f web     ·     docker compose down`, "compose yaml servicios base datos depends_on"),
     a("Dockerfile", "Construcción en varias etapas", "Una etapa compila con todas las herramientas y la imagen final solo copia el resultado. Queda mucho más chica y sin compiladores que un atacante podría aprovechar.", code`
-FROM golang:1.25 AS construir
+FROM golang:1.27 AS construir
 WORKDIR /src
 COPY . .
 RUN CGO_ENABLED=0 go build -o /servidor .
