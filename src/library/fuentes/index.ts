@@ -19,12 +19,13 @@ import { kotlin } from "./kotlin";
 import { php } from "./php";
 import { claude } from "./claude";
 import { codex } from "./codex";
+import { elegirBd, postgresql, mongodb, redis } from "./bd";
 import { react, fastapi, django, spring, aspnet, swiftui, compose, laravel } from "./frameworks";
 
 /** Día en que se confirmó cada link y cada versión contra la documentación oficial. */
 export const REVISADO = "2026-11-05";
 
-export const FUENTES: Record<string, FuentesTema> = { python, javascript, typescript, java, csharp, go, rust, c, cpp, sql, html, css, formats, linux, git, swift, kotlin, php, claude, codex, react, fastapi, django, spring, aspnet, swiftui, compose, laravel };
+export const FUENTES: Record<string, FuentesTema> = { python, javascript, typescript, java, csharp, go, rust, c, cpp, sql, html, css, formats, linux, git, swift, kotlin, php, claude, codex, "elegir-bd": elegirBd, postgresql, mongodb, redis, react, fastapi, django, spring, aspnet, swiftui, compose, laravel };
 
 export interface FuenteDe {
   url: string;

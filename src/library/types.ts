@@ -28,7 +28,7 @@ export interface Entry {
 export interface Topic {
   id: string;
   name: string;
-  group: "Lenguajes" | "Web y datos" | "Herramientas" | "IA" | "Frameworks";
+  group: "Lenguajes" | "Web y datos" | "Bases de datos" | "Herramientas" | "IA" | "Frameworks";
   /** emblema de la app si existe; si no, una sigla */
   emblem: LangId | null;
   badge: string;
@@ -64,8 +64,8 @@ export interface ClaseSeccion {
   parrafos: string[];
   /** viñetas, debajo de los párrafos */
   lista?: string[];
-  /** ejemplos de código, resaltados con el lenguaje del tema */
-  codigo?: string[];
+  /** ejemplos de código, resaltados con el lenguaje del tema (o con el que se indique) */
+  codigo?: (string | { lang: LangId; text: string })[];
   /** tabla corta, por ejemplo "dónde conviene y dónde no" */
   tabla?: { cabeza: string[]; filas: string[][] };
   diagrama?: DiagramaId;

@@ -6,6 +6,11 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Un grupo nuevo en la Biblioteca, **Bases de datos**, con cuatro temas de 12 ejemplos cada uno (todos con su fuente
+  oficial) y una clase completa: **Elegir una base de datos** (modelos, ACID, CAP y cómo decidir), **PostgreSQL** a fondo
+  (MVCC, WAL, jsonb, índices, EXPLAIN, vacuum, particionado), **MongoDB** (modelado de documentos, agregación, índices,
+  transacciones) y **Redis** (estructuras, caché, contadores, streams, persistencia). Las clases ahora pueden mostrar un
+  ejemplo de código en otro lenguaje distinto al del tema.
 - Clases completas de **ASP.NET Core**, **SwiftUI**, **Jetpack Compose** y **Laravel**, en la sección oculta de Frameworks: qué
   problema resuelve cada uno, historia, cómo funciona por dentro (el pipeline de middleware, vistas como descripción del
   estado, composición y recomposición, el camino de un pedido en Laravel), primer proyecto explicado, conceptos base, errores
