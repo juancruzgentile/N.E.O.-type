@@ -4,6 +4,10 @@
 import type { CodeLangId } from "../types";
 import { type Topic, a, b, code, m } from "./types";
 import { compose, laravel, swiftui } from "./frameworks-moviles";
+import { claseDjango } from "./clases/django";
+import { claseFastapi } from "./clases/fastapi";
+import { claseReact } from "./clases/react";
+import { claseSpring } from "./clases/spring";
 
 export interface Framework extends Topic {
   /** se desbloquea con cualquiera de estos lenguajes: su ruta completa y un proyecto que lo use */
@@ -194,6 +198,7 @@ npm install
 npm run dev
 npm install -D vitest @testing-library/react`, "vite crear proyecto test"),
   ],
+  clase: claseReact,
 };
 
 export const fastapi: Framework = {
@@ -356,6 +361,7 @@ def test_perfil():
     assert respuesta.status_code == 200
     assert respuesta.json() == {"usuario": "ana@test"}`, "test prueba pytest"),
   ],
+  clase: claseFastapi,
 };
 
 export const django: Framework = {
@@ -502,6 +508,7 @@ class ListaTests(TestCase):
         respuesta = self.client.get(reverse("lista"))
         self.assertContains(respuesta, "Yerba")`, "test prueba cliente"),
   ],
+  clase: claseDjango,
 };
 
 export const spring: Framework = {
@@ -643,6 +650,7 @@ class ProductoControllerTest {
     }
 }`, "test mockmvc prueba"),
   ],
+  clase: claseSpring,
 };
 
 export const aspnet: Framework = {

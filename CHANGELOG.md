@@ -6,6 +6,10 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Clases completas de **React**, **FastAPI**, **Django** y **Spring Boot**, dentro de la sección oculta de Frameworks, con la
+  misma plantilla que las de los lenguajes: qué problema resuelve, historia, cómo funciona por dentro (reconciliación y estado,
+  validación por tipos, el camino de un pedido, el contenedor de inyección), primer proyecto explicado, conceptos base, errores
+  típicos, y cuándo conviene usarlos.
 - Clases completas de **Kotlin**, **PHP** y **SQL** en la Biblioteca, con la misma plantilla: qué es, historia, cómo funciona por
   dentro (corrutinas, el modelo de un pedido por programa de PHP, el plan y el orden lógico de una consulta SQL), primer
   programa explicado, conceptos base, errores típicos (incluidos la inyección SQL y el XSS) y tablas de dónde conviene usarlos.
