@@ -75,3 +75,79 @@ export const redis: FuentesTema = {
     "Scripts en Lua con EVAL": [R + "develop/programmability/eval-intro/"],
   },
 };
+
+const GH = "https://github.com/pgvector/pgvector";
+export const vectoriales: FuentesTema = {
+  version: "pgvector 0.8 sobre PostgreSQL",
+  entradas: {
+    "Crear la extensión y la columna": [GH],
+    "Insertar y leer vectores": [GH],
+    "Vecinos más cercanos: ORDER BY": [GH],
+    "Elegir la métrica": [GH],
+    "Índice HNSW": [GH, "pgvector 0.5"],
+    "Índice IVFFlat": [GH],
+    "Filtrar por metadatos y similitud": [GH],
+    "Búsqueda híbrida: texto y vectores": [GH],
+    "Calidad contra velocidad: ef_search y probes": [GH],
+    "Medir el recall contra la búsqueda exacta": [GH],
+    "halfvec: la mitad de espacio": [GH, "pgvector 0.7"],
+    "Guardar fragmentos para RAG": [GH],
+  },
+};
+
+const PY = "https://docs.python.org/3/library/";
+export const asincronia: FuentesTema = {
+  version: "Python 3.14 (asyncio) y las herramientas citadas",
+  entradas: {
+    "async y await": [PY + "asyncio-task.html"],
+    "gather: varias tareas a la vez": [PY + "asyncio-task.html#asyncio.gather"],
+    "Productor y consumidor con queue.Queue": [PY + "queue.html"],
+    "Timeout con wait_for": [PY + "asyncio-task.html#asyncio.wait_for"],
+    "Semaphore: limitar la concurrencia": [PY + "asyncio-sync.html#asyncio.Semaphore"],
+    "Backoff exponencial con jitter": ["https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/"],
+    "Celery: tarea con reintentos": ["https://docs.celeryq.dev/en/stable/userguide/tasks.html#retrying"],
+    "Una clave única evita el doble efecto": [P + "sql-insert.html#SQL-ON-CONFLICT"],
+    "RabbitMQ: publicar y confirmar con ack": ["https://www.rabbitmq.com/docs/confirms"],
+    "Cola de mensajes muertos en RabbitMQ": ["https://www.rabbitmq.com/docs/dlx"],
+    "Kafka: grupo de consumidores": ["https://kafka.apache.org/documentation/"],
+    "Outbox: publicar sin perder ni duplicar": ["https://microservices.io/patterns/data/transactional-outbox.html"],
+  },
+};
+
+const AWS = "https://docs.aws.amazon.com/";
+const GNU = "https://www.gnu.org/software/";
+export const storage: FuentesTema = {
+  version: "herramientas de uso general (GNU, AWS CLI, restic, rclone)",
+  entradas: {
+    "df, du y lsblk: ver el espacio": [GNU + "coreutils/manual/html_node/df-invocation.html"],
+    "tar y gzip: empaquetar y comprimir": [GNU + "tar/manual/tar.html"],
+    "rsync: copiar solo lo que cambió": ["https://download.samba.org/pub/rsync/rsync.1"],
+    "sha256sum: comprobar que no se corrompió": [GNU + "coreutils/manual/html_node/sha2-utilities.html"],
+    "S3 con la CLI de AWS: cp y sync": [AWS + "cli/latest/reference/s3/sync.html"],
+    "URL prefirmada": [AWS + "cli/latest/reference/s3/presign.html"],
+    "Versionado de un bucket": [AWS + "AmazonS3/latest/userguide/Versioning.html"],
+    "pg_dump y pg_restore": [P + "app-pgdump.html"],
+    "restic: copias cifradas y con historial": ["https://restic.readthedocs.io/en/stable/"],
+    "Regla 3-2-1 con rclone": ["https://rclone.org/commands/rclone_sync/"],
+    "Object Lock: copias que no se pueden borrar": [AWS + "AmazonS3/latest/userguide/object-lock.html"],
+    "Probar la restauración": [P + "app-pgrestore.html"],
+  },
+};
+
+export const seguridadDatos: FuentesTema = {
+  version: "PostgreSQL 18 (las ideas valen para cualquier base)",
+  entradas: {
+    "Consulta parametrizada con PREPARE": [P + "sql-prepare.html"],
+    "Crear un rol sin privilegios de más": [P + "sql-createrole.html"],
+    "GRANT: solo lo necesario": [P + "sql-grant.html"],
+    "REVOKE: quitar lo que viene por defecto": [P + "sql-revoke.html"],
+    "Hash de contraseñas con pgcrypto": [P + "pgcrypto.html"],
+    "Seguridad a nivel de fila": [P + "ddl-rowsecurity.html"],
+    "Una vista que oculta columnas": [P + "sql-createview.html"],
+    "Cifrar una columna con pgp_sym_encrypt": [P + "pgcrypto.html#PGCRYPTO-PGP-ENC-FUNCS"],
+    "Conexión cifrada y verificada": [P + "libpq-ssl.html"],
+    "Registrar los cambios con un trigger": [P + "plpgsql-trigger.html"],
+    "pg_hba.conf: quién puede conectarse": [P + "auth-pg-hba-conf.html"],
+    "Limitar el daño de una consulta o un rol": [P + "runtime-config-client.html#GUC-STATEMENT-TIMEOUT"],
+  },
+};

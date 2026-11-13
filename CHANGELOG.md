@@ -6,6 +6,11 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Cuatro temas más en el grupo **Bases de datos**, de 12 ejemplos con fuente cada uno y una clase completa: **Bases de datos
+  vectoriales** (embeddings, HNSW e IVF, RAG, con ejemplos de pgvector), **Procesos asíncronos y colas** (asyncio, Celery,
+  RabbitMQ, Kafka, reintentos, idempotencia y el patrón outbox), **Almacenamiento y copias de seguridad** (bloques, archivos
+  y objetos, S3, la regla 3-2-1 y probar la restauración) y **Seguridad de los datos** (inyección SQL, permisos mínimos,
+  contraseñas, seguridad por fila, cifrado y auditoría).
 - Un grupo nuevo en la Biblioteca, **Bases de datos**, con cuatro temas de 12 ejemplos cada uno (todos con su fuente
   oficial) y una clase completa: **Elegir una base de datos** (modelos, ACID, CAP y cómo decidir), **PostgreSQL** a fondo
   (MVCC, WAL, jsonb, índices, EXPLAIN, vacuum, particionado), **MongoDB** (modelado de documentos, agregación, índices,
