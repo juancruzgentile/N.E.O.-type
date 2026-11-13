@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { clasePhp } from "./clases/php";
 
 export const php: Topic = {
   id: "php",
@@ -185,4 +186,5 @@ final class Temperatura
     }
 }`, "union nullable never hooks"),
   ],
+  clase: clasePhp,
 };

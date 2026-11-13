@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseKotlin } from "./clases/kotlin";
 
 export const kotlin: Topic = {
   id: "kotlin",
@@ -133,4 +134,5 @@ fun <T : Comparable<T>> mayor(a: T, b: T): T = if (a > b) a else b
 
 val cajas: List<Caja<out Number>> = listOf(Caja(1), Caja(2.5))`, "generico varianza"),
   ],
+  clase: claseKotlin,
 };
