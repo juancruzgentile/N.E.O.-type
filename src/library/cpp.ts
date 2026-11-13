@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseCpp } from "./clases/cpp";
 
 export const cpp: Topic = {
   id: "cpp",
@@ -204,4 +205,5 @@ cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ctest --test-dir build`, "compilar construir build cmake"),
   ],
+  clase: claseCpp,
 };

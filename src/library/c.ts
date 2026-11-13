@@ -1,4 +1,5 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseC } from "./clases/c";
 
 export const c: Topic = {
   id: "c",
@@ -201,4 +202,5 @@ if (fin == texto || *fin != '\0') {
 gcc -g -fsanitize=address,undefined main.c -o app && ./app
 valgrind --leak-check=full ./app`, "fuga memoria depurar asan"),
   ],
+  clase: claseC,
 };
