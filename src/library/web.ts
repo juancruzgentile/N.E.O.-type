@@ -1,4 +1,6 @@
 import { type Topic, a, b, code, m } from "./types";
+import { claseHtml } from "./clases/html";
+import { claseCss } from "./clases/css";
 
 export const html: Topic = {
   id: "html",
@@ -123,6 +125,7 @@ export const html: Topic = {
 <script src="analitica.js" defer></script>
 <link rel="preload" href="fuente.woff2" as="font" crossorigin>`, "lazy defer preload rendimiento"),
   ],
+  clase: claseHtml,
 };
 
 export const css: Topic = {
@@ -259,4 +262,5 @@ form:has(input:invalid) button { opacity: 0.5; }
   }
 }`, "nesting capas layer cascada"),
   ],
+  clase: claseCss,
 };
