@@ -6,6 +6,10 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Cuatro temas nuevos en la Biblioteca, de 12 ejemplos con fuente y una clase completa cada uno: **Cómo funciona la web**
+  (DNS, TCP, TLS y HTTP, con curl, dig y openssl; también CORS y cookies), **APIs** (consumir con fetch, diseñar con REST,
+  errores, idempotencia, límites, webhooks y GraphQL), **Testing** (pytest: fixtures, parametrización, dobles de prueba y
+  pruebas de integración) y **Docker y despliegue** (imágenes, volúmenes, Compose, varias etapas y seguridad).
 - Clases completas de **HTML**, **CSS**, **Formatos de datos**, **Linux** y **Git**, con la misma plantilla que las de los
   lenguajes: cómo procesa el navegador el HTML, la cascada y el modelo de caja, las trampas de JSON y YAML, la filosofía
   de Unix, y cómo guarda Git un proyecto por dentro, con errores típicos y tablas de cuándo conviene cada uno.

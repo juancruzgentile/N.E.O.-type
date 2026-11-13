@@ -26,12 +26,16 @@ import { vectoriales } from "./vectoriales";
 import { asincronia } from "./asincronia";
 import { storage } from "./storage";
 import { seguridadDatos } from "./seguridad-datos";
+import { webHttp } from "./web-http";
+import { apis } from "./apis";
+import { testing } from "./testing";
+import { docker } from "./docker";
 
 export const TOPICS: Topic[] = [
   python, javascript, typescript, java, csharp, go, rust, c, cpp, swift, kotlin, php,
-  sql, html, css, formats,
+  sql, html, css, formats, webHttp, apis,
   elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, seguridadDatos,
-  linux, git,
+  linux, git, testing, docker,
   claude, codex,
 ];
 
