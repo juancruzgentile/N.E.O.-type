@@ -172,6 +172,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
 - OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
   locales (`--oss`).
+- Claude: `bypassPermissions` se saltea casi todas las preguntas, pero las reglas `deny` siguen valiendo y no es un sandbox.
 - Antigravity: el modo default se pide sin `--mode` (en settings.json, `"agentMode": ""`), y `plan` está entre los modos.
 
 ### Corregido (auditoría del 2026-11-14 sobre d52dd83)

@@ -20,7 +20,7 @@ export const claude: Topic = {
       "Hacé un commit o una rama antes de pedirle cambios grandes: así podés volver atrás con git si algo sale mal.",
       "Todo lo que Claude lee de afuera (una web, un issue, un archivo ajeno, la respuesta de un servidor MCP) puede traer instrucciones escondidas (prompt injection). Tratalo como no confiable.",
       "Agregá solo servidores MCP y plugins de fuentes en las que confíes, y con el mínimo de permisos (credenciales de solo lectura cuando se pueda).",
-      "El modo bypassPermissions no pide permiso para nada: usalo solo dentro de un contenedor o una máquina virtual descartable.",
+      "El modo bypassPermissions se saltea casi todas las preguntas (las reglas deny siguen bloqueando, pero no es un sandbox): usalo solo dentro de un contenedor o una máquina virtual descartable.",
       "Revisá siempre el código que escribe antes de publicarlo: puede fallar, inventar una función o dejar un hueco de seguridad. Probalo y corré los tests.",
     ],
     closing: "Claude es muy bueno ayudando a programar, y por eso conviene usarlo con responsabilidad: vos decidís qué se ejecuta, qué se guarda y qué se publica.",
@@ -123,7 +123,7 @@ claude --permission-mode plan      # arrancar asi
 # plan              lee y propone, no edita
 # auto              un clasificador revisa cada accion
 # dontAsk           deniega todo lo que pediria permiso (CI)
-# bypassPermissions no pide nada (solo en contenedores)
+# bypassPermissions casi no pregunta; deny sigue valiendo (solo en contenedores)
 claude --permission-mode acceptEdits`, "permission mode default acceptedits dontask bypass"),
     m("Modos", "Auto mode", "En auto mode Claude trabaja sin interrumpirte, pero un clasificador revisa cada acción antes de ejecutarla y bloquea lo que se pasa de lo pedido: curl | bash, force push, deploys a producción o mergear PRs sin aprobación. Las reglas deny siguen valiendo. Requiere un modelo compatible.", code`
 claude --permission-mode auto
