@@ -332,7 +332,7 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
 for (const t of TOPICS.filter((x) => x.clase)) {
   const c = t.clase!;
   const textos = [c.bajada, ...c.secciones.flatMap((x) => [...x.parrafos, ...(x.lista ?? []), ...(x.tabla?.filas.flat() ?? [])])];
-  const mal = textos.find((x) => (x.split("**").length - 1) % 2 !== 0 || (x.split("`").length - 1) % 2 !== 0 || /\*\*\s|\s\*\*(?=[\s.,;:)]|$)/.test(x));
+  const mal = textos.find((x) => (x.split("**").length - 1) % 2 !== 0 || (x.split("`").length - 1) % 2 !== 0 || (x.match(/\*\*[^*]+\*\*/g) ?? []).some((m) => /^\*\*\s|\s\*\*$|`/.test(m)));
   ok(!mal && !c.secciones.some((x) => /\*\*|`/.test(x.heading)), `clase de ${t.name}: el resaltado abre y cierra bien${mal ? " — " + mal.slice(0, 60) : ""}`);
 }
 
