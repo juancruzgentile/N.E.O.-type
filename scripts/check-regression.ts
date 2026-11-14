@@ -328,5 +328,13 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   ok(!cx.includes("mcp login context7") && !cx.includes("Nada más que eso") && cx.includes("~/.codex/AGENTS.md"), "codex: login solo para MCP remoto, entrenamiento posterior y AGENTS.md global");
 }
 
+// ── clases: las marcas de resaltado (**clave** y `código`) están bien cerradas ──
+for (const t of TOPICS.filter((x) => x.clase)) {
+  const c = t.clase!;
+  const textos = [c.bajada, ...c.secciones.flatMap((x) => [...x.parrafos, ...(x.lista ?? []), ...(x.tabla?.filas.flat() ?? [])])];
+  const mal = textos.find((x) => (x.split("**").length - 1) % 2 !== 0 || (x.split("`").length - 1) % 2 !== 0 || /\*\*\s|\s\*\*(?=[\s.,;:)]|$)/.test(x));
+  ok(!mal && !c.secciones.some((x) => /\*\*|`/.test(x.heading)), `clase de ${t.name}: el resaltado abre y cierra bien${mal ? " — " + mal.slice(0, 60) : ""}`);
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);
