@@ -9,33 +9,33 @@ export const claseGo: Clase = {
     {
       heading: "Qué es y qué problema resuelve",
       parrafos: [
-        "Go (también llamado Golang) es un lenguaje compilado, de tipado estático, con recolector de basura y una sintaxis deliberadamente chica. Compila a un único ejecutable que no necesita instalar nada más para correr. Se usa para servicios web y APIs, herramientas de línea de comandos y, sobre todo, infraestructura en la nube: Docker y Kubernetes están escritos en Go.",
-        "El problema que resuelve es el de la complejidad. Nació para escribir software de servidor en equipos grandes sin sufrir tiempos de compilación enormes, jerarquías de clases enredadas o formas distintas de hacer lo mismo. Go te ofrece pocas cosas y una sola manera de hacerlas, así que el código de un desconocido se lee casi como el tuyo.",
+        "Go (también llamado Golang) es un lenguaje **compilado**, de **tipado estático**, con recolector de basura y una sintaxis deliberadamente chica. Compila a un único ejecutable que no necesita instalar nada más para correr. Se usa para servicios web y APIs, herramientas de línea de comandos y, sobre todo, infraestructura en la nube: Docker y Kubernetes están escritos en Go.",
+        "El problema que resuelve es el de la **complejidad**. Nació para escribir software de servidor en equipos grandes sin sufrir tiempos de compilación enormes, jerarquías de clases enredadas o formas distintas de hacer lo mismo. Go te ofrece **pocas cosas y una sola manera de hacerlas**, así que el código de un desconocido se lee casi como el tuyo.",
       ],
     },
     {
       heading: "Historia corta",
       parrafos: [
-        "Lo diseñaron en Google, a partir de 2007, Robert Griesemer, Rob Pike y Ken Thompson (uno de los creadores de Unix y de C). Se publicó como código abierto en 2009 y la versión 1.0 salió en marzo de 2012 con una promesa que se mantiene: el código escrito para Go 1 sigue compilando en las versiones nuevas.",
+        "Lo diseñaron en Google, a partir de 2007, **Robert Griesemer, Rob Pike y Ken Thompson** (uno de los creadores de Unix y de C). Se publicó como código abierto en 2009 y la versión 1.0 salió en marzo de 2012 con una promesa que se mantiene: **el código escrito para Go 1 sigue compilando** en las versiones nuevas.",
       ],
       lista: [
-        "2018 (Go 1.11): los módulos y go.mod resuelven las dependencias.",
-        "2022 (Go 1.18): llegan los genéricos, después de años de debate.",
+        "2018 (Go 1.11): los **módulos** y `go.mod` resuelven las dependencias.",
+        "2022 (Go 1.18): llegan los **genéricos**, después de años de debate.",
         "Desde entonces: dos versiones por año, con mejoras chicas y compatibles.",
-        "go fmt formatea todo el código de la misma manera: ya no se discute el estilo.",
+        "`go fmt` formatea todo el código de la misma manera: ya no se discute el estilo.",
       ],
     },
     {
       heading: "Cómo funciona por dentro",
       parrafos: [
-        "go build compila rápido el programa y todas sus dependencias a código de máquina, dentro de un único binario que incluye el runtime de Go (el recolector de basura y el planificador). Podés compilar para otro sistema cambiando dos variables (GOOS y GOARCH), sin instalar herramientas extra.",
-        "Lo más característico es la concurrencia. Una goroutine es una función que corre de forma concurrente, y es tan liviana (empieza con unos pocos kilobytes de pila) que podés tener miles. El planificador del runtime las reparte entre los hilos del sistema. Para que se comuniquen, Go usa canales: un tubo por donde una goroutine manda valores y otra los recibe. El lema del lenguaje lo resume: no te comuniques compartiendo memoria; compartí memoria comunicándote.",
+        "`go build` compila rápido el programa y todas sus dependencias a código de máquina, dentro de un único binario que incluye el **runtime** de Go (el recolector de basura y el planificador). Podés compilar para otro sistema cambiando dos variables (`GOOS` y `GOARCH`), sin instalar herramientas extra.",
+        "Lo más característico es la **concurrencia**. Una **goroutine** es una función que corre de forma concurrente, y es tan liviana (empieza con unos pocos kilobytes de pila) que podés tener miles. El planificador del runtime las reparte entre los hilos del sistema. Para que se comuniquen, Go usa **canales**: un tubo por donde una goroutine manda valores y otra los recibe. El lema del lenguaje lo resume: no te comuniques compartiendo memoria; compartí memoria comunicándote.",
       ],
     },
     {
       heading: "Tu primer programa, paso a paso",
       parrafos: [
-        "Creá un archivo saludo.go y corrélo con go run saludo.go Ana 2.",
+        "Creá un archivo `saludo.go` y corrélo con `go run saludo.go Ana 2`.",
       ],
       codigo: [
         code`
@@ -70,8 +70,8 @@ func main() {
     {
       heading: "Qué hace cada línea",
       parrafos: [
-        "Todo archivo empieza con package; el programa ejecutable es el package main, y su punto de entrada es la función main. Los imports traen paquetes de la biblioteca estándar. Si importás algo que no usás, o declarás una variable que no usás, no compila: Go lo trata como un error.",
-        ":= declara una variable infiriendo su tipo. strconv.Atoi convierte un texto en entero y devuelve dos valores: el resultado y un error. Esa es la forma de Go de manejar fallos: no hay excepciones, devolvés el error como un valor más y quien llama lo comprueba (if err != nil). Con Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
+        "Todo archivo empieza con `package`; el programa ejecutable es el `package main`, y su punto de entrada es la función `main`. Los `import`s traen paquetes de la biblioteca estándar. Si importás algo que no usás, o declarás una variable que no usás, **no compila**: Go lo trata como un error.",
+        "`:=` declara una variable infiriendo su tipo. `strconv.Atoi` convierte un texto en entero y devuelve dos valores: el resultado y un error. Esa es la forma de Go de manejar fallos: **no hay excepciones**, devolvés **el error como un valor más** y quien llama lo comprueba (`if err != nil`). Con Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
       ],
     },
     {
@@ -80,11 +80,11 @@ func main() {
         "Con estos cinco leés casi cualquier código Go:",
       ],
       lista: [
-        "Structs y métodos: Go no tiene clases ni herencia; agrupás datos en un struct y le asociás funciones.",
-        "Interfaces implícitas: un tipo cumple una interfaz con solo tener sus métodos; no se declara.",
-        "Errores como valores: las funciones devuelven (resultado, error) y se comprueba con if err != nil.",
-        "Slices y maps: la lista dinámica y el diccionario del lenguaje.",
-        "Goroutines y canales: concurrencia con go f() y chan.",
+        "**Structs y métodos**: Go no tiene clases ni herencia; agrupás datos en un `struct` y le asociás funciones.",
+        "**Interfaces implícitas**: un tipo cumple una interfaz con solo tener sus métodos; no se declara.",
+        "**Errores como valores**: las funciones devuelven `(resultado, error)` y se comprueba con `if err != nil`.",
+        "**Slices y maps**: la lista dinámica y el diccionario del lenguaje.",
+        "**Goroutines y canales**: concurrencia con `go f()` y `chan`.",
       ],
       codigo: [
         code`
@@ -117,11 +117,11 @@ func main() {
         "Los que más se repiten:",
       ],
       lista: [
-        "Ignorar el error devuelto (usar _ para tirarlo): el programa sigue con datos inválidos.",
-        "Olvidar que un slice comparte memoria con el arreglo del que salió: modificar uno cambia el otro.",
-        "Escribir en un map que vale nil: provoca un pánico. Crealo con make o con un literal.",
+        "Ignorar el error devuelto (usar `_` para tirarlo): el programa **sigue con datos inválidos**.",
+        "Olvidar que un slice **comparte memoria** con el arreglo del que salió: modificar uno cambia el otro.",
+        "Escribir en un map que vale `nil`: provoca un **pánico**. Crealo con `make` o con un literal.",
         "Lanzar goroutines sin pensar cómo terminan: si nadie recibe del canal, se quedan colgadas para siempre (una fuga).",
-        "Acceder a una variable desde varias goroutines sin proteger: una condición de carrera. Usá canales, sync.Mutex y go test -race.",
+        "Acceder a una variable desde varias goroutines sin proteger: una **condición de carrera**. Usá canales, `sync.Mutex` y `go test -race`.",
       ],
       codigo: [
         code`
