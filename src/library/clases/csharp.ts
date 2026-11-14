@@ -9,35 +9,35 @@ export const claseCsharp: Clase = {
     {
       heading: "Qué es y qué problema resuelve",
       parrafos: [
-        "C# (se lee \"si sharp\") es un lenguaje de programación de tipado estático y orientado a objetos, que también incorpora ideas funcionales. Se usa junto con .NET, la plataforma que trae el entorno de ejecución, la biblioteca estándar y las herramientas. Con C# se hacen servicios web y APIs, aplicaciones de escritorio y móviles, herramientas de línea de comandos, videojuegos con Unity y programas en la nube.",
-        "El problema que resuelve es el de escribir software de producción con seguridad y buen rendimiento sin la ceremonia de otros lenguajes: tipos que se comprueban al compilar, un recolector de basura, excelente soporte del editor y una biblioteca estándar muy completa. Es, en muchos sentidos, un Java más moderno y con más azúcar sintáctico.",
+        "C# (se lee \"si sharp\") es un lenguaje de programación de **tipado estático** y **orientado a objetos**, que también incorpora ideas funcionales. Se usa junto con **.NET**, la plataforma que trae el entorno de ejecución, la biblioteca estándar y las herramientas. Con C# se hacen servicios web y APIs, aplicaciones de escritorio y móviles, herramientas de línea de comandos, videojuegos con Unity y programas en la nube.",
+        "El problema que resuelve es el de escribir software de producción con **seguridad y buen rendimiento sin la ceremonia** de otros lenguajes: tipos que se comprueban al compilar, un recolector de basura, excelente soporte del editor y una biblioteca estándar muy completa. Es, en muchos sentidos, un Java más moderno y con más azúcar sintáctico.",
       ],
     },
     {
       heading: "Historia corta",
       parrafos: [
-        "Lo diseñó Microsoft con Anders Hejlsberg como arquitecto principal. Se anunció en el año 2000 y salió en 2002 junto con .NET Framework, que durante años funcionó solo en Windows.",
-        "El gran cambio llegó con .NET Core (2016): una versión de código abierto y multiplataforma. En 2020 se unificó todo bajo el nombre .NET 5, y desde entonces sale una versión por año; las pares tienen soporte largo (LTS). La de referencia hoy es .NET 10, con C# 14.",
+        "Lo diseñó Microsoft con **Anders Hejlsberg** como arquitecto principal. Se anunció en el año 2000 y salió en 2002 junto con .NET Framework, que durante años funcionó solo en Windows.",
+        "El gran cambio llegó con .NET Core (2016): una versión de **código abierto y multiplataforma**. En 2020 se unificó todo bajo el nombre .NET 5, y desde entonces sale una versión por año; las pares tienen soporte largo (LTS). La de referencia hoy es .NET 10, con C# 14.",
       ],
       lista: [
-        "C# 3 (2007): LINQ, consultas sobre colecciones escritas dentro del propio lenguaje.",
-        "C# 5 (2012): async y await, que influyeron en JavaScript, Python y Rust.",
-        "C# 8 (2019): tipos de referencia que aceptan o no null, para evitar el error más común.",
-        "C# 9 (2020): records y programas sin clase Main (instrucciones de nivel superior).",
+        "C# 3 (2007): **LINQ**, consultas sobre colecciones escritas dentro del propio lenguaje.",
+        "C# 5 (2012): `async` y `await`, que influyeron en JavaScript, Python y Rust.",
+        "C# 8 (2019): tipos de referencia que aceptan o no `null`, para evitar el error más común.",
+        "C# 9 (2020): **records** y programas sin clase `Main` (instrucciones de nivel superior).",
       ],
     },
     {
       heading: "Cómo funciona por dentro",
       parrafos: [
-        "El compilador de C# no genera código de máquina sino un lenguaje intermedio (IL) dentro de un ensamblado (.dll o .exe). Al ejecutarlo, el CLR (Common Language Runtime) lo carga, lo verifica y un compilador JIT lo traduce a código de máquina de tu procesador mientras corre. También existe la compilación anticipada (AOT) para generar un ejecutable nativo.",
-        "La memoria la administra el recolector de basura. Hay dos grandes familias de tipos: los tipos por valor (int, bool, struct), que se copian al asignarlos, y los tipos por referencia (class, string, arrays), donde la variable apunta a un objeto. Entender esa diferencia explica muchos comportamientos que sorprenden al empezar.",
+        "El compilador de C# no genera código de máquina sino un **lenguaje intermedio (IL)** dentro de un ensamblado (`.dll` o `.exe`). Al ejecutarlo, el CLR (Common Language Runtime) lo carga, lo verifica y un **compilador JIT** lo traduce a código de máquina de tu procesador mientras corre. También existe la compilación anticipada (AOT) para generar un ejecutable nativo.",
+        "La memoria la administra el recolector de basura. Hay dos grandes familias de tipos: los **tipos por valor** (`int`, `bool`, `struct`), que se copian al asignarlos, y los **tipos por referencia** (`class`, `string`, arrays), donde la variable apunta a un objeto. Entender esa diferencia explica muchos comportamientos que sorprenden al empezar.",
         "Como F# y Visual Basic también compilan a IL, todos comparten la misma biblioteca de clases.",
       ],
     },
     {
       heading: "Tu primer programa, paso a paso",
       parrafos: [
-        "Con el SDK de .NET instalado: dotnet new console -n Saludo, entrá a la carpeta y reemplazá el contenido de Program.cs por esto. Después dotnet run -- Ana 2.",
+        "Con el SDK de .NET instalado: `dotnet new console -n Saludo`, entrá a la carpeta y reemplazá el contenido de `Program.cs` por esto. Después `dotnet run -- Ana 2`.",
       ],
       codigo: [
         code`
@@ -53,8 +53,8 @@ for (var i = 1; i <= veces; i++)
     {
       heading: "Qué hace cada línea",
       parrafos: [
-        "No hay clase ni método Main: desde C# 9 un archivo puede empezar directamente por las instrucciones (el compilador genera el Main por vos), y args es el arreglo de argumentos. var le pide al compilador que infiera el tipo; sigue siendo tipado estático, solo que no lo escribís. int.Parse convierte el texto en número y lanza una excepción si no puede.",
-        "El signo $ delante de las comillas arma una cadena interpolada: lo que va entre llaves se calcula y se inserta. Con Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
+        "No hay clase ni método `Main`: desde C# 9 un archivo puede empezar directamente por las instrucciones (el compilador genera el `Main` por vos), y `args` es el arreglo de argumentos. `var` le pide al compilador que **infiera el tipo**; sigue siendo tipado estático, solo que no lo escribís. `int.Parse` convierte el texto en número y **lanza una excepción** si no puede.",
+        "El signo `$` delante de las comillas arma una **cadena interpolada**: lo que va entre llaves se calcula y se inserta. Con Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
       ],
     },
     {
@@ -63,11 +63,11 @@ for (var i = 1; i <= veces; i++)
         "Con estos cinco leés casi cualquier código C#:",
       ],
       lista: [
-        "Clases, structs y records: la clase es un molde por referencia, el struct un valor, y el record una clase de datos inmutable con comparación por contenido.",
-        "Propiedades: campos con get y set que se usan como variables.",
-        "LINQ: Where, Select, OrderBy… transforman colecciones con una cadena de llamadas.",
-        "Null seguro: string? admite null y string no; el compilador avisa si olvidás comprobarlo.",
-        "async y await con Task: esperar sin bloquear el hilo.",
+        "**Clases, structs y records**: la clase es un molde por referencia, el struct un valor, y el record una clase de datos inmutable con comparación por contenido.",
+        "**Propiedades**: campos con `get` y `set` que se usan como variables.",
+        "**LINQ**: `Where`, `Select`, `OrderBy`… transforman colecciones con una cadena de llamadas.",
+        "**Null seguro**: `string?` admite `null` y `string` no; el compilador avisa si olvidás comprobarlo.",
+        "`async` y `await` con `Task`: **esperar sin bloquear el hilo**.",
       ],
       codigo: [
         code`
@@ -91,11 +91,11 @@ record Libro(string Titulo, int Paginas);         // las declaraciones de tipos 
         "Los más repetidos:",
       ],
       lista: [
-        "NullReferenceException: usar algo que vale null. Activá los tipos que aceptan null y atendé las advertencias.",
-        "Usar double o float para dinero: acumulan errores de redondeo. Usá decimal.",
-        "Olvidar el await, o usar async void: los errores se pierden o se vuelven imposibles de atrapar. Devolvé Task.",
-        "Bloquear con .Result o .Wait() sobre una tarea: puede dejar la aplicación colgada. Usá await hasta el final de la cadena.",
-        "No saber que LINQ es perezoso: una consulta se evalúa cuando la recorrés, no cuando la escribís, y se vuelve a evaluar cada vez que la recorrés.",
+        "`NullReferenceException`: usar algo que vale `null`. Activá los tipos que aceptan null y atendé las advertencias.",
+        "Usar `double` o `float` para dinero: **acumulan errores de redondeo**. Usá `decimal`.",
+        "Olvidar el `await`, o usar `async void`: los errores se pierden o se vuelven imposibles de atrapar. Devolvé `Task`.",
+        "Bloquear con `.Result` o `.Wait()` sobre una tarea: puede dejar la aplicación colgada. Usá `await` hasta el final de la cadena.",
+        "No saber que **LINQ es perezoso**: una consulta **se evalúa cuando la recorrés**, no cuando la escribís, y se vuelve a evaluar cada vez que la recorrés.",
       ],
       codigo: [
         code`
