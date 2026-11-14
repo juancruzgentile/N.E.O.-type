@@ -323,6 +323,9 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   const apis = txt("apis");
   ok(apis.includes("const recibida = Buffer.from(") && apis.includes("Date.parse(valor"), "apis: firma comparada en bytes y Retry-After con fecha HTTP");
   ok(!txt("mongodb").includes("updateOne sin operadores") && !txt("mongodb").includes("Sin operador, reemplazaría"), "mongodb: updateOne sin operadores da error, no reemplaza");
+  const cx = txt("codex");
+  ok(cx.includes("codex resume --last   # retoma la ultima") && cx.includes("codex features list") && cx.includes("codex apply TASK_ID"), "codex: resume, features y apply como los pide la CLI");
+  ok(!cx.includes("mcp login context7") && !cx.includes("Nada más que eso") && cx.includes("~/.codex/AGENTS.md"), "codex: login solo para MCP remoto, entrenamiento posterior y AGENTS.md global");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");

@@ -167,6 +167,12 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - APIs: la firma del webhook compara el largo en bytes (con letras acentuadas daba error 500 en vez de 401) y los
   reintentos entienden `Retry-After` con fecha HTTP, no solo en segundos.
 - MongoDB: `updateOne` sin operadores da error; el que reemplaza el documento entero es `replaceOne`.
+- Codex (revisado contra la CLI 0.169.0): `codex resume` abre un selector y `--last` retoma la última, `codex fork` elige
+  una sesión anterior, `codex features list` y `codex apply <TASK_ID>` llevan lo que les faltaba. `codex mcp login` queda
+  solo para servidores remotos con OAuth. Separo bien aprobación y sandbox, aclaro que AGENTS.md (también el global,
+  `~/.codex/AGENTS.md`) ocupa contexto y que el tope de 32 KiB es del total y configurable, sumo a Codex skills,
+  subagentes y plugins en la comparación, y explico el entrenamiento posterior y que el modelo puede reconocer lo que no
+  sabe. Las revisiones automáticas en GitHub hay que activarlas.
 
 ### Corregido (auditoría del 2026-11-06 sobre 52c0c98)
 - El corrector de respuestas escritas ya no acepta operadores partidos con un espacio: `= >`, `= =`, `! =` o `< =`
