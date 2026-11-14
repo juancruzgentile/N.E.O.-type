@@ -26,6 +26,7 @@ const REPO = "https://github.com/NousResearch/hermes-agent";
 
 export const hermes: FuentesTema = {
   version: "Hermes Agent v0.23.1 (estable del 10 de noviembre de 2026)",
+  revisado: "2026-11-14",
   entradas: {
     "Instalar Hermes": [INSTALL],
     "Primer inicio: hermes setup": [QUICK],

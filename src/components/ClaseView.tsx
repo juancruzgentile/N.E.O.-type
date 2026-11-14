@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { LangId } from "../types";
+import { tramos } from "../library/marcas";
 import type { Captura, CapturaTramo, Clase } from "../library/types";
 import { ClaseDiagrama } from "./ClaseDiagramas";
 import { CodeBlock, fechaLarga } from "./LibraryView";
@@ -13,10 +14,10 @@ const ALT: Record<string, string> = {
 
 /** Marca simple del texto de las clases: **concepto clave** y `código en línea`. */
 export function Rico({ text }: { text: string }): ReactNode {
-  return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/).map((t, i) =>
-    t.startsWith("**") ? <strong key={i} className="clase-clave">{t.slice(2, -2)}</strong>
-    : t.startsWith("`") ? <code key={i} className="clase-cod">{t.slice(1, -1)}</code>
-    : t,
+  return tramos(text).map((x, i) =>
+    x.tipo === "clave" ? <strong key={i} className="clase-clave">{x.t}</strong>
+    : x.tipo === "cod" ? <code key={i} className="clase-cod">{x.t}</code>
+    : x.t,
   );
 }
 

@@ -314,13 +314,13 @@ mcp_servers:
     {
       heading: "Comparación con Claude Code y Codex",
       parrafos: [
-        "Los tres son agentes con el mismo bucle de leer, actuar y verificar, y los tres usan MCP y skills. Las diferencias están en para qué fueron pensados, quién pone el modelo y cómo te protegen. Claude Code y Codex están centrados en programar en tu repositorio con los modelos de su empresa; Hermes apunta a un **asistente que vive en un servidor**, te habla por chat, corre tareas programadas y acumula lo que aprende, con el modelo que elijas.",
+        "Los tres son agentes con el mismo bucle de leer, actuar y verificar, y los tres usan MCP y skills. Las diferencias están en para qué fueron pensados, quién pone el modelo y cómo te protegen. Claude Code y Codex están centrados en programar en tu repositorio, sobre todo con los modelos de su empresa; Hermes apunta a un **asistente que vive en un servidor**, te habla por chat, corre tareas programadas y acumula lo que aprende, con el modelo que elijas.",
       ],
       tabla: {
         cabeza: ["", "Hermes Agent", "Claude Code", "Codex"],
         filas: [
           ["Quién lo hace", "Nous Research, código abierto (MIT)", "Anthropic", "OpenAI"],
-          ["Modelos", "casi cualquier proveedor, o uno local", "modelos Claude", "modelos de OpenAI"],
+          ["Modelos", "casi cualquier proveedor, o uno local", "sobre todo modelos Claude", "sobre todo de OpenAI; la CLI acepta locales (`--oss`)"],
           ["Instrucciones del proyecto", "`.hermes.md`, `AGENTS.md` o `CLAUDE.md` (uno solo)", "`CLAUDE.md`", "`AGENTS.md`"],
           ["Foco del diseño", "aprender con el uso: memoria (`MEMORY.md`, `USER.md`) y búsqueda en sesiones viejas", "programar en tu repositorio", "programar en tu repositorio y en la nube"],
           ["Skills", "las **crea y mejora solo**, más un hub", "skills que escribís o instalás", "skills según la superficie"],
