@@ -89,7 +89,7 @@ Shift+Enter     # nueva linea sin enviar`, "atajos teclado leader ctrl+x ctrl+p 
 # explore: subagente que busca y lee, sin editar
 Shift+Tab    # alternar entre build y plan
 /agents      # ver y elegir agentes`, "agentes build plan general explore subagente modo"),
-    b("Configuración", "AGENTS.md", "OpenCode carga tus instrucciones globales (~/.config/opencode/AGENTS.md) y todos los AGENTS.md desde la carpeta en la que estás hasta la raíz del proyecto. Los AGENTS.md de subcarpetas se suman cuando el agente lee esa zona. La versión 2 reconoce solo AGENTS.md: no usa CLAUDE.md como reemplazo.", code`
+    b("Configuración", "AGENTS.md", "OpenCode carga tus instrucciones globales (~/.config/opencode/AGENTS.md) y los AGENTS.md de las carpetas de arriba: si el proyecto está dentro de tu carpeta personal sube hasta ella; si está afuera, hasta la raíz del proyecto. Ojo al abrir un repo ajeno dentro de tu home. Los AGENTS.md de subcarpetas se suman cuando el agente lee esa zona. La versión 2 reconoce solo AGENTS.md: no usa CLAUDE.md como reemplazo.", code`
 # AGENTS.md, en la raiz del proyecto
 ## Mi proyecto
 - Instalar: npm install
@@ -257,9 +257,10 @@ opencode auth login     # primero, en la terminal
     { "action": "tool.use", "resource": "shell:sudo *", "effect": "deny" }
   ]
 }`, "policies politicas bloquear proveedor deny empresa"),
-    a("Comparación", "OpenCode vs. Claude Code y Codex: modelos", "Claude Code usa modelos de Anthropic y Codex los de OpenAI, cada uno con su cuenta. OpenCode no está atado a un fabricante: conectás el proveedor que quieras, incluso modelos locales, y podés cambiar de modelo en medio de una sesión.", code`
+    a("Comparación", "OpenCode vs. Claude Code y Codex: modelos", "Claude Code se integra sobre todo con modelos de Anthropic y Codex con los de OpenAI (la CLI de Codex también acepta modelos locales con --oss y --local-provider). OpenCode no está atado a un fabricante: conectás el proveedor que quieras, incluso modelos locales, y podés cambiar de modelo en medio de una sesión.", code`
 # Claude Code: modelos de Anthropic (cuenta de Claude o clave de API)
-# Codex:       modelos de OpenAI (cuenta de ChatGPT o clave de API)
+# Codex:       modelos de OpenAI (cuenta de ChatGPT o clave de API);
+#              la CLI tambien acepta locales: --oss --local-provider ollama
 # OpenCode:    cualquier proveedor del catalogo de models.dev,
 #              GitHub Copilot, ChatGPT Plus/Pro, OpenRouter, Ollama...
 # OpenCode es codigo abierto (MIT); el costo depende del proveedor`, "comparacion claude code codex modelos proveedores abierto"),

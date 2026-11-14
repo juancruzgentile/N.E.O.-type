@@ -10,7 +10,7 @@ export const claseOpencode: Clase = {
       heading: "Qué es y qué problema resuelve",
       parrafos: [
         "OpenCode es un **agente de programación**: un programa que le pasa tu pedido a un modelo de lenguaje y le da herramientas para leer archivos, editarlos y correr comandos en tu proyecto. Lo usás desde la terminal con `opencode`, desde una app de escritorio, desde el navegador o desde el celular.",
-        "Lo que lo distingue es que es **de código abierto** (licencia MIT) y **no está atado a un fabricante de modelos**. Claude Code usa modelos de Anthropic y Codex los de OpenAI; OpenCode se conecta a cientos de proveedores (Anthropic, OpenAI, Google, GitHub Copilot, OpenRouter, Amazon Bedrock y más) y también a **modelos que corren en tu propia máquina** con Ollama o LM Studio.",
+        "Lo que lo distingue es que es **de código abierto** (licencia MIT) y **no está atado a un fabricante de modelos**. Claude Code se integra sobre todo con modelos de Anthropic y Codex con los de OpenAI (aunque la CLI de Codex también acepta modelos locales con `--oss`); OpenCode se conecta a cientos de proveedores (Anthropic, OpenAI, Google, GitHub Copilot, OpenRouter, Amazon Bedrock y más) y también a **modelos que corren en tu propia máquina** con Ollama o LM Studio.",
         "El problema que resuelve es elegir: podés usar la cuenta que ya pagás (por ejemplo, ChatGPT Plus o GitHub Copilot), probar un modelo nuevo sin cambiar de herramienta, o trabajar con un modelo local cuando no querés mandar el código afuera.",
       ],
     },
@@ -114,7 +114,7 @@ opencode debug paths              # donde guarda todo
       heading: "Configuración",
       parrafos: [
         "La configuración va en `opencode.json` o `opencode.jsonc` (la versión con comentarios). La **global** vive en `~/.config/opencode/` y la **del proyecto** en la raíz o en `.opencode/`. OpenCode **combina** todos los archivos que encuentra: lo más cercano a tu carpeta pisa lo más general.",
-        "Las instrucciones para el agente van aparte, en `AGENTS.md`. Se carga el global (`~/.config/opencode/AGENTS.md`) más todos los que haya desde tu carpeta hasta la raíz del proyecto. La versión 2 **no lee** `CLAUDE.md`.",
+        "Las instrucciones para el agente van aparte, en `AGENTS.md`. Se carga el global (`~/.config/opencode/AGENTS.md`) más los que haya en las carpetas de arriba: si el proyecto está dentro de tu carpeta personal, **sube hasta tu carpeta personal**; si está afuera, hasta la raíz del proyecto. La versión 2 **no lee** `CLAUDE.md`.",
         "Las claves nunca se escriben en el archivo: se usa `{env:VARIABLE}` para leerlas del entorno o `{file:ruta}` para leerlas de un archivo aparte. Los ajustes de la interfaz de terminal (tema, atajos) van en otro archivo, `cli.json`.",
       ],
       codigo: [
@@ -272,7 +272,7 @@ opencode debug paths              # donde guarda todo
         cabeza: ["", "OpenCode", "Claude Code", "Codex"],
         filas: [
           ["Quién lo hace", "Anomaly, código abierto (MIT)", "Anthropic", "OpenAI"],
-          ["Modelos", "**Cualquier proveedor**, también locales", "Modelos de Anthropic", "Modelos de OpenAI"],
+          ["Modelos", "**Cualquier proveedor**, también locales", "Sobre todo de Anthropic", "Sobre todo de OpenAI; la CLI acepta locales (`--oss`)"],
           ["Cuenta", "La del proveedor que conectes", "Cuenta de Claude o clave de API", "Cuenta de ChatGPT o clave de API"],
           ["Instrucciones", "`AGENTS.md`", "`CLAUDE.md`", "`AGENTS.md`"],
           ["Control", "Reglas `allow`/`ask`/`deny`, sin sandbox", "Modos de permisos", "Sandbox más aprobación"],
