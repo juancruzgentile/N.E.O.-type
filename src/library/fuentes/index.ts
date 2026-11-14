@@ -19,6 +19,7 @@ import { kotlin } from "./kotlin";
 import { php } from "./php";
 import { claude } from "./claude";
 import { codex } from "./codex";
+import { gemini } from "./gemini";
 import { hermes } from "./hermes";
 import { antigravity } from "./antigravity";
 import { opencode } from "./opencode";
@@ -29,7 +30,7 @@ import { react, fastapi, django, spring, aspnet, swiftui, compose, laravel } fro
 /** Día en que se confirmó cada link y cada versión contra la documentación oficial. */
 export const REVISADO = "2026-11-05";
 
-export const FUENTES: Record<string, FuentesTema> = { "web-http": webHttp, apis, testing, docker, python, javascript, typescript, java, csharp, go, rust, c, cpp, sql, html, css, formats, linux, git, swift, kotlin, php, claude, codex, hermes, antigravity, opencode, "elegir-bd": elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, "seguridad-datos": seguridadDatos, react, fastapi, django, spring, aspnet, swiftui, compose, laravel };
+export const FUENTES: Record<string, FuentesTema> = { "web-http": webHttp, apis, testing, docker, python, javascript, typescript, java, csharp, go, rust, c, cpp, sql, html, css, formats, linux, git, swift, kotlin, php, claude, codex, gemini, hermes, antigravity, opencode, "elegir-bd": elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, "seguridad-datos": seguridadDatos, react, fastapi, django, spring, aspnet, swiftui, compose, laravel };
 
 export interface FuenteDe {
   url: string;
