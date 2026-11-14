@@ -9,18 +9,18 @@ export const clasePhp: Clase = {
     {
       heading: "Qué es y qué problema resuelve",
       parrafos: [
-        "PHP es un lenguaje de programación pensado desde el principio para el back-end de sitios web: recibe un pedido del navegador, consulta una base de datos y arma la respuesta (casi siempre HTML o JSON). Es de tipado dinámico (con tipos opcionales cada vez más completos) y es muy fácil de poner en marcha en cualquier servidor. Está detrás de WordPress, Drupal, Moodle y de aplicaciones hechas con Laravel o Symfony.",
-        "El problema que resolvió fue hacer páginas dinámicas cuando casi todo eran archivos HTML estáticos: se puede mezclar PHP dentro de un HTML y funciona al instante. Con el tiempo se profesionalizó: hoy el PHP moderno tiene tipos, clases, enumeraciones, un gestor de paquetes (Composer) y frameworks muy completos.",
+        "PHP es un lenguaje de programación pensado desde el principio para el **back-end de sitios web**: recibe un pedido del navegador, consulta una base de datos y arma la respuesta (casi siempre HTML o JSON). Es de **tipado dinámico** (con tipos opcionales cada vez más completos) y es muy fácil de poner en marcha en cualquier servidor. Está detrás de WordPress, Drupal, Moodle y de aplicaciones hechas con Laravel o Symfony.",
+        "El problema que resolvió fue hacer **páginas dinámicas** cuando casi todo eran archivos HTML estáticos: se puede **mezclar PHP dentro de un HTML** y funciona al instante. Con el tiempo se profesionalizó: hoy el PHP moderno tiene tipos, clases, enumeraciones, un gestor de paquetes (Composer) y frameworks muy completos.",
       ],
     },
     {
       heading: "Historia corta",
       parrafos: [
-        "Lo creó Rasmus Lerdorf en 1994 como un conjunto de herramientas para su página personal (\"Personal Home Page\"); hoy el nombre significa \"PHP: Hypertext Preprocessor\". PHP 3 (1998) lo reescribió y lo volvió un lenguaje de uso general, y PHP 5 (2004) agregó una programación orientada a objetos seria.",
+        "Lo creó **Rasmus Lerdorf** en 1994 como un conjunto de herramientas para su página personal (\"Personal Home Page\"); hoy el nombre significa \"PHP: Hypertext Preprocessor\". PHP 3 (1998) lo reescribió y lo volvió un lenguaje de uso general, y PHP 5 (2004) agregó una **programación orientada a objetos** seria.",
       ],
       lista: [
-        "PHP 7 (2015): el salto de velocidad más grande de su historia y más tipos.",
-        "PHP 8 (2020): argumentos con nombre, match, atributos y el compilador JIT.",
+        "PHP 7 (2015): el **salto de velocidad** más grande de su historia y más tipos.",
+        "PHP 8 (2020): argumentos con nombre, `match`, atributos y el **compilador JIT**.",
         "Desde entonces, una versión nueva cada noviembre; la de referencia en la app es PHP 8.4.",
         "Su reputación de caótico venía de las primeras versiones; el PHP actual es otro lenguaje.",
       ],
@@ -28,14 +28,14 @@ export const clasePhp: Clase = {
     {
       heading: "Cómo funciona por dentro: un pedido, un programa",
       parrafos: [
-        "La característica que define a PHP es su modelo de ejecución. Cada vez que llega un pedido HTTP, el servidor (con PHP-FPM, Apache o el servidor integrado) arranca tu script, lo ejecuta de arriba a abajo, devuelve la respuesta y termina. No queda nada en memoria para el siguiente pedido: cada uno empieza de cero (se dice que PHP no comparte estado). Si necesitás recordar algo entre pedidos, lo guardás afuera: en la sesión, en una base de datos o en una caché.",
-        "Eso lo hace simple de razonar y de escalar horizontalmente, aunque obliga a pensar distinto que en un servidor que se queda corriendo. Por dentro, el motor (Zend Engine) compila el código a instrucciones propias, y OPcache las guarda para no volver a compilar el mismo archivo en cada pedido.",
+        "La característica que define a PHP es su **modelo de ejecución**. Cada vez que llega un pedido HTTP, el servidor (con PHP-FPM, Apache o el servidor integrado) arranca tu script, lo ejecuta de arriba a abajo, devuelve la respuesta y termina. No queda nada en memoria para el siguiente pedido: cada uno empieza de cero (se dice que PHP **no comparte estado**). Si necesitás recordar algo entre pedidos, lo guardás afuera: en la sesión, en una base de datos o en una caché.",
+        "Eso lo hace simple de razonar y de escalar horizontalmente, aunque obliga a pensar distinto que en un servidor que se queda corriendo. Por dentro, el motor (Zend Engine) compila el código a instrucciones propias, y **OPcache** las guarda para no volver a compilar el mismo archivo en cada pedido.",
       ],
     },
     {
       heading: "Tu primer programa, paso a paso",
       parrafos: [
-        "Creá saludo.php y corrélo con php saludo.php Ana 2. Para verlo en un navegador, php -S localhost:8000 levanta un servidor de prueba.",
+        "Creá `saludo.php` y corrélo con `php saludo.php Ana 2`. Para verlo en un navegador, `php -S localhost:8000` levanta un servidor de prueba.",
       ],
       codigo: [
         code`
@@ -51,8 +51,8 @@ for ($i = 1; $i <= $veces; $i++) {
     {
       heading: "Qué hace cada línea",
       parrafos: [
-        "El archivo empieza con <?php: lo que está fuera de esas marcas se envía tal cual como texto, y es lo que permite mezclar PHP con HTML. Las variables empiezan con $. $argv es la lista de argumentos de la línea de comandos. El operador ?? usa el valor de la derecha si el de la izquierda no existe o es null, y (int) convierte el texto en un entero.",
-        "Dentro de comillas dobles, las variables se reemplazan por su valor (con comillas simples no). echo imprime. Con Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
+        "El archivo empieza con `<?php`: lo que está fuera de esas marcas **se envía tal cual como texto**, y es lo que permite mezclar PHP con HTML. Las **variables empiezan con** `$`. `$argv` es la lista de argumentos de la línea de comandos. El operador `??` usa el valor de la derecha si el de la izquierda no existe o es `null`, y `(int)` convierte el texto en un entero.",
+        "Dentro de comillas dobles, las **variables se reemplazan por su valor** (con comillas simples no). `echo` imprime. Con Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
       ],
     },
     {
@@ -61,11 +61,11 @@ for ($i = 1; $i <= $veces; $i++) {
         "Con estos cinco leés casi cualquier código PHP:",
       ],
       lista: [
-        "Arrays: la estructura central. El mismo array sirve de lista y de diccionario (asociativo).",
-        "Funciones con tipos: declare(strict_types=1) hace que los tipos de los parámetros se respeten.",
-        "Clases modernas: constructor promovido, propiedades readonly, interfaces y enumeraciones.",
-        "Superglobales: $_GET, $_POST, $_SERVER y $_SESSION traen los datos del pedido; nunca confíes en ellos.",
-        "Composer y PDO: Composer instala paquetes, y PDO accede a las bases de datos con consultas preparadas.",
+        "**Arrays**: la estructura central. El mismo array sirve de lista y de diccionario (asociativo).",
+        "**Funciones con tipos**: `declare(strict_types=1)` hace que los tipos de los parámetros se respeten.",
+        "**Clases modernas**: constructor promovido, propiedades `readonly`, interfaces y enumeraciones.",
+        "**Superglobales**: `$_GET`, `$_POST`, `$_SERVER` y `$_SESSION` traen los datos del pedido; nunca confíes en ellos.",
+        "**Composer y PDO**: Composer instala paquetes, y PDO accede a las bases de datos con consultas preparadas.",
       ],
       codigo: [
         code`
@@ -96,11 +96,11 @@ $stmt->execute([$_GET["id"] ?? 0]);`,
         "En PHP los errores más graves son de seguridad, porque el código recibe datos de desconocidos todo el tiempo:",
       ],
       lista: [
-        "Inyección SQL: armar una consulta pegando texto del usuario. Usá siempre consultas preparadas.",
-        "XSS: mostrar texto del usuario en una página sin escaparlo. Usá htmlspecialchars al imprimir.",
-        "Comparar con == sin saber las reglas de conversión: preferí ===. (En PHP 8 \"abc\" == 0 ya es false; en PHP 7 era true.)",
-        "Dejar los errores a la vista (display_errors) en producción: expone rutas y datos internos.",
-        "Confiar en $_POST, $_GET y las subidas de archivos sin validar el tipo, el tamaño y el contenido.",
+        "**Inyección SQL**: armar una consulta pegando texto del usuario. Usá siempre **consultas preparadas**.",
+        "**XSS**: mostrar texto del usuario en una página sin escaparlo. Usá `htmlspecialchars` al imprimir.",
+        "Comparar con `==` sin saber las reglas de conversión: preferí `===`. (En PHP 8 `\"abc\" == 0` ya es `false`; en PHP 7 era `true`.)",
+        "Dejar los errores a la vista (`display_errors`) en producción: expone rutas y datos internos.",
+        "Confiar en `$_POST`, `$_GET` y las subidas de archivos sin validar el tipo, el tamaño y el contenido.",
       ],
       codigo: [
         code`
