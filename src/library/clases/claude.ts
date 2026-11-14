@@ -298,7 +298,7 @@ claude update                  # actualizar
           ["`plan`", "Leer y proponer un plan, sin editar.", "Antes de un cambio grande o en código que no conocés."],
           ["`auto`", "Casi todo, con un **clasificador** que bloquea lo riesgoso.", "Tareas largas sin que te interrumpa a cada rato."],
           ["`dontAsk`", "Solo lo permitido de antemano; niega todo lo demás.", "CI y scripts que no pueden quedarse esperando."],
-          ["`bypassPermissions`", "Todo, sin ningún control.", "Solo en un contenedor o una máquina virtual descartable."],
+          ["`bypassPermissions`", "Casi todo sin preguntar; las reglas `deny` y algunas protecciones documentadas siguen valiendo. No es un sandbox.", "Solo en un contenedor o una máquina virtual descartable."],
         ],
       },
       codigo: [

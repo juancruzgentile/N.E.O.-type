@@ -110,7 +110,7 @@ agy models                 # modelos disponibles
     {
       heading: "Configuración",
       parrafos: [
-        "La CLI guarda todo en `~/.gemini/antigravity-cli/settings.json`; `/config` lo abre como una pantalla de opciones. Las claves que más vas a tocar son `agentMode` (el modo), `model`, `colorScheme`, `toolPermission` y `permissions`.",
+        "La CLI guarda todo en `~/.gemini/antigravity-cli/settings.json`; `/config` lo abre como una pantalla de opciones. Las claves que más vas a tocar son `agentMode` (el modo; la cadena vacía `\"\"` es el modo default), `model`, `colorScheme`, `toolPermission` y `permissions`.",
         "En la app, la configuración tiene dos niveles: **global** (permisos, apariencia, navegador, uso de modelos, MCP y skills) y **por proyecto** (carpetas, preset de permisos y sandbox). Un proyecto nuevo hereda lo global hasta que le cambies algo.",
         "Los servidores MCP van en archivos aparte: `~/.gemini/config/mcp_config.json` para todos los proyectos y `.agents/mcp_config.json` para uno. Las herramientas MCP sin regla **te piden permiso** cada vez.",
       ],
@@ -118,7 +118,7 @@ agy models                 # modelos disponibles
         { lang: "formats", text: code`
 // ~/.gemini/antigravity-cli/settings.json
 {
-  "agentMode": "default",
+  "agentMode": "",
   "model": "Gemini 4 Hydrogen",
   "toolPermission": "request-review",
   "permissions": {
