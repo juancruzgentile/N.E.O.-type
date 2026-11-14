@@ -235,7 +235,7 @@ hermes chat -q "inspecciona el repo" --format stream-json   # JSONL para program
 hermes chat --query-file prompt.txt --oneshot             # sin interpretar comillas ni \$()
 # para CI, aislado de tu configuracion personal:
 hermes chat --ignore-user-config --ignore-rules --oneshot -q "corre los tests"`, "headless no interactivo ci oneshot quiet stream-json script"),
-    a("Seguridad", "Escrituras protegidas y checkpoints", "write_file y patch nunca pueden escribir en ~/.ssh, ~/.aws o los secretos de Hermes, y los .env de un proyecto no los puede leer (sí escribir). HERMES_WRITE_SAFE_ROOT limita las escrituras a las carpetas que digas. Con --checkpoints guarda una copia antes de cambios destructivos y /rollback la restaura.", code`
+    a("Seguridad", "Escrituras protegidas y checkpoints", "Las herramientas de archivo (write_file, patch) no escriben en las claves de ~/.ssh (~/.ssh/config tiene una excepción con aprobación), ~/.aws ni los secretos de Hermes, y no leen los .env del proyecto. HERMES_WRITE_SAFE_ROOT limita a esas herramientas a las carpetas que digas. Ojo: es una protección de las herramientas de archivo, no un aislamiento: con el backend local, la terminal puede leer o pisar esas mismas rutas. Para aislar de verdad, docker o ssh. Con --checkpoints guarda una copia antes de cambios destructivos y /rollback la restaura.", code`
 export HERMES_WRITE_SAFE_ROOT=/home/vos/proyecto:/home/vos/.hermes
 hermes chat --checkpoints        # foto del disco antes de cambios destructivos
 /rollback                        # lista los checkpoints
@@ -268,9 +268,9 @@ hermes import-agent codex
 #              + ~/.hermes/memories (lo escribe el agente)
 #              + ~/.hermes/skills  (procedimientos que crea y mejora)
 # un AGENTS.md compartido sirve para los tres`, "comparacion claude codex memoria agents.md claude.md"),
-    a("Comparación", "Hermes vs. Claude Code y Codex: permisos y modelos", "Codex separa sandbox y aprobación; Claude Code tiene modos de permisos. Hermes, con el backend local, no aísla nada: solo frena comandos peligrosos (con un modelo auxiliar en modo smart); el aislamiento real es elegir docker, ssh o un sandbox en la nube. Y mientras Claude Code usa modelos de Anthropic y Codex los de OpenAI, Hermes funciona con casi cualquier proveedor.", code`
+    a("Comparación", "Hermes vs. Claude Code y Codex: permisos y modelos", "Codex separa sandbox y aprobación; Claude Code tiene modos de permisos. Hermes, con el backend local, no aísla nada: solo frena comandos peligrosos (con un modelo auxiliar en modo smart); el aislamiento real es elegir docker, ssh o un sandbox en la nube. Y mientras Claude Code se integra sobre todo con Anthropic y Codex con OpenAI (su CLI también acepta modelos locales con --oss), Hermes funciona con casi cualquier proveedor.", code`
 # Claude Code: modos de permisos, modelos de Anthropic
-# Codex:       sandbox + aprobacion, modelos de OpenAI
+# Codex:       sandbox + aprobacion, modelos de OpenAI (la CLI acepta locales: --oss)
 # Hermes:      aprobaciones (smart/manual/off) + backend de terminal
 #              (local/docker/ssh/modal/daytona/vercel_sandbox),
 #              cualquier proveedor compatible

@@ -28,6 +28,7 @@ const API_DATOS = "https://developers.openai.com/api/docs/guides/your-data";
 
 export const chatgpt: FuentesTema = {
   version: "ChatGPT (web y app de escritorio con Chat, Work y Codex; línea GPT-6, noviembre 2026)",
+  revisado: "2026-11-14",
   entradas: {
     "Dónde se usa ChatGPT": [DESCARGA],
     "Instalar en macOS y Windows": [WINDOWS],

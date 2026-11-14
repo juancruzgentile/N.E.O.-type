@@ -22,6 +22,7 @@ const CODE_ASSIST = "https://docs.cloud.google.com/gemini/docs/codeassist/agent-
 
 export const gemini: FuentesTema = {
   version: "Gemini CLI 0.68.0 (estable del 10 de noviembre de 2026)",
+  revisado: "2026-11-14",
   entradas: {
     "Gemini CLI hoy: quién puede usarla": [TRANSICION],
     "Instalar Gemini CLI": [INSTALAR],
