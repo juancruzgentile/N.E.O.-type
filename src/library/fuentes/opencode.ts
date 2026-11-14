@@ -21,6 +21,7 @@ const CLIENT = "https://opencode.ai/docs/build/client";
 
 export const opencode: FuentesTema = {
   version: "OpenCode 2.3.0 (13 de noviembre de 2026, documentación V2)",
+  revisado: "2026-11-14",
   entradas: {
     "Instalar OpenCode": [INTRO, "2.0.0"],
     "Conectar un proveedor": [CLI_PROV],
