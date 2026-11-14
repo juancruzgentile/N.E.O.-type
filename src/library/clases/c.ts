@@ -9,35 +9,35 @@ export const claseC: Clase = {
     {
       heading: "Qué es y qué problema resuelve",
       parrafos: [
-        "C es un lenguaje de programación compilado, de tipado estático y muy cercano al hardware. Te da control directo sobre la memoria: vos reservás, vos usás, vos liberás. Con eso se escriben sistemas operativos (el núcleo de Linux), controladores, bases de datos, intérpretes (el de Python está escrito en C), sistemas embebidos y las bibliotecas que todos los otros lenguajes usan por debajo.",
+        "C es un lenguaje de programación **compilado**, de **tipado estático** y muy cercano al hardware. Te da **control directo sobre la memoria**: vos reservás, vos usás, vos liberás. Con eso se escriben sistemas operativos (el núcleo de Linux), controladores, bases de datos, intérpretes (el de Python está escrito en C), sistemas embebidos y las bibliotecas que todos los otros lenguajes usan por debajo.",
         "El problema que resolvió fue escribir un sistema operativo sin tener que hacerlo en el lenguaje ensamblador de cada máquina: C es lo bastante de alto nivel como para ser portable y lo bastante de bajo nivel como para ser rápido y predecible. Casi no hay nada oculto: lo que escribís es, en buena medida, lo que hace el procesador.",
-        "Ese control tiene un costo. C no te protege: si te pasás de un arreglo o usás memoria liberada, el programa no avisa, simplemente hace algo impredecible.",
+        "Ese control tiene un costo. **C no te protege**: si te pasás de un arreglo o usás memoria liberada, el programa no avisa, simplemente hace algo impredecible.",
       ],
     },
     {
       heading: "Historia corta",
       parrafos: [
-        "Lo creó Dennis Ritchie en los laboratorios Bell a principios de los años setenta, para reescribir el sistema operativo Unix, que hasta entonces se escribía en ensamblador. El libro de Brian Kernighan y Dennis Ritchie, \"El lenguaje de programación C\" (1978), lo difundió tanto que la versión original se llama \"K&R C\".",
+        "Lo creó **Dennis Ritchie** en los laboratorios Bell a principios de los años setenta, para reescribir el sistema operativo Unix, que hasta entonces se escribía en ensamblador. El libro de Brian Kernighan y Dennis Ritchie, \"El lenguaje de programación C\" (1978), lo difundió tanto que la versión original se llama \"K&R C\".",
       ],
       lista: [
         "1989 y 1990: ANSI e ISO estandarizan el lenguaje (C89 o C90).",
-        "1999 (C99): comentarios con //, declarar variables en cualquier lugar y tipos de enteros de tamaño fijo.",
+        "1999 (C99): comentarios con `//`, declarar variables en cualquier lugar y tipos de enteros de tamaño fijo.",
         "2011 (C11) y 2017 (C17): hilos y atómicos en la biblioteca estándar, y correcciones.",
         "C23 es la edición más reciente del estándar; los compiladores la van adoptando.",
-        "Casi todos los lenguajes modernos (C++, Java, C#, Go, JavaScript) heredaron de C su sintaxis de llaves.",
+        "Casi todos los lenguajes modernos (C++, Java, C#, Go, JavaScript) heredaron de C su **sintaxis de llaves**.",
       ],
     },
     {
       heading: "Cómo funciona por dentro",
       parrafos: [
-        "Pasar de un archivo .c a un ejecutable lleva cuatro etapas, y conviene conocerlas porque cada una produce errores distintos. El preprocesador procesa las líneas que empiezan con # (los #include pegan el contenido de las cabeceras .h). El compilador traduce cada archivo a lenguaje ensamblador. El ensamblador lo convierte en código de máquina (un archivo objeto, .o). Y el enlazador (linker) junta todos los objetos y las bibliotecas en un ejecutable. Un error \"undefined reference\" es de la última etapa: usaste una función que declaraste pero nadie definió.",
-        "En ejecución, la memoria tiene tres zonas. La pila (stack) guarda las variables locales y se libera sola al salir de cada función. El montón (heap) es memoria que pedís con malloc y devolvés con free. Y la zona estática guarda las variables globales. No hay recolector de basura: si no liberás la memoria del montón, queda ocupada hasta que el programa termina.",
+        "Pasar de un archivo `.c` a un ejecutable lleva **cuatro etapas**, y conviene conocerlas porque cada una produce errores distintos. El preprocesador procesa las líneas que empiezan con `#` (los `#include` pegan el contenido de las cabeceras `.h`). El compilador traduce cada archivo a lenguaje ensamblador. El ensamblador lo convierte en código de máquina (un archivo objeto, `.o`). Y el enlazador (linker) junta todos los objetos y las bibliotecas en un ejecutable. Un error \"`undefined reference`\" es de la última etapa: usaste una función que declaraste pero nadie definió.",
+        "En ejecución, la memoria tiene tres zonas. La **pila** (stack) guarda las variables locales y se libera sola al salir de cada función. El **montón** (heap) es memoria que pedís con `malloc` y devolvés con `free`. Y la zona estática guarda las variables globales. **No hay recolector de basura**: si no liberás la memoria del montón, queda ocupada hasta que el programa termina.",
       ],
     },
     {
       heading: "Tu primer programa, paso a paso",
       parrafos: [
-        "Creá saludo.c, compilalo con gcc saludo.c -o saludo (o cc, clang) y corrélo con ./saludo Ana 2.",
+        "Creá `saludo.c`, compilalo con `gcc saludo.c -o saludo` (o `cc`, `clang`) y corrélo con `./saludo Ana 2`.",
       ],
       codigo: [
         code`
@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
     {
       heading: "Qué hace cada línea",
       parrafos: [
-        "#include <stdio.h> trae las declaraciones de printf y similares; sin esa línea, el compilador no sabe que existen. main es el punto de entrada: argc es la cantidad de argumentos y argv la lista (el primero, argv[0], es el nombre del programa). Un texto en C es un arreglo de caracteres, de ahí el tipo char *.",
-        "atoi convierte el texto en entero (y devuelve 0 si no puede, sin avisar: por eso en código serio se usa strtol). printf imprime con un formato: %d es un entero y %s un texto, y \\n es el salto de línea. El return 0 le dice al sistema que el programa terminó bien. Con los datos Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
+        "`#include <stdio.h>` trae las **declaraciones** de `printf` y similares; sin esa línea, el compilador no sabe que existen. `main` es el **punto de entrada**: `argc` es la cantidad de argumentos y `argv` la lista (el primero, `argv[0]`, es el nombre del programa). Un texto en C es un **arreglo de caracteres**, de ahí el tipo `char *`.",
+        "`atoi` convierte el texto en entero (y devuelve 0 si no puede, sin avisar: por eso en código serio se usa `strtol`). `printf` **imprime con un formato**: `%d` es un entero y `%s` un texto, y `\\n` es el salto de línea. El `return 0` le dice al sistema que el programa terminó bien. Con los datos Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
       ],
     },
     {
@@ -68,11 +68,11 @@ int main(int argc, char *argv[]) {
         "Con estos cinco entendés casi cualquier código C:",
       ],
       lista: [
-        "Tipos y tamaños: int, char, double… ocupan una cantidad fija de bytes; sizeof te dice cuántos.",
-        "Punteros: una variable que guarda la dirección de otra. & obtiene la dirección y * accede al valor apuntado.",
-        "Arreglos y textos: un arreglo es memoria contigua; un texto es un arreglo de char terminado en un byte cero ('\\0').",
-        "Memoria dinámica: malloc reserva en el montón y free libera; cada malloc necesita su free.",
-        "Estructuras y cabeceras: struct agrupa datos, y los archivos .h declaran lo que otros archivos pueden usar.",
+        "**Tipos y tamaños**: `int`, `char`, `double`… ocupan una cantidad fija de bytes; `sizeof` te dice cuántos.",
+        "**Punteros**: una variable que guarda la dirección de otra. `&` obtiene la dirección y `*` accede al valor apuntado.",
+        "**Arreglos y textos**: un arreglo es memoria contigua; un texto es un arreglo de `char` terminado en un byte cero (`'\\0'`).",
+        "**Memoria dinámica**: `malloc` reserva en el montón y `free` libera; cada `malloc` necesita su `free`.",
+        "**Estructuras y cabeceras**: `struct` agrupa datos, y los archivos `.h` declaran lo que otros archivos pueden usar.",
       ],
       codigo: [
         code`
@@ -94,14 +94,14 @@ struct Libro { char titulo[40]; int paginas; };`,
     {
       heading: "Errores que comete casi todo el mundo",
       parrafos: [
-        "En C, muchos errores no se ven: el programa compila y a veces hasta parece funcionar. Se llama comportamiento indefinido (undefined behavior): el estándar permite cualquier cosa. Los más comunes:",
+        "En C, muchos errores no se ven: el programa compila y a veces hasta parece funcionar. Se llama **comportamiento indefinido** (undefined behavior): el estándar permite cualquier cosa. Los más comunes:",
       ],
       lista: [
-        "Pasarse del final de un arreglo (buffer overflow): escribe sobre memoria que no es tuya; es la causa de incontables fallas de seguridad.",
-        "Olvidar free (fuga de memoria), usar la memoria después de liberarla (use after free) o liberarla dos veces.",
-        "Comparar textos con ==: compara direcciones, no contenido. Usá strcmp.",
+        "**Pasarse del final de un arreglo** (buffer overflow): escribe sobre memoria que no es tuya; es la causa de incontables fallas de seguridad.",
+        "Olvidar `free` (fuga de memoria), usar la memoria después de liberarla (use after free) o liberarla dos veces.",
+        "Comparar textos con `==`: **compara direcciones, no contenido**. Usá `strcmp`.",
         "Usar una variable sin inicializar: tiene basura.",
-        "Funciones peligrosas como gets, o strcpy sin comprobar el tamaño del destino. Usá fgets y las variantes con límite.",
+        "Funciones peligrosas como `gets`, o `strcpy` sin comprobar el tamaño del destino. Usá `fgets` y las variantes con límite.",
       ],
       codigo: [
         code`
@@ -116,7 +116,7 @@ v[3] = 9;                            // fuera de rango: comportamiento indefinid
     {
       heading: "Dónde conviene usarlo y dónde no",
       parrafos: [
-        "C es la herramienta correcta cuando importa el control, y la incorrecta casi siempre que no:",
+        "C es la herramienta correcta **cuando importa el control**, y la incorrecta casi siempre que no:",
       ],
       tabla: {
         cabeza: ["Caso", "¿C?", "Por qué"],
@@ -148,7 +148,7 @@ v[3] = 9;                            // fuera de rango: comportamiento indefinid
     {
       heading: "Cómo seguir",
       parrafos: [
-        "Hacé la ruta de C de la app, resolvé los proyectos y practicá compilando con las advertencias activadas (gcc -Wall -Wextra) y con el verificador de memoria (-fsanitize=address): son tu red de seguridad.",
+        "Hacé la ruta de C de la app, resolvé los proyectos y practicá compilando con las **advertencias activadas** (`gcc -Wall -Wextra`) y con el **verificador de memoria** (`-fsanitize=address`): son tu red de seguridad.",
         "Fuera de la app, cppreference tiene la referencia más completa de la biblioteca estándar de C, y el comité del estándar (WG14) publica los borradores del lenguaje. El libro clásico de Kernighan y Ritchie sigue siendo una lectura muy buena y corta.",
       ],
     },
