@@ -184,6 +184,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
 - OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
   locales (`--oss`).
+- Cursor: sin Memories, el Agent igual puede buscar en conversaciones anteriores y traer un chat con `@Chats`; y la CLI de
+  Codex también acepta modelos locales.
 - ChatGPT: el control de entrenamiento no cubre "Include environments" de Codex, que es otro ajuste, y en la API la
   Responses API guarda el estado por defecto (`store=false` no es retención cero).
 - Gemini: `gemini update` no existe; se actualiza con el mismo gestor (`npm install -g @google/gemini-cli@latest`).

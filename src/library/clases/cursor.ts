@@ -21,7 +21,7 @@ export const claseCursor: Clase = {
       ],
       lista: [
         "La edición en línea con `Cmd+K`, una de sus primeras funciones, fue reemplazada: hoy ese atajo manda el código seleccionado al Agent.",
-        "La función Memories, que guardaba datos entre chats, también se quitó; su lugar lo ocupan las reglas.",
+        "La función Memories, que guardaba datos entre chats, también se quitó: las instrucciones estables van en reglas, un chat viejo se trae con `@Chats`, y el Agent puede buscar solo en conversaciones anteriores.",
         "2 de abril de 2026: sale **Cursor 3**, con la Agents Window, una interfaz centrada en agentes además del IDE de siempre.",
         "Abril de 2026: Cursor anuncia que entrena modelos junto con SpaceX (SpaceXAI). De ahí salen los modelos Grok 4.5, 4.6 y 4.7 que trae Cursor.",
         "14 de agosto de 2026: Cursor pasa a ser parte de SpaceX.",
@@ -147,7 +147,7 @@ alwaysApply: true
     {
       heading: "Modelos que puede usar",
       parrafos: [
-        "A diferencia de Claude Code o Codex, Cursor no está atado a un proveedor: trae **modelos propios** (Composer, y los Grok entrenados con SpaceXAI) y también de Anthropic, OpenAI, Google y otros. Muchos de terceros vienen ocultos y hay que activarlos, y cuáles ves depende de tu plan: en Free y Plus no hay modelos de terceros.",
+        "A diferencia de Claude Code o Codex, que se integran sobre todo con los modelos de su empresa (la CLI de Codex también acepta locales con `--oss`), Cursor no está atado a un proveedor: trae **modelos propios** (Composer, y los Grok entrenados con SpaceXAI) y también de Anthropic, OpenAI, Google y otros. Muchos de terceros vienen ocultos y hay que activarlos, y cuáles ves depende de tu plan: en Free y Plus no hay modelos de terceros.",
         "**Auto** elige el modelo por vos. En planes individuales usa los modelos de Cursor; en Teams y Enterprise puede usar el Cursor Router para elegir también entre los de terceros. Los nombres cambian seguido: confirmalos en el selector o con `agent models`.",
       ],
       tabla: {
@@ -265,7 +265,7 @@ alwaysApply: true
       lista: [
         "Escribir reglas en `.cursor/rules/algo.md`: **se ignoran**. Tienen que terminar en `.mdc` (o ir en `AGENTS.md`).",
         "Buscar la vieja edición en línea con `Cmd+K`: ya no existe; hoy ese atajo lleva la selección al Agent.",
-        "Esperar que el agente \"se acuerde\" de un chat anterior: Memories se quitó. Lo que tiene que durar va en reglas.",
+        "Esperar que el agente \"se acuerde\" solo de un dato suelto: Memories se quitó. Lo que tiene que durar va en reglas; para un chat viejo, `@Chats` o pedirle que lo busque.",
         "No encontrar una extensión de VS Code: Cursor usa Open VSX, y algunas no están o se comportan distinto.",
         "Correr `agent` y que diga que no existe: falta `~/.local/bin` en el `PATH`.",
         "Usar `agent -p` en CI y que no haga nada: sin `--force` rechaza lo que necesita aprobación. Y sin `CURSOR_API_KEY` no se autentica.",
@@ -282,7 +282,7 @@ alwaysApply: true
         filas: [
           ["Dónde corre", "app (fork de VS Code), Agents Window, CLI `agent`, nube", "CLI `claude`, extensiones, app y web", "CLI `codex`, extensión, app de ChatGPT, Codex Cloud"],
           ["Instrucciones", "`.cursor/rules/*.mdc` y `AGENTS.md` (la CLI también `CLAUDE.md`)", "`CLAUDE.md` (o `AGENTS.md` si no hay)", "`AGENTS.md`"],
-          ["Modelos", "propios (Composer, Grok) y de Anthropic, OpenAI, Google y otros", "Claude", "modelos de OpenAI"],
+          ["Modelos", "propios (Composer, Grok) y de Anthropic, OpenAI, Google y otros", "sobre todo Claude", "sobre todo de OpenAI; la CLI acepta locales (`--oss`)"],
           ["Permisos", "Run Modes (Auto-review, Allowlist, Run Everything) y sandbox", "modos de permisos (default, plan, auto, bypassPermissions…)", "sandbox y aprobación, por separado"],
           ["Autocompletado", "sí, Tab", "no", "no"],
           ["Revisión de PRs", "Bugbot", "según la integración", "`@codex review` en GitHub"],

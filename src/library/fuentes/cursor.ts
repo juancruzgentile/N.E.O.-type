@@ -29,6 +29,7 @@ const REVIEW = "https://cursor.com/docs/agent/agent-review";
 
 export const cursor: FuentesTema = {
   version: "Cursor 3.30 y CLI agent 2026.10.22 (noviembre 2026)",
+  revisado: "2026-11-14",
   entradas: {
     "Instalar Cursor": [QUICK],
     "Primer inicio e importar VS Code": [VSCODE],

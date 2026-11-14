@@ -264,23 +264,24 @@ agent -p --force "arregla el lint"   # aprueba todo salvo lo de deny
 # Auto Balance      Cursor Router, Teams/Enterprise
 # Auto Intelligence Cursor Router, Teams/Enterprise
 # Max Mode          solo planes por pedido (legacy): /max-mode en la CLI`, "auto cursor router max mode contexto modelos"),
-    a("Agente", "Memoria: ya no hay Memories", "Cursor tuvo una función Memories que guardaba datos entre chats, pero se quitó. Hoy lo que tiene que sobrevivir entre conversaciones va en reglas o en AGENTS.md: el modelo no recuerda nada de un chat al siguiente.", code`
+    a("Agente", "Memoria: ya no hay Memories", "Cursor tuvo una función Memories que guardaba datos entre chats, pero se quitó. Hoy hay tres cosas distintas: las instrucciones estables van en reglas o en AGENTS.md; un chat viejo puntual se trae con @Chats; y el Agent tiene una herramienta para buscar solo en conversaciones anteriores. Lo que no hay es una memoria automática que guarde datos sueltos.", code`
 # lo que querias que "recuerde":
 #   en el proyecto  -> .cursor/rules/*.mdc o AGENTS.md
 #   para vos        -> User Rules (Customize > Rules)
 #   para el equipo  -> Team Rules (panel de Cursor)
-# para un chat viejo puntual: @Chats`, "memoria memories recordar reglas"),
+# para un chat viejo puntual: @Chats
+# el Agent tambien puede buscar solo en conversaciones anteriores`, "memoria memories recordar reglas"),
     a("Comparación", "Cursor vs. Claude Code y Codex: dónde viven", "Cursor es ante todo un editor (un fork de VS Code) con agente adentro, más una CLI. Claude Code y Codex nacieron como agentes de terminal, con extensiones para editores (incluido Cursor). Si querés el agente adentro del editor, con Tab y diffs visuales, Cursor; si vivís en la terminal, cualquiera de los tres tiene CLI.", code`
 # Cursor:      app (editor) + Agents Window + CLI "agent" + nube
 # Claude Code: CLI "claude" + extensiones + app de escritorio + web
 # Codex:       CLI "codex" + extension (VS Code, Cursor) + app + nube
 # los tres: MCP, instrucciones de proyecto y modos de permisos`, "comparacion claude code codex editor cli"),
-    a("Comparación", "Cursor vs. Claude Code y Codex: instrucciones y modelos", "Cursor lee .cursor/rules y AGENTS.md (la CLI también CLAUDE.md); Codex lee AGENTS.md; Claude Code, CLAUDE.md. Un AGENTS.md compartido sirve para los tres. La otra diferencia grande: Cursor deja elegir modelos de varios proveedores (propios, Anthropic, OpenAI, Google, xAI), mientras Claude Code usa Claude y Codex usa los de OpenAI.", code`
+    a("Comparación", "Cursor vs. Claude Code y Codex: instrucciones y modelos", "Cursor lee .cursor/rules y AGENTS.md (la CLI también CLAUDE.md); Codex lee AGENTS.md; Claude Code, CLAUDE.md. Un AGENTS.md compartido sirve para los tres. La otra diferencia grande: Cursor deja elegir modelos de varios proveedores (propios, Anthropic, OpenAI, Google, xAI), mientras Claude Code se integra sobre todo con Claude y Codex con los de OpenAI (su CLI también acepta modelos locales con --oss).", code`
 # instrucciones:  Cursor -> .cursor/rules + AGENTS.md (+ CLAUDE.md en la CLI)
 #                 Codex  -> AGENTS.md
 #                 Claude Code -> CLAUDE.md (o AGENTS.md si no hay)
 # modelos:        Cursor -> Composer, Grok, Claude, GPT, Gemini y otros
-#                 Claude Code -> Claude   Codex -> modelos de OpenAI`, "comparacion agents.md claude.md reglas modelos proveedores"),
+#                 Claude Code -> Claude   Codex -> OpenAI (la CLI acepta locales: --oss)`, "comparacion agents.md claude.md reglas modelos proveedores"),
     a("Comparación", "Cursor vs. Claude Code y Codex: permisos", "Cursor usa Run Modes (Auto-review, Allowlist, Run Everything) más un sandbox; Codex separa sandbox y aprobación; Claude Code tiene modos de permisos (default, acceptEdits, plan, auto, dontAsk, bypassPermissions). En los tres, el modo de no preguntar nada es solo para un contenedor o máquina descartable.", code`
 # Cursor:      Auto-review / Allowlist / Run Everything + sandbox
 # Codex:       sandbox (read-only/workspace-write/danger-full-access)
