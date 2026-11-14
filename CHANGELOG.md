@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **Hermes** (Hermes Agent 0.23), el agente de código abierto de Nous Research con memoria entre sesiones
+  y skills que aprende solo. 31 ejemplos con fuente (instalación, proveedores, memoria, skills, configuración, herramientas,
+  MCP, permisos, integraciones) y una clase completa con cómo se ven la terminal y la app. Sale de Próximamente.
 - **Claude** tiene su clase completa, armada con los cursos de Anthropic Academy y comprobada en la documentación: modelos,
   superficies, CLAUDE.md, modos de permisos, hooks, skills, subagentes, plugins, MCP y cómo se ven Claude Code y la app de
   escritorio. Actualizo cuatro ejemplos: el plan Ultra, los límites de uso, el modo auto como inicio y qué pregunta cada modo.
@@ -172,6 +175,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
 - OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
   locales (`--oss`).
+- Hermes: la protección de `write_file` y `patch` es de las herramientas de archivo, no un aislamiento: con el backend local
+  la terminal puede leer o pisar esas rutas. `~/.ssh/config` tiene una excepción con aprobación.
 - Claude: `bypassPermissions` se saltea casi todas las preguntas, pero las reglas `deny` siguen valiendo y no es un sandbox.
 - Antigravity: el modo default se pide sin `--mode` (en settings.json, `"agentMode": ""`), y `plan` está entre los modos.
 
