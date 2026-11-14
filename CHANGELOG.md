@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **Gemini** (Gemini CLI 0.68 y los modelos de Google). 28 ejemplos con fuente (instalación, cuentas y
+  claves, comandos, GEMINI.md, settings.json, extensiones, MCP, sandbox, modo no interactivo y CI) y una clase completa con cómo
+  se ven la CLI y Code Assist en VS Code. Aclara que las cuentas personales pasaron a Antigravity CLI. Sale de Próximamente.
 - Tema nuevo en IA: **Hermes** (Hermes Agent 0.23), el agente de código abierto de Nous Research con memoria entre sesiones
   y skills que aprende solo. 31 ejemplos con fuente (instalación, proveedores, memoria, skills, configuración, herramientas,
   MCP, permisos, integraciones) y una clase completa con cómo se ven la terminal y la app. Sale de Próximamente.
@@ -175,6 +178,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
 - OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
   locales (`--oss`).
+- Gemini: `gemini update` no existe; se actualiza con el mismo gestor (`npm install -g @google/gemini-cli@latest`).
 - Hermes: la protección de `write_file` y `patch` es de las herramientas de archivo, no un aislamiento: con el backend local
   la terminal puede leer o pisar esas rutas. `~/.ssh/config` tiene una excepción con aprobación.
 - Claude: `bypassPermissions` se saltea casi todas las preguntas, pero las reglas `deny` siguen valiendo y no es un sandbox.
