@@ -82,7 +82,7 @@ agy models                   # lista los modelos disponibles`, "agy ejecutar int
     b("Comandos de sesión", "Atajos de la CLI", "Los atajos más usados dentro de agy. Además, @ sugiere archivos y ! al principio corre un comando de terminal directo.", code`
 # Enter          enviar
 # Shift+Enter    nueva linea (tambien Ctrl+J)
-# Shift+Tab      cambiar de modo (default, accept-edits, auto...)
+# Shift+Tab      cambiar de modo (default, accept-edits, auto, plan)
 # Esc            cortar la respuesta o cerrar un menu
 # Ctrl+C         interrumpir (dos veces sin nada corriendo: salir)
 # Ctrl+O         ver el detalle de las herramientas
@@ -141,9 +141,9 @@ description: Sube el build a staging. Usar al probar una version.
 # en la sesion:
 /deploy-staging
 /skills reload        # CLI: volver a leer las skills`, "skills workflows skill.md migrar comandos propios"),
-    m("Configuración", "settings.json de la CLI", "La configuración de agy vive en ~/.gemini/antigravity-cli/settings.json. /config la abre en pantalla completa y guarda ahí los cambios.", code`
+    m("Configuración", "settings.json de la CLI", "La configuración de agy vive en ~/.gemini/antigravity-cli/settings.json. /config la abre en pantalla completa y guarda ahí los cambios. \"agentMode\": \"\" (o no ponerlo) es el modo default.", code`
 {
-  "agentMode": "default",
+  "agentMode": "",
   "model": "Gemini 4 Hydrogen",
   "colorScheme": "terminal",
   "toolPermission": "request-review",
@@ -165,10 +165,11 @@ agy --effort high                       # nivel de razonamiento
 /artifact      # ver los artefactos
 # Ctrl+R       panel de revision
 # Shift+A      aprobar todos los artefactos del panel`, "artefactos plan walkthrough capturas grabaciones revisar comentar"),
-    m("Permisos", "Modos de la CLI", "Shift+Tab, --mode o \"agentMode\" eligen el modo. default te muestra el diff antes de editar; accept-edits aprueba las ediciones pero sigue revisando comandos; auto aprueba ediciones y corre comandos en el sandbox (no está en cuentas de empresa).", code`
-agy --mode=default        # revisas cada diff (por defecto)
+    m("Permisos", "Modos de la CLI", "Shift+Tab, --mode o \"agentMode\" eligen el modo. default (el que se usa si no pasás --mode; en settings.json es \"agentMode\": \"\") te muestra el diff antes de editar; accept-edits aprueba las ediciones pero sigue revisando comandos; auto aprueba ediciones y corre comandos en el sandbox (no está en cuentas de empresa); plan solo planifica.", code`
+agy                       # sin --mode: default, revisas cada diff
 agy --mode=accept-edits   # edita solo; los comandos se revisan igual
 agy --mode=auto           # edita y corre en el sandbox sin preguntar
+agy --mode=plan           # arma el plan sin tocar archivos
 # toolPermission en settings.json:
 #   request-review | proceed-in-sandbox | strict | always-proceed
 # strict y always-proceed pisan al modo auto`, "modos default accept-edits auto shift tab toolpermission"),

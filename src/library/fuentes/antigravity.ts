@@ -18,6 +18,7 @@ const OVERVIEW = "https://antigravity.google/docs/overview/";
 
 export const antigravity: FuentesTema = {
   version: "Antigravity App 2.32.0 y CLI agy 1.5.8 (noviembre 2026)",
+  revisado: "2026-11-14",
   entradas: {
     "Instalar la app": [START],
     "Instalar la CLI (agy)": [START],
