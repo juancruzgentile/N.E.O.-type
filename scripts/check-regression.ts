@@ -15,6 +15,7 @@ import { ALL_TOPICS } from "../src/library/unlock";
 import { isFullProgram, kindNote } from "../src/library/kind";
 import { go as goGen } from "../src/gen/lang/go";
 import { LAYOUTS } from "../src/data/layouts";
+import { check } from "../src/recall/check";
 import type { AppState, LessonResult } from "../src/types";
 
 let failed = 0;
@@ -307,6 +308,21 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
     const c = t.clase!;
     ok(c.secciones.length >= 9 && c.secciones.some((x) => x.tabla) && c.secciones.some((x) => x.codigo) && !!c.fuentes?.length, `clase de ${t.name}: al menos 9 secciones, con tabla, código y fuentes`);
   }
+}
+
+// ── auditoría de Codex del 2026-11-14 (d52dd83) ──
+{
+  const pipe = ["ps aux | grep node", "ps -ef | grep node"];
+  ok(check("ps aux && grep node", pipe, "shell").status === "wrong", "memoria: && no vale por | (no pasa la salida)");
+  ok(check("ps aux | grep node", pipe, "shell").status === "ok" && check("ps  aux | grep node", pipe, "shell").status === "minor", "memoria: la tubería correcta sigue aprobando");
+  ok(check("ps -e -f | grep node", ["ps -f -e | grep node"], "shell").status === "minor", "memoria: el orden de opciones sigue siendo tolerado");
+  const txt = (id: string) => JSON.stringify(TOPICS.find((t) => t.id === id));
+  ok(!/postgres:18[^`]*\/var\/lib\/postgresql\/data/.test(txt("docker")), "docker: postgres:18 monta el volumen en /var/lib/postgresql");
+  ok((txt("asincronia").match(/acks_late=True/g) ?? []).length >= 2, "celery: los ejemplos confirman al terminar (acks_late)");
+  ok(!/EXPIRE limite:ip:1\.2\.3\.4 60\\n/.test(txt("redis")) && txt("redis").includes("60 NX"), "redis: el límite por minuto no renueva el vencimiento");
+  const apis = txt("apis");
+  ok(apis.includes("const recibida = Buffer.from(") && apis.includes("Date.parse(valor"), "apis: firma comparada en bytes y Retry-After con fecha HTTP");
+  ok(!txt("mongodb").includes("updateOne sin operadores") && !txt("mongodb").includes("Sin operador, reemplazaría"), "mongodb: updateOne sin operadores da error, no reemplaza");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");

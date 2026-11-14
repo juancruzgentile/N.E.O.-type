@@ -155,6 +155,19 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
 
+### Corregido (auditoría del 2026-11-14 sobre d52dd83)
+- El corrector de los ejercicios de memoria ya no da por buena `ps aux && grep node` cuando se pide una tubería: `|` y
+  `&&` hacen cosas distintas. El orden de las opciones sigue siendo libre.
+- Docker: los ejemplos con `postgres:18` montan el volumen en `/var/lib/postgresql`, la ruta que pide la imagen desde
+  la versión 18 (con la anterior, el contenedor no arranca).
+- Celery: los ejemplos usan `acks_late=True` y la clase explica que, por defecto, la tarea se confirma antes de correr,
+  así que una tarea cortada no se reentrega.
+- Redis: el límite por minuto pone el vencimiento solo la primera vez (`EXPIRE ... NX`); antes se renovaba en cada pedido
+  y el contador no se reiniciaba nunca con tráfico continuo.
+- APIs: la firma del webhook compara el largo en bytes (con letras acentuadas daba error 500 en vez de 401) y los
+  reintentos entienden `Retry-After` con fecha HTTP, no solo en segundos.
+- MongoDB: `updateOne` sin operadores da error; el que reemplaza el documento entero es `replaceOne`.
+
 ### Corregido (auditoría del 2026-11-06 sobre 52c0c98)
 - El corrector de respuestas escritas ya no acepta operadores partidos con un espacio: `= >`, `= =`, `! =` o `< =`
   dejaban pasar código con error de sintaxis. Los espacios alrededor de los operadores siguen siendo libres.

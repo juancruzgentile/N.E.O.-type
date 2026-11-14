@@ -46,7 +46,7 @@ db.libros.find({ autor: "Austen", paginas: { $gt: 200 } })
 db.libros.find({}, { titulo: 1, _id: 0 }).sort({ titulo: 1 }).limit(5)
 
 db.libros.findOne({ titulo: /^du/i })`, "buscar consultar filtro operadores gt in"),
-    m("CRUD", "updateOne: $set, $inc y $push", "Modifica campos concretos con operadores, sin reemplazar el documento entero. Sin operador, reemplazaría todo el documento.", code`
+    m("CRUD", "updateOne: $set, $inc y $push", "Modifica campos concretos con operadores, sin reemplazar el documento entero. Sin operadores da error: para reemplazar el documento entero está replaceOne.", code`
 db.libros.updateOne(
   { titulo: "Dune" },
   {

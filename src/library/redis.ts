@@ -38,8 +38,9 @@ INCRBY ventas:hoy 25
 GET visitas:home
 
 # límite de pedidos por minuto
-INCR limite:ip:1.2.3.4
-EXPIRE limite:ip:1.2.3.4 60`, "incr contador atomico limite rate"),
+INCR limite:ip:1.2.3.4            # devuelve el total del minuto
+EXPIRE limite:ip:1.2.3.4 60 NX     # NX: el vencimiento se pone solo la primera vez
+# si INCR devolvió más de 100: rechazar con 429`, "incr contador atomico limite rate"),
     b("Estructuras", "Listas y conjuntos", "Una lista guarda elementos en orden (LPUSH, RPOP, LRANGE). Un conjunto guarda elementos sin repetir (SADD, SISMEMBER, SMEMBERS).", code`
 LPUSH cola:correos "a@x.com" "b@x.com"
 RPOP cola:correos

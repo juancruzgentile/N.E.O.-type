@@ -93,7 +93,7 @@ services:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: cambiame
       POSTGRES_DB: tienda
-    volumes: ["datos-pg:/var/lib/postgresql/data"]
+    volumes: ["datos-pg:/var/lib/postgresql"]
 volumes:
   datos-pg:
 

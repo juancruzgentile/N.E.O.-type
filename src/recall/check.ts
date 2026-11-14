@@ -93,18 +93,20 @@ const shellQuotes = (s: string) =>
     .join(" ");
 
 interface Segment {
+  /** Operador que lo une con el tramo anterior: | y && no son intercambiables. */
+  op: string;
   args: string[];
   flags: string[];
 }
 
 /** Separa cada tramo de la tubería en argumentos (en orden) y opciones con su valor. */
 function segments(s: string): Segment[] {
-  const out: Segment[] = [{ args: [], flags: [] }];
+  const out: Segment[] = [{ op: "", args: [], flags: [] }];
   const ws = words(s);
   for (let i = 0; i < ws.length; i++) {
     const w = ws[i];
     if (w === "|" || w === "&&") {
-      out.push({ args: [], flags: [] });
+      out.push({ op: w, args: [], flags: [] });
       continue;
     }
     const seg = out[out.length - 1];
@@ -124,7 +126,7 @@ const WITH_SUB = new Set(["git", "npm", "docker", "cargo", "go", "pip", "apt", "
 const command = (g: Segment) => (WITH_SUB.has(g.args[0]) ? `${g.args[0]} ${g.args[1] ?? ""}` : g.args[0] ?? "");
 
 const sortedFlags = (s: string) =>
-  segments(s).map((g) => [...g.args, ...[...g.flags].sort()].join(" ")).join(" | ");
+  segments(s).map((g) => [g.op, ...g.args, ...[...g.flags].sort()].filter(Boolean).join(" ")).join(" ");
 
 // ── transformaciones por tipo de respuesta ─────────────────────────────────
 
@@ -196,6 +198,7 @@ function reason(input: string, answers: string[], kind: Kind): string {
     if (command(mine[0]) !== command(best[0])) return "Ese comando hace otra cosa.";
     if (mine.length !== best.length) return best.length > mine.length ? "Falta una parte del comando." : "Sobra una parte del comando.";
     for (let i = 0; i < best.length; i++) {
+      if (best[i].op !== mine[i].op) return "Revisá cómo unís los comandos: | pasa la salida al siguiente y && solo lo corre después.";
       const want = best[i].flags.map((f) => f.split(" ")[0]);
       const got = mine[i].flags.map((f) => f.split(" ")[0]);
       const extra = got.find((f) => !want.includes(f));

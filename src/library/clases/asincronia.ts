@@ -52,7 +52,7 @@ asyncio.run(main())`,
     {
       heading: "Qué pasa cuando se usa una cola",
       parrafos: [
-        "Ahora con una cola entre programas. La aplicación web encola y responde; un trabajador aparte hace el trabajo lento. Con Celery y Redis:",
+        "Ahora con una cola entre programas. La aplicación web encola y responde; un trabajador aparte hace el trabajo lento. Con Celery y Redis. Un detalle importante: por defecto Celery confirma el mensaje apenas lo toma, antes de correr la tarea. Con acks_late=True confirma al terminar, y una tarea cortada a la mitad se vuelve a entregar; por eso tiene que ser idempotente. Si el proceso muere de golpe (por ejemplo, lo mata el sistema por memoria), además hace falta task_reject_on_worker_lost=True, con un riesgo: una tarea que siempre tumba al trabajador queda reentregándose en bucle.",
       ],
       codigo: [
         code`
@@ -61,7 +61,8 @@ from celery import Celery
 
 app = Celery("tienda", broker="redis://localhost:6379/0")
 
-@app.task(autoretry_for=(ConnectionError,), retry_backoff=True, max_retries=5)
+@app.task(acks_late=True,    # confirma al terminar, no al tomarla
+          autoretry_for=(ConnectionError,), retry_backoff=True, max_retries=5)
 def enviar_correo(pedido_id):
     ...    # el trabajo lento
 
@@ -158,7 +159,7 @@ async def bien():
     {
       heading: "Cómo seguir",
       parrafos: [
-        "Usá la pestaña Referencia de este tema para recordar el código de cada pieza. Para practicar, armá un proyecto chico con una cola: una aplicación que encole un trabajo lento, un trabajador que lo haga, y probá tirar el trabajador a la mitad para ver cómo se reentrega.",
+        "Usá la pestaña Referencia de este tema para recordar el código de cada pieza. Para practicar, armá un proyecto chico con una cola: una aplicación que encole un trabajo lento, un trabajador que lo haga, y probá tirar el trabajador a la mitad para ver cómo se reentrega (con acks_late; con Redis como broker, si el trabajador muere sin cerrar, la reentrega espera al visibility_timeout, que por defecto es una hora).",
         "La documentación de asyncio de Python, la de Celery y la de RabbitMQ son claras y tienen guías de inicio. El libro \"Designing Data-Intensive Applications\", de Martin Kleppmann, dedica capítulos enteros a mensajería y a las garantías de entrega.",
       ],
     },

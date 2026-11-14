@@ -60,9 +60,9 @@ docker run -d -p 8000:8000 \
   -e DATABASE_URL=postgresql://app@db/tienda \
   --env-file .env \
   mi-app:1.0`, "puertos -p variables entorno -e env-file configuracion"),
-    m("Datos", "Volúmenes: que los datos sobrevivan", "Un volumen guarda datos fuera del ciclo de vida del contenedor. Un bind mount monta una carpeta tuya, útil en desarrollo.", code`
+    m("Datos", "Volúmenes: que los datos sobrevivan", "Un volumen guarda datos fuera del ciclo de vida del contenedor. Un bind mount monta una carpeta tuya, útil en desarrollo. Desde PostgreSQL 18 la imagen oficial guarda los datos en /var/lib/postgresql/18/docker, así que el volumen se monta en /var/lib/postgresql.", code`
 docker volume create datos-pg
-docker run -d --name db -v datos-pg:/var/lib/postgresql/data \
+docker run -d --name db -v datos-pg:/var/lib/postgresql \
   -e POSTGRES_PASSWORD=cambiame postgres:18
 
 # desarrollo: tu código dentro del contenedor
@@ -91,7 +91,7 @@ services:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: cambiame
       POSTGRES_DB: tienda
-    volumes: ["datos-pg:/var/lib/postgresql/data"]
+    volumes: ["datos-pg:/var/lib/postgresql"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U app -d tienda"]
 volumes:

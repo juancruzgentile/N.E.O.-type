@@ -77,8 +77,9 @@ SET producto:42 "{...}" EX 300
 DEL producto:42
 
 # límite de 100 pedidos por minuto
-INCR limite:ip:1.2.3.4
-EXPIRE limite:ip:1.2.3.4 60`,
+INCR limite:ip:1.2.3.4            # devuelve el total del minuto
+EXPIRE limite:ip:1.2.3.4 60 NX     # NX: el vencimiento se pone solo la primera vez
+# si INCR devolvió más de 100: rechazar con 429`,
       ],
     },
     {
