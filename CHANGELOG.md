@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **ChatGPT**, visto desde quien programa: apps, planes, modelos, proyectos, memoria, cómo pedir código y
+  depurar, cómo aprender sin que te haga la tarea, privacidad y la API de OpenAI. 29 ejemplos con fuente y una clase completa
+  con cómo se ve la app. Sale de Próximamente.
 - Tema nuevo en IA: **Gemini** (Gemini CLI 0.68 y los modelos de Google). 28 ejemplos con fuente (instalación, cuentas y
   claves, comandos, GEMINI.md, settings.json, extensiones, MCP, sandbox, modo no interactivo y CI) y una clase completa con cómo
   se ven la CLI y Code Assist en VS Code. Aclara que las cuentas personales pasaron a Antigravity CLI. Sale de Próximamente.
@@ -178,6 +181,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
 - OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
   locales (`--oss`).
+- ChatGPT: el control de entrenamiento no cubre "Include environments" de Codex, que es otro ajuste, y en la API la
+  Responses API guarda el estado por defecto (`store=false` no es retención cero).
 - Gemini: `gemini update` no existe; se actualiza con el mismo gestor (`npm install -g @google/gemini-cli@latest`).
 - Hermes: la protección de `write_file` y `patch` es de las herramientas de archivo, no un aislamiento: con el backend local
   la terminal puede leer o pisar esas rutas. `~/.ssh/config` tiene una excepción con aprobación.
