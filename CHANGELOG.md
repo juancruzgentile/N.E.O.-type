@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **ChatGPT**, visto desde quien programa: apps, planes, modelos, proyectos, memoria, cómo pedir código y
+  depurar, cómo aprender sin que te haga la tarea, privacidad y la API de OpenAI. 29 ejemplos con fuente y una clase completa
+  con cómo se ve la app. Sale de Próximamente.
 - Tema nuevo en IA: **Gemini** (Gemini CLI 0.68 y los modelos de Google). 28 ejemplos con fuente (instalación, cuentas y
   claves, comandos, GEMINI.md, settings.json, extensiones, MCP, sandbox, modo no interactivo y CI) y una clase completa con cómo
   se ven la CLI y Code Assist en VS Code. Aclara que las cuentas personales pasaron a Antigravity CLI. Sale de Próximamente.
