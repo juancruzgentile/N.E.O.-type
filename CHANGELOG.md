@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **Antigravity** (app 2.32 y CLI `agy`), el entorno de Google para trabajar con agentes. 25 ejemplos
+  con fuente (instalación, proyectos, reglas y skills, settings.json, modelos, permisos, navegador, MCP, `agy -p` en CI) y una
+  clase completa con cómo se ven la CLI y la app. Sale de Próximamente.
 - Tema nuevo en IA: **OpenCode** (2.3.0), el agente de código abierto que funciona con modelos de muchos proveedores.
   30 ejemplos con fuente (instalación, proveedores, agentes build y plan, AGENTS.md, opencode.json, permisos, MCP, `opencode run`)
   y una clase completa con cómo se ven la terminal y la app de escritorio. Sale de Próximamente.
@@ -166,6 +169,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
 - OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
   locales (`--oss`).
+- Antigravity: el modo default se pide sin `--mode` (en settings.json, `"agentMode": ""`), y `plan` está entre los modos.
 
 ### Corregido (auditoría del 2026-11-14 sobre d52dd83)
 - El corrector de los ejercicios de memoria ya no da por buena `ps aux && grep node` cuando se pide una tubería: `|` y
