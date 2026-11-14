@@ -9,19 +9,19 @@ export const claseJava: Clase = {
     {
       heading: "Qué es y qué problema resuelve",
       parrafos: [
-        "Java es un lenguaje de programación de tipado estático y orientado a objetos: cada variable tiene un tipo que se declara y se comprueba antes de ejecutar, y el código se organiza en clases. Se compila a un formato intermedio (bytecode) que corre sobre la Máquina Virtual de Java (JVM).",
-        "El problema que resolvió en los años noventa fue el de portabilidad: antes, un programa compilado para un sistema no corría en otro. Con Java, el mismo bytecode corre en cualquier sistema que tenga una JVM (la idea se resumía como \"escribilo una vez, corré donde sea\"). Hoy se usa sobre todo en sistemas empresariales y back-end de gran escala, en Android (junto con Kotlin) y en procesamiento de datos.",
+        "Java es un lenguaje de programación de **tipado estático** y **orientado a objetos**: cada variable tiene un tipo que se declara y se comprueba antes de ejecutar, y el código se organiza en clases. Se compila a un formato intermedio (bytecode) que corre sobre la **Máquina Virtual de Java (JVM)**.",
+        "El problema que resolvió en los años noventa fue el de **portabilidad**: antes, un programa compilado para un sistema no corría en otro. Con Java, el mismo bytecode corre en cualquier sistema que tenga una JVM (la idea se resumía como \"escribilo una vez, corré donde sea\"). Hoy se usa sobre todo en sistemas empresariales y back-end de gran escala, en Android (junto con Kotlin) y en procesamiento de datos.",
         "Su punto fuerte es la estabilidad: el código escrito hace años sigue compilando, y hay un ecosistema enorme de bibliotecas y herramientas.",
       ],
     },
     {
       heading: "Historia corta",
       parrafos: [
-        "Lo diseñó un equipo de Sun Microsystems liderado por James Gosling a principios de los noventa; al principio se llamaba Oak. Sun lo presentó públicamente en 1995. En 2010 Oracle compró Sun y heredó Java; Gosling dejó Oracle ese mismo año.",
-        "Hoy Java se desarrolla como un proyecto abierto, OpenJDK, y hay varias distribuciones gratuitas del mismo código.",
+        "Lo diseñó un equipo de Sun Microsystems liderado por **James Gosling** a principios de los noventa; al principio se llamaba Oak. Sun lo presentó públicamente en 1995. En 2010 Oracle compró Sun y heredó Java; Gosling dejó Oracle ese mismo año.",
+        "Hoy Java se desarrolla como un proyecto abierto, **OpenJDK**, y hay varias distribuciones gratuitas del mismo código.",
       ],
       lista: [
-        "Desde 2018 (Java 10), sale una versión nueva cada seis meses. Algunas son de soporte largo (LTS) y las empresas se quedan en ellas: Java 8, 11, 17, 21 y 25.",
+        "Desde 2018 (Java 10), sale una **versión nueva cada seis meses**. Algunas son de **soporte largo (LTS)** y las empresas se quedan en ellas: Java 8, 11, 17, 21 y 25.",
         "Java 8 (2014) sumó las expresiones lambda y los streams, que cambiaron cómo se escribe el código.",
         "Java 16 sumó los records, clases de datos inmutables de una sola línea.",
         "Java 21 sumó los hilos virtuales, que hacen barato manejar miles de tareas esperando a la vez.",
@@ -30,15 +30,15 @@ export const claseJava: Clase = {
     {
       heading: "Cómo funciona por dentro",
       parrafos: [
-        "El camino de un programa Java tiene tres pasos. El compilador (javac) traduce el código fuente (.java) a bytecode (.class). La JVM carga ese bytecode, lo verifica y empieza a ejecutarlo con un intérprete. Mientras corre, el compilador JIT (just in time) detecta las partes que se ejecutan más veces y las convierte en código de máquina optimizado. Por eso un programa Java arranca más lento de lo que termina corriendo: necesita \"calentarse\".",
-        "La memoria la administra la JVM. Los objetos viven en el heap (montón) y cada hilo tiene su pila (stack) con las variables locales. El recolector de basura (garbage collector) libera solo los objetos que ya nadie usa; nunca liberás memoria a mano. Los tipos primitivos (int, double, boolean…) guardan el valor directamente; todo lo demás es una referencia a un objeto.",
-        "Con java Archivo.java la JVM compila y corre un archivo suelto en un solo paso, ideal para aprender. En un proyecto real se usa una herramienta de construcción (Maven o Gradle).",
+        "El camino de un programa Java tiene tres pasos. El compilador (`javac`) traduce el código fuente (`.java`) a bytecode (`.class`). La JVM carga ese bytecode, lo verifica y empieza a ejecutarlo con un intérprete. Mientras corre, el **compilador JIT** (just in time) detecta las partes que se ejecutan más veces y las convierte en código de máquina optimizado. Por eso un programa Java **arranca más lento de lo que termina corriendo**: necesita \"calentarse\".",
+        "La memoria la administra la JVM. Los objetos viven en el **heap** (montón) y cada hilo tiene su pila (stack) con las variables locales. El **recolector de basura** (garbage collector) libera solo los objetos que ya nadie usa; nunca liberás memoria a mano. Los tipos primitivos (`int`, `double`, `boolean`…) guardan el valor directamente; todo lo demás es una referencia a un objeto.",
+        "Con `java Archivo.java` la JVM compila y corre un archivo suelto en un solo paso, ideal para aprender. En un proyecto real se usa una herramienta de construcción (Maven o Gradle).",
       ],
     },
     {
       heading: "Tu primer programa, paso a paso",
       parrafos: [
-        "Creá un archivo Saludo.java (el nombre tiene que coincidir con la clase pública) y corrélo con java Saludo.java Ana 2.",
+        "Creá un archivo `Saludo.java` (el **nombre tiene que coincidir con la clase pública**) y corrélo con `java Saludo.java Ana 2`.",
       ],
       codigo: [
         code`
@@ -57,8 +57,8 @@ public class Saludo {
     {
       heading: "Qué hace cada línea",
       parrafos: [
-        "En Java todo código vive dentro de una clase. main es el punto de entrada: la JVM busca un método con exactamente esa firma (public static void main(String[] args)). args son los argumentos de la línea de comandos, y es un arreglo de textos.",
-        "Como Java es de tipado estático, cada variable declara su tipo (String, int). La expresión con ? es un condicional corto: si hay argumento, lo usa; si no, toma un valor por defecto. Integer.parseInt convierte el texto del segundo argumento en un número y lanza una excepción si no lo es. Con los datos Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
+        "En Java **todo código vive dentro de una clase**. `main` es el **punto de entrada**: la JVM busca un método con exactamente esa firma (`public static void main(String[] args)`). `args` son los argumentos de la línea de comandos, y es un arreglo de textos.",
+        "Como Java es de tipado estático, **cada variable declara su tipo** (`String`, `int`). La expresión con `?` es un condicional corto: si hay argumento, lo usa; si no, toma un valor por defecto. `Integer.parseInt` convierte el texto del segundo argumento en un número y **lanza una excepción** si no lo es. Con los datos Ana y 2 imprime \"1. Hola, Ana\" y \"2. Hola, Ana\".",
       ],
     },
     {
@@ -67,11 +67,11 @@ public class Saludo {
         "Con estos cinco entendés casi cualquier código Java:",
       ],
       lista: [
-        "Clases y objetos: la clase es el molde; el objeto es una instancia. Un record es una clase de datos inmutable.",
-        "Primitivos y referencias: int guarda un valor; String o Libro guardan una referencia a un objeto.",
-        "Colecciones y genéricos: List<Libro>, Map<String, Integer>… el tipo entre < > evita mezclar datos.",
-        "Interfaces y polimorfismo: una interfaz define qué se puede hacer, y varias clases lo implementan de formas distintas.",
-        "Excepciones: los errores se lanzan (throw) y se atrapan (try / catch). Las comprobadas (checked) obligan a declararlas o atraparlas.",
+        "**Clases y objetos**: la clase es el molde; el objeto es una instancia. Un `record` es una clase de datos inmutable.",
+        "**Primitivos y referencias**: `int` guarda un valor; `String` o `Libro` guardan una referencia a un objeto.",
+        "**Colecciones y genéricos**: `List<Libro>`, `Map<String, Integer>`… el tipo entre `< >` evita mezclar datos.",
+        "**Interfaces y polimorfismo**: una interfaz define qué se puede hacer, y varias clases lo implementan de formas distintas.",
+        "**Excepciones**: los errores se lanzan (`throw`) y se atrapan (`try` / `catch`). Las comprobadas (checked) obligan a declararlas o atraparlas.",
       ],
       codigo: [
         code`
@@ -107,11 +107,11 @@ public class Conceptos {
         "Los que más se repiten:",
       ],
       lista: [
-        "Comparar textos con ==: compara si son el mismo objeto, no si dicen lo mismo. Usá equals().",
-        "NullPointerException: llamar a un método sobre una referencia que vale null. Es el error más común; comprobá antes, o devolvé Optional en vez de null.",
-        "Modificar una lista mientras la recorrés con for-each: lanza ConcurrentModificationException. Usá un iterador o armá una lista nueva.",
-        "La división de enteros: 7 / 2 da 3, no 3.5, porque ambos son int. Convertí uno a double.",
-        "Redefinir equals sin hashCode: los objetos dejan de funcionar bien como claves de un HashMap o dentro de un HashSet.",
+        "Comparar textos con `==`: compara si son **el mismo objeto**, no si **dicen lo mismo**. Usá `equals()`.",
+        "`NullPointerException`: llamar a un método sobre una referencia que vale `null`. Es el **error más común**; comprobá antes, o devolvé `Optional` en vez de `null`.",
+        "Modificar una lista mientras la recorrés con for-each: lanza `ConcurrentModificationException`. Usá un iterador o armá una lista nueva.",
+        "La división de enteros: `7 / 2` da `3`, no `3.5`, porque ambos son `int`. Convertí uno a `double`.",
+        "Redefinir `equals` sin `hashCode`: los objetos dejan de funcionar bien como claves de un `HashMap` o dentro de un `HashSet`.",
       ],
       codigo: [
         code`
