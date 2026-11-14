@@ -2,7 +2,8 @@ import type { FuentesTema } from "./tipos";
 
 const D = "https://code.claude.com/docs/en/";
 export const claude: FuentesTema = {
-  version: "Claude Code 2.1 (modelos Claude 5)",
+  version: "Claude Code 2.1.325 (Fable 5.2, Opus 5.5, Sonnet 5.5, Haiku 5.5), comprobado el 2026-11-14",
+  revisado: "2026-11-14",
   entradas: {
     "Empezar con Claude Code": [D + "quickstart"],
     "Comandos de sesión": [D + "commands"],

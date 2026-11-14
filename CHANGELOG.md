@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Claude** tiene su clase completa, armada con los cursos de Anthropic Academy y comprobada en la documentación: modelos,
+  superficies, CLAUDE.md, modos de permisos, hooks, skills, subagentes, plugins, MCP y cómo se ven Claude Code y la app de
+  escritorio. Actualizo cuatro ejemplos: el plan Ultra, los límites de uso, el modo auto como inicio y qué pregunta cada modo.
 - Tema nuevo en IA: **Antigravity** (app 2.32 y CLI `agy`), el entorno de Google para trabajar con agentes. 25 ejemplos
   con fuente (instalación, proyectos, reglas y skills, settings.json, modelos, permisos, navegador, MCP, `agy -p` en CI) y una
   clase completa con cómo se ven la CLI y la app. Sale de Próximamente.
@@ -169,6 +172,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
 - OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
   locales (`--oss`).
+- Claude: `bypassPermissions` se saltea casi todas las preguntas, pero las reglas `deny` siguen valiendo y no es un sandbox.
 - Antigravity: el modo default se pide sin `--mode` (en settings.json, `"agentMode": ""`), y `plan` está entre los modos.
 
 ### Corregido (auditoría del 2026-11-14 sobre d52dd83)
