@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **Cursor** (3.30 y la CLI `agent`), el editor con IA. 33 ejemplos con fuente (instalación, Tab, Agent y
+  sus modos, Cloud Agents, reglas, @-menciones, MCP, la CLI, Bugbot, modelos, Privacy Mode y atajos) y una clase completa con
+  cómo se ven la CLI y la Agents Window. Sale de Próximamente.
 - Tema nuevo en IA: **ChatGPT**, visto desde quien programa: apps, planes, modelos, proyectos, memoria, cómo pedir código y
   depurar, cómo aprender sin que te haga la tarea, privacidad y la API de OpenAI. 29 ejemplos con fuente y una clase completa
   con cómo se ve la app. Sale de Próximamente.
