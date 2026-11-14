@@ -58,6 +58,29 @@ export interface Soon {
 /** Qué diagrama dibujar en una sección de la clase (ver ClaseDiagramas.tsx). */
 export type DiagramaId = "neurona" | "entrenamiento" | "prompt" | "bucle";
 
+/** Un tramo de texto de una captura, con el color que tiene en la pantalla real. */
+export interface CapturaTramo {
+  t: string;
+  /** acento: el color de la marca · tenue: gris · ok: verde · error: rojo · fuerte: blanco/negrita · sel: fondo seleccionado */
+  c?: "acento" | "tenue" | "ok" | "error" | "fuerte" | "sel";
+}
+
+/**
+ * Recreación de cómo se ve una herramienta (no es una imagen: se dibuja con texto, así pesa poco y se lee en
+ * cualquier tema). Una terminal son líneas; una app son paneles uno al lado del otro.
+ */
+export interface Captura {
+  tipo: "terminal" | "app";
+  /** lo que dice la barra de la ventana */
+  titulo: string;
+  /** terminal: cada línea es una lista de tramos (una línea vacía es []) */
+  lineas?: CapturaTramo[][];
+  /** app: paneles de izquierda a derecha; ancho relativo (1 por defecto) */
+  paneles?: { nombre: string; ancho?: number; lineas: CapturaTramo[][] }[];
+  /** qué muestra; siempre aclara que es una recreación y de qué versión */
+  pie: string;
+}
+
 export interface ClaseSeccion {
   heading: string;
   /** cada string es un párrafo */
@@ -69,6 +92,8 @@ export interface ClaseSeccion {
   /** tabla corta, por ejemplo "dónde conviene y dónde no" */
   tabla?: { cabeza: string[]; filas: string[][] };
   diagrama?: DiagramaId;
+  /** cómo se ve la herramienta (CLI o app), recreado con texto */
+  captura?: Captura;
 }
 
 /** Una clase completa y escrita sobre el tema, aparte de la referencia rápida de siempre. */
