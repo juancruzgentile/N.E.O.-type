@@ -16,6 +16,7 @@ import { isFullProgram, kindNote } from "../src/library/kind";
 import { go as goGen } from "../src/gen/lang/go";
 import { LAYOUTS } from "../src/data/layouts";
 import { check } from "../src/recall/check";
+import { tramos } from "../src/library/marcas";
 import type { AppState, LessonResult } from "../src/types";
 
 let failed = 0;
@@ -326,6 +327,13 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
   const cx = txt("codex");
   ok(cx.includes("codex resume --last   # retoma la ultima") && cx.includes("codex features list") && cx.includes("codex apply TASK_ID"), "codex: resume, features y apply como los pide la CLI");
   ok(!cx.includes("mcp login context7") && !cx.includes("Nada más que eso") && cx.includes("~/.codex/AGENTS.md"), "codex: login solo para MCP remoto, entrenamiento posterior y AGENTS.md global");
+}
+
+// ── clases: el resaltado solo toma marcas completas (auditoría de Codex del 2026-11-14) ──
+{
+  const t = tramos("**clave** y `cod` y **suelto y `otro");
+  ok(t[0].tipo === "clave" && t[0].t === "clave" && t[2].tipo === "cod" && t[2].t === "cod", "resaltado: negrita y código completos");
+  ok(t.length === 4 && t[3].tipo === "texto" && t[3].t === " y **suelto y `otro", "resaltado: una marca sin cerrar queda como texto, sin perder letras");
 }
 
 // ── clases: las marcas de resaltado (**clave** y `código`) están bien cerradas ──
