@@ -969,6 +969,21 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .clase-diagrama { width: 100%; max-width: 420px; }
 .clase-diagrama svg { width: 100%; height: auto; display: block; }
 .clase-figura figcaption { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.captura { max-width: 720px; border: 1px solid var(--line2); background: #0c0f14; color: #cfd6df; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; overflow-x: auto; }
+.cap-barra { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid #232a33; background: #151a21; color: #8a96a3; font-size: 11.5px; }
+.cap-barra i { width: 9px; height: 9px; border-radius: 50%; background: #3a434e; }
+.cap-barra span { margin-left: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cap-term { padding: 10px 14px; white-space: pre; }
+.cap-app { display: flex; min-height: 200px; }
+.cap-panel { min-width: 0; padding: 8px 10px; border-right: 1px solid #232a33; white-space: pre-wrap; }
+.cap-panel:last-child { border-right: none; }
+.cap-panel-nombre { margin-bottom: 6px; color: #8a96a3; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px; }
+.cap-acento { color: var(--lc, #19d3ff); }
+.cap-tenue { color: #7b8794; }
+.cap-ok { color: #5fd38d; }
+.cap-error { color: #ff6b6b; }
+.cap-fuerte { color: #ffffff; font-weight: 700; }
+.cap-sel { background: #2a3340; color: #ffffff; }
 .lib-facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 6px; }
 .lib-facts div { padding: 6px 12px; border: 1px solid var(--line2); background: var(--panel2); }
 .lib-facts dt { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
