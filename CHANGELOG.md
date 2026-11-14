@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **Hermes** (Hermes Agent 0.23), el agente de código abierto de Nous Research con memoria entre sesiones
+  y skills que aprende solo. 31 ejemplos con fuente (instalación, proveedores, memoria, skills, configuración, herramientas,
+  MCP, permisos, integraciones) y una clase completa con cómo se ven la terminal y la app. Sale de Próximamente.
 - **Claude** tiene su clase completa, armada con los cursos de Anthropic Academy y comprobada en la documentación: modelos,
   superficies, CLAUDE.md, modos de permisos, hooks, skills, subagentes, plugins, MCP y cómo se ven Claude Code y la app de
   escritorio. Actualizo cuatro ejemplos: el plan Ultra, los límites de uso, el modo auto como inicio y qué pregunta cada modo.

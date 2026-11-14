@@ -18,6 +18,7 @@ import { css, html } from "./web";
 import { formats, git, linux } from "./tools";
 import { claude } from "./claude";
 import { codex } from "./codex";
+import { hermes } from "./hermes";
 import { antigravity } from "./antigravity";
 import { opencode } from "./opencode";
 import { elegirBd } from "./elegir-bd";
@@ -38,7 +39,7 @@ export const TOPICS: Topic[] = [
   sql, html, css, formats, webHttp, apis,
   elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, seguridadDatos,
   linux, git, testing, docker,
-  claude, codex, opencode, antigravity,
+  claude, codex, opencode, antigravity, hermes,
 ];
 
 export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Bases de datos", "Herramientas", "IA", "Frameworks"];
@@ -49,7 +50,6 @@ export const SOON: Soon[] = [
   { id: "chatgpt", name: "ChatGPT", desc: "El asistente de OpenAI: buenas prácticas para programar, depurar y aprender con él." },
   { id: "gemini", name: "Gemini", desc: "Los modelos y el asistente de Google, y su integración con las herramientas de desarrollo." },
   { id: "cursor", name: "Cursor", desc: "Editor de código con IA integrada: autocompletado, chat sobre el proyecto y agentes." },
-  { id: "hermes", name: "Hermes", desc: "Hermes Agent, el agente de código abierto de Nous Research: memoria entre sesiones y habilidades reutilizables." },
 ];
 
 export const totalEntries = TOPICS.reduce((n, t) => n + t.entries.length, 0);
