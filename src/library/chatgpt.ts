@@ -153,11 +153,12 @@ Si no estas seguro de algo, decimelo en vez de inventar."`, "instrucciones perso
 # no se usa para mejorar los modelos
 # OpenAI puede retenerlo hasta 30 dias por seguridad
 # si lo guardas, pasa a ser un chat comun con tus ajustes de siempre`, "chat temporal temporary privacidad incognito historial"),
-    m("Privacidad", "Controles de datos y entrenamiento", "En los planes personales, la opción \"Improve the model for everyone\" decide si tus chats se pueden usar para entrenar. Vale para toda la cuenta, también para Codex. En Business y Enterprise no se entrena con tus datos por defecto. Apagarla no borra los chats que ya tenés.", code`
+    m("Privacidad", "Controles de datos y entrenamiento", "En los planes personales, la opción \"Improve the model for everyone\" decide si tus chats se pueden usar para entrenar. Vale para toda la cuenta, también para las tareas de Codex; pero Codex tiene un ajuste aparte, \"Include environments\", para el contexto extra de sus entornos, y apagar el primero no lo cambia: si usás entornos de Codex, revisalo también. En Business y Enterprise no se entrena con tus datos por defecto. Apagarla no borra los chats que ya tenés.", code`
 # Settings > Data controls > Improve the model for everyone
 #   encendido: tus chats pueden usarse para entrenar
 #   apagado:   no se usan (no borra ni oculta los chats guardados)
 # archivar un chat no cambia si se usa para entrenar
+# Codex: "Include environments" es otro ajuste, aparte; revisalo si usas entornos
 # el modo de voz tiene un control aparte
 # Business / Enterprise / Edu: no se entrena con tus datos por defecto`, "datos entrenamiento privacidad data controls opt out"),
     m("Herramientas", "Búsqueda web", "ChatGPT busca en internet cuando el pedido necesita información actual (la última versión de una librería, un cambio reciente) y muestra las fuentes. Abrí las fuentes: un resumen puede mezclar versiones.", code`
@@ -225,11 +226,13 @@ response = client.responses.create(
 )
 
 print(response.output_text)`, "api python sdk responses ejemplo"),
-    a("API de OpenAI", "API: tus datos", "Lo que mandás a la API no se usa para entrenar modelos salvo que lo actives. Los registros de abuso se guardan hasta 30 días; la retención cero (Zero Data Retention) existe pero necesita aprobación de OpenAI.", code`
+    a("API de OpenAI", "API: tus datos", "Lo que mandás a la API no se usa para entrenar modelos salvo que lo actives. Los registros de abuso se guardan hasta 30 días, y la Responses API además guarda por defecto el estado de la conversación (store); store=false no es lo mismo que retención cero; la retención cero (Zero Data Retention) existe pero necesita aprobación de OpenAI.", code`
 # API: no entrena con tus datos por defecto
 # registros para detectar abuso: hasta 30 dias
 # Zero Data Retention: con aprobacion previa de OpenAI
 #   (fuerza store=false en /v1/responses)
+# Responses guarda el estado por defecto: store=false lo evita,
+#   pero no equivale a Zero Data Retention
 # igual: no mandes datos personales que no necesites`, "api datos privacidad retencion zdr entrenamiento"),
     a("Seguridad", "Revisar lo que te devuelve", "El modelo genera lo más probable, no algo verificado. Puede inventar una función, una opción o una versión. Antes de usar el código, pedile que lo justifique y comprobalo vos.", code`
 # antes de pegar el codigo en tu proyecto:

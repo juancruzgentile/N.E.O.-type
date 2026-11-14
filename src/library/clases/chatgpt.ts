@@ -218,8 +218,8 @@ y que mejorarias, sin escribirlo por mi."`,
     {
       heading: "Privacidad y controles de datos",
       parrafos: [
-        "En los planes personales (Free, Go, Plus, Pro), tus chats **pueden usarse para entrenar** modelos salvo que apagues \"Improve the model for everyone\" en los controles de datos. Esa opción vale para toda la cuenta, también para Codex. Apagarla no borra los chats que ya tenés, y archivar un chat no cambia nada.",
-        "En Business, Enterprise y Edu no se entrena con tus datos por defecto. Y en la API de OpenAI tampoco, salvo que lo actives.",
+        "En los planes personales (Free, Go, Plus, Pro), tus chats **pueden usarse para entrenar** modelos salvo que apagues \"Improve the model for everyone\" en los controles de datos. Esa opción vale para toda la cuenta, también para las tareas de Codex; pero Codex tiene **otro ajuste aparte**, \"Include environments\", para el contexto extra de sus entornos, y apagar el primero no lo cambia. Apagarla no borra los chats que ya tenés, y archivar un chat no cambia nada.",
+        "En Business, Enterprise y Edu no se entrena con tus datos por defecto. Y en la API de OpenAI tampoco, salvo que lo actives; ojo que la Responses API guarda por defecto el estado de la conversación (`store`), y `store=false` no equivale a retención cero.",
         "Para algo que no querés que quede, usá un **chat temporal**: no aparece en el historial, no crea recuerdos y no se usa para entrenar, aunque OpenAI puede guardarlo hasta 30 días por seguridad. Aun así, nunca pegues claves, contraseñas ni datos de otras personas.",
       ],
     },
