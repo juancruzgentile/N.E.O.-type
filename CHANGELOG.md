@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Claude** tiene su clase completa, armada con los cursos de Anthropic Academy y comprobada en la documentación: modelos,
+  superficies, CLAUDE.md, modos de permisos, hooks, skills, subagentes, plugins, MCP y cómo se ven Claude Code y la app de
+  escritorio. Actualizo cuatro ejemplos: el plan Ultra, los límites de uso, el modo auto como inicio y qué pregunta cada modo.
 - Tema nuevo en IA: **Antigravity** (app 2.32 y CLI `agy`), el entorno de Google para trabajar con agentes. 25 ejemplos
   con fuente (instalación, proyectos, reglas y skills, settings.json, modelos, permisos, navegador, MCP, `agy -p` en CI) y una
   clase completa con cómo se ven la CLI y la app. Sale de Próximamente.
