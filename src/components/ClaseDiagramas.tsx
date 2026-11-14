@@ -83,7 +83,7 @@ function BucleDiagrama() {
     { cx: 100, cy: 170, label: "repetir o terminar", sub: "" },
   ];
   return (
-    <svg viewBox="0 0 420 220" role="img" aria-label="El bucle de un agente: leer contexto, actuar, verificar y repetir, con una aprobación humana entre leer y actuar">
+    <svg viewBox="0 0 420 220" role="img" aria-label="El bucle de un agente: leer contexto, actuar, verificar y repetir, con una evaluación de si hace falta aprobación humana entre leer y actuar">
       <path d="M150 40 H280" stroke="var(--line2)" strokeWidth="2" markerEnd="url(#codex-arrow)" fill="none" />
       <path d="M320 70 V140" stroke="var(--line2)" strokeWidth="2" markerEnd="url(#codex-arrow)" fill="none" />
       <path d="M280 170 H150" stroke="var(--line2)" strokeWidth="2" markerEnd="url(#codex-arrow)" fill="none" />
@@ -100,7 +100,7 @@ function BucleDiagrama() {
           {s.sub && <text x={s.cx} y={s.cy + 12} textAnchor="middle" fontSize="10" {...muted}>{s.sub}</text>}
         </g>
       ))}
-      <text x="210" y="42" textAnchor="middle" fontSize="10.5" fill={TEAL}>pide tu aprobación acá</text>
+      <text x="210" y="42" textAnchor="middle" fontSize="10.5" fill={TEAL}>evalúa si necesita tu aprobación</text>
     </svg>
   );
 }

@@ -105,12 +105,12 @@ def con_reintentos(funcion, intentos=5, base=0.5, tope=30):
                 raise
             espera = min(tope, base * 2 ** n)
             time.sleep(random.uniform(0, espera))   # jitter completo`, "reintentos backoff exponencial jitter espera"),
-    m("Trabajos", "Celery: tarea con reintentos", "Celery ejecuta funciones en procesos aparte, tomadas de una cola. autoretry_for y retry_backoff reintentan solos con espera creciente.", code`
+    m("Trabajos", "Celery: tarea con reintentos", "Celery ejecuta funciones en procesos aparte, tomadas de una cola. autoretry_for y retry_backoff reintentan solos con espera creciente cuando la tarea lanza esa excepción. Por defecto Celery confirma el mensaje antes de ejecutarlo: acks_late=True lo confirma al terminar, para que una tarea cortada se reentregue (tiene que ser idempotente).", code`
 from celery import Celery
 
 app = Celery("tienda", broker="redis://localhost:6379/0")
 
-@app.task(bind=True, autoretry_for=(ConnectionError,),
+@app.task(bind=True, acks_late=True, autoretry_for=(ConnectionError,),
           retry_backoff=True, retry_jitter=True, max_retries=5)
 def enviar_correo(self, pedido_id):
     ...    # si lanza ConnectionError, se reintenta

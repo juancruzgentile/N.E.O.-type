@@ -20,7 +20,7 @@ export const codex: Topic = {
       "Hacé un commit o una rama antes de pedirle cambios grandes: así podés volver atrás con git si algo sale mal.",
       "Todo lo que Codex lee de afuera (una web, un issue, un README ajeno, la respuesta de un servidor MCP) puede traer instrucciones escondidas (prompt injection). Tratalo como no confiable, nunca como una orden tuya.",
       "Agregá solo servidores MCP de fuentes en las que confíes, y con el mínimo de permisos posible (credenciales de solo lectura cuando se pueda).",
-      "El sandbox danger-full-access y la aprobación never no piden permiso para nada: usalos solo dentro de un contenedor o una máquina descartable.",
+      "Son dos controles distintos: la aprobación never deja de preguntarte, pero el sandbox sigue limitando lo que puede tocar (lo prohibido falla); danger-full-access saca el sandbox, y la aprobación queda aparte. Juntos no tienen ningún freno: usalos solo dentro de un contenedor o una máquina descartable.",
       "Revisá siempre el código que escribe antes de publicarlo: puede fallar, inventar una función que no existe o dejar un hueco de seguridad. Probalo y corré los tests.",
     ],
     closing: "Codex es muy bueno ayudando a programar, y por eso conviene usarlo con responsabilidad: vos decidís qué se ejecuta, qué se guarda y qué se publica.",
@@ -69,14 +69,15 @@ codex doctor
 /review        # revisa los cambios sin confirmar y busca problemas
 /init          # crea un AGENTS.md con instrucciones para Codex
 /quit          # salir (tambien /exit)`, "slash comandos status new model permissions review init"),
-    b("Comandos de sesión", "Retomar y bifurcar sesiones", "codex resume continúa una conversación anterior. codex fork la bifurca en una nueva sin perder el historial original: sirve para probar un camino distinto sin arriesgar el que ya tenías.", code`
-codex resume          # retoma la ultima conversacion
-codex resume --last
-codex fork            # bifurca la sesion actual sin perder el historial original
-/resume               # lo mismo, desde dentro de la sesion
-/fork`, "resume fork sesiones retomar historial bifurcar"),
-    b("Configuración", "AGENTS.md", "Codex busca, desde la raíz del proyecto hasta la carpeta donde estás parado, un archivo AGENTS.md (o AGENTS.override.md) con instrucciones del proyecto, y lo lee antes de hacer cualquier trabajo. Es el equivalente de CLAUDE.md para Claude Code.", code`
-# AGENTS.md, en la raiz del proyecto (tope: 32 KiB)
+    b("Comandos de sesión", "Retomar y bifurcar sesiones", "codex resume abre un selector para continuar una conversación anterior; con --last retoma la última. codex fork hace lo mismo pero en una copia, sin tocar el historial original: sirve para probar un camino distinto sin arriesgar el que ya tenías. Dentro de una sesión, /fork bifurca la que tenés abierta.", code`
+codex resume          # elegis la conversacion en un selector
+codex resume --last   # retoma la ultima
+codex fork            # elegis una sesion anterior y la bifurca
+/resume               # desde dentro de la sesion
+/fork                 # bifurca la sesion abierta`, "resume fork sesiones retomar historial bifurcar"),
+    b("Configuración", "AGENTS.md", "Codex lee primero tus instrucciones globales (~/.codex/AGENTS.md) y después busca, desde la raíz del proyecto hasta la carpeta donde estás parado, un AGENTS.md (o AGENTS.override.md) en cada nivel, antes de hacer cualquier trabajo. Todo eso entra en la ventana de contexto. Es el equivalente de CLAUDE.md para Claude Code.", code`
+# AGENTS.md, en la raiz del proyecto
+# (entre todos los AGENTS.md: 32 KiB por defecto, configurable)
 ## Mi proyecto
 - Instalar: npm install
 - Tests: npm test
@@ -90,10 +91,12 @@ codex fork            # bifurca la sesion actual sin perder el historial origina
 # las cuatro comparten la cuenta y pueden retomarse entre si`, "plataformas cli extension vscode cloud chatgpt app"),
     b("Modelos y planes", "Elegir modelo", "Con -m/--model o con /model dentro de la sesión. Los modelos recomendados (y sus nombres) cambian seguido: confirmalos con /model en vez de memorizarlos.", code`
 codex -m gpt-6.1-sol        # recomendado en la mayoria de los planes de pago
-codex -m gpt-6-luna         # el de los planes Free y Go
+codex -m gpt-6-luna         # el que se ve en Free y Go (en la app, segun despliegue)
 /model                      # elegirlo dentro de la sesion, con el nivel de razonamiento`, "modelo -m model gpt sol luna astra elegir"),
     b("Modelos y planes", "Planes de ChatGPT y Codex", "Codex viene incluido en todos los planes de ChatGPT, incluso el gratuito (Free) — a diferencia de Claude Code, que no está en el plan gratuito de Claude. El límite de uso depende del plan y del modelo elegido.", code`
 # Free, Go, Plus, Pro, Business, Enterprise: todos incluyen Codex
+# pero no en todas las superficies ni con los mismos modelos:
+# en Free y Go depende del despliegue (miralo en tu cuenta)
 # el limite de uso (mensajes por ventana) depende del plan y del modelo
 # Pro: para sesiones largas e intensas, con mas margen que Plus
 # los numeros exactos cambian: miralos en chatgpt.com/codex/pricing`, "planes free go plus pro business enterprise precio"),
@@ -101,7 +104,7 @@ codex -m gpt-6-luna         # el de los planes Free y Go
 /status     # configuracion y limite de uso restante de la sesion
 # los mensajes locales y los chats en la nube comparten
 # el mismo limite del plan; puede haber un tope semanal aparte`, "status limite uso cuota semanal plan"),
-    b("Seguridad", "Qué revisar antes de aprobar", "Codex pide permiso antes de ejecutar acciones que pueden tener efecto real. Esa pausa es tu control: leé qué va a hacer y negá lo que no entiendas.", code`
+    b("Seguridad", "Qué revisar antes de aprobar", "Según la política de aprobación, Codex te frena antes de ciertas acciones; las que ya tiene permitidas corren directo. Cuando te pregunta, esa pausa es tu control: leé qué va a hacer y negá lo que no entiendas.", code`
 # Antes de decir que si a una accion de Codex, fijate:
 # 1. el comando: rm, sudo, curl | sh, git push --force
 # 2. los archivos: .env, claves, configuracion de produccion
@@ -132,15 +135,20 @@ approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 
 codex -c approval_policy="never"   # override para una sola corrida`, "config.toml configuracion override codex_home"),
-    m("Configuración", "Feature flags", "codex features lista funciones todavía experimentales y las activa o desactiva de forma persistente, guardando el cambio en config.toml.", code`
-codex features                 # lista las funciones disponibles
+    m("Configuración", "Feature flags", "codex features list muestra las funciones todavía experimentales y su estado; enable y disable las activan o desactiva de forma persistente, guardando el cambio en config.toml.", code`
+codex features list            # lista las funciones y su estado
 codex features enable nombre   # la activa y la guarda en config.toml
 codex features disable nombre`, "features flags experimental config activar"),
-    m("MCP", "MCP: agregar un servidor", "MCP (Model Context Protocol) conecta a Codex con herramientas y datos externos. codex mcp add suma un servidor que corre como proceso local (stdio); también puede apuntar a uno remoto por HTTP.", code`
+    m("MCP", "MCP: agregar un servidor", "MCP (Model Context Protocol) conecta a Codex con herramientas y datos externos. codex mcp add suma un servidor que corre como proceso local (stdio) o uno remoto por HTTP. codex mcp login es solo para los remotos que usan OAuth: un servidor local no inicia sesión así.", code`
+# local, por stdio
 codex mcp add context7 -- npx -y @upstash/context7-mcp
 codex mcp add stripe --env API_KEY=xxx -- stripe-mcp-server
-codex mcp list
-codex mcp login context7`, "mcp model context protocol servidor agregar stdio"),
+
+# remoto, por HTTP, con inicio de sesion OAuth
+codex mcp add docs --url https://ejemplo.com/mcp
+codex mcp login docs
+
+codex mcp list`, "mcp model context protocol servidor agregar stdio"),
     m("MCP", "MCP en config.toml", "Los servidores MCP también se declaran a mano en config.toml, con una tabla [mcp_servers.nombre] por cada uno. Los de un proyecto ajeno conviene revisarlos antes de confiar.", code`
 # ~/.codex/config.toml
 [mcp_servers.context7]
@@ -149,15 +157,15 @@ args = ["-y", "@upstash/context7-mcp"]
 
 [mcp_servers.docs]
 url = "https://ejemplo.com/mcp"   # servidor remoto (HTTP)`, "mcp config.toml stdio http servidor remoto"),
-    m("Plataformas", "Traer una tarea de la nube al local", "codex apply baja a tu copia de trabajo local el último diff generado por un chat de Codex Cloud. codex cloud deja navegar o ejecutar esos chats sin salir de la terminal.", code`
-codex apply            # aplica el ultimo diff de un chat de Codex Cloud
+    m("Plataformas", "Traer una tarea de la nube al local", "codex apply <id de la tarea> baja a tu copia de trabajo local el último diff generado por esa tarea de Codex Cloud. codex cloud deja navegar o ejecutar esos chats sin salir de la terminal.", code`
+codex apply TASK_ID    # aplica el ultimo diff de esa tarea de Codex Cloud
                         # a tu copia de trabajo local (alias: codex a)
 codex cloud             # navega o ejecuta chats de la nube desde la terminal`, "apply cloud nube diff local bajar"),
-    m("Plataformas", "Codex en GitHub", "Se conecta desde chatgpt.com/codex (el conector de GitHub). Una vez conectado, Codex puede revisar un pull request solo con mencionarlo, y también de forma automática al pasar de borrador a listo. Una GitHub Action oficial lo integra a un pipeline de CI/CD.", code`
+    m("Plataformas", "Codex en GitHub", "Se conecta desde chatgpt.com/codex (el conector de GitHub). Una vez conectado, Codex puede revisar un pull request solo con mencionarlo. Las revisiones automáticas (por ejemplo, al pasar de borrador a listo) no vienen solas: hay que habilitarlas y elegir cuándo se disparan. Una GitHub Action oficial lo integra a un pipeline de CI/CD.", code`
 # se conecta desde chatgpt.com/codex (GitHub Connector)
 # Codex puede revisar un PR solo con mencionarlo:
 #   @codex review
-# tambien revisa automaticamente al pasar de borrador a listo
+# revision automatica: hay que activarla y elegir el disparador
 # para CI/CD: una GitHub Action oficial corre Codex en el pipeline`, "github pull request review action ci cd mencion"),
 
     // ── AVANZADO ──
@@ -208,10 +216,10 @@ codex review   # revisa el diff y busca problemas antes de aceptarlo`, "untruste
 #              + aprobacion (on-request/never), por separado
 # en los dos, el modo "sin preguntar nada" es solo para un
 # contenedor o maquina descartable`, "comparacion permisos sandbox modos bypass"),
-    a("Comparación con Claude", "Codex vs. Claude Code: cómo se extienden", "Los dos suman herramientas externas con MCP, el mismo protocolo. Claude Code tiene skills y subagentes propios además de plugins; Codex tiene extensiones de IDE, Codex Cloud y un SDK (TypeScript y Python) para armar tu propio cliente sobre el app server.", code`
+    a("Comparación con Claude", "Codex vs. Claude Code: cómo se extienden", "Los dos suman herramientas externas con MCP, el mismo protocolo. Los dos tienen skills, subagentes y plugins (en Codex, según la superficie: CLI, app o extensión). Codex suma Codex Cloud y un SDK (TypeScript y Python) para armar tu propio cliente sobre el app server.", code`
 # los dos suman herramientas externas con MCP (mismo protocolo)
-# Claude Code: skills y subagentes propios, mas plugins
-# Codex:       extensiones de IDE y Codex Cloud, mas un SDK
+# los dos: skills, subagentes y plugins
+# Codex:    segun la superficie; ademas Codex Cloud y un SDK
 #              (TypeScript y Python) para armar tu propio cliente`, "comparacion mcp skills sdk extender plugins"),
     a("Comparación con Claude", "Cuál conviene para qué", "Los dos leen tu proyecto, piden permiso y corren en un bucle de leer, actuar y verificar. La diferencia más grande es el ecosistema (Anthropic o OpenAI/ChatGPT) y el detalle de sus modos, no cuál \"programa mejor\". Lo que más cambia el resultado es cómo los usás, no cuál elegís.", code`
 # mismo problema, con cualquiera de los dos agentes:
@@ -265,7 +273,7 @@ codex review   # revisa el diff y busca problemas antes de aceptarlo`, "untruste
       {
         heading: "De redes a modelos de lenguaje: qué hace un LLM",
         parrafos: [
-          "Un modelo de lenguaje grande (LLM, large language model) es una red neuronal entrenada con una tarea muy puntual: dado un fragmento de texto, predecir cuál es el \"token\" (un pedazo de palabra, de símbolo o de código) que sigue. Nada más que eso, repetido una cantidad descomunal de veces sobre textos y código reales.",
+          "Un modelo de lenguaje grande (LLM, large language model) es una red neuronal entrenada con una tarea muy puntual: dado un fragmento de texto, predecir cuál es el \"token\" (un pedazo de palabra, de símbolo o de código) que sigue, repetido una cantidad descomunal de veces sobre textos y código reales. Eso es el preentrenamiento. Después viene un entrenamiento posterior, con ejemplos elegidos y aprendizaje por refuerzo, que le enseña a seguir instrucciones, razonar paso a paso y usar herramientas. Los detalles de cada modelo actual no siempre se publican.",
           "Los tokens son la unidad que el modelo lee y escribe, y la ventana de contexto es cuánto puede \"ver\" de una sola vez: tu prompt, el historial de la conversación, los archivos que Codex leyó y el contenido de AGENTS.md compiten por ese mismo espacio limitado.",
           "Lo llamativo es que ese mecanismo tan simple —predecir el siguiente token— alcanza, a la escala en la que corren los modelos de Codex, para producir razonamiento, planificación y código que se leen como si los hubiera escrito una persona. Pero sigue siendo, en el fondo, completar un patrón, no \"entender\" en el sentido humano. Esa es, a la vez, su mayor fortaleza (fluidez) y su mayor límite: puede completar con total seguridad algo que es incorrecto. A eso se le llama alucinación, y lo vamos a retomar más adelante.",
         ],
@@ -284,7 +292,7 @@ codex review   # revisa el diff y busca problemas antes de aceptarlo`, "untruste
         diagrama: "bucle",
         parrafos: [
           "Cuando usás codex no estás hablando con el modelo puro: estás usando un programa (el harness) que lo rodea con herramientas. El ciclo es: leer contexto (tus archivos, AGENTS.md, tu prompt), decidir una acción (editar un archivo, correr un comando), ejecutarla, y que el resultado de esa acción (una salida, un error, un diff) vuelva a entrar al contexto para que el modelo decida el siguiente paso. Se repite hasta que la tarea parece terminada o hace falta que intervengas.",
-          "La aprobación y el sandbox se insertan exactamente en el paso \"actuar\": antes de que una acción con efecto real ocurra, la política de aprobación decide si hay que frenar y preguntarte, y el sandbox limita qué puede tocar esa acción sin importar si la aprobaste o no. Son dos frenos de mano independientes sobre el mismo paso del bucle.",
+          "La aprobación y el sandbox se insertan exactamente en el paso \"actuar\": antes de cada acción, la política de aprobación evalúa si necesita tu aprobación (muchas acciones permitidas corren directo), y el sandbox limita qué puede tocar esa acción sin importar si la aprobaste o no. Son dos frenos de mano independientes sobre el mismo paso del bucle.",
           "Por eso darle a Codex una forma de verificarse (los tests, un comando de build) multiplica lo que puede hacer solo: puede cerrar el bucle revisando su propio resultado en vez de simplemente suponer que salió bien.",
         ],
       },
@@ -292,14 +300,14 @@ codex review   # revisa el diff y busca problemas antes de aceptarlo`, "untruste
         heading: "De la teoría a la práctica: armar un buen prompt para Codex",
         parrafos: [
           "Comparemos dos pedidos para la misma tarea. Vago: \"arreglá el login\". Completo: \"en el formulario de login, si el usuario pone un email mal formado tiene que mostrar un error debajo del campo en vez de fallar silenciosamente; no agregues dependencias nuevas, seguí el estilo de validación que ya usa el formulario de registro, y al final corré los tests y contame en tres líneas qué cambiaste\". El segundo tiene las cuatro partes de la sección anterior: contexto, tarea exacta, restricciones y formato de salida.",
-          "Lo que se repite en cada prompt (cómo instalar, cómo testear, qué carpetas no tocar, el estilo del proyecto) conviene escribirlo una sola vez en AGENTS.md en vez de retipearlo cada vez: Codex lo lee solo, antes de arrancar, y así no gastás parte de tu ventana de contexto contándole siempre lo mismo.",
+          "Lo que se repite en cada prompt (cómo instalar, cómo testear, qué carpetas no tocar, el estilo del proyecto) conviene escribirlo una sola vez en AGENTS.md en vez de retipearlo cada vez: Codex lo lee solo, antes de arrancar, y así no tenés que contárselo cada vez. Ojo: su contenido igual ocupa lugar en la ventana de contexto, así que conviene que sea corto y concreto.",
           "Si el primer resultado no sale como esperabas, casi siempre conviene afilar el prompt (agregar la restricción que faltaba, aclarar el formato) antes que corregir el código a mano: estás arreglando el pedido en la fuente, no el síntoma, y la próxima vez que pidas algo parecido también te va a salir mejor.",
         ],
       },
       {
         heading: "Por qué se equivoca: límites reales del modelo",
         parrafos: [
-          "Retomando la sección sobre los LLM: el modelo genera la continuación más plausible según lo que vio al entrenarse, no un hecho verificado contra la realidad. Cuando no sabe algo con certeza, de todas formas tiene que generar algo, y ese algo puede leerse perfectamente bien y estar mal: un nombre de función que no existe, un parámetro inventado, una opción de línea de comandos que suena lógica pero no es real.",
+          "Retomando la sección sobre los LLM: el modelo genera la continuación más plausible según lo que vio al entrenarse, no un hecho verificado contra la realidad. Cuando no sabe algo con certeza, lo mejor que puede hacer es decirlo, preguntarte o verificarlo con una herramienta (leer el archivo, correr el comando). Pero no siempre lo hace: a veces genera igual una respuesta que se lee perfectamente bien y está mal: un nombre de función que no existe, un parámetro inventado, una opción de línea de comandos que suena lógica pero no es real.",
           "Para Codex en particular, esto no es un defecto que se arregle ignorándolo: es la razón por la que el bucle de la sección anterior incluye verificar. Correr los tests, el typecheck, y leer el diff no son pasos opcionales para desconfiados: son parte de cómo se usa bien cualquier agente basado en un LLM, por más grande y nuevo que sea el modelo.",
           "También por eso importa dónde pones las reglas importantes: una conversación muy larga puede terminar resumida o recortada cuando se llena la ventana de contexto, pero AGENTS.md se vuelve a leer en cada corrida. Lo que de verdad no puede perderse va ahí, no enterrado en el historial de un chat viejo.",
         ],

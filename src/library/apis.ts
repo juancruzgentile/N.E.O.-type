@@ -58,12 +58,18 @@ async function* todos(url) {
 }
 
 for await (const libro of todos("https://api.ejemplo.com/libros")) console.log(libro.titulo);`, "paginacion cursor pagina listas grandes"),
-    m("Consumir", "Reintentos ante 429 y 503", "429 (demasiados pedidos) y 503 (servicio no disponible) suelen ser pasajeros. Si el servidor manda Retry-After, esperá ese tiempo; si no, retrocedé de forma exponencial.", code`
+    m("Consumir", "Reintentos ante 429 y 503", "429 (demasiados pedidos) y 503 (servicio no disponible) suelen ser pasajeros. Si el servidor manda Retry-After (en segundos o como fecha HTTP), esperá ese tiempo; si no, retrocedé de forma exponencial.", code`
+function esperaDe(valor, n) {
+  if (valor && /^\d+$/.test(valor)) return Number(valor) * 1000;   // segundos
+  const fecha = Date.parse(valor ?? "");                             // o una fecha HTTP
+  return Number.isNaN(fecha) ? 2 ** n * 500 : Math.max(0, fecha - Date.now());
+}
+
 async function pedir(url, intentos = 4) {
   for (let n = 0; n < intentos; n++) {
     const r = await fetch(url);
     if (r.status !== 429 && r.status !== 503) return r;
-    const espera = Number(r.headers.get("Retry-After")) * 1000 || 2 ** n * 500;
+    const espera = esperaDe(r.headers.get("Retry-After"), n);
     await new Promise((ok) => setTimeout(ok, espera));
   }
   throw new Error("La API sigue sin responder");
@@ -110,14 +116,14 @@ app.use((req, res, next) => {
   if (v.n > 100) return res.set("Retry-After", "60").status(429).json({ error: "Demasiados pedidos" });
   next();
 });`, "rate limit limite frecuencia 429 abuso"),
-    a("Integrar", "Verificar la firma de un webhook", "Un webhook es una API al revés: el otro sistema te llama a vos. Cualquiera podría falsificar esa llamada, así que se comprueba la firma HMAC con una clave compartida.", code`
+    a("Integrar", "Verificar la firma de un webhook", "Un webhook es una API al revés: el otro sistema te llama a vos. Cualquiera podría falsificar esa llamada, así que se comprueba la firma HMAC con una clave compartida. express.raw tiene que leer el cuerpo antes que cualquier express.json global, y timingSafeEqual exige el mismo largo en bytes.", code`
 import crypto from "node:crypto";
 
 app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
   const esperada = crypto.createHmac("sha256", process.env.WEBHOOK_SECRET).update(req.body).digest("hex");
-  const recibida = req.get("X-Firma") ?? "";
-  const iguales = recibida.length === esperada.length &&
-    crypto.timingSafeEqual(Buffer.from(recibida), Buffer.from(esperada));
+  const recibida = Buffer.from(req.get("X-Firma") ?? "");
+  const iguales = recibida.length === esperada.length &&   // largo en bytes, no en letras
+    crypto.timingSafeEqual(recibida, Buffer.from(esperada));
   if (!iguales) return res.status(401).end();
   res.status(200).end();       // responder rápido y procesar después
 });`, "webhook firma hmac verificar seguridad timingsafeequal"),
