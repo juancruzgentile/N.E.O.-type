@@ -17,6 +17,7 @@ import { go as goGen } from "../src/gen/lang/go";
 import { LAYOUTS } from "../src/data/layouts";
 import { check } from "../src/recall/check";
 import { tramos } from "../src/library/marcas";
+import { FUENTES, fuenteDe } from "../src/library/fuentes/index";
 import type { AppState, LessonResult } from "../src/types";
 
 let failed = 0;
@@ -342,6 +343,15 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   const textos = [c.bajada, ...c.secciones.flatMap((x) => [...x.parrafos, ...(x.lista ?? []), ...(x.tabla?.filas.flat() ?? [])])];
   const mal = textos.find((x) => (x.split("**").length - 1) % 2 !== 0 || (x.split("`").length - 1) % 2 !== 0 || (x.match(/\*\*[^*]+\*\*/g) ?? []).some((m) => /^\*\*\s|\s\*\*$|`/.test(m)));
   ok(!mal && !c.secciones.some((x) => /\*\*|`/.test(x.heading)), `clase de ${t.name}: el resaltado abre y cierra bien${mal ? " — " + mal.slice(0, 60) : ""}`);
+}
+
+// ── auditoría de IA de Codex del 2026-11-14 (fce96f4) ──
+{
+  ok(Object.values(FUENTES).every((f) => !f.revisado || /^\d{4}-\d{2}-\d{2}$/.test(f.revisado)), "fuentes: la fecha de revisión de cada tema es AAAA-MM-DD");
+  const oc = TOPICS.find((t) => t.id === "opencode")!;
+  ok(fuenteDe("opencode", oc.entries[0].name)?.revisado === "2026-11-14", "fuentes: OpenCode muestra el día en que se revisó, no la fecha general");
+  const txt = (id: string) => JSON.stringify(TOPICS.find((t) => t.id === id));
+  ok(txt("opencode").includes("--oss") && txt("opencode").includes("carpeta personal"), "opencode: Codex también acepta modelos locales y AGENTS.md puede subir hasta el home");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");

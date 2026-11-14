@@ -19,14 +19,15 @@ import { kotlin } from "./kotlin";
 import { php } from "./php";
 import { claude } from "./claude";
 import { codex } from "./codex";
+import { opencode } from "./opencode";
 import { webHttp, apis, testing, docker } from "./extras";
 import { elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, seguridadDatos } from "./bd";
 import { react, fastapi, django, spring, aspnet, swiftui, compose, laravel } from "./frameworks";
 
-/** Día en que se confirmó cada link y cada versión contra la documentación oficial. */
+/** Día en que se confirmó cada link y cada versión contra la documentación oficial (si el tema no trae el suyo). */
 export const REVISADO = "2026-11-05";
 
-export const FUENTES: Record<string, FuentesTema> = { "web-http": webHttp, apis, testing, docker, python, javascript, typescript, java, csharp, go, rust, c, cpp, sql, html, css, formats, linux, git, swift, kotlin, php, claude, codex, "elegir-bd": elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, "seguridad-datos": seguridadDatos, react, fastapi, django, spring, aspnet, swiftui, compose, laravel };
+export const FUENTES: Record<string, FuentesTema> = { "web-http": webHttp, apis, testing, docker, python, javascript, typescript, java, csharp, go, rust, c, cpp, sql, html, css, formats, linux, git, swift, kotlin, php, claude, codex, opencode, "elegir-bd": elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, "seguridad-datos": seguridadDatos, react, fastapi, django, spring, aspnet, swiftui, compose, laravel };
 
 export interface FuenteDe {
   url: string;
@@ -42,5 +43,5 @@ export function fuenteDe(topicId: string, entryName: string): FuenteDe | null {
   const t = FUENTES[topicId];
   const f = t?.entradas[entryName];
   if (!f || !f[0].startsWith("https://")) return null;
-  return { url: f[0], sitio: new URL(f[0]).hostname.replace(/^www\./, ""), version: f[1] ?? t.version, revisado: REVISADO };
+  return { url: f[0], sitio: new URL(f[0]).hostname.replace(/^www\./, ""), version: f[1] ?? t.version, revisado: t.revisado ?? REVISADO };
 }
