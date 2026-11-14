@@ -57,7 +57,8 @@ npm install -g @google/gemini-cli    # cualquier sistema
 brew install gemini-cli              # macOS o Linux con Homebrew
 sudo port install gemini-cli         # macOS con MacPorts
 gemini -v                            # ver la version instalada
-gemini update                        # actualizar despues
+npm install -g @google/gemini-cli@latest   # actualizar (con npm)
+brew upgrade gemini-cli              # actualizar (con Homebrew)
 
 # canales: latest (estable, semanal), preview (semanal), nightly (diario)
 npm install -g @google/gemini-cli@preview`,

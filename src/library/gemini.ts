@@ -67,12 +67,13 @@ export GEMINI_API_KEY="tu-clave"
 export GOOGLE_CLOUD_PROJECT="mi-proyecto"
 export GOOGLE_CLOUD_LOCATION="us-central1"
 gcloud auth application-default login`, "login auth sesion google api key vertex autenticar"),
-    b("Primeros pasos", "Ejecutar y actualizar", "gemini abre la sesión interactiva en la carpeta donde estás. Con un texto entre comillas arranca con esa instrucción y sigue abierta; -p responde y termina.", code`
+    b("Primeros pasos", "Ejecutar y actualizar", "gemini abre la sesión interactiva en la carpeta donde estás. Con un texto entre comillas arranca con esa instrucción y sigue abierta; -p responde y termina. Para actualizar se usa el mismo gestor con el que la instalaste: gemini update no existe (se tomaría como una pregunta).", code`
 gemini                             # sesion interactiva
 gemini "explicame este proyecto"   # arranca con esa instruccion y sigue
 gemini -i "corre los tests"        # lo mismo, explicito
 gemini -p "resumi el README"       # responde y sale
-gemini update                      # bajar la ultima version
+npm install -g @google/gemini-cli@latest   # actualizar (si la instalaste con npm)
+brew upgrade gemini-cli            # o con Homebrew
 gemini -v                          # ver la version`, "ejecutar update version interactivo prompt"),
     b("Comandos de sesión", "Comandos de /", "Dentro de la sesión, lo que empieza con / no va al modelo: cambia la sesión. /help los lista todos.", code`
 /help          # todos los comandos (alias /?)
