@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **OpenCode** (2.3.0), el agente de código abierto que funciona con modelos de muchos proveedores.
+  30 ejemplos con fuente (instalación, proveedores, agentes build y plan, AGENTS.md, opencode.json, permisos, MCP, `opencode run`)
+  y una clase completa con cómo se ven la terminal y la app de escritorio. Sale de Próximamente.
 - Las clases de la Biblioteca resaltan los conceptos clave (en negrita, subrayados con el color del tema) y muestran
   el código en línea con letra de código. Los títulos de cada sección son más grandes y quedan separados por una línea.
 - Las clases de IA muestran cómo se ve cada herramienta: la pantalla de la CLI o los paneles de la app, recreados con
