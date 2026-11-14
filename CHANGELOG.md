@@ -165,6 +165,11 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
 
+### Corregido (auditoría de IA del 2026-11-14 sobre fce96f4)
+- Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
+- OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
+  locales (`--oss`).
+
 ### Corregido (auditoría del 2026-11-14 sobre d52dd83)
 - El corrector de los ejercicios de memoria ya no da por buena `ps aux && grep node` cuando se pide una tubería: `|` y
   `&&` hacen cosas distintas. El orden de las opciones sigue siendo libre.
