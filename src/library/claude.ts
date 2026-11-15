@@ -1,3 +1,4 @@
+import { claseClaude } from "./clases/claude";
 import { type Topic, a, b, code, m } from "./types";
 
 export const claude: Topic = {
@@ -19,7 +20,7 @@ export const claude: Topic = {
       "Hacé un commit o una rama antes de pedirle cambios grandes: así podés volver atrás con git si algo sale mal.",
       "Todo lo que Claude lee de afuera (una web, un issue, un archivo ajeno, la respuesta de un servidor MCP) puede traer instrucciones escondidas (prompt injection). Tratalo como no confiable.",
       "Agregá solo servidores MCP y plugins de fuentes en las que confíes, y con el mínimo de permisos (credenciales de solo lectura cuando se pueda).",
-      "El modo bypassPermissions no pide permiso para nada: usalo solo dentro de un contenedor o una máquina virtual descartable.",
+      "El modo bypassPermissions se saltea casi todas las preguntas (las reglas deny siguen bloqueando, pero no es un sandbox): usalo solo dentro de un contenedor o una máquina virtual descartable.",
       "Revisá siempre el código que escribe antes de publicarlo: puede fallar, inventar una función o dejar un hueco de seguridad. Probalo y corré los tests.",
     ],
     closing: "Claude es muy bueno ayudando a programar, y por eso conviene usarlo con responsabilidad: vos decidís qué se ejecuta, qué se guarda y qué se publica.",
@@ -82,11 +83,12 @@ claude --add-dir ../otra-carpeta`, "flags cli -p print continue resume model"),
     b("Cuentas y límites", "Planes de Claude", "Hay un plan gratuito y varios de pago. Claude Code se incluye en los de pago, no en el gratuito. Los precios y los números exactos cambian: miralos en claude.com/pricing.", code`
 # Free        uso limitado; sin Claude Code
 # Pro         incluye Claude Code
-# Max         mas uso que Pro (5x o mas), con Claude Code
+# Max         mas uso que Pro, con Claude Code
+# Ultra       todavia mas uso: tope semanal, sin ventana de 5 horas
 # Team        para equipos: asientos Standard y Premium, administracion central
 # Enterprise  SSO, auditoria y controles de la organizacion
 # API/Console no es suscripcion: Claude Code con API key, se paga por token`, "planes pro max team enterprise free precio suscripcion"),
-    b("Cuentas y límites", "Límites de uso", "En los planes de suscripción hay una ventana de uso de 5 horas y un tope semanal, compartidos entre Claude y Claude Code. Al llegar al límite podés esperar el reinicio, sumar créditos de uso o subir de plan. Los números exactos no son públicos.", code`
+    b("Cuentas y límites", "Límites de uso", "En Pro y Max hay una ventana de uso de 5 horas y un tope semanal; Ultra tiene solo el tope semanal (sin ventana de 5 horas para cuentas verificadas), y Max y Ultra suman un tope semanal aparte para Fable. Se comparten entre Claude y Claude Code. Al llegar al límite podés esperar el reinicio, sumar créditos de uso o subir de plan. Los números exactos no son públicos.", code`
 /usage            # costo, limites del plan y en que se gasta
 /context          # cuanto contexto estas usando
 /rate-limit-options   # opciones al llegar al limite`, "limite cuota tokens semanal 5 horas usage cost"),
@@ -107,7 +109,7 @@ claude --add-dir ../otra-carpeta`, "flags cli -p print continue resume model"),
 /plan agregar login con Google     # entra en modo plan
 claude --permission-mode plan      # arrancar asi
 # Shift+Tab recorre los modos hasta "plan"`, "plan mode planear explorar"),
-    b("Seguridad", "Qué revisar antes de aprobar", "Claude pide permiso antes de editar o correr comandos. Esa pausa es tu control: leé qué va a hacer, y negá lo que no entiendas.", code`
+    b("Seguridad", "Qué revisar antes de aprobar", "En modo Manual, Claude pide permiso antes de editar o correr comandos; en auto, un clasificador decide y te pregunta mucho menos. Cuando te pregunta, esa pausa es tu control: leé qué va a hacer, y negá lo que no entiendas.", code`
 # Antes de decir que si, fijate:
 # 1. el comando: rm, sudo, curl | bash, git push --force
 # 2. los archivos: .env, claves, configuracion de produccion
@@ -115,13 +117,13 @@ claude --permission-mode plan      # arrancar asi
 # Si dudas: Esc, y pedile que te lo explique`, "seguridad permisos aprobar revisar responsabilidad"),
 
     // ── INTERMEDIO ──
-    m("Modos", "Modos de permisos", "Cada modo define cuánto hace Claude sin preguntar. Shift+Tab los recorre, o se elige con --permission-mode.", code`
-# default           pregunta la primera vez de cada herramienta
+    m("Modos", "Modos de permisos", "Cada modo define cuánto hace Claude sin preguntar. Desde la versión 2.1.283 una sesión nueva en la terminal arranca en auto (claude -p, en default). Shift+Tab los recorre, o se elige con --permission-mode.", code`
+# default           (Manual) solo lee sin preguntar; pide permiso para editar y ejecutar
 # acceptEdits       acepta ediciones de archivos en el proyecto
 # plan              lee y propone, no edita
 # auto              un clasificador revisa cada accion
 # dontAsk           deniega todo lo que pediria permiso (CI)
-# bypassPermissions no pide nada (solo en contenedores)
+# bypassPermissions casi no pregunta; deny sigue valiendo (solo en contenedores)
 claude --permission-mode acceptEdits`, "permission mode default acceptedits dontask bypass"),
     m("Modos", "Auto mode", "En auto mode Claude trabaja sin interrumpirte, pero un clasificador revisa cada acción antes de ejecutarla y bloquea lo que se pasa de lo pedido: curl | bash, force push, deploys a producción o mergear PRs sin aprobación. Las reglas deny siguen valiendo. Requiere un modelo compatible.", code`
 claude --permission-mode auto
@@ -291,4 +293,5 @@ claude -p "..." --max-budget-usd 5
 # error_code: enforced_spend_limit_reached = tope de gasto mensual
 # los tokens leidos desde cache no cuentan para ITPM`, "api rate limits rpm itpm otpm 429 niveles tier"),
   ],
+  clase: claseClaude,
 };
