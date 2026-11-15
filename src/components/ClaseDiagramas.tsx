@@ -1,7 +1,7 @@
 /**
  * Diagramas a mano para la clase de "Día de trabajo": SVG en línea, sin librerías de gráficos
  * ni imágenes externas (así no se rompe la CSP ni hace falta red). Los trazos usan las variables
- * de color del tema para verse bien en claro y oscuro; el acento es el teal de Codex. La neurona y el
+ * de color del tema para verse bien en claro y oscuro; el prompt y el bucle usan el teal de Codex. La neurona y el
  * entrenamiento son animaciones paso a paso (ver Animacion.tsx).
  */
 import type { ReactNode } from "react";
@@ -15,21 +15,20 @@ const muted = { fill: "var(--muted)", fontFamily: "var(--mono)" } as const;
 /** Número con coma decimal, como se escribe en castellano. */
 const num = (x: number) => x.toFixed(2).replace(".", ",").replace("-", "−");
 
-/** Línea que se prende con el color del tema; `flujo` dibuja la señal corriendo (hacia atrás con `atras`). */
-function Cable({ x1, y1, x2, y2, on, color = TEAL, atras, ancho = 1.5 }: {
-  x1: number; y1: number; x2: number; y2: number; on: boolean; color?: string; atras?: boolean; ancho?: number;
+/** Línea que se prende con la señal (o con el error si `err`); `flujo` dibuja la señal corriendo (hacia atrás con `atras`). */
+function Cable({ x1, y1, x2, y2, on, err, atras, ancho = 1.5 }: {
+  x1: number; y1: number; x2: number; y2: number; on: boolean; err?: boolean; atras?: boolean; ancho?: number;
 }) {
-  return (
-    <line x1={x1} y1={y1} x2={x2} y2={y2} className={on ? `anim-cable flujo${atras ? " atras" : ""}` : "anim-cable"}
-      style={{ stroke: on ? color : "var(--line2)", strokeWidth: on ? ancho + 1 : ancho }} />
-  );
+  const cls = on ? `anim-cable on${err ? " err" : ""} flujo${atras ? " atras" : ""}` : "anim-cable";
+  return <line x1={x1} y1={y1} x2={x2} y2={y2} className={cls} strokeWidth={on ? ancho + 1 : ancho} />;
 }
 
-function Nodo({ cx, cy, r = 14, on, texto, color = TEAL }: { cx: number; cy: number; r?: number; on: boolean; texto?: string; color?: string }) {
+/** Nodo: vacío cuando está quieto, relleno con la señal cuando está activo, con borde de error si `err`. */
+function Nodo({ cx, cy, r = 14, on, texto, err }: { cx: number; cy: number; r?: number; on: boolean; texto?: string; err?: boolean }) {
   return (
     <g>
-      <circle cx={cx} cy={cy} r={r} className="anim-nodo" style={{ fill: on ? color : "var(--panel2)", stroke: color }} strokeWidth="2" />
-      {texto && <text x={cx} y={cy + 4} className="anim-nodo-t" textAnchor="middle" fontSize="11" fontWeight="700" style={{ fill: on ? "#fff" : "var(--text)" }} fontFamily="var(--mono)">{texto}</text>}
+      <circle cx={cx} cy={cy} r={r} className={`anim-nodo${on ? " on" : ""}${err ? " err" : ""}`} />
+      {texto && <text x={cx} y={cy + (r >= 30 ? 5.5 : 4)} className={`anim-nodo-t${on && !err ? " on" : ""}${r >= 30 ? " grande" : ""}`} textAnchor="middle">{texto}</text>}
     </g>
   );
 }
@@ -55,29 +54,33 @@ const RED_HID = [40, 93, 147, 200];
 const RED_X = [100, 280, 460];
 
 function NeuronaDiagrama() {
-  const ys = [50, 120, 190];
+  const ys = [36, 120, 204];
+  // la fórmula va sobre su cable en los dos de arriba y debajo en el de abajo, así no cruza otras líneas
+  const yFormula = [ys[0] - 10, ys[1] - 8, ys[2] + 22];
   return (
     <Animacion pasos={PASOS_NEURONA} label="Cómo calcula una neurona artificial y cómo pasa la señal por una red">
       {(p) => (
         <svg viewBox="0 0 560 250">
           <g className="anim-escena" style={{ opacity: p < 4 ? 1 : 0 }}>
-            {ys.map((y) => <Cable key={y} x1={88} y1={y} x2={282} y2={120} on={p >= 1} />)}
+            {ys.map((y) => <Cable key={y} x1={88} y1={y} x2={302} y2={120} on={p >= 1} />)}
             {ys.map((y, i) => (
               <g key={y}>
-                <text x={180} y={(y + 120) / 2 - 10} textAnchor="middle" fontSize="12" {...(p === 1 ? txt : muted)}>
-                  {p >= 1 ? `${num(ENTRADAS[i])} × ${num(PESOS[i])} = ${num(ENTRADAS[i] * PESOS[i])}` : `peso ${num(PESOS[i])}`}
+                <text x={98} y={yFormula[i]} className={`a-n${p === 1 ? " fuerte" : ""}`}>
+                  {p >= 1 ? `${num(ENTRADAS[i])} × ${num(PESOS[i])} = ${num(ENTRADAS[i] * PESOS[i])}` : <><tspan className="a-u">peso </tspan>{num(PESOS[i])}</>}
                 </text>
                 <Nodo cx={70} cy={y} r={18} on={p === 0} texto={num(ENTRADAS[i])} />
               </g>
             ))}
-            <Nodo cx={320} cy={120} r={38} on={p >= 2} texto={p >= 2 ? num(SUMA + SESGO) : "Σ"} />
-            <text x={320} y={178} textAnchor="middle" fontSize="11" {...muted}>{p >= 2 ? `suma ${num(SUMA)} + sesgo ${num(SESGO)}` : "suma + sesgo"}</text>
-            <Cable x1={358} y1={120} x2={472} y2={120} on={p === 3} />
-            <text x={415} y={110} textAnchor="middle" fontSize="11" {...muted}>activación</text>
-            <Nodo cx={490} cy={120} r={18} on={p === 3} texto={p === 3 ? num(SALIDA) : "?"} />
-            <text x={70} y={238} textAnchor="middle" fontSize="13" {...txt}>entradas</text>
-            <text x={320} y={238} textAnchor="middle" fontSize="13" {...txt}>neurona</text>
-            <text x={490} y={238} textAnchor="middle" fontSize="13" {...txt}>salida</text>
+            <Nodo cx={340} cy={120} r={38} on={p >= 2} texto={p >= 2 ? num(SUMA + SESGO) : "Σ"} />
+            <text x={340} y={182} textAnchor="middle" className="a-s">
+              {p >= 2 ? <>suma <tspan className="a-n">{num(SUMA)}</tspan> + sesgo <tspan className="a-n">{num(SESGO)}</tspan></> : "suma + sesgo"}
+            </text>
+            <Cable x1={378} y1={120} x2={478} y2={120} on={p === 3} />
+            <text x={430} y={108} textAnchor="middle" className="a-s">activación</text>
+            <Nodo cx={500} cy={120} r={22} on={p === 3} texto={p === 3 ? num(SALIDA) : "?"} />
+            <text x={70} y={242} textAnchor="middle" className="a-t">entradas</text>
+            <text x={340} y={242} textAnchor="middle" className="a-t">neurona</text>
+            <text x={500} y={242} textAnchor="middle" className="a-t">salida</text>
           </g>
           <g className="anim-escena" style={{ opacity: p >= 4 ? 1 : 0 }}>
             {RED_IN.map((y1) => RED_HID.map((y2) => <Cable key={`${y1}-${y2}`} x1={RED_X[0]} y1={y1} x2={RED_X[1]} y2={y2} on={p === 4} ancho={1} />))}
@@ -85,9 +88,9 @@ function NeuronaDiagrama() {
             {RED_IN.map((y) => <Nodo key={y} cx={RED_X[0]} cy={y} on={p === 4} />)}
             {RED_HID.map((y) => <Nodo key={y} cx={RED_X[1]} cy={y} on={p >= 4} />)}
             <Nodo cx={RED_X[2]} cy={120} r={16} on={p === 5} />
-            <text x={RED_X[0]} y={238} textAnchor="middle" fontSize="13" {...txt}>entrada</text>
-            <text x={RED_X[1]} y={238} textAnchor="middle" fontSize="13" {...txt}>capa oculta</text>
-            <text x={RED_X[2]} y={238} textAnchor="middle" fontSize="13" {...txt}>salida</text>
+            <text x={RED_X[0]} y={242} textAnchor="middle" className="a-t">entrada</text>
+            <text x={RED_X[1]} y={242} textAnchor="middle" className="a-t">capa oculta</text>
+            <text x={RED_X[2]} y={242} textAnchor="middle" className="a-t">salida</text>
           </g>
         </svg>
       )}
@@ -106,40 +109,41 @@ const FASES = [
 const PASOS_ENTRENAR = SALIDAS.flatMap((_, e) => FASES.map((f) => `Época ${e + 1}: ${f.toLowerCase()}.`));
 
 function EntrenamientoDiagrama() {
-  // la curva: x de 330 a 540, y del error (0 a 1) entre 200 y 40
-  const punto = (e: number) => `${330 + e * 50},${200 - (1 - SALIDAS[e]) * 160}`;
+  // la red a la izquierda (x 40 a 220) y la curva a la derecha: x de 380 a 540, y del error (0 a 1) entre 200 y 40
+  const punto = (e: number) => `${380 + e * 40},${200 - (1 - SALIDAS[e]) * 160}`;
+  const X = [40, 130, 220];
   return (
     <Animacion pasos={PASOS_ENTRENAR} label="Cómo se entrena una red: responde, mide el error, lo manda hacia atrás y corrige los pesos">
       {(p) => {
         const e = Math.floor(p / 4);
         const f = p % 4;
         const anotadas = f === 3 ? e + 1 : e;
+        const err = f === 1 || f === 2;
         // el grosor de cada peso cambia en cada época, para que se vea que se corrigió
         const ancho = (i: number, j: number) => 1 + ((i * 7 + j * 3 + anotadas) % 4) * 0.5;
-        const rojo = "var(--red)";
         return (
           <svg viewBox="0 0 560 250">
             {RED_IN.map((y1, i) => RED_HID.map((y2, j) => (
-              <Cable key={`${y1}-${y2}`} x1={50} y1={y1} x2={150} y2={y2} on={f !== 1} atras={f === 2} color={f === 2 ? rojo : TEAL} ancho={ancho(i, j)} />
+              <Cable key={`${y1}-${y2}`} x1={X[0]} y1={y1} x2={X[1]} y2={y2} on={f !== 1} atras={f === 2} err={f === 2} ancho={ancho(i, j)} />
             )))}
-            {RED_HID.map((y2, j) => <Cable key={y2} x1={150} y1={y2} x2={250} y2={120} on={f !== 1} atras={f === 2} color={f === 2 ? rojo : TEAL} ancho={ancho(4, j)} />)}
-            {RED_IN.map((y) => <Nodo key={y} cx={50} cy={y} r={11} on={false} />)}
-            {RED_HID.map((y) => <Nodo key={y} cx={150} cy={y} r={11} on={f === 3} />)}
-            <Nodo cx={250} cy={120} r={20} on color={f === 1 || f === 2 ? rojo : TEAL} texto={num(SALIDAS[e])} />
-            <text x={250} y={160} textAnchor="middle" fontSize="11" {...muted}>objetivo 1,00</text>
-            <text x={250} y={176} textAnchor="middle" fontSize="11" style={{ fill: f === 1 ? rojo : "var(--muted)" }} fontFamily="var(--mono)">error {num(1 - SALIDAS[e])}</text>
-            <text x={150} y={238} textAnchor="middle" fontSize="13" {...txt}>la red</text>
+            {RED_HID.map((y2, j) => <Cable key={y2} x1={X[1]} y1={y2} x2={X[2]} y2={120} on={f !== 1} atras={f === 2} err={f === 2} ancho={ancho(4, j)} />)}
+            {RED_IN.map((y) => <Nodo key={y} cx={X[0]} cy={y} r={11} on={false} />)}
+            {RED_HID.map((y) => <Nodo key={y} cx={X[1]} cy={y} r={11} on={f === 3} />)}
+            <Nodo cx={X[2]} cy={120} r={22} on err={err} texto={num(SALIDAS[e])} />
+            {/* a la derecha de la salida no pasa ningún cable */}
+            <text x={254} y={116} className="a-s">objetivo <tspan className="a-n">1,00</tspan></text>
+            <text x={254} y={136} className={`a-s${err ? " err" : ""}`}>error <tspan className="a-n">{num(1 - SALIDAS[e])}</tspan></text>
+            <text x={130} y={18} textAnchor="middle" className="a-t">la red</text>
 
-            <line x1="320" y1="30" x2="320" y2="205" stroke="var(--line2)" strokeWidth="1.5" />
-            <line x1="320" y1="205" x2="550" y2="205" stroke="var(--line2)" strokeWidth="1.5" />
-            <text x="326" y="26" fontSize="12" {...muted}>error</text>
-            <text x="550" y="222" textAnchor="end" fontSize="12" {...muted}>épocas</text>
-            {anotadas > 1 && <polyline points={SALIDAS.slice(0, anotadas).map((_, k) => punto(k)).join(" ")} fill="none" stroke={TEAL} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />}
+            <line x1="360" y1="40" x2="360" y2="205" className="anim-eje" />
+            <line x1="360" y1="205" x2="550" y2="205" className="anim-eje" />
+            <text x={360} y={18} className="a-t">la curva de error</text>
+            <text x={550} y={228} textAnchor="end" className="a-s">épocas</text>
+            {anotadas > 1 && <polyline points={SALIDAS.slice(0, anotadas).map((_, k) => punto(k)).join(" ")} className="anim-curva" />}
             {SALIDAS.slice(0, anotadas).map((_, k) => {
               const [x, y] = punto(k).split(",");
-              return <circle key={k} cx={x} cy={y} r="5" fill={TEAL} />;
+              return <circle key={k} cx={x} cy={y} r="5" className="anim-punto" />;
             })}
-            <text x={435} y={238} textAnchor="middle" fontSize="13" {...txt}>la curva de error</text>
           </svg>
         );
       }}

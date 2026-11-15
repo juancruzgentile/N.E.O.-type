@@ -28,13 +28,22 @@ export function Animacion({ pasos, label, children }: { pasos: string[]; label: 
     <div className="anim">
       <div role="img" aria-label={`${label}. Paso ${paso + 1} de ${n}: ${pasos[paso]}`}>{children(paso)}</div>
       <div className="anim-controles">
-        <button type="button" className="btn small" onClick={() => ir(-1)} aria-label="Paso anterior">‹</button>
-        <button type="button" className="btn small" onClick={() => setPlay(!play)} aria-label={play ? "Pausar" : "Reproducir"}>{play ? "❚❚" : "▶"}</button>
-        <button type="button" className="btn small" onClick={() => ir(1)} aria-label="Paso siguiente">›</button>
+        <div className="anim-botones">
+          <button type="button" className="anim-btn" onClick={() => ir(-1)} aria-label="Paso anterior">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+          </button>
+          <button type="button" className="anim-btn anim-play" onClick={() => setPlay(!play)} aria-label={play ? "Pausar" : "Reproducir"}>
+            <svg viewBox="0 0 16 16" aria-hidden="true">{play ? <path className="rel" d="M5 3v10M11 3v10" /> : <path className="rel" d="M5 3l8 5-8 5z" />}</svg>
+          </button>
+          <button type="button" className="anim-btn" onClick={() => ir(1)} aria-label="Paso siguiente">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+          </button>
+        </div>
         <span className="anim-num">{paso + 1}/{n}</span>
-        {/* con la animación andando no se anuncia cada paso: sería ruido para el lector de pantalla */}
-        <span className="anim-texto" aria-live={play ? "off" : "polite"}>{pasos[paso]}</span>
+        <div className="anim-barra" aria-hidden="true"><i style={{ width: `${((paso + 1) / n) * 100}%` }} /></div>
       </div>
+      {/* con la animación andando no se anuncia cada paso: sería ruido para el lector de pantalla */}
+      <p className="anim-texto" aria-live={play ? "off" : "polite"}>{pasos[paso]}</p>
     </div>
   );
 }
