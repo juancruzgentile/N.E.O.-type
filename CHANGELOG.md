@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **Cursor** (3.30 y la CLI `agent`), el editor con IA. 33 ejemplos con fuente (instalación, Tab, Agent y
+  sus modos, Cloud Agents, reglas, @-menciones, MCP, la CLI, Bugbot, modelos, Privacy Mode y atajos) y una clase completa con
+  cómo se ven la CLI y la Agents Window. Sale de Próximamente.
 - Tema nuevo en IA: **ChatGPT**, visto desde quien programa: apps, planes, modelos, proyectos, memoria, cómo pedir código y
   depurar, cómo aprender sin que te haga la tarea, privacidad y la API de OpenAI. 29 ejemplos con fuente y una clase completa
   con cómo se ve la app. Sale de Próximamente.
@@ -181,6 +184,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
 - OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
   locales (`--oss`).
+- Cursor: sin Memories, el Agent igual puede buscar en conversaciones anteriores y traer un chat con `@Chats`; y la CLI de
+  Codex también acepta modelos locales.
 - ChatGPT: el control de entrenamiento no cubre "Include environments" de Codex, que es otro ajuste, y en la API la
   Responses API guarda el estado por defecto (`store=false` no es retención cero).
 - Gemini: `gemini update` no existe; se actualiza con el mismo gestor (`npm install -g @google/gemini-cli@latest`).
