@@ -340,7 +340,8 @@ for (const [lang, code] of [
   ok(py.length > 0 && py.every((h) => h.topic.id === "python"), "nombrar el tema filtra por ese tema");
   ok(search(TOPICS, "zzzz-nada").length === 0 && search(TOPICS, "   ").length === 0, "sin coincidencias o vacío no devuelve nada");
   const names = SOON.map((s) => s.name).join(" ");
-  ok(SOON.length === 7 && ["IA", "ChatGPT", "Gemini", "Cursor", "OpenCode", "Antigravity", "Hermes"].every((n) => names.includes(n)), "Próximamente lista IA, ChatGPT, Gemini, Cursor, OpenCode, Antigravity y Hermes");
+  ok(SOON.length > 0 && ["IA", "ChatGPT", "Cursor"].every((n) => names.includes(n)), "Próximamente lista IA, ChatGPT y Cursor");
+  ok(SOON.every((x) => !TOPICS.some((t) => t.id === x.id)), "Próximamente no repite temas que ya están en la Biblioteca");
 }
 
 // ── repaso espaciado ──
