@@ -9,18 +9,18 @@ export const claseSql: Clase = {
     {
       heading: "Qué es y qué problema resuelve",
       parrafos: [
-        "SQL (Structured Query Language) es el lenguaje para trabajar con bases de datos relacionales: las que guardan la información en tablas con filas y columnas, como PostgreSQL, MySQL, SQLite, SQL Server u Oracle. Con SQL creás tablas, guardás datos y, sobre todo, hacés preguntas: \"cuántos pedidos hizo cada cliente este mes\".",
-        "A diferencia de los lenguajes de programación comunes, SQL es declarativo: describís qué datos querés y no cómo obtenerlos. No escribís un bucle que recorre todo y va filtrando; escribís la condición y la base decide el camino más eficiente, usando índices si los hay. Eso lo hace corto y a la vez muy potente, y por eso casi todo sistema serio que guarda datos lo usa.",
+        "SQL (Structured Query Language) es el lenguaje para trabajar con **bases de datos relacionales**: las que guardan la información en **tablas con filas y columnas**, como PostgreSQL, MySQL, SQLite, SQL Server u Oracle. Con SQL creás tablas, guardás datos y, sobre todo, hacés preguntas: \"cuántos pedidos hizo cada cliente este mes\".",
+        "A diferencia de los lenguajes de programación comunes, SQL es **declarativo**: describís **qué datos querés y no cómo obtenerlos**. No escribís un bucle que recorre todo y va filtrando; escribís la condición y la base decide el camino más eficiente, usando índices si los hay. Eso lo hace corto y a la vez muy potente, y por eso casi todo sistema serio que guarda datos lo usa.",
       ],
     },
     {
       heading: "Historia corta",
       parrafos: [
-        "En 1970, Edgar F. Codd (de IBM) propuso el modelo relacional: guardar los datos en tablas relacionadas por claves, en vez de en estructuras enredadas. Donald Chamberlin y Raymond Boyce, también de IBM, crearon a principios de los setenta un lenguaje para consultar ese modelo, que se llamó primero SEQUEL y después SQL.",
-        "Oracle lo comercializó a fines de los setenta, y ANSI lo estandarizó en 1986 (ISO en 1987). Desde entonces el estándar se amplió varias veces, pero cada motor tiene su dialecto: lo básico funciona igual en todos, y las diferencias aparecen en las funciones de fechas, los tipos y las extensiones.",
+        "En 1970, Edgar F. Codd (de IBM) propuso el **modelo relacional**: guardar los datos en **tablas relacionadas por claves**, en vez de en estructuras enredadas. Donald Chamberlin y Raymond Boyce, también de IBM, crearon a principios de los setenta un lenguaje para consultar ese modelo, que se llamó primero SEQUEL y después SQL.",
+        "Oracle lo comercializó a fines de los setenta, y ANSI lo estandarizó en 1986 (ISO en 1987). Desde entonces el estándar se amplió varias veces, pero **cada motor tiene su dialecto**: lo básico funciona igual en todos, y las diferencias aparecen en las funciones de fechas, los tipos y las extensiones.",
       ],
       lista: [
-        "Los datos que no encajan bien en tablas dieron lugar al movimiento NoSQL (años 2000), pero SQL no desapareció: muchos de esos sistemas terminaron sumando consultas parecidas.",
+        "Los datos que no encajan bien en tablas dieron lugar al movimiento **NoSQL** (años 2000), pero SQL no desapareció: muchos de esos sistemas terminaron sumando consultas parecidas.",
         "SQLite, una base de datos completa en un solo archivo, está en casi todos los teléfonos y navegadores.",
         "PostgreSQL es hoy la base de código abierto más completa; MySQL y MariaDB son muy usadas en la web.",
       ],
@@ -28,15 +28,15 @@ export const claseSql: Clase = {
     {
       heading: "Cómo funciona por dentro",
       parrafos: [
-        "Cuando mandás una consulta, el motor hace tres cosas. La analiza y comprueba que las tablas y columnas existan. Después el optimizador elabora un plan: qué índices usar, en qué orden unir las tablas, cómo filtrar. Y por último lo ejecuta. Podés ver el plan con EXPLAIN. Por eso dos consultas que dan el mismo resultado pueden tardar milisegundos o minutos.",
-        "El orden en que escribís una consulta no es el orden en que se evalúa. Lógicamente, primero se resuelve FROM (y los JOIN), después WHERE, luego GROUP BY, HAVING, SELECT, ORDER BY y por último LIMIT. Eso explica, por ejemplo, por qué no podés usar en el WHERE un alias que creaste en el SELECT.",
-        "Las bases relacionales también ofrecen transacciones con las propiedades ACID: atómicas (o se hace todo o nada), consistentes (se respetan las reglas), aisladas (una transacción no ve a medias a otra) y durables (lo confirmado no se pierde). Es la razón por la que se confía en ellas para el dinero.",
+        "Cuando mandás una consulta, el motor hace tres cosas. La analiza y comprueba que las tablas y columnas existan. Después el **optimizador** elabora un plan: qué índices usar, en qué orden unir las tablas, cómo filtrar. Y por último lo ejecuta. Podés ver el plan con `EXPLAIN`. Por eso dos consultas que dan el mismo resultado pueden tardar milisegundos o minutos.",
+        "El **orden en que escribís una consulta no es el orden en que se evalúa**. Lógicamente, primero se resuelve `FROM` (y los `JOIN`), después `WHERE`, luego `GROUP BY`, `HAVING`, `SELECT`, `ORDER BY` y por último `LIMIT`. Eso explica, por ejemplo, por qué no podés usar en el `WHERE` un alias que creaste en el `SELECT`.",
+        "Las bases relacionales también ofrecen **transacciones** con las propiedades **ACID**: atómicas (o se hace todo o nada), consistentes (se respetan las reglas), aisladas (una transacción no ve a medias a otra) y durables (lo confirmado no se pierde). Es la razón por la que se confía en ellas para el dinero.",
       ],
     },
     {
       heading: "Tu primera tabla y tu primera consulta",
       parrafos: [
-        "Con SQLite (sqlite3 libros.db) o cualquier otro motor, probá esto.",
+        "Con SQLite (`sqlite3 libros.db`) o cualquier otro motor, probá esto.",
       ],
       codigo: [
         code`
@@ -62,8 +62,8 @@ ORDER BY cantidad DESC;`,
     {
       heading: "Qué hace cada parte",
       parrafos: [
-        "CREATE TABLE define la estructura: cada columna con su tipo, NOT NULL para que sea obligatoria y PRIMARY KEY para identificar cada fila de forma única. INSERT agrega filas; los textos van entre comillas simples.",
-        "La consulta se lee en orden lógico: de la tabla libros, quedate con las filas de más de 200 páginas, agrupalas por autor, calculá la cantidad y el promedio de cada grupo y mostralas de mayor a menor cantidad. El resultado es Austen con 2 libros y promedio 275, y Herbert con 1 libro y promedio 600.",
+        "`CREATE TABLE` define la estructura: cada columna con su tipo, `NOT NULL` para que sea obligatoria y `PRIMARY KEY` para **identificar cada fila de forma única**. `INSERT` agrega filas; los textos van entre comillas simples.",
+        "La consulta se lee en **orden lógico**: de la tabla `libros`, quedate con las filas de más de 200 páginas, agrupalas por autor, calculá la cantidad y el promedio de cada grupo y mostralas de mayor a menor cantidad. El resultado es Austen con 2 libros y promedio 275, y Herbert con 1 libro y promedio 600.",
       ],
     },
     {
@@ -72,11 +72,11 @@ ORDER BY cantidad DESC;`,
         "Con estos cinco leés casi cualquier consulta:",
       ],
       lista: [
-        "Tablas, claves primarias y foráneas: la clave primaria identifica una fila; la foránea apunta a la fila de otra tabla y así se relacionan.",
-        "SELECT, WHERE y ORDER BY: qué columnas, qué filas, en qué orden.",
-        "JOIN: une filas de dos tablas según una condición. INNER JOIN deja solo las que coinciden; LEFT JOIN conserva todas las de la izquierda.",
-        "GROUP BY y agregaciones: COUNT, SUM, AVG, MIN, MAX sobre grupos. HAVING filtra los grupos.",
-        "Índices y transacciones: el índice acelera las búsquedas, y la transacción agrupa varios cambios como una unidad.",
+        "**Tablas, claves primarias y foráneas**: la clave primaria identifica una fila; la foránea apunta a la fila de otra tabla y así se relacionan.",
+        "`SELECT`, `WHERE` y `ORDER BY`: qué columnas, qué filas, en qué orden.",
+        "`JOIN`: **une filas de dos tablas** según una condición. `INNER JOIN` deja solo las que coinciden; `LEFT JOIN` conserva todas las de la izquierda.",
+        "`GROUP BY` y **agregaciones**: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX` sobre grupos. `HAVING` filtra los grupos.",
+        "**Índices y transacciones**: el índice acelera las búsquedas, y la transacción agrupa varios cambios como una unidad.",
       ],
       codigo: [
         code`
@@ -99,12 +99,12 @@ CREATE INDEX idx_pedidos_cliente ON pedidos (cliente_id);   -- acelera buscar po
         "Los más repetidos:",
       ],
       lista: [
-        "Comparar con NULL usando =: NULL significa \"desconocido\", así que nada es igual a NULL. Usá IS NULL.",
-        "Olvidar el WHERE en un UPDATE o un DELETE: cambia o borra todas las filas. Probá primero con un SELECT y usá una transacción.",
-        "Armar consultas pegando texto del usuario: inyección SQL. Usá siempre parámetros (consultas preparadas).",
-        "Usar SELECT * en código real: trae columnas de más y se rompe cuando cambia la tabla. Pedí las columnas que necesitás.",
-        "Buscar por una columna sin índice en una tabla grande: la consulta recorre todo. Mirá el plan con EXPLAIN.",
-        "Un JOIN que multiplica filas: si la condición une uno con muchos, los totales se inflan. Revisá con COUNT antes y después.",
+        "Comparar con `NULL` usando `=`: `NULL` significa **\"desconocido\"**, así que nada es igual a `NULL`. Usá `IS NULL`.",
+        "Olvidar el `WHERE` en un `UPDATE` o un `DELETE`: **cambia o borra todas las filas**. Probá primero con un `SELECT` y usá una transacción.",
+        "Armar consultas pegando texto del usuario: **inyección SQL**. Usá siempre parámetros (consultas preparadas).",
+        "Usar `SELECT *` en código real: trae columnas de más y se rompe cuando cambia la tabla. Pedí las columnas que necesitás.",
+        "Buscar por una columna sin índice en una tabla grande: la consulta recorre todo. Mirá el plan con `EXPLAIN`.",
+        "Un `JOIN` que **multiplica filas**: si la condición une uno con muchos, los totales se inflan. Revisá con `COUNT` antes y después.",
       ],
       codigo: [
         code`
@@ -151,7 +151,7 @@ UPDATE libros SET paginas = 0;                 -- sin WHERE: cambia TODAS las fi
       heading: "Cómo seguir",
       parrafos: [
         "Hacé la ruta de SQL de la app, resolvé los proyectos y usá la pestaña Referencia para recordar la sintaxis. Practicá con datos de verdad: creá tu propia base con SQLite y hacé preguntas que te interesen.",
-        "Fuera de la app, la documentación de PostgreSQL y la de SQLite son claras y completas, y Use The Index, Luke explica cómo funcionan los índices y por qué una consulta es lenta. Más adelante, en esta Biblioteca, vas a encontrar clases sobre cómo elegir una base de datos, PostgreSQL a fondo y bases NoSQL.",
+        "Fuera de la app, la documentación de PostgreSQL y la de SQLite son claras y completas, y **Use The Index, Luke** explica cómo funcionan los índices y por qué una consulta es lenta. Más adelante, en esta Biblioteca, vas a encontrar clases sobre cómo elegir una base de datos, PostgreSQL a fondo y bases NoSQL.",
       ],
     },
   ],
