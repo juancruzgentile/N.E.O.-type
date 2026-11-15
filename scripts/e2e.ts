@@ -476,7 +476,7 @@ try {
     await page.locator(".lib-search input[type=search]").press("Escape");
     await page.locator(".lib-nav").getByRole("button", { name: /IA y herramientas/ }).click();
     const soon = await page.locator(".lib-soon-card").allTextContents();
-    ok(soon.length === 5 && soon.every((t) => /PRÓXIMAMENTE/.test(t)), "Próximamente muestra las 5 secciones de IA marcadas como próximamente");
+    ok(soon.length === 4 && soon.every((t) => /PRÓXIMAMENTE/.test(t)), "Próximamente muestra las 4 secciones de IA marcadas como próximamente");
     await page.locator(".lib-nav").getByRole("button", { name: /^Claude/ }).click();
     ok(/seguridad/i.test((await page.locator(".lib-alert").first().textContent()) ?? "") && (await page.locator(".claude-mark").count()) > 0, "Claude abre con el aviso rojo de seguridad y su logo");
     await page.locator(".lib-clase-toggle").getByRole("tab", { name: /^Clase$/ }).click();
