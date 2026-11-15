@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **OpenCode** (2.3.0), el agente de código abierto que funciona con modelos de muchos proveedores.
+  30 ejemplos con fuente (instalación, proveedores, agentes build y plan, AGENTS.md, opencode.json, permisos, MCP, `opencode run`)
+  y una clase completa con cómo se ven la terminal y la app de escritorio. Sale de Próximamente.
 - Las clases de la Biblioteca resaltan los conceptos clave (en negrita, subrayados con el color del tema) y muestran
   el código en línea con letra de código. Los títulos de cada sección son más grandes y quedan separados por una línea.
 - Las clases de IA muestran cómo se ve cada herramienta: la pantalla de la CLI o los paneles de la app, recreados con
@@ -158,6 +161,11 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Retoques estéticos: la letra de la interfaz pasa de Rajdhani a IBM Plex Sans, que se lee mejor en textos largos (Chakra Petch queda para el logo y los títulos). Los tamaños de letra bajan a una escala fija, los títulos, botones y menús van en minúscula normal y el brillo queda solo en el logo y en la línea actual del código. Saco los adornos que no informaban: el "// SYS.OK", la numeración del menú, las barritas de las métricas, las rayitas de color de los paneles, el efecto glitch al abrir una pantalla y el eslogan del perfil. Lo mismo en el resto de las pantallas: los títulos y las etiquetas de Biblioteca, Desafíos, Rutas, Estadísticas, Logros y Ajustes ya no van en mayúsculas, y los cuatro sprints dejan de competir con el proyecto en curso por el botón amarillo. Las tarjetas de lenguajes que todavía no empezaste ya no muestran ceros.
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
+
+### Corregido (auditoría de IA del 2026-11-14 sobre fce96f4)
+- Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
+- OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
+  locales (`--oss`).
 
 ### Corregido (auditoría del 2026-11-14 sobre d52dd83)
 - El corrector de los ejercicios de memoria ya no da por buena `ps aux && grep node` cuando se pide una tubería: `|` y
