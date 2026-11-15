@@ -6,8 +6,8 @@ import { ClaseDiagrama } from "./ClaseDiagramas";
 import { CodeBlock, fechaLarga } from "./LibraryView";
 
 const ALT: Record<string, string> = {
-  neurona: "Esquema de una red neuronal con capa de entrada, capa oculta y salida",
-  entrenamiento: "Curva de entrenamiento: el error bajando a medida que pasan las épocas",
+  neurona: "Una neurona paso a paso (entradas por pesos, suma, sesgo y activación) y después la señal pasando por la red",
+  entrenamiento: "Entrenamiento: la red responde, mide el error, lo manda hacia atrás y corrige los pesos, época por época",
   prompt: "Las cuatro partes de un buen prompt entrando al modelo",
   bucle: "El bucle de un agente: leer, actuar, verificar y repetir",
 };

@@ -968,6 +968,18 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .clase-figura { margin: 14px 0 0; padding: 0; border: none; }
 .clase-diagrama { width: 100%; max-width: 420px; }
 .clase-diagrama svg { width: 100%; height: auto; display: block; }
+.clase-diagrama:has(.anim) { max-width: 560px; }
+.anim-escena, .anim-cable, .anim-nodo { transition: opacity 0.5s, stroke 0.4s, stroke-width 0.4s, fill 0.4s; }
+.anim-cable.flujo { stroke-dasharray: 5 7; animation: anim-flujo 0.9s linear infinite; }
+.anim-cable.flujo.atras { animation-direction: reverse; }
+@keyframes anim-flujo { to { stroke-dashoffset: -12; } }
+/* las etiquetas llevan un borde del color del fondo para leerse encima de las líneas */
+.anim text:not(.anim-nodo-t) { paint-order: stroke; stroke: var(--bg); stroke-width: 9px; stroke-linejoin: round; }
+.anim-controles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.anim-controles .btn { min-width: 36px; justify-content: center; }
+.anim-num { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.anim-texto { flex: 1 1 200px; font-size: 14px; color: var(--text2); }
+@media (prefers-reduced-motion: reduce) { .anim-cable.flujo { animation: none; } }
 .clase-figura figcaption { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
 .captura { max-width: 720px; border: 1px solid var(--line2); background: #0c0f14; color: #cfd6df; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; overflow-x: auto; }
 .cap-barra { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid #232a33; background: #151a21; color: #8a96a3; font-size: 11.5px; }

@@ -6,6 +6,9 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Primeras **animaciones** en la Biblioteca, en la clase de Codex: una neurona calculando paso a paso (entradas por pesos,
+  suma, sesgo y activación), la señal pasando por la red y el entrenamiento con el error volviendo hacia atrás y la curva
+  bajando época por época. Tienen reproducir, pausa y paso a paso; con las animaciones apagadas quedan quietas y se avanzan a mano.
 - Tema nuevo en IA: **Cursor** (3.30 y la CLI `agent`), el editor con IA. 33 ejemplos con fuente (instalación, Tab, Agent y
   sus modos, Cloud Agents, reglas, @-menciones, MCP, la CLI, Bugbot, modelos, Privacy Mode y atajos) y una clase completa con
   cómo se ven la CLI y la Agents Window. Sale de Próximamente.
