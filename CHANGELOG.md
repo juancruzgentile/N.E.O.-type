@@ -8,6 +8,8 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ### Agregado
 - Las clases de la Biblioteca resaltan los conceptos clave (en negrita, subrayados con el color del tema) y muestran
   el código en línea con letra de código. Los títulos de cada sección son más grandes y quedan separados por una línea.
+- Las clases de IA muestran cómo se ve cada herramienta: la pantalla de la CLI o los paneles de la app, recreados con
+  texto (pesan poco y se leen en cualquier tema). Empieza Codex, con su pantalla de la versión 0.169.0.
 - Cuatro temas nuevos en la Biblioteca, de 12 ejemplos con fuente y una clase completa cada uno: **Cómo funciona la web**
   (DNS, TCP, TLS y HTTP, con curl, dig y openssl; también CORS y cookies), **APIs** (consumir con fetch, diseñar con REST,
   errores, idempotencia, límites, webhooks y GraphQL), **Testing** (pytest: fixtures, parametrización, dobles de prueba y
