@@ -487,6 +487,10 @@ try {
     await page.locator(".lib-clase-toggle").getByRole("tab", { name: /Día de trabajo/ }).click();
     ok((await page.locator(".clase-seccion").count()) >= 6 && (await page.locator(".clase-diagrama svg").count()) >= 1 && (await page.locator(".captura .cap-linea").count()) >= 4, "la clase de Codex tiene varias secciones, un diagrama y cómo se ve la CLI");
     ok((await page.locator(".clase-clave").count()) >= 10, "la clase de Codex resalta los conceptos clave");
+    const anim = page.locator(".anim").first();
+    const antes = await anim.locator(".anim-texto").textContent();
+    await anim.getByRole("button", { name: "Paso siguiente" }).click();
+    ok((await anim.locator(".anim-texto").textContent()) !== antes && (await anim.getByRole("button", { name: "Reproducir" }).count()) === 1, "la animación de la neurona avanza a mano y queda en pausa");
     await page.locator(".lib-nav").getByRole("button", { name: /^Python/ }).click();
     await page.locator(".lib-clase-toggle").getByRole("tab", { name: /^Clase$/ }).click();
     ok((await page.locator(".clase-seccion").count()) >= 9 && (await page.locator(".clase .lib-code").count()) >= 3 && (await page.locator(".clase-tabla table").count()) >= 2, "la clase de Python muestra secciones, código resaltado y tablas");

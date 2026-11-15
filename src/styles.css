@@ -968,6 +968,64 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .clase-figura { margin: 14px 0 0; padding: 0; border: none; }
 .clase-diagrama { width: 100%; max-width: 420px; }
 .clase-diagrama svg { width: 100%; height: auto; display: block; }
+.clase-diagrama:has(.anim) { max-width: 560px; }
+/* Animaciones: primero los roles de color y tipografía, derivados del tema; el SVG solo usa estas variables */
+.anim {
+  --anim-senal: var(--cyan);
+  --anim-error: var(--red);
+  --anim-error-texto: color-mix(in srgb, var(--red) 70%, var(--strong));
+  --anim-cable: var(--line2);
+  --anim-nodo: var(--panel2);
+  --anim-borde: var(--muted);
+  --anim-sobre: var(--on-accent);
+  --anim-texto: var(--text);
+  --anim-tenue: var(--text2);
+}
+.anim svg { overflow: visible; }
+.anim text { font-family: var(--ui); font-size: 14px; fill: var(--anim-texto); }
+.anim .a-t { font-size: 14px; font-weight: 600; }
+.anim .a-s { font-size: 12px; fill: var(--anim-tenue); }
+.anim .a-s.err { fill: var(--anim-error-texto); font-weight: 600; }
+.anim .a-u { font-family: var(--ui); }
+.anim .a-n, .anim .a-n tspan, .anim .a-s .a-n { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.anim text.a-n { fill: var(--anim-tenue); }
+.anim text.a-n.fuerte { fill: var(--anim-texto); font-weight: 600; }
+.anim .anim-nodo-t { font-family: var(--mono); font-size: 12px; font-weight: 700; fill: var(--anim-texto); }
+.anim .anim-nodo-t.grande { font-size: 16px; }
+.anim .anim-nodo-t.on { fill: var(--anim-sobre); }
+.anim-escena, .anim-cable, .anim-nodo, .anim-curva, .anim-punto { transition: opacity 0.5s, stroke 0.4s, stroke-width 0.4s, fill 0.4s; }
+.anim-cable { stroke: var(--anim-cable); opacity: 0.8; }
+.anim-cable.on { stroke: var(--anim-senal); opacity: 1; }
+.anim-cable.on.err { stroke: var(--anim-error); }
+.anim-cable.flujo { stroke-dasharray: 6 8; animation: anim-flujo 1s linear infinite; }
+.anim-cable.flujo.atras { animation-direction: reverse; }
+@keyframes anim-flujo { to { stroke-dashoffset: -14; } }
+.anim-nodo { fill: var(--anim-nodo); stroke: var(--anim-borde); stroke-width: 2; }
+.anim-nodo.on { fill: var(--anim-senal); stroke: var(--anim-senal); }
+.anim-nodo.err { fill: color-mix(in srgb, var(--anim-error) 16%, var(--anim-nodo)); stroke: var(--anim-error); stroke-width: 3; }
+.anim-eje { stroke: var(--anim-cable); stroke-width: 1.5; }
+.anim-curva { fill: none; stroke: var(--anim-senal); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.anim-punto { fill: var(--anim-senal); }
+/* en pantallas angostas el dibujo se queda legible y se desplaza en vez de achicarse */
+.anim [role="img"] { overflow-x: auto; }
+@media (max-width: 640px) { .anim [role="img"] svg { min-width: 480px; } }
+.anim-controles { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.anim-botones { display: inline-flex; border: 1px solid var(--line2); background: var(--panel2); }
+.anim-btn { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 36px; padding: 0; border: 0; border-right: 1px solid var(--line2); background: none; color: var(--text2); cursor: pointer; }
+.anim-btn:last-child { border-right: 0; }
+.anim-btn:hover { color: var(--strong); background: var(--cyan-soft); }
+.anim-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.anim-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.anim-btn svg .rel { fill: currentColor; }
+.anim-play { color: var(--accent-text); }
+.anim-num { font-family: var(--mono); font-size: 12px; color: var(--muted); min-width: 40px; }
+.anim-barra { flex: 1; height: 2px; background: var(--line); }
+.anim-barra i { display: block; height: 100%; background: var(--cyan); transition: width 0.4s; }
+.anim-texto { margin: 8px 0 0; min-height: 3em; font-size: 14px; line-height: 1.5; color: var(--text2); }
+@media (prefers-reduced-motion: reduce) {
+  .anim-cable.flujo { animation: none; }
+  .anim-escena, .anim-cable, .anim-nodo, .anim-curva, .anim-punto, .anim-barra i { transition: none; }
+}
 .clase-figura figcaption { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
 .captura { max-width: 720px; border: 1px solid var(--line2); background: #0c0f14; color: #cfd6df; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; overflow-x: auto; }
 .cap-barra { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid #232a33; background: #151a21; color: #8a96a3; font-size: 11.5px; }
