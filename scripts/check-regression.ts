@@ -351,6 +351,7 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   const oc = TOPICS.find((t) => t.id === "opencode")!;
   ok(fuenteDe("opencode", oc.entries[0].name)?.revisado === "2026-11-14", "fuentes: OpenCode muestra el día en que se revisó, no la fecha general");
   const txt = (id: string) => JSON.stringify(TOPICS.find((t) => t.id === id));
+  ok(!txt("antigravity").includes("--mode=default") && !txt("antigravity").includes('\\"agentMode\\": \\"default\\"') && txt("antigravity").includes("--mode=plan"), "antigravity: default es sin --mode y agentMode vacío; plan es un modo");
   ok(txt("opencode").includes("--oss") && txt("opencode").includes("carpeta personal"), "opencode: Codex también acepta modelos locales y AGENTS.md puede subir hasta el home");
 }
 
