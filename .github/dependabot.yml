@@ -21,3 +21,7 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    # init y analyze de CodeQL tienen que ir siempre en la misma versión
+    groups:
+      codeql:
+        patterns: ["github/codeql-action*"]
