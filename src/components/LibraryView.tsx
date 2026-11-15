@@ -308,7 +308,7 @@ export function LibraryView({ lang, state, update }: Props) {
               )}
 
               {topic.clase && claseOpen ? (
-                <ClaseView clase={topic.clase} hl={topic.hl} />
+                <ClaseView clase={topic.clase} hl={topic.hl} color={topic.color} />
               ) : (
                 <>
                   <dl className="lib-facts">

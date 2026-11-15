@@ -18,6 +18,12 @@ import { css, html } from "./web";
 import { formats, git, linux } from "./tools";
 import { claude } from "./claude";
 import { codex } from "./codex";
+import { cursor } from "./cursor";
+import { chatgpt } from "./chatgpt";
+import { gemini } from "./gemini";
+import { hermes } from "./hermes";
+import { antigravity } from "./antigravity";
+import { opencode } from "./opencode";
 import { elegirBd } from "./elegir-bd";
 import { postgresql } from "./postgresql";
 import { mongodb } from "./mongodb";
@@ -36,7 +42,7 @@ export const TOPICS: Topic[] = [
   sql, html, css, formats, webHttp, apis,
   elegirBd, postgresql, mongodb, redis, vectoriales, asincronia, storage, seguridadDatos,
   linux, git, testing, docker,
-  claude, codex,
+  claude, codex, opencode, antigravity, hermes, gemini, chatgpt, cursor,
 ];
 
 export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Bases de datos", "Herramientas", "IA", "Frameworks"];
@@ -44,12 +50,6 @@ export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Bases de d
 /** Lo que viene: inteligencia artificial y herramientas para programar con ella. */
 export const SOON: Soon[] = [
   { id: "ia", name: "IA: conceptos", desc: "Modelos de lenguaje, tokens, ventana de contexto, prompts, agentes, RAG y cómo evaluar respuestas." },
-  { id: "chatgpt", name: "ChatGPT", desc: "El asistente de OpenAI: buenas prácticas para programar, depurar y aprender con él." },
-  { id: "gemini", name: "Gemini", desc: "Los modelos y el asistente de Google, y su integración con las herramientas de desarrollo." },
-  { id: "cursor", name: "Cursor", desc: "Editor de código con IA integrada: autocompletado, chat sobre el proyecto y agentes." },
-  { id: "opencode", name: "OpenCode", desc: "Agente de programación de código abierto para la terminal, compatible con varios modelos." },
-  { id: "antigravity", name: "Antigravity", desc: "El entorno de desarrollo de Google pensado para trabajar con agentes en el editor, la terminal y el navegador." },
-  { id: "hermes", name: "Hermes", desc: "Hermes Agent, el agente de código abierto de Nous Research: memoria entre sesiones y habilidades reutilizables." },
 ];
 
 export const totalEntries = TOPICS.reduce((n, t) => n + t.entries.length, 0);

@@ -6,6 +6,31 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Tema nuevo en IA: **Cursor** (3.30 y la CLI `agent`), el editor con IA. 33 ejemplos con fuente (instalación, Tab, Agent y
+  sus modos, Cloud Agents, reglas, @-menciones, MCP, la CLI, Bugbot, modelos, Privacy Mode y atajos) y una clase completa con
+  cómo se ven la CLI y la Agents Window. Sale de Próximamente.
+- Tema nuevo en IA: **ChatGPT**, visto desde quien programa: apps, planes, modelos, proyectos, memoria, cómo pedir código y
+  depurar, cómo aprender sin que te haga la tarea, privacidad y la API de OpenAI. 29 ejemplos con fuente y una clase completa
+  con cómo se ve la app. Sale de Próximamente.
+- Tema nuevo en IA: **Gemini** (Gemini CLI 0.68 y los modelos de Google). 28 ejemplos con fuente (instalación, cuentas y
+  claves, comandos, GEMINI.md, settings.json, extensiones, MCP, sandbox, modo no interactivo y CI) y una clase completa con cómo
+  se ven la CLI y Code Assist en VS Code. Aclara que las cuentas personales pasaron a Antigravity CLI. Sale de Próximamente.
+- Tema nuevo en IA: **Hermes** (Hermes Agent 0.23), el agente de código abierto de Nous Research con memoria entre sesiones
+  y skills que aprende solo. 31 ejemplos con fuente (instalación, proveedores, memoria, skills, configuración, herramientas,
+  MCP, permisos, integraciones) y una clase completa con cómo se ven la terminal y la app. Sale de Próximamente.
+- **Claude** tiene su clase completa, armada con los cursos de Anthropic Academy y comprobada en la documentación: modelos,
+  superficies, CLAUDE.md, modos de permisos, hooks, skills, subagentes, plugins, MCP y cómo se ven Claude Code y la app de
+  escritorio. Actualizo cuatro ejemplos: el plan Ultra, los límites de uso, el modo auto como inicio y qué pregunta cada modo.
+- Tema nuevo en IA: **Antigravity** (app 2.32 y CLI `agy`), el entorno de Google para trabajar con agentes. 25 ejemplos
+  con fuente (instalación, proyectos, reglas y skills, settings.json, modelos, permisos, navegador, MCP, `agy -p` en CI) y una
+  clase completa con cómo se ven la CLI y la app. Sale de Próximamente.
+- Tema nuevo en IA: **OpenCode** (2.3.0), el agente de código abierto que funciona con modelos de muchos proveedores.
+  30 ejemplos con fuente (instalación, proveedores, agentes build y plan, AGENTS.md, opencode.json, permisos, MCP, `opencode run`)
+  y una clase completa con cómo se ven la terminal y la app de escritorio. Sale de Próximamente.
+- Las clases de la Biblioteca resaltan los conceptos clave (en negrita, subrayados con el color del tema) y muestran
+  el código en línea con letra de código. Los títulos de cada sección son más grandes y quedan separados por una línea.
+- Las clases de IA muestran cómo se ve cada herramienta: la pantalla de la CLI o los paneles de la app, recreados con
+  texto (pesan poco y se leen en cualquier tema). Empieza Codex, con su pantalla de la versión 0.169.0.
 - Cuatro temas nuevos en la Biblioteca, de 12 ejemplos con fuente y una clase completa cada uno: **Cómo funciona la web**
   (DNS, TCP, TLS y HTTP, con curl, dig y openssl; también CORS y cookies), **APIs** (consumir con fetch, diseñar con REST,
   errores, idempotencia, límites, webhooks y GraphQL), **Testing** (pytest: fixtures, parametrización, dobles de prueba y
@@ -154,6 +179,20 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Retoques estéticos: la letra de la interfaz pasa de Rajdhani a IBM Plex Sans, que se lee mejor en textos largos (Chakra Petch queda para el logo y los títulos). Los tamaños de letra bajan a una escala fija, los títulos, botones y menús van en minúscula normal y el brillo queda solo en el logo y en la línea actual del código. Saco los adornos que no informaban: el "// SYS.OK", la numeración del menú, las barritas de las métricas, las rayitas de color de los paneles, el efecto glitch al abrir una pantalla y el eslogan del perfil. Lo mismo en el resto de las pantallas: los títulos y las etiquetas de Biblioteca, Desafíos, Rutas, Estadísticas, Logros y Ajustes ya no van en mayúsculas, y los cuatro sprints dejan de competir con el proyecto en curso por el botón amarillo. Las tarjetas de lenguajes que todavía no empezaste ya no muestran ceros.
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
+
+### Corregido (auditoría de IA del 2026-11-14 sobre fce96f4)
+- Cada tema puede tener su propia fecha de revisión: los temas de IA nuevos ya no dicen "revisado el 5 de noviembre".
+- OpenCode: cuándo sube hasta tu carpeta personal buscando `AGENTS.md`, y que la CLI de Codex también acepta modelos
+  locales (`--oss`).
+- Cursor: sin Memories, el Agent igual puede buscar en conversaciones anteriores y traer un chat con `@Chats`; y la CLI de
+  Codex también acepta modelos locales.
+- ChatGPT: el control de entrenamiento no cubre "Include environments" de Codex, que es otro ajuste, y en la API la
+  Responses API guarda el estado por defecto (`store=false` no es retención cero).
+- Gemini: `gemini update` no existe; se actualiza con el mismo gestor (`npm install -g @google/gemini-cli@latest`).
+- Hermes: la protección de `write_file` y `patch` es de las herramientas de archivo, no un aislamiento: con el backend local
+  la terminal puede leer o pisar esas rutas. `~/.ssh/config` tiene una excepción con aprobación.
+- Claude: `bypassPermissions` se saltea casi todas las preguntas, pero las reglas `deny` siguen valiendo y no es un sandbox.
+- Antigravity: el modo default se pide sin `--mode` (en settings.json, `"agentMode": ""`), y `plan` está entre los modos.
 
 ### Corregido (auditoría del 2026-11-14 sobre d52dd83)
 - El corrector de los ejercicios de memoria ya no da por buena `ps aux && grep node` cuando se pide una tubería: `|` y
