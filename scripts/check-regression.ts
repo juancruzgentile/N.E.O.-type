@@ -355,6 +355,7 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   ok(!txt("claude").includes("sin ningún control") && !txt("claude").includes("no pide permiso para nada"), "claude: bypassPermissions no se explica como \"sin ningún control\"");
   ok(txt("hermes").includes("no un aislamiento") && txt("hermes").includes("--oss"), "hermes: la protección de archivos no limita a la terminal; Codex también acepta locales");
   ok(!/gemini update\s/.test(txt("gemini").replace(/gemini update no existe/g, "")), "gemini: no se enseña gemini update como actualizador");
+  ok(txt("chatgpt").includes("Include environments") && txt("chatgpt").includes("store=false"), "chatgpt: Include environments de Codex es aparte y store=false no es retención cero");
   ok(txt("opencode").includes("--oss") && txt("opencode").includes("carpeta personal"), "opencode: Codex también acepta modelos locales y AGENTS.md puede subir hasta el home");
 }
 
