@@ -360,5 +360,40 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   ok(txt("opencode").includes("--oss") && txt("opencode").includes("carpeta personal"), "opencode: Codex también acepta modelos locales y AGENTS.md puede subir hasta el home");
 }
 
+// ── auditoría de la Biblioteca de Codex del 2026-11-16 ──
+{
+  const txt = (id: string) => JSON.stringify(ALL_TOPICS.find((t) => t.id === id));
+  ok(!txt("codex").includes("sin importar si la aprob") && txt("codex").includes("fuera del sandbox"), "codex: aprobar un comando fuera del sandbox lo saca del límite");
+  ok(txt("gemini").includes("checkpointing") && !txt("gemini").includes("/restore y /rewind te devuelven"), "gemini: /restore necesita los checkpoints activados antes");
+  const pg = TOPICS.find((t) => t.id === "postgresql")!.entries.find((e) => e.name === "SELECT FOR UPDATE SKIP LOCKED")!.code;
+  ok(/RETURNING id/.test(pg) && !/WHERE id = 1;/.test(pg), "postgresql: la cola marca la tarea que tomó, no un id fijo");
+  const rd = TOPICS.find((t) => t.id === "redis")!.entries.find((e) => e.name.startsWith("Streams"))!.code;
+  ok(rd.indexOf("XGROUP CREATE") < rd.indexOf("XADD"), "redis: el grupo se crea antes de publicar, así recibe el evento con >");
+  ok(!txt("asincronia").includes("sin perder ni duplicar") && txt("asincronia").includes("idempotente"), "asincronía: outbox no promete evitar duplicados");
+  ok(!txt("apis").includes("todo responde 200") && !txt("apis").includes("GraphQL responde 200"), "apis: GraphQL no responde siempre 200");
+
+  // contraste WCAG AA de los comentarios del código, en cada tema, contra el fondo del bloque de código
+  const css = readFileSync("src/styles.css", "utf8");
+  const vars = (sel: string) => {
+    const body = css.slice(css.indexOf(sel + " {")).split("\n}")[0];
+    return Object.fromEntries([...body.matchAll(/--([\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
+  };
+  const rgba = (v: string): number[] =>
+    v.startsWith("#") ? [1, 3, 5].map((i) => parseInt(v.slice(i, i + 2), 16)).concat(1) : v.match(/[\d.]+/g)!.map(Number);
+  const over = (fg: number[], bg: number[]) => [0, 1, 2].map((i) => fg[i] * fg[3] + bg[i] * (1 - fg[3])).concat(1);
+  const lum = (c: number[]) =>
+    [0, 1, 2].map((i) => { const x = c[i] / 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; })
+      .reduce((s, x, i) => s + x * [0.2126, 0.7152, 0.0722][i], 0);
+  const ratio = (a: number[], b: number[]) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  const raiz = vars(":root");
+  const bajos = [":root", ...[...css.matchAll(/:root\[data-theme="(\w+)"\] \{/g)].map((m) => `:root[data-theme="${m[1]}"]`)].flatMap((sel) => {
+    const v = { ...raiz, ...vars(sel) };
+    const panel = over(rgba(v["panel2"]), rgba(v["bg"]));
+    const r = Math.min(ratio(rgba(v["tk-com"]), over(rgba(v["code-bg"]), panel)), ratio(rgba(v["tk-com"]), panel));
+    return r < 4.5 ? [`${sel} ${r.toFixed(2)}`] : [];
+  });
+  ok(bajos.length === 0, `los comentarios del código llegan a 4,5:1 en los seis temas${bajos.length ? ": " + bajos.join(", ") : ""}`);
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);

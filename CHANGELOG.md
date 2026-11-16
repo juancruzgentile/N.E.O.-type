@@ -184,6 +184,15 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
 
+### Corregido (auditoría de la Biblioteca del 2026-11-16 sobre 5b644e6)
+- Codex: el sandbox no es una barrera absoluta. Si Codex te pide correr un comando fuera del sandbox y lo aprobás, ese comando ya no tiene el límite.
+- Gemini: `/restore` solo funciona si activaste los checkpoints antes (`general.checkpointing.enabled`, vienen apagados), y `/rewind` no deshace lo que editaste a mano ni lo que cambió un comando de shell.
+- PostgreSQL: la cola con `SKIP LOCKED` marcaba siempre la tarea 1. Ahora toma y marca la tarea en un solo `UPDATE … RETURNING`. Lo probé con dos trabajadores a la vez.
+- Redis Streams: el grupo se creaba después de publicar y con `$`, así que no recibía ese evento. Ahora se crea antes y `XACK` confirma el id que llegó.
+- Outbox ya no promete evitar duplicados: si el publicador se cae, puede reenviar un evento, y por eso el consumidor tiene que ser idempotente.
+- APIs: GraphQL no responde siempre 200. Puede traer errores con 200, así que hay que mirar el estado y el campo `errors`.
+- Contraste: los comentarios del código llegan a 4,5:1 en los seis temas (antes iban de 2,4 a 4,3). Hay una prueba que lo calcula.
+
 ### Corregido
 - Biblioteca: el índice de temas tiene su propio scroll. Antes medía más que la pantalla y para llegar a los últimos temas había que bajar todo el texto hasta el final.
 

@@ -259,7 +259,7 @@ gemini -r latest     # retomar la ultima sesion`,
         "La regla práctica: para explorar algo que no conocés, `plan` y `-s`; para trabajar en tu proyecto, `default`; `yolo` solo dentro de un contenedor descartable.",
       ],
       lista: [
-        "Hacé un commit antes de pedir cambios grandes; además, `/restore` y `/rewind` te devuelven los archivos.",
+        "Hacé un commit antes de pedir cambios grandes. `/restore` solo sirve si activaste antes los checkpoints (`general.checkpointing.enabled: true` en `settings.json`, vienen apagados), y `/rewind` no deshace lo que editaste a mano ni lo que cambió un comando de shell.",
         "Las claves van en variables de entorno o en `.gemini/.env`, y ese archivo va en `.gitignore`.",
         "No confíes en una carpeta clonada sin mirar qué trae: `.gemini/settings.json`, comandos, hooks y servidores MCP.",
         "Lo que lee de una web, un issue o un servidor MCP es **dato, no instrucción** (prompt injection).",

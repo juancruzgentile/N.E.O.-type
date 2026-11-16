@@ -38,7 +38,7 @@ export const gemini: Topic = {
     { title: "Fijate primero si te corresponde", text: "Desde el 18 de junio de 2026, Gemini CLI es para organizaciones con Gemini Code Assist Standard o Enterprise y para claves pagas de la API de Gemini o de Vertex AI. Si tenés una cuenta gratuita o Google AI Pro/Ultra, la herramienta para vos es Antigravity CLI." },
     { title: "Escribí un GEMINI.md antes de pedir nada", text: "/init lo genera a partir del proyecto. Poné ahí cómo instalar, cómo testear, el estilo y lo que no hay que tocar. Se manda con cada prompt, así que corto y concreto; /memory show te muestra exactamente lo que recibe el modelo." },
     { title: "Planificá en modo plan, ejecutá en default", text: "Con Shift+Tab pasás entre default (pregunta antes de cambiar algo), auto_edit (aprueba solas las ediciones) y plan (solo lee y arma un plan). Para algo grande, primero plan, revisás, y después lo dejás actuar." },
-    { title: "Sandbox para lo que no conocés", text: "Para un repo clonado o un script ajeno, arrancá con gemini -s. Si algo sale mal, /restore y /rewind te devuelven los archivos al estado anterior a la herramienta." },
+    { title: "Sandbox para lo que no conocés", text: "Para un repo clonado o un script ajeno, arrancá con gemini -s. Y antes de empezar, hacé un commit y activá los checkpoints (general.checkpointing.enabled en settings.json): vienen apagados, y sin ellos /restore no tiene a qué volver." },
     { title: "Automatizá con -p y JSON", text: "En scripts y CI, gemini -p con --output-format json te da una respuesta fácil de leer y un código de salida. La GitHub Action run-gemini-cli usa lo mismo para revisar PRs y clasificar issues." },
   ],
   entries: [
@@ -186,13 +186,15 @@ gemini extensions update --all
 gemini extensions disable workspace
 gemini extensions new mi-extension   # crear una (con gemini-extension.json)
 /extensions list                     # dentro de la sesion`, "extensiones extensions install galeria gemini-extension.json"),
-    m("Comandos de sesión", "Retomar y deshacer", "--resume (o /resume) vuelve a una sesión anterior del proyecto. /rewind retrocede en la conversación y puede deshacer los cambios de archivos; /restore devuelve los archivos al estado de antes de una herramienta.", code`
+    m("Comandos de sesión", "Retomar y deshacer", "--resume (o /resume) vuelve a una sesión anterior del proyecto. /rewind retrocede en la conversación y puede deshacer los cambios que hizo el agente, pero no lo que editaste a mano ni lo que cambió un comando de shell. /restore vuelve los archivos a antes de una herramienta solo si activaste los checkpoints antes: vienen apagados, y activarlos después no recupera nada. Ninguno reemplaza a Git.", code`
 gemini --list-sessions     # sesiones del proyecto
 gemini -r latest           # retomar la ultima
 /resume                    # elegir una desde la sesion
 /resume save antes-del-refactor   # guardar un punto con nombre
 /rewind                    # retroceder (atajo: Esc dos veces)
-/restore                   # deshacer los cambios de una herramienta`, "resume rewind restore checkpoint sesion deshacer"),
+/restore                   # volver a antes de una herramienta (con checkpoints)
+# los checkpoints se activan antes, en ~/.gemini/settings.json:
+#   { "general": { "checkpointing": { "enabled": true } } }`, "resume rewind restore checkpoint sesion deshacer"),
 
     // ── AVANZADO ──
     a("Automatizar", "Modo no interactivo (-p)", "Con -p (o cuando no hay terminal, por ejemplo en un pipe o en CI) responde y termina. Devuelve 0 si salió bien, 1 si hubo un error, 42 si el pedido o las opciones eran inválidos y 53 si pasó el límite de turnos. Si tiene que actuar, combiná el modo de aprobación con el sandbox.", code`

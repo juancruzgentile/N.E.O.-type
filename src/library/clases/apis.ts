@@ -135,7 +135,7 @@ res.status(404).json({ error: "No existe" });`,
         cabeza: ["Estilo", "Conviene cuando…", "Cuidado con…"],
         filas: [
           ["REST", "ofrecés recursos claros, querés usar la caché de HTTP y que la entienda cualquiera.", "Muchos viajes si el cliente necesita datos de varios recursos."],
-          ["GraphQL", "hay muchos clientes con necesidades distintas (web, móvil) y querés pedir justo lo necesario.", "Consultas muy costosas; la caché es menos directa; todo responde 200."],
+          ["GraphQL", "hay muchos clientes con necesidades distintas (web, móvil) y querés pedir justo lo necesario.", "Consultas muy costosas; la caché es menos directa; puede devolver errores con HTTP 200, así que hay que mirar el estado y el campo `errors`."],
           ["gRPC", "es comunicación interna entre servicios, con contrato estricto y alto rendimiento.", "No lo habla un navegador directamente."],
           ["Webhooks", "querés avisar a otro sistema cuando algo ocurre, sin que pregunte todo el tiempo.", "Hay que verificar la firma y tolerar reintentos y duplicados."],
           ["WebSocket", "la comunicación es continua y en ambos sentidos.", "Mantener muchas conexiones abiertas cuesta recursos."],

@@ -176,7 +176,7 @@ while True:
         continue
     print(mensaje.key(), mensaje.value())
     consumidor.commit(message=mensaje)`, "kafka consumidor grupo offset particion"),
-    a("Patrón", "Outbox: publicar sin perder ni duplicar", "Guardar en la base y avisar al broker son dos escrituras que pueden fallar por separado. Con outbox, el aviso se guarda en la misma transacción y otro proceso lo publica después.", code`
+    a("Patrón", "Outbox: publicar sin perder eventos", "Guardar en la base y avisar al broker son dos escrituras que pueden fallar por separado. Con outbox, el aviso se guarda en la misma transacción y otro proceso lo publica después. No evita duplicados: si el publicador se cae después de enviar y antes de marcarlo, lo reenvía. Por eso cada evento lleva un id estable y el consumidor tiene que ser idempotente.", code`
 def crear_pedido(conexion, datos):
     with conexion.cursor() as cur:
         cur.execute("INSERT INTO pedidos (cliente, total) VALUES (%s, %s) RETURNING id",
@@ -186,7 +186,8 @@ def crear_pedido(conexion, datos):
                     ("pedido_creado", str(pedido_id)))
     conexion.commit()    # o se guardan los dos, o ninguno
 
-# otro proceso lee la tabla outbox, publica en el broker y marca como enviado`, "outbox transaccional publicar evento consistencia dual write"),
+# otro proceso lee la tabla outbox, publica en el broker y marca como enviado
+# puede publicar dos veces el mismo evento: el consumidor descarta el id repetido`, "outbox transaccional publicar evento consistencia dual write"),
   ],
   clase: claseAsincronia,
 };

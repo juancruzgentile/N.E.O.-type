@@ -142,7 +142,7 @@ const r = await fetch("https://api.ejemplo.com/graphql", {
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ query: consulta, variables: { id: "7" } }),
 });
-const { data, errors } = await r.json();    // OJO: GraphQL responde 200 aunque haya errors`, "graphql consulta query campos variables"),
+const { data, errors } = await r.json();    // OJO: puede venir 200 y traer errors: mirá r.ok y errors`, "graphql consulta query campos variables"),
   ],
   clase: claseApis,
 };
