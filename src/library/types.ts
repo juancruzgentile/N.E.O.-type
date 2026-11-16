@@ -55,7 +55,7 @@ export interface Soon {
   desc: string;
 }
 
-/** Qué diagrama dibujar en una sección de la clase (ver ClaseDiagramas.tsx). */
+/** Qué diagrama dibujar en una sección de la clase (ver src/anim/index.tsx). */
 export type DiagramaId = "neurona" | "entrenamiento" | "prompt" | "bucle";
 
 /** Un tramo de texto de una captura, con el color que tiene en la pantalla real. */

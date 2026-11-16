@@ -587,6 +587,45 @@ try {
     await ctx.close();
   }
 
+  // 11c. todas las animaciones y diagramas de las clases: cada paso se dibuja, se anuncia y no tiene textos encimados
+  {
+    const { page, errors, ctx } = await open(browser, seedState(), { reducedMotion: "reduce" });
+    const conDibujo = TOPICS.filter((t) => t.clase?.secciones.some((x) => x.diagrama));
+    const problemas: string[] = [];
+    let pasos = 0;
+    for (const t of conDibujo) {
+      await page.evaluate((h) => (location.hash = h), `#/biblioteca/${t.id}/clase`);
+      await page.locator(".clase-seccion").first().waitFor();
+      const dibujos = page.locator(".clase-diagrama");
+      for (let d = 0; d < (await dibujos.count()); d++) {
+        const dib = dibujos.nth(d);
+        const n = Number(/de (\d+)/.exec((await dib.locator("[role=img]").first().getAttribute("aria-label")) ?? "")?.[1] ?? 1);
+        for (let k = 0; k < n; k++) {
+          if (k) await dib.getByRole("button", { name: "Paso siguiente" }).click();
+          pasos++;
+          const label = (await dib.locator("[role=img]").first().getAttribute("aria-label")) ?? "";
+          if (n > 1 && !label.includes(`Paso ${k + 1} de ${n}`)) problemas.push(`${t.id} dibujo ${d + 1}: el paso ${k + 1} no se anuncia`);
+          // textos visibles que se pisan entre sí (se ignora lo que está en una escena apagada)
+          const encimados = await dib.evaluate((el) => {
+            const visible = (x: Element) => { for (let e: Element | null = x; e && e !== el; e = e.parentElement) if (getComputedStyle(e).opacity === "0") return false; return true; };
+            const cajas = [...el.querySelectorAll("svg text")].filter(visible).map((x) => ({ t: x.textContent, r: x.getBoundingClientRect() })).filter((c) => c.r.width > 0);
+            const out: string[] = [];
+            for (let i = 0; i < cajas.length; i++)
+              for (let j = i + 1; j < cajas.length; j++) {
+                const [a, b] = [cajas[i].r, cajas[j].r];
+                if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) out.push(`"${cajas[i].t}" y "${cajas[j].t}"`);
+              }
+            return out;
+          });
+          for (const e of encimados) problemas.push(`${t.id} dibujo ${d + 1}, paso ${k + 1}: ${e}`);
+        }
+      }
+    }
+    ok(conDibujo.length > 0 && problemas.length === 0, `las animaciones de ${conDibujo.length} clases (${pasos} pasos) se dibujan bien${problemas.length ? ": " + problemas.slice(0, 3).join("; ") : ""}`);
+    ok(errors.length === 0, `animaciones sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
   // 12. practicar un ejemplo de la Biblioteca y repasarlo intercalado en las lecciones
   {
     const { page, errors, ctx } = await open(browser, seedState({ lang: "python" }));

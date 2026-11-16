@@ -1,4 +1,4 @@
-/* Animaciones y diagramas de las clases (ver ClaseDiagramas.tsx y Animacion.tsx). */
+/* Animaciones y diagramas de las clases (ver src/anim/). */
 /* Animaciones y diagramas quietos (.diag): primero los roles de color y tipografía, derivados del tema; el SVG solo usa estas variables */
 .anim, .diag {
   --anim-senal: var(--cyan);
