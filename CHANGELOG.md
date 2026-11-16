@@ -6,6 +6,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- La pantalla y el tema de la Biblioteca quedan en la URL (por ejemplo `#/biblioteca/git/clase`): el botón Atrás del navegador vuelve al tema o a la pantalla anterior, al recargar no perdés el lugar y se puede guardar el link a un tema. Con un proyecto o una entrevista a medias, Atrás pregunta antes de salir, igual que el menú.
 - Primeras **animaciones** en la Biblioteca, en la clase de Codex: una neurona calculando paso a paso (entradas por pesos,
   suma, sesgo y activación), la señal pasando por la red y el entrenamiento con el error volviendo hacia atrás y la curva
   bajando época por época. Tienen reproducir, pausa y paso a paso; con las animaciones apagadas quedan quietas y se avanzan a mano.
