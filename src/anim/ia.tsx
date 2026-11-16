@@ -1,33 +1,6 @@
-/**
- * Diagramas a mano para la clase de "Día de trabajo": SVG en línea, sin librerías de gráficos
- * ni imágenes externas (así no se rompe la CSP ni hace falta red). Los trazos usan las variables
- * de color del tema (las de `.anim` en styles.css) para verse bien en los seis temas. La neurona y el
- * entrenamiento son animaciones paso a paso (ver Animacion.tsx); el prompt y el bucle son dibujos quietos.
- */
-import type { ReactNode } from "react";
-import type { DiagramaId } from "../library/types";
+// Dibujos de IA: la neurona y el entrenamiento (animados), el prompt y el bucle del agente (quietos).
 import { Animacion } from "./Animacion";
-
-/** Número con coma decimal, como se escribe en castellano. */
-const num = (x: number) => x.toFixed(2).replace(".", ",").replace("-", "−");
-
-/** Línea que se prende con la señal (o con el error si `err`); `flujo` dibuja la señal corriendo (hacia atrás con `atras`). */
-function Cable({ x1, y1, x2, y2, on, err, atras, ancho = 1.5 }: {
-  x1: number; y1: number; x2: number; y2: number; on: boolean; err?: boolean; atras?: boolean; ancho?: number;
-}) {
-  const cls = on ? `anim-cable on${err ? " err" : ""} flujo${atras ? " atras" : ""}` : "anim-cable";
-  return <line x1={x1} y1={y1} x2={x2} y2={y2} className={cls} strokeWidth={on ? ancho + 1 : ancho} />;
-}
-
-/** Nodo: vacío cuando está quieto, relleno con la señal cuando está activo, con borde de error si `err`. */
-function Nodo({ cx, cy, r = 14, on, texto, err }: { cx: number; cy: number; r?: number; on: boolean; texto?: string; err?: boolean }) {
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r={r} className={`anim-nodo${on ? " on" : ""}${err ? " err" : ""}`} />
-      {texto && <text x={cx} y={cy + (r >= 30 ? 5.5 : 4)} className={`anim-nodo-t${on && !err ? " on" : ""}${r >= 30 ? " grande" : ""}`} textAnchor="middle">{texto}</text>}
-    </g>
-  );
-}
+import { Cable, Nodo, num } from "./piezas";
 
 const ENTRADAS = [0.9, 0.2, 0.6];
 const PESOS = [0.8, -0.5, 0.3];
@@ -49,7 +22,7 @@ const RED_IN = [60, 120, 180];
 const RED_HID = [40, 93, 147, 200];
 const RED_X = [100, 280, 460];
 
-function NeuronaDiagrama() {
+export function NeuronaDiagrama() {
   const ys = [36, 120, 204];
   // la fórmula va sobre su cable en los dos de arriba y debajo en el de abajo, así no cruza otras líneas
   const yFormula = [ys[0] - 10, ys[1] - 8, ys[2] + 22];
@@ -104,7 +77,7 @@ const FASES = [
 ];
 const PASOS_ENTRENAR = SALIDAS.flatMap((_, e) => FASES.map((f) => `Época ${e + 1}: ${f.toLowerCase()}.`));
 
-function EntrenamientoDiagrama() {
+export function EntrenamientoDiagrama() {
   // la red a la izquierda (x 40 a 220) y la curva a la derecha, en dos SVG para apilarlos en el celular: x de 380 a 540, y del error (0 a 1) entre 200 y 40
   const punto = (e: number) => `${380 + e * 40},${200 - (1 - SALIDAS[e]) * 160}`;
   const X = [40, 130, 220];
@@ -150,7 +123,7 @@ function EntrenamientoDiagrama() {
   );
 }
 
-function PromptDiagrama() {
+export function PromptDiagrama() {
   const partes = [
     { label: "Rol y contexto", ej: "“Sos un agente que programa en TypeScript”" },
     { label: "Tarea concreta", ej: "“Agregá validación al formulario de login”" },
@@ -183,7 +156,7 @@ function PromptDiagrama() {
   );
 }
 
-function BucleDiagrama() {
+export function BucleDiagrama() {
   const pasos = [
     { cx: 90, cy: 40, label: "1. Leer contexto", sub: "archivos, AGENTS.md" },
     { cx: 470, cy: 40, label: "2. Actuar", sub: "editar, correr comandos" },
@@ -210,22 +183,6 @@ function BucleDiagrama() {
           </g>
         ))}
       </svg>
-    </div>
-  );
-}
-
-const DIAGRAMS = {
-  neurona: NeuronaDiagrama,
-  entrenamiento: EntrenamientoDiagrama,
-  prompt: PromptDiagrama,
-  bucle: BucleDiagrama,
-} satisfies Record<DiagramaId, () => ReactNode>;
-
-export function ClaseDiagrama({ id }: { id: DiagramaId }) {
-  const D = DIAGRAMS[id];
-  return (
-    <div className="clase-diagrama">
-      <D />
     </div>
   );
 }

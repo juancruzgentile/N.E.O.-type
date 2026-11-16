@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { LangId } from "../types";
 import { tramos } from "../library/marcas";
 import type { Captura, CapturaTramo, Clase } from "../library/types";
-import { ClaseDiagrama } from "./ClaseDiagramas";
+import { ClaseDiagrama } from "../anim";
 import { CodeBlock, fechaLarga } from "./LibraryView";
 
 const ALT: Record<string, string> = {
