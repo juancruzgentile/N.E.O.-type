@@ -449,6 +449,15 @@ try {
     ok((await page.locator(".lib-head h3").textContent()) === "Go", "abre en el lenguaje que estás practicando");
     await page.locator(".lib-nav").getByRole("button", { name: /Python/ }).click();
     ok((await page.locator(".lib-head h3").textContent()) === "Python", "cambia de tema desde el índice");
+    const indice = await page.evaluate(() => {
+      window.scrollTo(0, 600);
+      const nav = document.querySelector(".lib-nav")!;
+      const ultimo = nav.lastElementChild!;
+      nav.scrollTop = nav.scrollHeight;
+      const b = ultimo.getBoundingClientRect();
+      return { abajo: b.bottom <= innerHeight + 1, pagina: window.scrollY };
+    });
+    ok(indice.abajo && indice.pagina === 600, "el índice de temas baja solo, sin tener que llegar al final del texto");
     const src = page.locator(".lib-entry").first().locator(".lib-source a");
     ok(
       /^https:\/\//.test((await src.getAttribute("href")) ?? "") && (await src.getAttribute("target")) === "_blank" && /noopener/.test((await src.getAttribute("rel")) ?? ""),
