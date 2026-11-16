@@ -427,6 +427,10 @@ try {
     ok(true, "salir con un proyecto a medias pide confirmación");
     await page.getByRole("button", { name: "Seguir escribiendo" }).click();
     ok((await page.locator(".project-panel").count()) === 1, "cancelar deja el proyecto donde estaba");
+    await page.goBack();
+    await page.getByRole("alertdialog").waitFor();
+    await page.getByRole("button", { name: "Seguir escribiendo" }).click();
+    ok((await page.locator(".project-panel").count()) === 1 && page.url().endsWith("#/desafios"), "Atrás también pregunta, y al cancelar la URL vuelve a Desafíos");
     await page.locator(".project-box").click();
     // resto del archivo, con espacios en vez de Tab
     await page.keyboard.press("Enter");
@@ -554,6 +558,33 @@ try {
     await nuevo.page.locator(".library").waitFor();
     ok(!(await nuevo.page.locator(".lib-group-name").allTextContents()).includes("Frameworks"), "con la revisión ya hecha, un proyecto cualquiera en Python no abre nada");
     await nuevo.ctx.close();
+  }
+
+  // 11b. la URL sigue a la pantalla y al tema: Atrás vuelve y al recargar no se pierde el lugar
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "python" }));
+    ok(page.url().endsWith("#/practica"), "la URL dice en qué pantalla estás");
+    await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    ok(page.url().endsWith("#/biblioteca/python"), "la Biblioteca suma el tema a la URL");
+    await page.locator(".lib-nav").getByRole("button", { name: /^Git/ }).click();
+    await page.locator(".lib-clase-toggle").getByRole("tab", { name: /^Clase$/ }).click();
+    ok(page.url().endsWith("#/biblioteca/git/clase"), "y la pestaña Clase");
+    await page.goBack();
+    ok((await page.locator(".lib-head h3").textContent()) === "Git" && (await page.locator(".lib-entry").count()) > 0, "Atrás vuelve de la clase a la referencia");
+    await page.goBack();
+    ok((await page.locator(".lib-head h3").textContent()) === "Python", "Atrás vuelve al tema anterior");
+    await page.goBack();
+    await page.locator(".code-box").waitFor();
+    ok(page.url().endsWith("#/practica"), "y a la pantalla anterior");
+    await page.goForward();
+    await page.goForward();
+    await page.reload();
+    await page.locator(".lib-head h3").waitFor();
+    ok((await page.locator(".lib-head h3").textContent()) === "Git", "al recargar vuelve al mismo tema");
+    await page.evaluate(() => (location.hash = "#/biblioteca/no-existe"));
+    ok((await page.locator(".lib-head h3").textContent()) === "Git", "un tema que no existe en la URL no rompe nada");
+    ok(errors.length === 0, `navegación sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
   }
 
   // 12. practicar un ejemplo de la Biblioteca y repasarlo intercalado en las lecciones

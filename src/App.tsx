@@ -24,10 +24,11 @@ import {
 import { LibraryView } from "./components/LibraryView";
 import { InterviewView } from "./components/InterviewView";
 import { frameworksToGrant } from "./library/unlock";
+import { readHash, viewHash, writeHash } from "./route";
 
 export default function App() {
   const { state, update, saved, exportJson, importJson } = useAppState();
-  const [view, setView] = useState<View>(state.lang ? "practice" : "languages");
+  const [view, setView] = useState<View>(() => readHash().view ?? (state.lang ? "practice" : "languages"));
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [toasts, setToasts] = useState<{ id: string; key: number }[]>([]);
   const [splash, setSplash] = useState(() => state.settings.showSplash || !state.settings.userName.trim());
@@ -116,6 +117,19 @@ export default function App() {
       if (v !== "practice") setChallenge(null);
       setView(v);
     });
+
+  // la pantalla queda en la URL (la Biblioteca le agrega su tema); Atrás o un hash nuevo vuelven a pasar por goto
+  useEffect(() => {
+    if (readHash().view !== current) writeHash(viewHash(current));
+  }, [current]);
+  useEffect(() => {
+    const onHash = () => {
+      const v = readHash().view;
+      if (v && v !== current) goto(v);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
 
   const project = projectId ? PROJECTS.find((p) => p.id === projectId) ?? null : null;
   const recallTopic = recallSel ? findRecall(recallSel.topic) : null;
@@ -323,7 +337,10 @@ export default function App() {
             interviewBusy.current = false;
             fn();
           }}
-          onCancel={() => setPendingLeave(null)}
+          onCancel={() => {
+            setPendingLeave(null);
+            writeHash(viewHash(current), true); // si llegó por Atrás, la URL vuelve a la pantalla donde seguís
+          }}
         />
       )}
       <div className="toasts" aria-live="polite">

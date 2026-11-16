@@ -15,6 +15,7 @@ import { kindNote } from "../library/kind";
 import { fuenteDe } from "../library/fuentes/index";
 import { MAX_BOX, findEntry, whenText } from "../review/review";
 import { today } from "../store";
+import { readHash, viewHash, writeHash } from "../route";
 
 /** Bloque de código con resaltado; agrupa caracteres seguidos del mismo tipo en un solo span. */
 export const CodeBlock = memo(function CodeBlock({ text, lang }: { text: string; lang: LangId }) {
@@ -105,8 +106,16 @@ export function LibraryView({ lang, state, update }: Props) {
   const TOPICS = useMemo(() => visibleTopics(state), [state]);
   const totalEntries = TOPICS.reduce((n, t) => n + t.entries.length, 0);
   const initial = TOPICS.find((t) => t.id === lang)?.id ?? TOPICS[0].id;
-  const [sel, setSel] = useState<Selection>({ kind: "topic", id: initial });
-  const [claseOpen, setClaseOpen] = useState(false);
+  // el tema y la pestaña vienen del hash si es un tema visible (#/biblioteca/git/clase)
+  const fromHash = (): { sel: Selection; clase: boolean } | null => {
+    const { view, rest: [id, tab] } = readHash();
+    if (view !== "library") return null;
+    if (id === "proximamente") return { sel: { kind: "soon" }, clase: false };
+    const t = TOPICS.find((x) => x.id === id);
+    return t ? { sel: { kind: "topic", id: t.id }, clase: tab === "clase" && !!t.clase } : null;
+  };
+  const [sel, setSel] = useState<Selection>(() => fromHash()?.sel ?? { kind: "topic", id: initial });
+  const [claseOpen, setClaseOpen] = useState(() => fromHash()?.clase ?? false);
   const [query, setQuery] = useState("");
   const [onlyTopic, setOnlyTopic] = useState(false);
   const [level, setLevel] = useState<Level | "all">("all");
@@ -122,6 +131,22 @@ export function LibraryView({ lang, state, update }: Props) {
     () => (q ? search(onlyTopic && topic ? [topic] : TOPICS, q) : []),
     [q, onlyTopic, topic, TOPICS],
   );
+
+  useEffect(() => {
+    writeHash(sel.kind === "soon" ? viewHash("library", "proximamente") : viewHash("library", sel.id, ...(claseOpen ? ["clase"] : [])));
+  }, [sel, claseOpen]);
+  useEffect(() => {
+    const onHash = () => {
+      const h = fromHash();
+      if (!h) return;
+      setQuery("");
+      setLevel("all");
+      setSel(h.sel);
+      setClaseOpen(h.clase);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
 
   // "/" o Ctrl+K enfocan la búsqueda desde cualquier lugar de la biblioteca
   useEffect(() => {
