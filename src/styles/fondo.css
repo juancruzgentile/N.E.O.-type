@@ -1,0 +1,74 @@
+/* Fondo animado, teclado flotante y efectos sueltos. */
+/* ───────── fondo animado ───────── */
+.bg-fx { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.bg-canvas { position: absolute; inset: 0; }
+.aurora { position: absolute; border-radius: 50%; filter: blur(80px); will-change: transform; }
+/* duraciones primas (31, 43, 59 s): las tres capas tardan horas en volver a coincidir */
+.aurora.a1 { width: 60vw; height: 50vh; left: -10vw; top: -15vh; background: var(--aurora1); animation: drift1 31s ease-in-out infinite alternate; }
+.aurora.a2 { width: 50vw; height: 55vh; right: -12vw; bottom: -20vh; background: var(--aurora2); animation: drift2 43s ease-in-out infinite alternate; }
+.aurora.a3 { width: 40vw; height: 40vh; left: 35vw; top: 30vh; background: var(--aurora3); animation: drift3 59s ease-in-out infinite alternate; }
+@keyframes drift1 { to { transform: translate(18vw, 12vh) rotate(25deg) scale(1.15); } }
+@keyframes drift2 { to { transform: translate(-22vw, -10vh) rotate(-30deg) scale(0.9); } }
+@keyframes drift3 { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-15vw, 8vh) scale(1.25); } 100% { transform: translate(10vw, -12vh) scale(0.85); } }
+.bg-pulse {
+  position: absolute; left: 50%; top: 45%; width: 90vw; height: 70vh; transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--cyan) 9%, transparent), transparent 65%);
+  opacity: 0.15; will-change: opacity;
+}
+
+/* ───────── teclado flotante ───────── */
+.keyboard-wrap { perspective: 1400px; position: relative; padding-bottom: 18px; }
+.keyboard-wrap .kb-f1, .keyboard-wrap .kb-f2 { transform-style: preserve-3d; }
+/* tres movimientos de periodo primo (13, 17, 23 s) combinados: nunca se ve el mismo cuadro */
+.keyboard-wrap.floating .kb-f1 { animation: kbFloatY 13s ease-in-out infinite alternate; }
+.keyboard-wrap.floating .kb-f2 { animation: kbTilt 17s ease-in-out infinite alternate; }
+.keyboard-wrap.floating .keyboard { animation: kbSway 23s ease-in-out infinite alternate; }
+@keyframes kbFloatY { from { transform: translateY(0); } to { transform: translateY(-9px); } }
+@keyframes kbTilt { from { transform: rotateX(5deg) rotateY(-1.2deg); } to { transform: rotateX(1deg) rotateY(1.4deg); } }
+@keyframes kbSway { from { transform: rotateZ(-0.35deg) translateX(-4px); } to { transform: rotateZ(0.35deg) translateX(4px); } }
+.kb-shadow {
+  position: absolute; left: 50%; bottom: 0; width: min(900px, 70%); height: 26px; transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--cyan) 22%, transparent), transparent 70%);
+  filter: blur(6px);
+}
+.keyboard-wrap.floating .kb-shadow { animation: kbShadow 13s ease-in-out infinite alternate; }
+@keyframes kbShadow { from { opacity: 0.9; transform: translateX(-50%) scaleX(1); } to { opacity: 0.55; transform: translateX(-50%) scaleX(0.92); } }
+.key { overflow: visible; }
+.key-ring {
+  position: absolute; inset: -3px; border-radius: 9px; border: 2px solid var(--fc); pointer-events: none;
+  box-shadow: 0 0 14px var(--fc);
+}
+.key-ring.bad { border-color: var(--red); box-shadow: 0 0 14px var(--red); }
+
+/* ───────── efectos sueltos ───────── */
+#fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+.spark {
+  position: absolute; left: 0; top: 0; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%;
+  background: var(--c); box-shadow: 0 0 10px 2px var(--c), 0 0 22px 4px color-mix(in srgb, var(--c) 50%, transparent);
+  will-change: transform, opacity;
+}
+.drop-glyph {
+  position: absolute; left: 0; top: 0; font-family: var(--mono); font-weight: 800; font-size: 120px; line-height: 1;
+  color: var(--strong); text-shadow: 0 0 24px var(--yellow), 0 0 60px var(--yellow); will-change: transform, opacity;
+}
+
+/* racha de aciertos: brillo interior que crece (opacity en una capa propia, barato) */
+.code-panel { --streak: 0; }
+.code-panel::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--cyan), inset 0 0 60px color-mix(in srgb, var(--cyan) 35%, transparent), inset 0 -40px 80px -40px color-mix(in srgb, var(--magenta) 45%, transparent);
+  opacity: calc(var(--streak) * 0.9); transition: opacity 0.25s ease-out; will-change: opacity;
+}
+
+/* modo calmo: sin movimiento (preferencia del sistema o ajuste) */
+html.calm .aurora, html.calm .keyboard-wrap .kb-f1, html.calm .keyboard-wrap .kb-f2,
+html.calm .keyboard-wrap .keyboard, html.calm .kb-shadow, html.calm .eq i { animation: none !important; }
+html.calm .bg-canvas { display: none; }
+/* cualquier otra animación o transición también se corta en modo calmo */
+html.calm *, html.calm *::before, html.calm *::after {
+  animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+  animation-delay: 0s !important; transition-duration: 0.01ms !important; transition-delay: 0s !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora, .keyboard-wrap .kb-f1, .keyboard-wrap .kb-f2, .keyboard-wrap .keyboard, .kb-shadow { animation: none !important; }
+}

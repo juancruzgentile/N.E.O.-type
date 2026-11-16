@@ -20,6 +20,10 @@ import { tramos } from "../src/library/marcas";
 import { FUENTES, fuenteDe } from "../src/library/fuentes/index";
 import type { AppState, LessonResult } from "../src/types";
 
+/** Todo el CSS de la app en el orden en que se carga (src/styles.css solo importa los archivos de src/styles/). */
+const appCss = () =>
+  readFileSync("src/styles.css", "utf8").replace(/@import "\.\/(styles\/[\w-]+\.css)";/g, (_, f: string) => readFileSync(`src/${f}`, "utf8"));
+
 let failed = 0;
 const ok = (cond: boolean, msg: string) => {
   if (!cond) failed++;
@@ -187,7 +191,7 @@ ok(byteLength("ñ") === 2 && byteLength("a") === 1, "byteLength cuenta bytes UTF
 
 // ── CSS: en modo calmo los logros quedan visibles ──
 {
-  const css = readFileSync("src/styles.css", "utf8");
+  const css = appCss();
   ok(/html\.calm \.toast\s*\{[^}]*animation:\s*none\s*!important[^}]*opacity:\s*1/.test(css), "modo calmo: el aviso de logro no se anima y queda visible");
 }
 
@@ -373,7 +377,7 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   ok(!txt("apis").includes("todo responde 200") && !txt("apis").includes("GraphQL responde 200"), "apis: GraphQL no responde siempre 200");
 
   // contraste WCAG AA de los comentarios del código, en cada tema, contra el fondo del bloque de código
-  const css = readFileSync("src/styles.css", "utf8");
+  const css = appCss();
   const vars = (sel: string) => {
     const body = css.slice(css.indexOf(sel + " {")).split("\n}")[0];
     return Object.fromEntries([...body.matchAll(/--([\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
