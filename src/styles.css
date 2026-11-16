@@ -915,7 +915,12 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .lib-search kbd { font-family: var(--mono); font-size: 12px; padding: 2px 8px; border: 1px solid var(--line2); color: var(--muted); }
 .lib-scope { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--text2); white-space: nowrap; }
 .lib-layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 22px; align-items: start; }
-.lib-nav { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 14px; }
+/* el índice tiene su propio scroll: así se llega a los últimos temas sin bajar todo el texto */
+.lib-nav {
+  position: sticky; top: 12px; display: flex; flex-direction: column; gap: 14px;
+  max-height: calc(100vh - 24px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  padding: 4px; margin: -4px; /* lugar para el borde de foco, que el scroll recortaría */
+}
 .lib-group-name { font-family: var(--mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
 .lib-nav button {
   display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 10px; text-align: left;
@@ -1099,7 +1104,7 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .soon-tag { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 12px; letter-spacing: 1.5px; padding: 2px 6px; color: var(--yellow); border: 1px solid var(--yellow); white-space: nowrap; }
 @media (max-width: 900px) {
   .lib-layout { grid-template-columns: minmax(0, 1fr); }
-  .lib-nav { position: static; flex-direction: row; overflow-x: auto; gap: 6px; padding-bottom: 6px; scrollbar-width: thin; }
+  .lib-nav { position: static; max-height: none; flex-direction: row; overflow-x: auto; gap: 6px; padding-bottom: 6px; scrollbar-width: thin; }
   .lib-group { display: flex; gap: 6px; align-items: center; }
   .lib-group-name { display: none; }
   .lib-nav button { width: auto; white-space: nowrap; border-color: var(--line2); }
