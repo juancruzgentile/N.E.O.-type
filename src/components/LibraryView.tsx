@@ -139,6 +139,7 @@ export function LibraryView({ lang, state, update }: Props) {
     const onHash = () => {
       const h = fromHash();
       if (!h) return;
+      setPractice(null);
       setQuery("");
       setLevel("all");
       setSel(h.sel);

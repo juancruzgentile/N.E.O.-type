@@ -399,5 +399,16 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   ok(bajos.length === 0, `los comentarios del código llegan a 4,5:1 en los seis temas${bajos.length ? ": " + bajos.join(", ") : ""}`);
 }
 
+// ── auditoría de la pila #73–#78 de Codex del 2026-11-16 ──
+{
+  // redis-cli no tiene comentarios: un "# …" al final de un comando se manda como argumentos (A2)
+  const redis = ALL_TOPICS.find((t) => t.id === "redis")!;
+  const bloques = [...redis.entries.map((e) => e.code), ...(redis.clase?.secciones.flatMap((x) => x.codigo ?? []) ?? []).map((c) => (typeof c === "string" ? c : c.text))];
+  const conComentario = bloques.flatMap((b) => b.split("\n")).filter((l) => /^[A-Za-z][^"#]*\s#/.test(l));
+  ok(conComentario.length === 0, `redis: ningún comando lleva un comentario al final${conComentario.length ? ": " + conComentario[0] : ""}`);
+  const pg = TOPICS.find((t) => t.id === "postgresql")!.entries.find((e) => e.name === "SELECT FOR UPDATE SKIP LOCKED")!.desc;
+  ok(/venza/.test(pg) && /se cayó/.test(pg), "postgresql: la cola aclara que una reserva tiene que vencer para recuperar tareas abandonadas");
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);

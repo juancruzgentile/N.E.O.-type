@@ -158,7 +158,7 @@ export function PromptDiagrama() {
 
 export function BucleDiagrama() {
   const pasos = [
-    { cx: 90, cy: 40, label: "1. Leer contexto", sub: "archivos, AGENTS.md" },
+    { cx: 90, cy: 40, label: "1. Leer contexto", sub: "archivos y reglas" },
     { cx: 470, cy: 40, label: "2. Actuar", sub: "editar, correr comandos" },
     { cx: 470, cy: 190, label: "3. Verificar", sub: "tests, build" },
     { cx: 90, cy: 190, label: "repetir o terminar", sub: "" },

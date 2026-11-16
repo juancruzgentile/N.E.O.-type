@@ -53,7 +53,7 @@ CREATE INDEX idx_pedidos_extra ON pedidos USING gin (extra);`, "json jsonb docum
 CREATE INDEX idx_pedidos_creado ON pedidos (creado);                   -- B-tree
 CREATE INDEX idx_pedidos_etiq ON pedidos USING gin (etiquetas);        -- GIN
 CREATE INDEX idx_pendientes ON pedidos (creado) WHERE estado = 'pendiente';   -- parcial`, "indice btree gin parcial rendimiento"),
-    m("Concurrencia", "SELECT FOR UPDATE SKIP LOCKED", "Bloquea las filas que lees para que nadie más las tome, y SKIP LOCKED salta las que ya tiene otro. Sirve para una cola de trabajos en la propia base: tomar la tarea y marcarla va en un solo UPDATE, y RETURNING te dice cuál te tocó. Al terminar se marca ese id, no uno fijo.", code`
+    m("Concurrencia", "SELECT FOR UPDATE SKIP LOCKED", "Bloquea las filas que lees para que nadie más las tome, y SKIP LOCKED salta las que ya tiene otro. Sirve para una cola de trabajos en la propia base: tomar la tarea y marcarla va en un solo UPDATE, y RETURNING te dice cuál te tocó. Al terminar se marca ese id, no uno fijo. Esto reserva la tarea: una cola real necesita además que la reserva venza, para recuperar las de un trabajador que se cayó a mitad, y que procesar dos veces la misma tarea no haga daño.", code`
 -- tomar la próxima tarea libre y marcarla, en un solo paso
 UPDATE trabajos SET estado = 'en_proceso'
 WHERE id = (

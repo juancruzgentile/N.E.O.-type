@@ -63,7 +63,7 @@ ZREVRANGE ranking 0 -1 WITHSCORES`,
       lista: [
         "Caché (cache-aside): la aplicación mira Redis primero; si no está, lee de la base, guarda con vencimiento y devuelve.",
         "Sesiones: un hash o un texto por sesión, con vencimiento, accesible desde cualquier servidor de la aplicación.",
-        "Contadores y límites de uso: INCR más EXPIRE para contar pedidos por minuto de una IP.",
+        "Contadores y límites de uso: INCR más EXPIRE para contar pedidos por minuto de una IP. INCR devuelve el total, y con NX el vencimiento se pone solo la primera vez.",
         "Rankings y feeds: conjuntos ordenados con la puntuación como fecha o puntos.",
         "Colas y mensajería: listas, streams con grupos de consumidores y publicación/suscripción (Pub/Sub).",
       ],
@@ -77,8 +77,8 @@ SET producto:42 "{...}" EX 300
 DEL producto:42
 
 # límite de 100 pedidos por minuto
-INCR limite:ip:1.2.3.4            # devuelve el total del minuto
-EXPIRE limite:ip:1.2.3.4 60 NX     # NX: el vencimiento se pone solo la primera vez
+INCR limite:ip:1.2.3.4
+EXPIRE limite:ip:1.2.3.4 60 NX
 # si INCR devolvió más de 100: rechazar con 429`,
       ],
     },

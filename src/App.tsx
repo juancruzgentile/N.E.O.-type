@@ -25,6 +25,7 @@ import { LibraryView } from "./components/LibraryView";
 import { InterviewView } from "./components/InterviewView";
 import { frameworksToGrant } from "./library/unlock";
 import { readHash, viewHash, writeHash } from "./route";
+import { Movimiento } from "./anim/Animacion";
 
 export default function App() {
   const { state, update, saved, exportJson, importJson } = useAppState();
@@ -120,8 +121,9 @@ export default function App() {
 
   // la pantalla queda en la URL (la Biblioteca le agrega su tema); Atrás o un hash nuevo vuelven a pasar por goto
   useEffect(() => {
-    if (readHash().view !== current) writeHash(viewHash(current));
-  }, [current]);
+    // si la pantalla pedida necesita un lenguaje y todavía no hay, la URL pasa a la que se ve
+    if (readHash().view !== current) writeHash(viewHash(current), view !== current);
+  }, [current, view]);
   useEffect(() => {
     const onHash = () => {
       const v = readHash().view;
@@ -163,7 +165,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <Movimiento.Provider value={animations}>
       <Background enabled={animations} theme={theme} />
       <div className="app app-in">
         <Header
@@ -359,6 +361,6 @@ export default function App() {
           );
         })}
       </div>
-    </>
+    </Movimiento.Provider>
   );
 }
