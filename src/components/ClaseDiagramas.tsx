@@ -1,16 +1,12 @@
 /**
  * Diagramas a mano para la clase de "Día de trabajo": SVG en línea, sin librerías de gráficos
  * ni imágenes externas (así no se rompe la CSP ni hace falta red). Los trazos usan las variables
- * de color del tema para verse bien en claro y oscuro; el prompt y el bucle usan el teal de Codex. La neurona y el
- * entrenamiento son animaciones paso a paso (ver Animacion.tsx).
+ * de color del tema (las de `.anim` en styles.css) para verse bien en los seis temas. La neurona y el
+ * entrenamiento son animaciones paso a paso (ver Animacion.tsx); el prompt y el bucle son dibujos quietos.
  */
 import type { ReactNode } from "react";
 import type { DiagramaId } from "../library/types";
 import { Animacion } from "./Animacion";
-
-const TEAL = "#1a9c7c";
-const txt = { fill: "var(--text)", fontFamily: "var(--mono)" } as const;
-const muted = { fill: "var(--muted)", fontFamily: "var(--mono)" } as const;
 
 /** Número con coma decimal, como se escribe en castellano. */
 const num = (x: number) => x.toFixed(2).replace(".", ",").replace("-", "−");
@@ -109,7 +105,7 @@ const FASES = [
 const PASOS_ENTRENAR = SALIDAS.flatMap((_, e) => FASES.map((f) => `Época ${e + 1}: ${f.toLowerCase()}.`));
 
 function EntrenamientoDiagrama() {
-  // la red a la izquierda (x 40 a 220) y la curva a la derecha: x de 380 a 540, y del error (0 a 1) entre 200 y 40
+  // la red a la izquierda (x 40 a 220) y la curva a la derecha, en dos SVG para apilarlos en el celular: x de 380 a 540, y del error (0 a 1) entre 200 y 40
   const punto = (e: number) => `${380 + e * 40},${200 - (1 - SALIDAS[e]) * 160}`;
   const X = [40, 130, 220];
   return (
@@ -122,29 +118,32 @@ function EntrenamientoDiagrama() {
         // el grosor de cada peso cambia en cada época, para que se vea que se corrigió
         const ancho = (i: number, j: number) => 1 + ((i * 7 + j * 3 + anotadas) % 4) * 0.5;
         return (
-          <svg viewBox="0 0 560 250">
-            {RED_IN.map((y1, i) => RED_HID.map((y2, j) => (
-              <Cable key={`${y1}-${y2}`} x1={X[0]} y1={y1} x2={X[1]} y2={y2} on={f !== 1} atras={f === 2} err={f === 2} ancho={ancho(i, j)} />
-            )))}
-            {RED_HID.map((y2, j) => <Cable key={y2} x1={X[1]} y1={y2} x2={X[2]} y2={120} on={f !== 1} atras={f === 2} err={f === 2} ancho={ancho(4, j)} />)}
-            {RED_IN.map((y) => <Nodo key={y} cx={X[0]} cy={y} r={11} on={false} />)}
-            {RED_HID.map((y) => <Nodo key={y} cx={X[1]} cy={y} r={11} on={f === 3} />)}
-            <Nodo cx={X[2]} cy={120} r={22} on err={err} texto={num(SALIDAS[e])} />
-            {/* a la derecha de la salida no pasa ningún cable */}
-            <text x={254} y={116} className="a-s">objetivo <tspan className="a-n">1,00</tspan></text>
-            <text x={254} y={136} className={`a-s${err ? " err" : ""}`}>error <tspan className="a-n">{num(1 - SALIDAS[e])}</tspan></text>
-            <text x={130} y={18} textAnchor="middle" className="a-t">la red</text>
-
-            <line x1="360" y1="40" x2="360" y2="205" className="anim-eje" />
-            <line x1="360" y1="205" x2="550" y2="205" className="anim-eje" />
-            <text x={360} y={18} className="a-t">la curva de error</text>
-            <text x={550} y={228} textAnchor="end" className="a-s">épocas</text>
-            {anotadas > 1 && <polyline points={SALIDAS.slice(0, anotadas).map((_, k) => punto(k)).join(" ")} className="anim-curva" />}
-            {SALIDAS.slice(0, anotadas).map((_, k) => {
-              const [x, y] = punto(k).split(",");
-              return <circle key={k} cx={x} cy={y} r="5" className="anim-punto" />;
-            })}
-          </svg>
+          <div className="anim-par">
+            <svg viewBox="10 0 340 250" className="anim-par-red">
+              {RED_IN.map((y1, i) => RED_HID.map((y2, j) => (
+                <Cable key={`${y1}-${y2}`} x1={X[0]} y1={y1} x2={X[1]} y2={y2} on={f !== 1} atras={f === 2} err={f === 2} ancho={ancho(i, j)} />
+              )))}
+              {RED_HID.map((y2, j) => <Cable key={y2} x1={X[1]} y1={y2} x2={X[2]} y2={120} on={f !== 1} atras={f === 2} err={f === 2} ancho={ancho(4, j)} />)}
+              {RED_IN.map((y) => <Nodo key={y} cx={X[0]} cy={y} r={11} on={false} />)}
+              {RED_HID.map((y) => <Nodo key={y} cx={X[1]} cy={y} r={11} on={f === 3} />)}
+              <Nodo cx={X[2]} cy={120} r={22} on err={err} texto={num(SALIDAS[e])} />
+              {/* a la derecha de la salida no pasa ningún cable */}
+              <text x={254} y={116} className="a-s">objetivo <tspan className="a-n">1,00</tspan></text>
+              <text x={254} y={136} className={`a-s${err ? " err" : ""}`}>error <tspan className="a-n">{num(1 - SALIDAS[e])}</tspan></text>
+              <text x={130} y={18} textAnchor="middle" className="a-t">la red</text>
+            </svg>
+            <svg viewBox="340 0 220 250" className="anim-par-curva">
+              <line x1="360" y1="40" x2="360" y2="205" className="anim-eje" />
+              <line x1="360" y1="205" x2="550" y2="205" className="anim-eje" />
+              <text x={360} y={18} className="a-t">la curva de error</text>
+              <text x={550} y={228} textAnchor="end" className="a-s">épocas</text>
+              {anotadas > 1 && <polyline points={SALIDAS.slice(0, anotadas).map((_, k) => punto(k)).join(" ")} className="anim-curva" />}
+              {SALIDAS.slice(0, anotadas).map((_, k) => {
+                const [x, y] = punto(k).split(",");
+                return <circle key={k} cx={x} cy={y} r="5" className="anim-punto" />;
+              })}
+            </svg>
+          </div>
         );
       }}
     </Animacion>
@@ -152,56 +151,66 @@ function EntrenamientoDiagrama() {
 }
 
 function PromptDiagrama() {
-  const boxes = [
-    { y: 10, h: 32, label: "Rol y contexto", ej: "“Sos un agente que programa en TypeScript”" },
-    { y: 52, h: 32, label: "Tarea concreta", ej: "“Agregá validación al formulario de login”" },
-    { y: 94, h: 32, label: "Restricciones", ej: "“Sin librerías nuevas, seguí el estilo del repo”" },
-    { y: 136, h: 32, label: "Formato de salida", ej: "“Explicá el cambio en 3 líneas al final”" },
+  const partes = [
+    { label: "Rol y contexto", ej: "“Sos un agente que programa en TypeScript”" },
+    { label: "Tarea concreta", ej: "“Agregá validación al formulario de login”" },
+    { label: "Restricciones", ej: "“Sin librerías nuevas, seguí el estilo del repo”" },
+    { label: "Formato de salida", ej: "“Explicá el cambio en 3 líneas al final”" },
   ];
   return (
-    <svg viewBox="0 0 440 220" role="img" aria-label="Anatomía de un buen prompt: rol y contexto, tarea concreta, restricciones y formato de salida, que entran al modelo">
-      {boxes.map((b) => (
-        <g key={b.label}>
-          <rect x="10" y={b.y} width="300" height={b.h} rx="4" fill="var(--panel2)" stroke={TEAL} strokeWidth="1.5" />
-          <text x="20" y={b.y + 14} fontSize="12" fontWeight="700" {...txt}>{b.label}</text>
-          <text x="20" y={b.y + 27} fontSize="10.5" {...muted}>{b.ej}</text>
-        </g>
-      ))}
-      <path d="M160 178 v14 M160 192 l-6 -8 M160 192 l6 -8" stroke={TEAL} strokeWidth="2" fill="none" />
-      <rect x="330" y="70" width="100" height="50" rx="6" fill={TEAL} />
-      <text x="380" y="99" textAnchor="middle" fontSize="13" fontWeight="700" fill="#fff">modelo</text>
-      <path d="M150 50 L330 95 M150 125 L330 100" stroke="var(--line2)" strokeWidth="1" />
-    </svg>
+    <div className="diag">
+      <svg viewBox="0 0 560 220" role="img" aria-label="Anatomía de un buen prompt: rol y contexto, tarea concreta, restricciones y formato de salida, que entran al modelo">
+        <defs>
+          <marker id="prompt-flecha" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" className="anim-punta" />
+          </marker>
+        </defs>
+        {partes.map((b, i) => {
+          const y = 8 + i * 52;
+          return (
+            <g key={b.label}>
+              <path d={`M360 ${y + 23} L428 111`} className="anim-flecha" markerEnd="url(#prompt-flecha)" />
+              <rect x="8" y={y} width="352" height="46" rx="4" className="anim-caja" />
+              <text x="22" y={y + 19} className="a-t">{b.label}</text>
+              <text x="22" y={y + 36} className="a-s">{b.ej}</text>
+            </g>
+          );
+        })}
+        <rect x="430" y="86" width="122" height="50" rx="6" className="anim-caja on" />
+        <text x="491" y="116" textAnchor="middle" className="a-t sobre">modelo</text>
+      </svg>
+    </div>
   );
 }
 
 function BucleDiagrama() {
-  const steps = [
-    { cx: 100, cy: 40, label: "1. Leer contexto", sub: "archivos, AGENTS.md" },
-    { cx: 320, cy: 40, label: "2. Actuar", sub: "editar, correr comandos" },
-    { cx: 320, cy: 170, label: "3. Verificar", sub: "tests, build" },
-    { cx: 100, cy: 170, label: "repetir o terminar", sub: "" },
+  const pasos = [
+    { cx: 90, cy: 40, label: "1. Leer contexto", sub: "archivos, AGENTS.md" },
+    { cx: 470, cy: 40, label: "2. Actuar", sub: "editar, correr comandos" },
+    { cx: 470, cy: 190, label: "3. Verificar", sub: "tests, build" },
+    { cx: 90, cy: 190, label: "repetir o terminar", sub: "" },
   ];
   return (
-    <svg viewBox="0 0 420 220" role="img" aria-label="El bucle de un agente: leer contexto, actuar, verificar y repetir, con una evaluación de si hace falta aprobación humana entre leer y actuar">
-      <path d="M150 40 H280" stroke="var(--line2)" strokeWidth="2" markerEnd="url(#codex-arrow)" fill="none" />
-      <path d="M320 70 V140" stroke="var(--line2)" strokeWidth="2" markerEnd="url(#codex-arrow)" fill="none" />
-      <path d="M280 170 H150" stroke="var(--line2)" strokeWidth="2" markerEnd="url(#codex-arrow)" fill="none" />
-      <path d="M100 140 V70" stroke="var(--line2)" strokeWidth="2" markerEnd="url(#codex-arrow)" fill="none" />
-      <defs>
-        <marker id="codex-arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-          <path d="M0 0 L8 4 L0 8 z" fill="var(--line2)" />
-        </marker>
-      </defs>
-      {steps.map((s) => (
-        <g key={s.label}>
-          <rect x={s.cx - 60} y={s.cy - 20} width="120" height="40" rx="6" fill="var(--panel2)" stroke={TEAL} strokeWidth="1.5" />
-          <text x={s.cx} y={s.cy - 3} textAnchor="middle" fontSize="12" fontWeight="700" {...txt}>{s.label}</text>
-          {s.sub && <text x={s.cx} y={s.cy + 12} textAnchor="middle" fontSize="10" {...muted}>{s.sub}</text>}
-        </g>
-      ))}
-      <text x="210" y="42" textAnchor="middle" fontSize="10.5" fill={TEAL}>evalúa si necesita tu aprobación</text>
-    </svg>
+    <div className="diag">
+      <svg viewBox="0 0 560 230" role="img" aria-label="El bucle de un agente: leer contexto, actuar, verificar y repetir, con una evaluación de si hace falta aprobación humana entre leer y actuar">
+        <defs>
+          <marker id="bucle-flecha" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" className="anim-punta" />
+          </marker>
+        </defs>
+        {["M174 40 H386", "M470 70 V160", "M386 190 H174", "M90 160 V70"].map((d) => (
+          <path key={d} d={d} className="anim-flecha" markerEnd="url(#bucle-flecha)" />
+        ))}
+        <text x="280" y="28" textAnchor="middle" className="a-s">evalúa si necesita tu aprobación</text>
+        {pasos.map((s) => (
+          <g key={s.label}>
+            <rect x={s.cx - 80} y={s.cy - 26} width="160" height="52" rx="6" className="anim-caja" />
+            <text x={s.cx} y={s.sub ? s.cy - 4 : s.cy + 5} textAnchor="middle" className="a-t">{s.label}</text>
+            {s.sub && <text x={s.cx} y={s.cy + 14} textAnchor="middle" className="a-s">{s.sub}</text>}
+          </g>
+        ))}
+      </svg>
+    </div>
   );
 }
 

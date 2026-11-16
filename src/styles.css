@@ -968,9 +968,9 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .clase-figura { margin: 14px 0 0; padding: 0; border: none; }
 .clase-diagrama { width: 100%; max-width: 420px; }
 .clase-diagrama svg { width: 100%; height: auto; display: block; }
-.clase-diagrama:has(.anim) { max-width: 560px; }
-/* Animaciones: primero los roles de color y tipografía, derivados del tema; el SVG solo usa estas variables */
-.anim {
+.clase-diagrama:has(.anim, .diag) { max-width: 560px; }
+/* Animaciones y diagramas quietos (.diag): primero los roles de color y tipografía, derivados del tema; el SVG solo usa estas variables */
+.anim, .diag {
   --anim-senal: var(--cyan);
   --anim-error: var(--red);
   --anim-error-texto: color-mix(in srgb, var(--red) 70%, var(--strong));
@@ -981,10 +981,11 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
   --anim-texto: var(--text);
   --anim-tenue: var(--text2);
 }
-.anim svg { overflow: visible; }
-.anim text { font-family: var(--ui); font-size: 14px; fill: var(--anim-texto); }
-.anim .a-t { font-size: 14px; font-weight: 600; }
-.anim .a-s { font-size: 12px; fill: var(--anim-tenue); }
+:is(.anim, .diag) svg { overflow: visible; }
+:is(.anim, .diag) text { font-family: var(--ui); font-size: 14px; fill: var(--anim-texto); }
+:is(.anim, .diag) .a-t { font-size: 14px; font-weight: 600; }
+:is(.anim, .diag) .a-t.sobre { fill: var(--anim-sobre); }
+:is(.anim, .diag) .a-s { font-size: 12px; fill: var(--anim-tenue); }
 .anim .a-s.err { fill: var(--anim-error-texto); font-weight: 600; }
 .anim .a-u { font-family: var(--ui); }
 .anim .a-n, .anim .a-n tspan, .anim .a-s .a-n { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -1006,9 +1007,23 @@ html.calm .view h2, html.calm .neon-logo { animation: none !important; }
 .anim-eje { stroke: var(--anim-cable); stroke-width: 1.5; }
 .anim-curva { fill: none; stroke: var(--anim-senal); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
 .anim-punto { fill: var(--anim-senal); }
+.anim-caja { fill: var(--anim-nodo); stroke: var(--anim-borde); stroke-width: 1.5; }
+.anim-caja.on { fill: var(--anim-senal); stroke: var(--anim-senal); }
+.anim-flecha { fill: none; stroke: var(--anim-cable); stroke-width: 2; }
+.anim-punta { fill: var(--anim-cable); }
+/* dos dibujos lado a lado (la red y su curva) con la misma escala: en el celular se apilan */
+.anim-par { display: flex; align-items: flex-start; }
+.anim-par > .anim-par-red { width: calc(100% * 340 / 560); }
+.anim-par > .anim-par-curva { width: calc(100% * 220 / 560); }
 /* en pantallas angostas el dibujo se queda legible y se desplaza en vez de achicarse */
-.anim [role="img"] { overflow-x: auto; }
-@media (max-width: 640px) { .anim [role="img"] svg { min-width: 480px; } }
+.anim [role="img"], .diag { overflow-x: auto; }
+@media (max-width: 640px) {
+  .anim [role="img"] svg, .diag svg { min-width: 480px; }
+  .anim .anim-par { flex-direction: column; align-items: center; }
+  .anim .anim-par svg { min-width: 0; }
+  .anim-par > .anim-par-red { width: min(100%, 400px); }
+  .anim-par > .anim-par-curva { width: min(calc(100% * 220 / 340), 260px); } /* misma escala que la red */
+}
 .anim-controles { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .anim-botones { display: inline-flex; border: 1px solid var(--line2); background: var(--panel2); }
 .anim-btn { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 36px; padding: 0; border: 0; border-right: 1px solid var(--line2); background: none; color: var(--text2); cursor: pointer; }
