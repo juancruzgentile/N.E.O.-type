@@ -185,6 +185,13 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
 
+### Corregido (auditoría de la pila #73–#78 del 2026-11-16 sobre f0b66af)
+- Las animaciones de las clases arrancaban solas al abrir una clase directo por URL, aunque tuvieras las animaciones apagadas o el sistema pidiera menos movimiento. Ahora respetan la preferencia desde el primer momento, y si las apagás mientras corren, se frenan.
+- Redis: los ejemplos tenían comentarios al final de los comandos, y `redis-cli` los manda como argumentos (el grupo del stream no se creaba). Las explicaciones pasan a la descripción; en `redis.conf` los comentarios van en su propia línea.
+- PostgreSQL: la cola aclara que reservar una tarea no alcanza; una cola real necesita que la reserva venza y que procesar dos veces no haga daño.
+- El dibujo del bucle del agente decía "AGENTS.md" también en las clases de Claude, Gemini y Cursor; ahora dice "archivos y reglas".
+- Si la URL cambia de tema mientras practicás un ejemplo, la práctica se cierra; y sin lenguaje elegido, ir por URL a una pantalla que lo necesita deja la URL en la que se ve.
+
 ### Corregido (auditoría de la Biblioteca del 2026-11-16 sobre 5b644e6)
 - Codex: el sandbox no es una barrera absoluta. Si Codex te pide correr un comando fuera del sandbox y lo aprobás, ese comando ya no tiene el límite.
 - Gemini: `/restore` solo funciona si activaste los checkpoints antes (`general.checkpointing.enabled`, vienen apagados), y `/rewind` no deshace lo que editaste a mano ni lo que cambió un comando de shell.

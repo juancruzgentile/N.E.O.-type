@@ -583,6 +583,18 @@ try {
     ok((await page.locator(".lib-head h3").textContent()) === "Git", "al recargar vuelve al mismo tema");
     await page.evaluate(() => (location.hash = "#/biblioteca/no-existe"));
     ok((await page.locator(".lib-head h3").textContent()) === "Git", "un tema que no existe en la URL no rompe nada");
+    // la práctica de un ejemplo se cierra si la URL cambia de tema (auditoría del 16)
+    await page.locator(".lib-entry").first().getByRole("button", { name: "Practicar este ejemplo" }).click();
+    await page.locator(".entry-practice").waitFor();
+    await page.evaluate(() => (location.hash = "#/biblioteca/python"));
+    await page.waitForTimeout(300);
+    ok((await page.locator(".entry-practice").count()) === 0 && (await page.locator(".lib-head h3").textContent()) === "Python", "si la URL cambia de tema, se cierra la práctica del ejemplo anterior");
+    // sin lenguaje elegido, una pantalla que lo necesita deja la URL en la que se ve
+    await page.evaluate(() => { const st = JSON.parse(localStorage.getItem("neontype:v1")!); st.lang = null; localStorage.setItem("neontype:v1", JSON.stringify(st)); location.hash = "#/lenguajes"; });
+    await page.reload();
+    await page.evaluate(() => (location.hash = "#/estadisticas"));
+    await page.waitForTimeout(300);
+    ok((await page.evaluate(() => location.hash)) === "#/lenguajes", "sin lenguaje, ir a Estadísticas por URL deja la URL en Lenguajes, que es lo que se ve");
     ok(errors.length === 0, `navegación sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
@@ -623,6 +635,29 @@ try {
     }
     ok(conDibujo.length > 0 && problemas.length === 0, `las animaciones de ${conDibujo.length} clases (${pasos} pasos) se dibujan bien${problemas.length ? ": " + problemas.slice(0, 3).join("; ") : ""}`);
     ok(errors.length === 0, `animaciones sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 11d. abrir una clase directo por URL respeta la preferencia de movimiento (auditoría del 16, A1)
+  for (const caso of [
+    { nombre: "con las animaciones apagadas", animations: false, reduced: "no-preference" as const, sola: false },
+    { nombre: "con movimiento reducido en el sistema", animations: true, reduced: "reduce" as const, sola: false },
+    { nombre: "con las animaciones prendidas", animations: true, reduced: "no-preference" as const, sola: true },
+  ]) {
+    const { page, errors, ctx } = await open(browser, seedState({ settings: { animations: caso.animations } }), { reducedMotion: caso.reduced });
+    await page.evaluate(() => (location.hash = "#/biblioteca/codex/clase"));
+    await page.reload();
+    const anim = page.locator(".anim").first();
+    await anim.waitFor();
+    const antes = await anim.locator(".anim-texto").textContent();
+    await page.waitForTimeout(3000);
+    const quieta = (await anim.locator(".anim-texto").textContent()) === antes;
+    ok(caso.sola ? !quieta : quieta && (await anim.getByRole("button", { name: "Reproducir" }).count()) === 1, `clase abierta por URL ${caso.nombre}: ${caso.sola ? "arranca sola" : "queda quieta"}`);
+    if (!caso.sola) {
+      await anim.getByRole("button", { name: "Paso siguiente" }).click();
+      ok((await anim.locator(".anim-texto").textContent()) !== antes, `${caso.nombre}, el paso a paso a mano sigue andando`);
+    }
+    ok(errors.length === 0, `sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
 

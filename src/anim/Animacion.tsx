@@ -3,15 +3,24 @@
  * viven los controles. Arranca sola solo si la app tiene las animaciones prendidas; si no, queda quieta en el
  * paso actual y se avanza a mano.
  */
-import { useEffect, useState, type ReactNode } from "react";
-import { fxOn } from "../fx/fx";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+/** Preferencia efectiva de movimiento (ajuste de la app y del sistema). La pone App; sin ella no arranca sola. */
+export const Movimiento = createContext(false);
 
 const MS = 2600;
 
 export function Animacion({ pasos, label, children }: { pasos: string[]; label: string; children: (paso: number) => ReactNode }) {
   const [paso, setPaso] = useState(0);
-  const [play, setPlay] = useState(fxOn);
+  // se lee del contexto y no de fxOn(): al abrir una clase directo por URL, el efecto de App todavía no corrió
+  const movimiento = useContext(Movimiento);
+  const [play, setPlay] = useState(movimiento);
   const n = pasos.length;
+
+  // si se apagan las animaciones mientras corre, se frena
+  useEffect(() => {
+    if (!movimiento) setPlay(false);
+  }, [movimiento]);
 
   useEffect(() => {
     if (!play) return;

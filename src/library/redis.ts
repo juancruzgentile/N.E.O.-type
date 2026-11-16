@@ -32,14 +32,14 @@ GET sesion:abc
 TTL sesion:abc
 EXPIRE sesion:abc 600
 DEL sesion:abc`, "set get expire ttl vencimiento string"),
-    b("Texto", "INCR: contadores", "INCR suma 1 de forma atómica, aunque lo llamen mil clientes a la vez. Sirve para contadores y para limitar la frecuencia de uso.", code`
+    b("Texto", "INCR: contadores", "INCR suma 1 de forma atómica, aunque lo llamen mil clientes a la vez, y devuelve el total. Sirve para contadores y para limitar la frecuencia de uso: con EXPIRE … NX el vencimiento se pone solo la primera vez, así la ventana no se estira con cada pedido.", code`
 INCR visitas:home
 INCRBY ventas:hoy 25
 GET visitas:home
 
 # límite de pedidos por minuto
-INCR limite:ip:1.2.3.4            # devuelve el total del minuto
-EXPIRE limite:ip:1.2.3.4 60 NX     # NX: el vencimiento se pone solo la primera vez
+INCR limite:ip:1.2.3.4
+EXPIRE limite:ip:1.2.3.4 60 NX
 # si INCR devolvió más de 100: rechazar con 429`, "incr contador atomico limite rate"),
     b("Estructuras", "Listas y conjuntos", "Una lista guarda elementos en orden (LPUSH, RPOP, LRANGE). Un conjunto guarda elementos sin repetir (SADD, SISMEMBER, SMEMBERS).", code`
 LPUSH cola:correos "a@x.com" "b@x.com"
@@ -67,15 +67,17 @@ ZRANK ranking "ana"`, "ranking zadd sorted set puntuacion"),
 GET producto:42
 SET producto:42 "{\"nombre\":\"Cuaderno\"}" EX 300
 DEL producto:42`, "cache aside patron vencimiento invalidar"),
-    a("Mensajes", "Streams: XADD y XREADGROUP", "Un stream es un registro de eventos con identificador. Los grupos de consumidores reparten los mensajes entre varios procesos y XACK confirma cada uno con el id que recibiste. El grupo se crea una sola vez: con $ solo ve lo que llega después, con 0 también lo que ya estaba.", code`
-XGROUP CREATE pedidos workers $ MKSTREAM  # una vez, antes de publicar
-XADD pedidos * cliente 7 total 50         # devuelve el id
+    a("Mensajes", "Streams: XADD y XREADGROUP", "Un stream es un registro de eventos con identificador. Los grupos de consumidores reparten los mensajes entre varios procesos y XACK confirma cada uno con el id que recibiste. El grupo se crea una sola vez y antes de publicar: con $ solo ve lo que llega después, con 0 también lo que ya estaba. XADD devuelve el id del evento; el de XACK es de ejemplo y va el que te llegó.", code`
+XGROUP CREATE pedidos workers $ MKSTREAM
+XADD pedidos * cliente 7 total 50
 XREADGROUP GROUP workers w1 COUNT 1 STREAMS pedidos >
-XACK pedidos workers 1700000000000-0      # el id que llegó`, "stream xadd xreadgroup cola mensajes eventos"),
+XACK pedidos workers 1700000000000-0`, "stream xadd xreadgroup cola mensajes eventos"),
     a("Persistencia", "Persistencia: RDB y AOF", "RDB guarda fotos periódicas de los datos (compacto, pero se puede perder lo último). AOF anota cada escritura (más seguro, más grande). Se pueden combinar.", code`
 # redis.conf
-save 900 1          # foto si hubo 1 cambio en 15 minutos
-appendonly yes      # registro de cada escritura
+# foto si hubo 1 cambio en 15 minutos
+save 900 1
+# registro de cada escritura
+appendonly yes
 appendfsync everysec
 
 maxmemory 512mb
