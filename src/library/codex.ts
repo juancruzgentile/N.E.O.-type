@@ -117,8 +117,8 @@ codex --ask-for-approval on-request   # pregunta cuando lo necesita (por defecto
 codex --ask-for-approval never        # no pregunta nada
 codex --approve-for-me                # aprobacion automatica con sandbox de escritura
 # "untrusted" ya no existe como politica de aprobacion`, "approval on-request never approve-for-me permisos aprobacion"),
-    m("Aprobaciones y sandbox", "Modos de sandbox", "El sandbox es independiente de la aprobación: define qué puede tocar una acción, sin importar si la aprobaste. read-only no escribe nada; workspace-write puede editar dentro del proyecto; danger-full-access no tiene restricciones.", code`
-codex --sandbox read-only          # lee, no puede escribir ni ejecutar con efectos
+    m("Aprobaciones y sandbox", "Modos de sandbox", "El sandbox es independiente de la aprobación: define hasta dónde llega una acción común. read-only solo lee; workspace-write puede editar dentro del proyecto; danger-full-access no tiene restricciones. Ojo: con on-request, Codex puede pedirte correr un comando fuera del sandbox, y si lo aprobás ese comando ya no tiene el límite.", code`
+codex --sandbox read-only          # solo lee; para escribir tiene que pedirte salir
 codex --sandbox workspace-write    # puede editar dentro del proyecto
 codex --sandbox danger-full-access # sin restricciones: solo en un contenedor descartable`, "sandbox read-only workspace-write danger-full-access aislamiento"),
     m("Aprobaciones y sandbox", "Cómo aísla cada sistema", "El sandbox usa el mecanismo nativo de cada sistema operativo: Seatbelt en macOS, bubblewrap (o un helper con namespaces de usuario) en Linux, y el sandbox nativo de Windows (o el de Linux dentro de WSL2).", code`
@@ -292,7 +292,7 @@ codex review   # revisa el diff y busca problemas antes de aceptarlo`, "untruste
         diagrama: "bucle",
         parrafos: [
           "Cuando usás `codex` no estás hablando con el modelo puro: estás usando un programa (el **harness**) que lo rodea con herramientas. El ciclo es: leer contexto (tus archivos, `AGENTS.md`, tu prompt), decidir una acción (editar un archivo, correr un comando), ejecutarla, y que el resultado de esa acción (una salida, un error, un diff) vuelva a entrar al contexto para que el modelo decida el siguiente paso. Se repite hasta que la tarea parece terminada o hace falta que intervengas.",
-          "La aprobación y el sandbox se insertan exactamente en el paso \"actuar\": antes de cada acción, la **política de aprobación** evalúa si necesita tu aprobación (muchas acciones permitidas corren directo), y el sandbox limita qué puede tocar esa acción sin importar si la aprobaste o no. Son **dos frenos de mano independientes** sobre el mismo paso del bucle.",
+          "La aprobación y el sandbox se insertan exactamente en el paso \"actuar\": antes de cada acción, la **política de aprobación** evalúa si necesita tu aprobación (muchas acciones permitidas corren directo), y el sandbox limita qué puede tocar esa acción. Son **dos frenos de mano independientes** sobre el mismo paso del bucle, con una excepción: si Codex te pide correr un comando **fuera del sandbox** y lo aprobás, ese comando ya no tiene el límite. Antes de aprobar uno de esos, leé bien qué va a hacer.",
           "Por eso darle a Codex **una forma de verificarse** (los tests, un comando de build) multiplica lo que puede hacer solo: puede cerrar el bucle revisando su propio resultado en vez de simplemente suponer que salió bien.",
         ],
       },

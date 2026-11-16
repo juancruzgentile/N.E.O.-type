@@ -110,7 +110,7 @@ export const asincronia: FuentesTema = {
     "RabbitMQ: publicar y confirmar con ack": ["https://www.rabbitmq.com/docs/confirms"],
     "Cola de mensajes muertos en RabbitMQ": ["https://www.rabbitmq.com/docs/dlx"],
     "Kafka: grupo de consumidores": ["https://kafka.apache.org/documentation/"],
-    "Outbox: publicar sin perder ni duplicar": ["https://microservices.io/patterns/data/transactional-outbox.html"],
+    "Outbox: publicar sin perder eventos": ["https://microservices.io/patterns/data/transactional-outbox.html"],
   },
 };
 

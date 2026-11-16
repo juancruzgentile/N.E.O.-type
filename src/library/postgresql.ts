@@ -53,16 +53,19 @@ CREATE INDEX idx_pedidos_extra ON pedidos USING gin (extra);`, "json jsonb docum
 CREATE INDEX idx_pedidos_creado ON pedidos (creado);                   -- B-tree
 CREATE INDEX idx_pedidos_etiq ON pedidos USING gin (etiquetas);        -- GIN
 CREATE INDEX idx_pendientes ON pedidos (creado) WHERE estado = 'pendiente';   -- parcial`, "indice btree gin parcial rendimiento"),
-    m("Concurrencia", "SELECT FOR UPDATE SKIP LOCKED", "Bloquea las filas que lees para que nadie más las tome, y SKIP LOCKED salta las que ya tiene otro. Sirve para una cola de trabajos en la propia base.", code`
-BEGIN;
-SELECT id, tarea FROM trabajos
-WHERE estado = 'pendiente'
-ORDER BY id
-LIMIT 1
-FOR UPDATE SKIP LOCKED;
--- ... procesar y marcar como hecho ...
-UPDATE trabajos SET estado = 'hecho' WHERE id = 1;
-COMMIT;`, "cola bloqueo lock concurrencia trabajos"),
+    m("Concurrencia", "SELECT FOR UPDATE SKIP LOCKED", "Bloquea las filas que lees para que nadie más las tome, y SKIP LOCKED salta las que ya tiene otro. Sirve para una cola de trabajos en la propia base: tomar la tarea y marcarla va en un solo UPDATE, y RETURNING te dice cuál te tocó. Al terminar se marca ese id, no uno fijo.", code`
+-- tomar la próxima tarea libre y marcarla, en un solo paso
+UPDATE trabajos SET estado = 'en_proceso'
+WHERE id = (
+  SELECT id FROM trabajos
+  WHERE estado = 'pendiente'
+  ORDER BY id
+  LIMIT 1
+  FOR UPDATE SKIP LOCKED
+)
+RETURNING id, tarea;
+-- al terminar, con el id que devolvió (por ejemplo 2):
+UPDATE trabajos SET estado = 'hecho' WHERE id = 2;`, "cola bloqueo lock concurrencia trabajos"),
     a("Rendimiento", "EXPLAIN ANALYZE", "EXPLAIN muestra el plan; con ANALYZE lo ejecuta de verdad y da tiempos y filas reales. BUFFERS suma cuántas páginas leyó.", code`
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT * FROM pedidos WHERE creado > now() - interval '7 days';

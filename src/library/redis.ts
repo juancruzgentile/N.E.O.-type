@@ -67,11 +67,11 @@ ZRANK ranking "ana"`, "ranking zadd sorted set puntuacion"),
 GET producto:42
 SET producto:42 "{\"nombre\":\"Cuaderno\"}" EX 300
 DEL producto:42`, "cache aside patron vencimiento invalidar"),
-    a("Mensajes", "Streams: XADD y XREADGROUP", "Un stream es un registro de eventos con identificador. Los grupos de consumidores reparten los mensajes entre varios procesos y XACK confirma cada uno.", code`
-XADD pedidos * cliente 7 total 50
-XGROUP CREATE pedidos workers $ MKSTREAM
+    a("Mensajes", "Streams: XADD y XREADGROUP", "Un stream es un registro de eventos con identificador. Los grupos de consumidores reparten los mensajes entre varios procesos y XACK confirma cada uno con el id que recibiste. El grupo se crea una sola vez: con $ solo ve lo que llega después, con 0 también lo que ya estaba.", code`
+XGROUP CREATE pedidos workers $ MKSTREAM  # una vez, antes de publicar
+XADD pedidos * cliente 7 total 50         # devuelve el id
 XREADGROUP GROUP workers w1 COUNT 1 STREAMS pedidos >
-XACK pedidos workers 1700000000000-0`, "stream xadd xreadgroup cola mensajes eventos"),
+XACK pedidos workers 1700000000000-0      # el id que llegó`, "stream xadd xreadgroup cola mensajes eventos"),
     a("Persistencia", "Persistencia: RDB y AOF", "RDB guarda fotos periódicas de los datos (compacto, pero se puede perder lo último). AOF anota cada escritura (más seguro, más grande). Se pueden combinar.", code`
 # redis.conf
 save 900 1          # foto si hubo 1 cambio en 15 minutos
