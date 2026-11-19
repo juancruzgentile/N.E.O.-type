@@ -85,16 +85,19 @@ Schema::create('libros', function (Blueprint $t) {
 });
 
 // app/Http/Controllers/LibroController.php
-public function store(Request $request)
+class LibroController extends Controller
 {
-    $datos = $request->validate(['titulo' => 'required|max:100', 'paginas' => 'integer|min:1']);
-    return Libro::create($datos);
-}
-
-// resources/views/libros.blade.php
+    public function store(Request $request)
+    {
+        $datos = $request->validate(['titulo' => 'required|max:100', 'paginas' => 'integer|min:1']);
+        return Libro::create($datos);
+    }
+}`,
+        { lang: "html", text: code`
+{{-- resources/views/libros.blade.php --}}
 @foreach ($libros as $libro)
     <li>{{ $libro->titulo }}</li>
-@endforeach`,
+@endforeach` },
       ],
     },
     {
