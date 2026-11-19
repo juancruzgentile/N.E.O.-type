@@ -178,6 +178,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   saltear nada. Los paquetes de Python que usa van fijados con hash.
 
 ### Cambiado
+- Las animaciones y diagramas de las clases se ven más claros: viven en su propio panel con un brillo suave, un chip arriba dice en qué fase estás, lo activo se resalta con un aro y lo demás se atenúa, la señal viaja como puntos por los cables, el error del entrenamiento aparece en una pastilla y el avance se muestra con un tramo por paso.
 - Biblioteca: la referencia de cada tema es más compacta. Cada ejemplo es una fila con el nombre, el nivel y una línea de descripción, y se abre con un clic para ver el código, la fuente y el botón de practicar. Además del nivel, ahora se puede filtrar por categoría. Los resultados de la búsqueda se siguen viendo enteros, y el que abrís desde la búsqueda aparece abierto.
 - Clases de la Biblioteca: la app recuerda qué secciones leíste (una sección cuenta como leída cuando su final sube hasta la mitad de la pantalla) y en cuál estabas. Al volver a una clase arrancás donde quedaste. "En esta clase" muestra cuántas leíste y marca cada una con ✓.
 - Clases de la Biblioteca: tienen un índice "En esta clase" que marca la sección que estás leyendo. En pantallas anchas va en una columna a la derecha; en las más chicas y en el celular es una barra fija arriba que se despliega. La URL dice la sección (`#/biblioteca/python/clase/3`), así que un enlace o una recarga te dejan donde estabas. Al final de cada clase hay botones al tema anterior y al siguiente del índice.
