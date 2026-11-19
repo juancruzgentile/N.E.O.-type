@@ -18,9 +18,12 @@ import { Footer, Header, MobileNav, Sidebar } from "./components/Chrome";
 import { useMusicInit } from "./components/MusicPlayer";
 import { Tutorial } from "./components/Tutorial";
 import { type Challenge, PracticeView } from "./components/PracticeView";
-import {
-  AchievementsView, ChallengesView, LanguagesView, RoutesView, SettingsView, StatsView,
-} from "./components/Views";
+import { AchievementsView } from "./components/AchievementsView";
+import { ChallengesView } from "./components/ChallengesView";
+import { LanguagesView } from "./components/LanguagesView";
+import { RoutesView } from "./components/RoutesView";
+import { SettingsView } from "./components/SettingsView";
+import { StatsView } from "./components/StatsView";
 import { LibraryView } from "./components/LibraryView";
 import { InterviewView } from "./components/InterviewView";
 import { frameworksToGrant } from "./library/unlock";
