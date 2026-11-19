@@ -11,6 +11,7 @@ import { ClaseView } from "./ClaseView";
 import { CodeBlock, fechaLarga } from "./CodeBlock";
 import { IconBook, IconChalk, IconKeyboard, IconLock, IconSearch, IconWarn } from "./icons";
 import { EntryPractice } from "./EntryPractice";
+import { tabKeys } from "./tabs";
 import { kindNote } from "../library/kind";
 import { fuenteDe } from "../library/fuentes/index";
 import { MAX_BOX, findEntry, whenText } from "../review/review";
@@ -304,16 +305,17 @@ export function LibraryView({ lang, state, update }: Props) {
               </div>
 
               {topic.clase && (
-                <div className="seg lib-clase-toggle" role="tablist" aria-label="Vista">
-                  <button role="tab" aria-selected={!claseOpen} className={!claseOpen ? "on" : ""} onClick={() => setClaseOpen(false)}>
+                <div className="seg lib-clase-toggle" role="tablist" aria-label="Vista" onKeyDown={tabKeys}>
+                  <button role="tab" id="lib-tab-ref" aria-controls="lib-vista" aria-selected={!claseOpen} tabIndex={claseOpen ? -1 : 0} className={!claseOpen ? "on" : ""} onClick={() => setClaseOpen(false)}>
                     <IconBook size={16} /> Referencia
                   </button>
-                  <button role="tab" aria-selected={claseOpen} className={claseOpen ? "on" : ""} onClick={() => setClaseOpen(true)}>
+                  <button role="tab" id="lib-tab-clase" aria-controls="lib-vista" aria-selected={claseOpen} tabIndex={claseOpen ? 0 : -1} className={claseOpen ? "on" : ""} onClick={() => setClaseOpen(true)}>
                     <IconChalk size={16} /> {topic.clase.tab ?? "Clase"}
                   </button>
                 </div>
               )}
 
+              <div {...(topic.clase && { id: "lib-vista", role: "tabpanel", "aria-labelledby": claseOpen ? "lib-tab-clase" : "lib-tab-ref" })}>
               {topic.clase && claseOpen ? (
                 <ClaseView clase={topic.clase} hl={topic.hl} color={topic.color} />
               ) : (
@@ -341,12 +343,15 @@ export function LibraryView({ lang, state, update }: Props) {
                     COMANDOS Y CONCEPTOS
                     {inReview > 0 && <span className="lib-in-review">{inReview} en tu repaso</span>}
                   </div>
-                  <div className="seg lib-levels" role="tablist" aria-label="Nivel">
+                  <div className="seg lib-levels" role="tablist" aria-label="Nivel" onKeyDown={tabKeys}>
                     {[{ id: "all" as const, name: "Todo" }, ...LEVELS].map((l) => (
                       <button
                         key={l.id}
                         role="tab"
+                        id={`lib-nivel-${l.id}`}
+                        aria-controls="lib-nivel"
                         aria-selected={level === l.id}
+                        tabIndex={level === l.id ? 0 : -1}
                         className={level === l.id ? "on" : ""}
                         onClick={() => setLevel(l.id)}
                       >
@@ -354,6 +359,7 @@ export function LibraryView({ lang, state, update }: Props) {
                       </button>
                     ))}
                   </div>
+                  <div id="lib-nivel" role="tabpanel" aria-labelledby={`lib-nivel-${level}`}>
                   {LEVELS.filter((l) => level === "all" || level === l.id).map((l) => {
                     const list = entries.filter((e) => e.level === l.id);
                     if (!list.length) return null;
@@ -366,8 +372,10 @@ export function LibraryView({ lang, state, update }: Props) {
                       </section>
                     );
                   })}
+                  </div>
                 </>
               )}
+              </div>
             </>
           ) : null}
         </div>

@@ -492,7 +492,22 @@ try {
     ok(soon.length === 1 && soon.every((t) => /PRÓXIMAMENTE/.test(t)), "Próximamente muestra las 1 secciones de IA marcadas como próximamente");
     await page.locator(".lib-nav").getByRole("button", { name: /^Claude/ }).click();
     ok(/seguridad/i.test((await page.locator(".lib-alert").first().textContent()) ?? "") && (await page.locator(".claude-mark").count()) > 0, "Claude abre con el aviso rojo de seguridad y su logo");
-    await page.locator(".lib-clase-toggle").getByRole("tab", { name: /^Clase$/ }).click();
+    // pestañas con el patrón ARIA: flechas, Inicio/Fin, una sola pestaña en el orden de Tab y el panel que controlan
+    const vista = page.locator(".lib-clase-toggle");
+    const pestana = async () => vista.evaluate((el) => {
+      const t = document.activeElement as HTMLElement;
+      return el.contains(t) && t.getAttribute("aria-selected") === "true" && t.tabIndex === 0 ? t.id : "";
+    });
+    await vista.getByRole("tab", { name: /Referencia/ }).focus();
+    await page.keyboard.press("ArrowRight");
+    const trasFlecha = await pestana();
+    await page.keyboard.press("ArrowRight");
+    const daLaVuelta = await pestana();
+    await page.keyboard.press("End");
+    const conFin = await pestana();
+    ok(trasFlecha === "lib-tab-clase" && daLaVuelta === "lib-tab-ref" && conFin === "lib-tab-clase" &&
+      (await vista.locator('[tabindex="0"]').count()) === 1 && (await page.locator("#lib-vista[role=tabpanel]").getAttribute("aria-labelledby")) === "lib-tab-clase",
+      "las pestañas Referencia/Clase se manejan con flechas y Fin, y el panel dice qué pestaña lo muestra");
     ok((await page.locator(".clase-seccion").count()) >= 11 && (await page.locator(".captura").count()) >= 2, "la clase de Claude muestra cómo se ven la terminal y la app");
     await page.locator(".lib-clase-toggle").getByRole("tab", { name: /Referencia/ }).click();
     await page.locator(".lib-nav").getByRole("button", { name: /^Codex/ }).click();
