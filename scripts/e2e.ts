@@ -100,6 +100,29 @@ async function typeLesson(page: Page, text: string, lastWrong = false) {
 // CHROMIUM_PATH permite usar un Chromium ya instalado si no coincide con la versión de Playwright
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 try {
+  // 0. presupuesto: que la app no crezca ni se ponga lenta sin que nos demos cuenta
+  {
+    const MAX_MB = 3;
+    const mb = html.length / 2 ** 20;
+    ok(mb <= MAX_MB, `NeonType.html pesa ${mb.toFixed(2)} MB (límite ${MAX_MB} MB)`);
+    // arranque con la CPU frenada 4×, como un celular modesto; el mejor de tres para no depender de un pico del CI
+    const MAX_MS = 2500;
+    const tiempos: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      const ctx = await browser.newContext();
+      const page = await ctx.newPage();
+      await (await ctx.newCDPSession(page)).send("Emulation.setCPUThrottlingRate", { rate: 4 });
+      await page.addInitScript(([k, v]) => localStorage.setItem(k, v), [KEY, JSON.stringify(seedState())] as const);
+      const t0 = Date.now();
+      await page.goto(APP);
+      await page.locator(".code-box").waitFor();
+      tiempos.push(Date.now() - t0);
+      await ctx.close();
+    }
+    const ms = Math.min(...tiempos);
+    ok(ms <= MAX_MS, `la app arranca en ${ms} ms con la CPU frenada 4× (límite ${MAX_MS} ms; medidas: ${tiempos.join(", ")})`);
+  }
+
   // 1. carga y lección completa
   {
     const { page, errors, ctx } = await open(browser);
