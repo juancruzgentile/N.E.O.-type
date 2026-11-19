@@ -509,6 +509,11 @@ try {
       (await vista.locator('[tabindex="0"]').count()) === 1 && (await page.locator("#lib-vista[role=tabpanel]").getAttribute("aria-labelledby")) === "lib-tab-clase",
       "las pestañas Referencia/Clase se manejan con flechas y Fin, y el panel dice qué pestaña lo muestra");
     ok((await page.locator(".clase-seccion").count()) >= 11 && (await page.locator(".captura").count()) >= 2, "la clase de Claude muestra cómo se ven la terminal y la app");
+    const cap = page.locator(".captura").first();
+    // cada línea es un bloque propio: el lector la lee sola; antes role="img" escondía todo detrás del pie
+    const lineas = (await cap.locator(".cap-linea").allTextContents()).map((t) => t.replace(/\s+/g, " ").trim()).filter(Boolean);
+    const arbol = await cap.ariaSnapshot();
+    ok(lineas.length > 1 && lineas.every((l) => arbol.includes(l)) && !/^- img/m.test(arbol), "el lector de pantalla llega al texto de la captura, no a una imagen");
     await page.locator(".lib-clase-toggle").getByRole("tab", { name: /Referencia/ }).click();
     await page.locator(".lib-nav").getByRole("button", { name: /^Codex/ }).click();
     ok(/seguridad/i.test((await page.locator(".lib-alert").first().textContent()) ?? "") && (await page.locator(".codex-mark").count()) > 0, "Codex abre con el aviso rojo de seguridad y su logo");

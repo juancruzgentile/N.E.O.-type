@@ -25,11 +25,11 @@ const Linea = ({ l }: { l: CapturaTramo[] }) => (
   <div className="cap-linea">{l.length ? l.map((x, i) => <span key={i} className={x.c ? `cap-${x.c}` : undefined}>{x.t}</span>) : "\u00a0"}</div>
 );
 
-/** Cómo se ve una herramienta, recreado con texto: una terminal o los paneles de una app. */
+/** Cómo se ve una herramienta, recreado con texto: una terminal o los paneles de una app. El texto queda a la vista del lector de pantalla, línea por línea. */
 function CapturaVista({ c }: { c: Captura }) {
   return (
     <figure className="clase-figura">
-      <div className={`captura captura-${c.tipo}`} role="img" aria-label={c.pie}>
+      <div className={`captura captura-${c.tipo}`}>
         <div className="cap-barra" aria-hidden="true"><i /><i /><i /><span>{c.titulo}</span></div>
         {c.tipo === "terminal" ? (
           <div className="cap-term">{c.lineas?.map((l, i) => <Linea key={i} l={l} />)}</div>
