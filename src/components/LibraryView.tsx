@@ -110,9 +110,14 @@ export function LibraryView({ lang, state, update }: Props) {
   // anterior y siguiente en el orden del índice; si el tema tiene clase, abre la clase
   const orden = GROUPS.flatMap((g) => TOPICS.filter((t) => t.group === g));
   const vecinos = topic ? [orden[orden.indexOf(topic) - 1], orden[orden.indexOf(topic) + 1]] : [];
+  // salta de una al comienzo (sin animar) antes de mostrar el tema nuevo: así la clase nueva no aparece a mitad de
+  // página ni se recorre entera al subir
   const openVecino = (t: Topic) => {
-    openTopic(t.id);
+    contentRef.current?.scrollIntoView({ block: "start" });
+    setSel({ kind: "topic", id: t.id });
+    setLevel("all");
     setClaseOpen(!!t.clase);
+    setIrA(undefined);
   };
 
   const openHit = (h: Hit) => {

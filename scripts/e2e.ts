@@ -654,7 +654,9 @@ try {
     ok(page.url().endsWith("/clase/6") && (await arriba("#clase-6")) < 120 && ((await page.locator("#clase-6 h4").textContent()) ?? "").includes((await marcada.textContent()) ?? "-"),
       "elegir una sección en el índice baja hasta ella y la URL la sigue");
     await page.locator(".clase-pie").getByRole("button", { name: /Siguiente/ }).click();
-    ok((await page.locator(".lib-head h3").textContent()) === "JavaScript" && (await page.locator(".clase").count()) === 1 && page.url().endsWith("#/biblioteca/javascript/clase"),
+    await page.waitForTimeout(300);
+    // arranca en el comienzo: la URL no anota ninguna sección del medio
+    ok((await page.locator(".lib-head h3").textContent()) === "JavaScript" && (await page.locator(".clase").count()) === 1 && /#\/biblioteca\/javascript\/clase(\/1)?$/.test(page.url()),
       "al final de la clase, Siguiente abre la clase del tema que sigue en el índice");
     // progreso de lectura: retoma en la última sección y la última queda leída al llegar al final
     const lect = await open(browser, seedState({ lang: "python", lectura: { python: { leidas: [1], ultima: 5 } } }));
