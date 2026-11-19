@@ -410,5 +410,11 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   ok(/venza/.test(pg) && /se cayó/.test(pg), "postgresql: la cola aclara que una reserva tiene que vencer para recuperar tareas abandonadas");
 }
 
+// ── base: sin import circular entre componentes ──
+{
+  const clase = readFileSync("src/components/ClaseView.tsx", "utf8");
+  ok(!/from "\.\/LibraryView"/.test(clase), "ClaseView no importa LibraryView (CodeBlock vive en su propio archivo)");
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);
