@@ -640,6 +640,23 @@ try {
     ok((await page.locator(".lib-head h3").textContent()) === "Git", "al recargar vuelve al mismo tema");
     await page.evaluate(() => (location.hash = "#/biblioteca/no-existe"));
     ok((await page.locator(".lib-head h3").textContent()) === "Git", "un tema que no existe en la URL no rompe nada");
+    // la URL lleva a una sección de la clase; "En esta clase" marca dónde estás y la URL la sigue
+    await page.evaluate(() => (location.hash = "#/biblioteca/python/clase/3"));
+    await page.locator("#clase-3").waitFor();
+    await page.waitForTimeout(300);
+    const marcada = page.locator(".clase-indice a[aria-current]");
+    const arriba = (id: string) => page.locator(id).evaluate((el) => Math.round(el.getBoundingClientRect().top));
+    ok(((await page.locator("#clase-3 h4").textContent()) ?? "").includes((await marcada.textContent()) ?? "-") && (await arriba("#clase-3")) < 120 && page.url().endsWith("/clase/3"),
+      "un enlace a la sección 3 de la clase la abre arriba de todo y la marca en el índice");
+    await page.locator(".clase-indice-boton").click();
+    await page.locator(".clase-indice a").nth(5).click();
+    await page.waitForTimeout(300);
+    ok(page.url().endsWith("/clase/6") && (await arriba("#clase-6")) < 120 && ((await page.locator("#clase-6 h4").textContent()) ?? "").includes((await marcada.textContent()) ?? "-"),
+      "elegir una sección en el índice baja hasta ella y la URL la sigue");
+    await page.locator(".clase-pie").getByRole("button", { name: /Siguiente/ }).click();
+    ok((await page.locator(".lib-head h3").textContent()) === "JavaScript" && (await page.locator(".clase").count()) === 1 && page.url().endsWith("#/biblioteca/javascript/clase"),
+      "al final de la clase, Siguiente abre la clase del tema que sigue en el índice");
+    await page.evaluate(() => (location.hash = "#/biblioteca/git"));
     // la práctica de un ejemplo se cierra si la URL cambia de tema (auditoría del 16)
     await page.locator(".lib-entry").first().getByRole("button", { name: "Practicar este ejemplo" }).click();
     await page.locator(".entry-practice").waitFor();
