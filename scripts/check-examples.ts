@@ -1,4 +1,5 @@
-// Revisa la sintaxis de los ejemplos de la Biblioteca con el parser de cada lenguaje.
+// Revisa la sintaxis de los ejemplos de la Biblioteca (la referencia y el código de las clases) con el parser de
+// cada lenguaje.
 //
 // Los ejemplos son fragmentos: usan variables que no se declaran y mezclan declaraciones con sentencias, así que no
 // se compilan; se comprueba que estén bien escritos. Cada revisor prueba algunas "envolturas" (como archivo, dentro
@@ -436,6 +437,14 @@ for (const topic of TOPICS) {
     list.push({ topic: topic.name, e });
     groups.set(c, list);
   }
+  // el código de la clase también se revisa; un bloque con lang propio usa el revisor de ese lenguaje
+  topic.clase?.secciones.forEach((sec, i) => sec.codigo?.forEach((b, j) => {
+    const [lang, code] = typeof b === "string" ? [topic.id, b] : [b.lang, b.text];
+    const e = { name: `Clase ${i + 1}, bloque ${j + 1}: ${sec.heading}`, cat: "clase", code } as Entry;
+    const c = checkerFor(lang, e);
+    if (!c) return void tally(topic.name).none++;
+    groups.set(c, [...(groups.get(c) ?? []), { topic: topic.name, e }]);
+  }));
 }
 
 const tested = new Set<string>();
