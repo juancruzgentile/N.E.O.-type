@@ -185,6 +185,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 - Los proyectos van del 1 al 14. Si ya habías terminado el tablero full stack, sigue abierto y conserva tu récord.
 - Saqué la frase «Escribe un mejor mañana» de la pantalla de inicio y de la cabecera.
 - Las pestañas (Referencia/Clase, los niveles de la Biblioteca y las de Entrevistas) se manejan con el teclado como pide ARIA: con las flechas pasás de una a otra, Inicio y Fin van a la primera y la última, y Tab entra una sola vez al grupo. Un lector de pantalla ahora sabe qué panel muestra cada pestaña.
+- Las capturas de las clases (cómo se ve la terminal o la app) ya no son una imagen para el lector de pantalla: lee el texto de verdad, línea por línea, con el pie como título.
 
 ### Corregido (auditoría de la pila #73–#78 del 2026-11-16 sobre f0b66af)
 - Las animaciones de las clases arrancaban solas al abrir una clase directo por URL, aunque tuvieras las animaciones apagadas o el sistema pidiera menos movimiento. Ahora respetan la preferencia desde el primer momento, y si las apagás mientras corren, se frenan.
