@@ -5,7 +5,7 @@ import { corregirCodigo, opcionesMezcladas } from "../interview/engine";
 import type { Pregunta } from "../interview/types";
 import { formatoName, hlDe } from "../interview/util";
 import { NIVELES, areaName } from "../interview/catalogo";
-import { CodeBlock } from "./LibraryView";
+import { CodeBlock } from "./CodeBlock";
 
 interface Props {
   q: Pregunta;

@@ -5,7 +5,7 @@ import { AREAS, NIVELES, areaName } from "../interview/catalogo";
 import type { Formato, Nivel, Pregunta } from "../interview/types";
 import { FORMATOS, formatoName, hlDe } from "../interview/util";
 import { IconSearch } from "./icons";
-import { CodeBlock } from "./LibraryView";
+import { CodeBlock } from "./CodeBlock";
 
 const sinAcentos = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const POR_PAGINA = 30;

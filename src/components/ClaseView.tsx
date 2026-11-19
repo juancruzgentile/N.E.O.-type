@@ -3,7 +3,7 @@ import type { LangId } from "../types";
 import { tramos } from "../library/marcas";
 import type { Captura, CapturaTramo, Clase } from "../library/types";
 import { ClaseDiagrama } from "../anim";
-import { CodeBlock, fechaLarga } from "./LibraryView";
+import { CodeBlock, fechaLarga } from "./CodeBlock";
 
 const ALT: Record<string, string> = {
   neurona: "Una neurona paso a paso (entradas por pesos, suma, sesgo y activación) y después la señal pasando por la red",

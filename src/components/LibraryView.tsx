@@ -1,6 +1,5 @@
-import { type CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import type { AppState, LangId, ReviewItem } from "../types";
-import { highlight } from "../highlight";
 import { GROUPS, SOON } from "../library/index";
 import { visibleTopics } from "../library/unlock";
 import { type Hit, entryId, search } from "../library/search";
@@ -9,6 +8,7 @@ import { LangEmblem } from "./LangEmblem";
 import { ClaudeBuddy, ClaudeMark } from "./ClaudeMark";
 import { CodexBuddy, CodexMark } from "./CodexMark";
 import { ClaseView } from "./ClaseView";
+import { CodeBlock, fechaLarga } from "./CodeBlock";
 import { IconBook, IconChalk, IconKeyboard, IconLock, IconSearch, IconWarn } from "./icons";
 import { EntryPractice } from "./EntryPractice";
 import { kindNote } from "../library/kind";
@@ -16,23 +16,6 @@ import { fuenteDe } from "../library/fuentes/index";
 import { MAX_BOX, findEntry, whenText } from "../review/review";
 import { today } from "../store";
 import { readHash, viewHash, writeHash } from "../route";
-
-/** Bloque de código con resaltado; agrupa caracteres seguidos del mismo tipo en un solo span. */
-export const CodeBlock = memo(function CodeBlock({ text, lang }: { text: string; lang: LangId }) {
-  const parts = useMemo(() => {
-    const toks = highlight(text, lang);
-    const out: { t: string; s: string }[] = [];
-    for (let i = 0; i < text.length; i++) {
-      const last = out[out.length - 1];
-      if (last && last.t === toks[i]) last.s += text[i];
-      else out.push({ t: toks[i], s: text[i] });
-    }
-    return out;
-  }, [text, lang]);
-  return (
-    <pre className="lib-code"><code>{parts.map((p, i) => <span key={i} className={"tk-" + p.t}>{p.s}</span>)}</code></pre>
-  );
-});
 
 function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
   if (topic.id === "claude") return <ClaudeMark size={size} />;
@@ -45,8 +28,6 @@ function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
   );
 }
 
-export const fechaLarga = (iso: string) =>
-  new Date(`${iso}T12:00:00`).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
 const levelName = (l: Level) => LEVELS.find((x) => x.id === l)!.name;
 
 function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice, onForget }: {
