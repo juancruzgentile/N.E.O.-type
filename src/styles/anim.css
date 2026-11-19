@@ -12,9 +12,11 @@
   --anim-tenue: var(--text2);
 }
 :is(.anim, .diag) svg { overflow: visible; }
+/* escenario: la animación vive en su propio panel, con un brillo muy suave arriba y borde fino */
+.anim-escenario, .diag { position: relative; padding: 16px 16px 12px; border: 1px solid var(--line); background: radial-gradient(ellipse 80% 70% at 50% 0%, color-mix(in srgb, var(--anim-senal) 7%, transparent), transparent), var(--panel); }
+.anim-chip { display: inline-block; margin-bottom: 12px; padding: 2px 8px; border: 1px solid var(--line2); font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--anim-tenue); }
 :is(.anim, .diag) text { font-family: var(--ui); font-size: 14px; fill: var(--anim-texto); }
 :is(.anim, .diag) .a-t { font-size: 14px; font-weight: 600; }
-:is(.anim, .diag) .a-t.sobre { fill: var(--anim-sobre); }
 :is(.anim, .diag) .a-s { font-size: 12px; fill: var(--anim-tenue); }
 .anim .a-s.err { fill: var(--anim-error-texto); font-weight: 600; }
 .anim .a-u { font-family: var(--ui); }
@@ -23,22 +25,33 @@
 .anim text.a-n.fuerte { fill: var(--anim-texto); font-weight: 600; }
 .anim .anim-nodo-t { font-family: var(--mono); font-size: 12px; font-weight: 700; fill: var(--anim-texto); }
 .anim .anim-nodo-t.grande { font-size: 16px; }
-.anim .anim-nodo-t.on { fill: var(--anim-sobre); }
 .anim-escena, .anim-cable, .anim-nodo, .anim-curva, .anim-punto { transition: opacity 0.5s, stroke 0.4s, stroke-width 0.4s, fill 0.4s; }
 .anim-cable { stroke: var(--anim-cable); opacity: 0.8; }
 .anim-cable.on { stroke: var(--anim-senal); opacity: 1; }
 .anim-cable.on.err { stroke: var(--anim-error); }
 .anim-cable.flujo { stroke-dasharray: 6 8; animation: anim-flujo 1s linear infinite; }
+/* la señal: puntos que recorren el cable (siguen a la línea porque van por su misma ruta) */
+.anim-viaja { fill: var(--anim-senal); offset-rotate: 0deg; animation: anim-viaja 1.4s linear infinite; }
+@keyframes anim-viaja { from { offset-distance: 0%; } to { offset-distance: 100%; } }
 .anim-cable.flujo.atras { animation-direction: reverse; }
 @keyframes anim-flujo { to { stroke-dashoffset: -14; } }
 .anim-nodo { fill: var(--anim-nodo); stroke: var(--anim-borde); stroke-width: 2; }
-.anim-nodo.on { fill: var(--anim-senal); stroke: var(--anim-senal); }
+/* foco: lo activo se llena apenas y gana un aro; lo demás baja de intensidad pero no desaparece */
+.anim-nodo.on { fill: color-mix(in srgb, var(--anim-senal) 24%, var(--anim-nodo)); stroke: var(--anim-senal); stroke-width: 2.5; }
+.anim-aro { fill: none; stroke: var(--anim-senal); stroke-width: 1; opacity: 0; transition: opacity 0.5s; }
+.anim-aro.on { opacity: 0.4; }
+.anim-nodo-g { transition: opacity 0.5s; }
+.anim-nodo-g.tenue .anim-nodo { stroke-opacity: 0.55; }
+.anim-nodo-g.tenue text { opacity: 0.6; }
+.anim-pastilla rect { fill: var(--anim-nodo); stroke: var(--anim-borde); stroke-width: 1; }
+.anim-pastilla.err rect { fill: color-mix(in srgb, var(--anim-error) 14%, var(--anim-nodo)); stroke: var(--anim-error); }
+.anim-pastilla.err .a-s { fill: var(--anim-error-texto); font-weight: 600; }
 .anim-nodo.err { fill: color-mix(in srgb, var(--anim-error) 16%, var(--anim-nodo)); stroke: var(--anim-error); stroke-width: 3; }
 .anim-eje { stroke: var(--anim-cable); stroke-width: 1.5; }
 .anim-curva { fill: none; stroke: var(--anim-senal); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
 .anim-punto { fill: var(--anim-senal); }
 .anim-caja { fill: var(--anim-nodo); stroke: var(--anim-borde); stroke-width: 1.5; }
-.anim-caja.on { fill: var(--anim-senal); stroke: var(--anim-senal); }
+.anim-caja.on { fill: color-mix(in srgb, var(--anim-senal) 24%, var(--anim-nodo)); stroke: var(--anim-senal); stroke-width: 2; }
 .anim-flecha { fill: none; stroke: var(--anim-cable); stroke-width: 2; }
 .anim-punta { fill: var(--anim-cable); }
 /* dos dibujos lado a lado (la red y su curva) con la misma escala: en el celular se apilan */
@@ -64,10 +77,17 @@
 .anim-btn svg .rel { fill: currentColor; }
 .anim-play { color: var(--accent-text); }
 .anim-num { font-family: var(--mono); font-size: 12px; color: var(--muted); min-width: 40px; }
-.anim-barra { flex: 1; height: 2px; background: var(--line); }
-.anim-barra i { display: block; height: 100%; background: var(--cyan); transition: width 0.4s; }
+/* un tramo por paso: los hechos se tiñen, el actual se marca */
+.anim-pasos { flex: 1; display: flex; gap: 3px; }
+.anim-pasos i { flex: 1; height: 4px; background: var(--line2); transition: background 0.4s; }
+.anim-pasos i.hecho { background: color-mix(in srgb, var(--cyan) 45%, var(--line2)); }
+.anim-pasos i.ahora { background: var(--cyan); }
 .anim-texto { margin: 8px 0 0; min-height: 3em; font-size: 14px; line-height: 1.5; color: var(--text2); }
 @media (prefers-reduced-motion: reduce) {
   .anim-cable.flujo { animation: none; }
-  .anim-escena, .anim-cable, .anim-nodo, .anim-curva, .anim-punto, .anim-barra i { transition: none; }
+  .anim-viaja { animation: none; offset-distance: 50%; }
+  .anim-escena, .anim-cable, .anim-nodo, .anim-curva, .anim-punto, .anim-aro, .anim-nodo-g, .anim-pasos i { transition: none; }
 }
+/* con las animaciones de la app apagadas la señal queda quieta, igual que con el movimiento reducido del sistema */
+.anim.quieto .anim-cable.flujo { animation: none; }
+.anim.quieto .anim-viaja { animation: none; offset-distance: 50%; }
