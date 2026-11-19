@@ -165,6 +165,24 @@
   font-family: var(--mono); font-size: 14px; line-height: 1.55; tab-size: 4; font-variant-ligatures: none;
 }
 .lib-empty { color: var(--muted); }
+/* referencia compacta: cada ejemplo es una fila que se abre; abierta se ve como la tarjeta de siempre */
+.lib-entries:has(> .lib-fila) { gap: 0; }
+.lib-fila { padding: 0; border-top-width: 0; }
+.lib-entries > .lib-fila:first-child { border-top-width: 1px; }
+.lib-fila > summary { display: block; padding: 10px 18px 10px 38px; position: relative; cursor: pointer; list-style: none; }
+.lib-fila > summary::-webkit-details-marker { display: none; }
+.lib-fila > summary::before { content: "›"; position: absolute; left: 16px; top: 9px; font-family: var(--mono); font-size: 18px; color: var(--muted); }
+.lib-fila[open] > summary::before { transform: rotate(90deg); }
+.lib-fila > summary:hover { background: var(--cyan-soft); }
+.lib-fila .lib-fila-desc { margin: 4px 0 0; font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-fila[open] .lib-fila-desc { white-space: normal; font-size: 16px; color: var(--text2); }
+.lib-fila[open] { padding-bottom: 14px; }
+.lib-fila[open] > :not(summary) { margin-left: 18px; margin-right: 18px; }
+.lib-fila:not([open]) :is(.lib-cat, .lib-kind) { display: none; }
+.lib-fila-repaso { margin-left: auto; font-size: 12px; color: var(--yellow); }
+.lib-fila-repaso.mastered { color: var(--green); }
+.lib-cat-filtro { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; color: var(--muted); font-size: 14px; font-weight: 600; }
+.lib-cat-filtro select { padding: 6px 10px; background: var(--input-bg); border: 1px solid var(--line2); color: var(--text); font: inherit; font-size: 14px; font-weight: 400; }
 .lib-soon { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
 .lib-soon-card { padding: 16px; background: var(--panel2); border: 1px dashed var(--line2); opacity: 0.85; }
 .lib-soon-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }

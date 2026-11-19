@@ -41,6 +41,7 @@ export function LibraryView({ lang, state, update }: Props) {
   const [query, setQuery] = useState("");
   const [onlyTopic, setOnlyTopic] = useState(false);
   const [level, setLevel] = useState<Level | "all">("all");
+  const [cat, setCat] = useState("");
   const [flash, setFlash] = useState<string | null>(null);
   const [practice, setPractice] = useState<string | null>(null);
   const practicing = practice ? findEntry(practice) : null;
@@ -66,6 +67,8 @@ export function LibraryView({ lang, state, update }: Props) {
       setPractice(null);
       setQuery("");
       setLevel("all");
+    setCat("");
+      setCat("");
       setSel(h.sel);
       setClaseOpen(h.clase);
       setIrA(h.seccion);
@@ -102,6 +105,7 @@ export function LibraryView({ lang, state, update }: Props) {
   const openTopic = (id: string) => {
     setSel({ kind: "topic", id });
     setLevel("all");
+    setCat("");
     setClaseOpen(false);
     setIrA(undefined);
     contentRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
@@ -116,6 +120,7 @@ export function LibraryView({ lang, state, update }: Props) {
     contentRef.current?.scrollIntoView({ block: "start" });
     setSel({ kind: "topic", id: t.id });
     setLevel("all");
+    setCat("");
     setClaseOpen(!!t.clase);
     setIrA(undefined);
   };
@@ -124,6 +129,7 @@ export function LibraryView({ lang, state, update }: Props) {
     setSel({ kind: "topic", id: h.topic.id });
     setQuery("");
     setLevel("all");
+    setCat("");
     setClaseOpen(false);
     setIrA(undefined);
     setFlash(entryId(h.topic, h.entry));
@@ -135,7 +141,7 @@ export function LibraryView({ lang, state, update }: Props) {
       delete review[id];
       return { ...s, review };
     });
-  const card = (t: Topic, e: Entry, extra: { showTopic?: boolean; onOpenTopic?: () => void; flash?: boolean } = {}) => {
+  const card = (t: Topic, e: Entry, extra: { showTopic?: boolean; onOpenTopic?: () => void; flash?: boolean; compacta?: boolean } = {}) => {
     const id = entryId(t, e);
     return <EntryCard key={id} topic={t} entry={e} {...extra} rv={state.review[id]} onPractice={() => setPractice(id)} onForget={() => forget(id)} />;
   };
@@ -257,7 +263,7 @@ export function LibraryView({ lang, state, update }: Props) {
                   </nav>
                 </>
               ) : (
-                <LibReferencia topic={topic} level={level} onLevel={setLevel} inReview={inReview} card={(e) => card(topic, e, { flash: flash === entryId(topic, e) })} />
+                <LibReferencia topic={topic} level={level} onLevel={setLevel} cat={cat} onCat={setCat} inReview={inReview} card={(e) => card(topic, e, { flash: flash === entryId(topic, e), compacta: true })} />
               )}
               </div>
             </>

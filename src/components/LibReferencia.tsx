@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { ReviewItem } from "../types";
 import { entryId } from "../library/search";
 import { type Entry, type Level, LEVELS, type Topic } from "../library/types";
@@ -13,14 +13,19 @@ import { tabKeys } from "./tabs";
 
 const levelName = (l: Level) => LEVELS.find((x) => x.id === l)!.name;
 
-export function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice, onForget }: {
+/** Un ejemplo. Compacto es una fila (nombre, nivel, una línea) que se abre con clic; si no, la tarjeta entera. */
+export function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice, onForget, compacta }: {
   topic: Topic; entry: Entry; showTopic?: boolean; onOpenTopic?: () => void; flash?: boolean;
-  rv?: ReviewItem; onPractice: () => void; onForget: () => void;
+  rv?: ReviewItem; onPractice: () => void; onForget: () => void; compacta?: boolean;
 }) {
   const kind = kindNote(topic.id, entry);
   const fuente = fuenteDe(topic.id, entry.name);
-  return (
-    <article id={entryId(topic, entry)} className={`lib-entry ${flash ? "flash" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
+  const fila = useRef<HTMLDetailsElement>(null);
+  // un resultado de la búsqueda se abre solo; cerrarlo después queda en manos de quien lee
+  useEffect(() => {
+    if (flash && fila.current) fila.current.open = true;
+  }, [flash]);
+  const cabeza = (
       <header>
         <h4>{entry.name}</h4>
         <span className={`lib-level ${entry.level}`}>{levelName(entry.level)}</span>
@@ -31,8 +36,11 @@ export function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onP
             <TopicBadge topic={topic} size={20} /> {topic.name}
           </button>
         )}
+        {compacta && rv && <span className={`lib-fila-repaso ${rv.box >= MAX_BOX ? "mastered" : ""}`}>{rv.box >= MAX_BOX ? "Dominada" : "En repaso"}</span>}
       </header>
-      <p>{entry.desc}</p>
+  );
+  const cuerpo = (
+    <>
       <CodeBlock text={entry.code} lang={topic.hl} />
       {kind && !kind.full && <p className="lib-note">{kind.note}</p>}
       {fuente && (
@@ -53,15 +61,27 @@ export function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onP
           </span>
         )}
       </footer>
-    </article>
+    </>
+  );
+  const props = { id: entryId(topic, entry), className: `lib-entry ${compacta ? "lib-fila" : ""} ${flash ? "flash" : ""}`, style: { "--lc": topic.color } as CSSProperties };
+  return compacta ? (
+    <details ref={fila} {...props}>
+      <summary>{cabeza}<p className="lib-fila-desc">{entry.desc}</p></summary>
+      {cuerpo}
+    </details>
+  ) : (
+    <article {...props}>{cabeza}<p>{entry.desc}</p>{cuerpo}</article>
   );
 }
 
-/** Referencia rápida de un tema: datos, métodos de trabajo y los ejemplos por nivel. */
-export function LibReferencia({ topic, level, onLevel, inReview, card }: {
-  topic: Topic; level: Level | "all"; onLevel: (l: Level | "all") => void; inReview: number; card: (e: Entry) => ReactNode;
+/** Referencia rápida de un tema: datos, métodos de trabajo y los ejemplos por nivel y categoría. */
+export function LibReferencia({ topic, level, onLevel, cat, onCat, inReview, card }: {
+  topic: Topic; level: Level | "all"; onLevel: (l: Level | "all") => void; cat: string; onCat: (c: string) => void;
+  inReview: number; card: (e: Entry) => ReactNode;
 }) {
-  const entries = topic.entries.filter((e) => level === "all" || e.level === level);
+  const cats = [...new Set(topic.entries.map((e) => e.cat))];
+  const enCat = topic.entries.filter((e) => !cat || e.cat === cat);
+  const entries = enCat.filter((e) => level === "all" || e.level === level);
   return (
     <>
       <dl className="lib-facts">
@@ -99,11 +119,18 @@ export function LibReferencia({ topic, level, onLevel, inReview, card }: {
             className={level === l.id ? "on" : ""}
             onClick={() => onLevel(l.id)}
           >
-            {l.name} ({l.id === "all" ? topic.entries.length : topic.entries.filter((e) => e.level === l.id).length})
+            {l.name} ({l.id === "all" ? enCat.length : enCat.filter((e) => e.level === l.id).length})
           </button>
         ))}
       </div>
+      <label className="lib-cat-filtro">Categoría
+        <select value={cat} onChange={(e) => onCat(cats.includes(e.target.value) ? e.target.value : "")}>
+          <option value="">Todas ({topic.entries.length})</option>
+          {cats.map((c) => <option key={c} value={c}>{c} ({topic.entries.filter((e) => e.cat === c).length})</option>)}
+        </select>
+      </label>
       <div id="lib-nivel" role="tabpanel" aria-labelledby={`lib-nivel-${level}`}>
+      {!entries.length && <p className="lib-empty">No hay ejemplos de este nivel en esa categoría.</p>}
       {LEVELS.filter((l) => level === "all" || level === l.id).map((l) => {
         const list = entries.filter((e) => e.level === l.id);
         if (!list.length) return null;

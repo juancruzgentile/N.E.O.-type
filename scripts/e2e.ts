@@ -509,6 +509,17 @@ try {
     await page.locator(".lib-levels").getByRole("tab", { name: /Avanzado/ }).click();
     const adv = await page.locator(".lib-entry").count();
     ok(adv > 0 && adv < all && (await page.locator(".lib-level-title").count()) === 1, "el filtro de nivel muestra solo ese nivel");
+    // referencia compacta: filas cerradas que se abren con clic, y filtro por categoría
+    const fila = page.locator(".lib-fila").first();
+    const cerradaAntes = !(await fila.locator(".lib-code").isVisible());
+    await fila.locator("summary").click();
+    ok(cerradaAntes && (await fila.locator(".lib-code").isVisible()), "cada ejemplo es una fila cerrada que muestra el código al abrirla");
+    const cat = (await fila.locator(".lib-cat").textContent()) ?? "";
+    await page.locator(".lib-levels").getByRole("tab", { name: /Todo/ }).click();
+    await page.locator(".lib-cat-filtro select").selectOption(cat);
+    const enCat = await page.locator(".lib-entry .lib-cat").allTextContents();
+    ok(enCat.length > 0 && enCat.length < all && enCat.every((c) => c === cat), "el filtro de categoría deja solo los ejemplos de esa categoría");
+    await page.locator(".lib-cat-filtro select").selectOption("");
     await page.locator(".lib-head").click();
     await page.keyboard.press("/");
     ok(await page.locator(".lib-search input[type=search]").evaluate((el) => el === document.activeElement), "/ enfoca la búsqueda");
@@ -517,7 +528,7 @@ try {
     ok((await page.locator(".lib-entry h4").first().textContent()) === "git rebase", "la búsqueda encuentra en todos los temas");
     await page.keyboard.press("Enter");
     await page.locator(".lib-entry.flash").waitFor();
-    ok((await page.locator(".lib-head h3").textContent()) === "Git" && (await page.locator(".lib-entry.flash h4").textContent()) === "git rebase", "Enter abre el primer resultado en su tema y lo resalta");
+    ok((await page.locator(".lib-head h3").textContent()) === "Git" && (await page.locator(".lib-entry.flash h4").textContent()) === "git rebase" && (await page.locator(".lib-entry.flash .lib-code").isVisible()), "Enter abre el primer resultado en su tema, con la fila abierta y resaltada");
     await page.locator(".lib-search input[type=search]").fill("funcion flecha");
     await page.waitForTimeout(100);
     ok(/flecha/i.test((await page.locator(".lib-entry").first().textContent()) ?? ""), "busca sin acentos y con varias palabras");
@@ -672,6 +683,7 @@ try {
     await lect.ctx.close();
     await page.evaluate(() => (location.hash = "#/biblioteca/git"));
     // la práctica de un ejemplo se cierra si la URL cambia de tema (auditoría del 16)
+    await page.locator(".lib-entry summary").first().click();
     await page.locator(".lib-entry").first().getByRole("button", { name: "Practicar este ejemplo" }).click();
     await page.locator(".entry-practice").waitFor();
     await page.evaluate(() => (location.hash = "#/biblioteca/python"));
@@ -755,6 +767,7 @@ try {
     await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
     const entry = page.locator(".lib-entry").first();
     const id = (await entry.getAttribute("id")) ?? "";
+    await entry.locator("summary").click();
     await entry.getByRole("button", { name: "Practicar este ejemplo" }).click();
     await page.locator(".entry-practice").waitFor();
     await page.waitForFunction(() => document.activeElement?.classList.contains("ta-hidden"));
