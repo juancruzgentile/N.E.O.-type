@@ -237,7 +237,12 @@ export function LibraryView({ lang, state, update }: Props) {
               <div {...(topic.clase && { id: "lib-vista", role: "tabpanel", "aria-labelledby": claseOpen ? "lib-tab-clase" : "lib-tab-ref" })}>
               {topic.clase && claseOpen ? (
                 <>
-                  <ClaseView key={topic.id} clase={topic.clase} hl={topic.hl} color={topic.color} base={viewHash("library", topic.id, "clase")} irA={irA} />
+                  <ClaseView key={topic.id} clase={topic.clase} hl={topic.hl} color={topic.color} base={viewHash("library", topic.id, "clase")} irA={irA}
+                    lectura={state.lectura[topic.id]} onLectura={(cambio) => update((s) => {
+                      const antes = s.lectura[topic.id] ?? { leidas: [], ultima: 1 };
+                      const l = cambio(antes);
+                      return JSON.stringify(l) === JSON.stringify(antes) ? s : { ...s, lectura: { ...s.lectura, [topic.id]: l } };
+                    })} />
                   <nav className="clase-pie" aria-label="Otros temas">
                     {vecinos.map((t, i) => t && (
                       <button key={t.id} className={`clase-vecino ${i ? "siguiente" : ""}`} onClick={() => openVecino(t)}>

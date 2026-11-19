@@ -151,6 +151,24 @@ ok(st.w.every((x) => x >= 0 && x <= 1000) && st.a.every((x) => x >= 0 && x <= 1)
   ok(JSON.stringify(clean({ version: 1 }).recall) === "{}", "sin ejercicios queda un objeto vacío");
 }
 
+// ── Biblioteca: grupos cerrados del índice y lectura de las clases ──
+{
+  const st = clean(JSON.parse(`{
+    "version": 1,
+    "settings": { "libCerrados": ["Lenguajes", "Lenguajes", "<img>", 3, "IA"] },
+    "lectura": {
+      "python": { "leidas": [3, 1, 1, 0, 2.5, 999, "4", 200], "ultima": 9999 },
+      "git": "todo",
+      "../x": { "leidas": [1], "ultima": 1 },
+      "__proto__": { "leidas": [1], "ultima": 1 }
+    }
+  }`));
+  ok(JSON.stringify(st.settings.libCerrados) === '["Lenguajes","IA"]', "grupos cerrados: solo grupos que existen, sin repetir");
+  ok(JSON.stringify(st.lectura.python) === '{"leidas":[1,3,200],"ultima":200}', "lectura: secciones enteras de 1 a 200, ordenadas y sin repetir; la última se acota");
+  ok(Object.keys(st.lectura).join() === "python" && Object.getPrototypeOf(st.lectura) === Object.prototype, "lectura: solo temas con forma de id y de tipo objeto");
+  ok(JSON.stringify(clean({ version: 1 }).lectura) === "{}" && JSON.stringify(clean({ version: 1 }).settings.libCerrados) === "[]", "sin datos quedan vacíos");
+}
+
 // ── atajos de editor ──
 {
   const st = clean(JSON.parse(`{

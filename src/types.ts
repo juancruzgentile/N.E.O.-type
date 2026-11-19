@@ -187,6 +187,13 @@ export interface AppState {
   frameworks: Record<string, number>;
   /** ya se revisó qué frameworks tenía ganados la persona con la regla anterior (se hace una sola vez) */
   frameworksChecked: boolean;
+  /** lectura de las clases: id del tema → secciones leídas (1, 2…) y la última en la que estuviste */
+  lectura: Record<string, Lectura>;
+}
+
+export interface Lectura {
+  leidas: number[];
+  ultima: number;
 }
 
 export interface Lesson {

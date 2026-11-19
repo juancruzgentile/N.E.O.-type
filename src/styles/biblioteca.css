@@ -74,11 +74,19 @@
 .clase-indice a:hover { color: var(--strong); }
 .clase-indice a[aria-current] { border-left-color: var(--lc, var(--cyan)); color: var(--strong); font-weight: 600; }
 .clase-seccion { scroll-margin-top: 56px; }
+.clase-indice a.leida::after { content: "✓"; margin-left: 6px; color: var(--green, var(--cyan)); font-size: 12px; }
+.clase-progreso { display: none; align-items: center; gap: 8px; margin-bottom: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.clase-indice:has(ol.abierto) .clase-progreso { display: flex; padding: 0 12px; }
+.clase-barra { flex: 1; height: 4px; background: var(--line); }
+.clase-barra i { display: block; height: 100%; background: var(--lc, var(--cyan)); }
+.clase-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.clase-fin { height: 1px; }
 @container (min-width: 980px) {
   .clase-layout { display: grid; grid-template-columns: minmax(0, 760px) 200px; gap: 0 28px; align-items: start; }
   .clase-indice { grid-column: 2; grid-row: 1; top: 12px; margin: 0; padding: 0; border: none; background: none; }
   .clase-indice-boton { display: none; }
   .clase-indice-titulo { display: block; }
+  .clase-progreso { display: flex; }
   .clase-indice ol { display: block; max-height: calc(100vh - 60px); }
   .clase-indice a { padding-left: 10px; }
   .clase-seccion { scroll-margin-top: 12px; }
