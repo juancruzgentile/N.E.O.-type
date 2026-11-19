@@ -50,6 +50,8 @@ export interface Settings {
   dbEngine: DbEngineId;
   /** atajos de VS Code que se practican: Linux/Windows o Mac */
   vscodeKeys: "pc" | "mac";
+  /** grupos del índice de la Biblioteca que cerraste */
+  libCerrados: string[];
 }
 
 /** Estadística de una tecla (un carácter). */

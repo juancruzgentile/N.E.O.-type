@@ -10,6 +10,7 @@ import type {
 import { totalsOf } from "./engine/totals";
 import { CHAR_KEY_CODES } from "./data/layouts";
 import { NIVELES, PUESTOS } from "./interview/catalogo";
+import { GROUPS } from "./library/index";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 /** Tamaño real en bytes (UTF-8), igual que File.size. `string.length` cuenta caracteres, no bytes. */
@@ -104,6 +105,7 @@ function sanitizeSettings(v: unknown, defaults: Settings): Settings {
     distro: oneOf(s.distro, DISTRO_IDS, defaults.distro),
     dbEngine: oneOf(s.dbEngine, DB_IDS, defaults.dbEngine),
     vscodeKeys: oneOf(s.vscodeKeys, ["pc", "mac"] as const, defaults.vscodeKeys),
+    libCerrados: Array.isArray(s.libCerrados) ? [...new Set(s.libCerrados.filter((g): g is string => (GROUPS as readonly unknown[]).includes(g)))] : [],
   };
 }
 

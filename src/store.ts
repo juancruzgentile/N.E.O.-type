@@ -28,6 +28,7 @@ export const DEFAULT_SETTINGS: Settings = {
   distro: "ubuntu",
   dbEngine: "sqlite",
   vscodeKeys: typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform) ? "mac" : "pc",
+  libCerrados: [],
 };
 
 export const initialState = (): AppState => ({
