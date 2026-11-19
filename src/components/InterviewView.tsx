@@ -6,6 +6,7 @@ import type { Pregunta } from "../interview/types";
 import { InterviewBank } from "./InterviewBank";
 import { InterviewExam } from "./InterviewExam";
 import { InterviewPractice } from "./InterviewPractice";
+import { tabKeys } from "./tabs";
 
 interface Props {
   state: AppState;
@@ -38,18 +39,20 @@ export function InterviewView({ state, update, onBusy }: Props) {
           <div className="sub">
             {BANCO.length} preguntas para prepararte. Estudialas en el banco, practicalas con corrección al instante o ponete a prueba con una entrevista simulada.
           </div>
-          <div className="seg iv-tabs" role="tablist" aria-label="Entrevistas">
+          <div className="seg iv-tabs" role="tablist" aria-label="Entrevistas" onKeyDown={tabKeys}>
             {TABS.map((t) => (
-              <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? "on" : ""} onClick={() => setTab(t.id)}>{t.nombre}</button>
+              <button key={t.id} role="tab" id={`iv-tab-${t.id}`} aria-controls="iv-panel" aria-selected={tab === t.id} tabIndex={tab === t.id ? 0 : -1} className={tab === t.id ? "on" : ""} onClick={() => setTab(t.id)}>{t.nombre}</button>
             ))}
           </div>
         </>
       )}
+      <div {...(!vivo && { id: "iv-panel", role: "tabpanel", "aria-labelledby": `iv-tab-${tab}` })}>
       {tab === "entrevista" && (
         <InterviewExam state={state} update={update} onLive={onLive} onRepasar={(preguntas) => { setRepaso((r) => ({ n: (r?.n ?? 0) + 1, preguntas })); setTab("practicar"); }} />
       )}
       {tab === "practicar" && <InterviewPractice key={repaso?.n ?? 0} state={state} update={update} empezarCon={repaso?.preguntas} />}
       {tab === "banco" && <InterviewBank />}
+      </div>
     </div>
   );
 }
