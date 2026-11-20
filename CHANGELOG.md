@@ -178,6 +178,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   saltear nada. Los paquetes de Python que usa van fijados con hash.
 
 ### Cambiado
+- Biblioteca: los grupos del índice (Lenguajes, Web y datos, Bases de datos…) se pliegan con un clic y la app recuerda cuáles cerraste. El grupo del tema que tenés abierto queda siempre abierto. En el celular el índice sigue siendo una fila con todos los temas.
 - Clase de Codex: los dibujos del prompt y del bucle del agente pasan al mismo estilo que las animaciones (colores de cada tema, letra IBM Plex Sans y flechas que no tapan el texto). En el celular, la curva del entrenamiento queda debajo de la red en vez de esconderse a la derecha.
 - Biblioteca: cada ejemplo muestra de dónde sale (un link a la documentación oficial), desde qué versión funciona y cuándo se revisó. Los 399 links se abrieron uno por uno y se comprobó que la página y la sección existan. `npm run test:fuentes` revisa que ningún ejemplo quede sin fuente; con `FUENTES_RED=1` vuelve a abrir todos los links. Son los primeros links de la app: no hace ninguna conexión por su cuenta, solo se abren si hacés clic.
 - Biblioteca: cada ejemplo avisa si es un **programa completo** (se copia a un archivo y corre tal cual) o un **fragmento**, y en los fragmentos dice qué les falta. El CI ahora también compila los programas completos de C, C++, Go, Rust y Java, no solo revisa que estén bien escritos. Con eso apareció un error: el ejemplo de funciones de C no tenía el `#include <stdio.h>`.

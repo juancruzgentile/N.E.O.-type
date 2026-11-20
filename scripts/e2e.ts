@@ -485,6 +485,20 @@ try {
       return { abajo: b.bottom <= innerHeight + 1, pagina: window.scrollY };
     });
     ok(indice.abajo && indice.pagina === 600, "el índice de temas baja solo, sin tener que llegar al final del texto");
+    // grupos plegables: se cierran, se recuerdan al recargar, y el del tema abierto no se puede cerrar
+    const grupo = page.locator(".lib-nav").getByRole("button", { name: /Herramientas/ });
+    await grupo.click();
+    const cerrado = (await grupo.getAttribute("aria-expanded")) === "false" && !(await page.locator(".lib-nav").getByRole("button", { name: /^Git/ }).isVisible());
+    await page.reload();
+    await page.locator(".library").waitFor();
+    const recordado = (await state(page)).settings.libCerrados.includes("Herramientas") && !(await page.locator(".lib-nav").getByRole("button", { name: /^Git/ }).isVisible());
+    const fijo = (await page.locator(".lib-nav").getByRole("button", { name: /^Lenguajes/ }).count()) === 0;
+    await grupo.click();
+    ok(cerrado && recordado && fijo && (await page.locator(".lib-nav").getByRole("button", { name: /^Git/ }).isVisible()),
+      "los grupos del índice se pliegan, se recuerdan al recargar y el del tema abierto queda siempre abierto");
+    await page.setViewportSize({ width: 390, height: 844 });
+    ok(!(await grupo.isVisible()) && (await page.locator(".lib-nav .lib-tema").first().isVisible()), "en el celular el índice es una fila de temas, sin nombres de grupo");
+    await page.setViewportSize({ width: 1280, height: 720 });
     const src = page.locator(".lib-entry").first().locator(".lib-source a");
     ok(
       /^https:\/\//.test((await src.getAttribute("href")) ?? "") && (await src.getAttribute("target")) === "_blank" && /noopener/.test((await src.getAttribute("rel")) ?? ""),

@@ -156,6 +156,11 @@ export function LibraryView({ lang, state, update }: Props) {
           topics={TOPICS}
           sel={sel}
           searching={!!q}
+          cerrados={state.settings.libCerrados}
+          onToggle={(g) => update((s) => {
+            const c = s.settings.libCerrados;
+            return { ...s, settings: { ...s.settings, libCerrados: c.includes(g) ? c.filter((x) => x !== g) : [...c, g] } };
+          })}
           onTopic={(id) => {
             setQuery("");
             openTopic(id);

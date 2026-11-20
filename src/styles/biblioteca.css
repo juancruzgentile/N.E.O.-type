@@ -25,6 +25,12 @@
 }
 .lib-nav button:hover { background: var(--cyan-soft); }
 .lib-nav button.on { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
+/* nombre de grupo que se pliega: mismo aspecto que el título fijo, con la flecha que gira al abrir */
+.lib-nav button.lib-group-name { padding: 2px 0; gap: 6px; font-size: 12px; color: var(--dim); }
+.lib-nav button.lib-group-name:hover { background: none; color: var(--text); }
+.lib-group-name { display: flex; align-items: center; gap: 6px; }
+.lib-group-name:not([aria-expanded="false"]) svg { transform: rotate(90deg); }
+@media (min-width: 901px) { .lib-group.cerrado .lib-tema { display: none; } }
 .lib-count { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .lib-badge {
   --lc: var(--cyan); display: inline-grid; place-items: center; flex: none; width: 56px; height: 56px; border-radius: 10px;
@@ -131,7 +137,7 @@
   .lib-layout { grid-template-columns: minmax(0, 1fr); }
   .lib-nav { position: static; max-height: none; flex-direction: row; overflow-x: auto; gap: 6px; padding-bottom: 6px; scrollbar-width: thin; }
   .lib-group { display: flex; gap: 6px; align-items: center; }
-  .lib-group-name { display: none; }
+  .lib-nav .lib-group-name { display: none; }
   .lib-nav button { width: auto; white-space: nowrap; border-color: var(--line2); }
   .lib-count { display: none; }
 }
