@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppState, LangId } from "../types";
-import { SOON } from "../library/index";
+import { GROUPS, SOON } from "../library/index";
 import { visibleTopics } from "../library/unlock";
 import { type Hit, entryId, search } from "../library/search";
 import type { Entry, Level, Topic } from "../library/types";
@@ -26,15 +26,18 @@ export function LibraryView({ lang, state, update }: Props) {
   const totalEntries = TOPICS.reduce((n, t) => n + t.entries.length, 0);
   const initial = TOPICS.find((t) => t.id === lang)?.id ?? TOPICS[0].id;
   // el tema y la pestaña vienen del hash si es un tema visible (#/biblioteca/git/clase)
-  const fromHash = (): { sel: Selection; clase: boolean } | null => {
-    const { view, rest: [id, tab] } = readHash();
+  // y la sección de la clase, si viene (#/biblioteca/git/clase/3); ClaseView revisa que exista
+  const fromHash = (): { sel: Selection; clase: boolean; seccion?: number } | null => {
+    const { view, rest: [id, tab, n] } = readHash();
     if (view !== "library") return null;
     if (id === "proximamente") return { sel: { kind: "soon" }, clase: false };
     const t = TOPICS.find((x) => x.id === id);
-    return t ? { sel: { kind: "topic", id: t.id }, clase: tab === "clase" && !!t.clase } : null;
+    const clase = tab === "clase" && !!t?.clase;
+    return t ? { sel: { kind: "topic", id: t.id }, clase, seccion: clase && /^\d{1,3}$/.test(n ?? "") ? Number(n) : undefined } : null;
   };
   const [sel, setSel] = useState<Selection>(() => fromHash()?.sel ?? { kind: "topic", id: initial });
   const [claseOpen, setClaseOpen] = useState(() => fromHash()?.clase ?? false);
+  const [irA, setIrA] = useState(() => fromHash()?.seccion);
   const [query, setQuery] = useState("");
   const [onlyTopic, setOnlyTopic] = useState(false);
   const [level, setLevel] = useState<Level | "all">("all");
@@ -52,7 +55,9 @@ export function LibraryView({ lang, state, update }: Props) {
   );
 
   useEffect(() => {
-    writeHash(sel.kind === "soon" ? viewHash("library", "proximamente") : viewHash("library", sel.id, ...(claseOpen ? ["clase"] : [])));
+    const h = sel.kind === "soon" ? viewHash("library", "proximamente") : viewHash("library", sel.id, ...(claseOpen ? ["clase"] : []));
+    // la clase ya anota su sección (…/clase/3): no se pisa
+    if (!(claseOpen && location.hash.startsWith(h + "/"))) writeHash(h);
   }, [sel, claseOpen]);
   useEffect(() => {
     const onHash = () => {
@@ -63,6 +68,7 @@ export function LibraryView({ lang, state, update }: Props) {
       setLevel("all");
       setSel(h.sel);
       setClaseOpen(h.clase);
+      setIrA(h.seccion);
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
@@ -97,7 +103,21 @@ export function LibraryView({ lang, state, update }: Props) {
     setSel({ kind: "topic", id });
     setLevel("all");
     setClaseOpen(false);
+    setIrA(undefined);
     contentRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+  };
+
+  // anterior y siguiente en el orden del índice; si el tema tiene clase, abre la clase
+  const orden = GROUPS.flatMap((g) => TOPICS.filter((t) => t.group === g));
+  const vecinos = topic ? [orden[orden.indexOf(topic) - 1], orden[orden.indexOf(topic) + 1]] : [];
+  // salta de una al comienzo (sin animar) antes de mostrar el tema nuevo: así la clase nueva no aparece a mitad de
+  // página ni se recorre entera al subir
+  const openVecino = (t: Topic) => {
+    contentRef.current?.scrollIntoView({ block: "start" });
+    setSel({ kind: "topic", id: t.id });
+    setLevel("all");
+    setClaseOpen(!!t.clase);
+    setIrA(undefined);
   };
 
   const openHit = (h: Hit) => {
@@ -105,6 +125,7 @@ export function LibraryView({ lang, state, update }: Props) {
     setQuery("");
     setLevel("all");
     setClaseOpen(false);
+    setIrA(undefined);
     setFlash(entryId(h.topic, h.entry));
   };
 
@@ -209,10 +230,10 @@ export function LibraryView({ lang, state, update }: Props) {
 
               {topic.clase && (
                 <div className="seg lib-clase-toggle" role="tablist" aria-label="Vista" onKeyDown={tabKeys}>
-                  <button role="tab" id="lib-tab-ref" aria-controls="lib-vista" aria-selected={!claseOpen} tabIndex={claseOpen ? -1 : 0} className={!claseOpen ? "on" : ""} onClick={() => setClaseOpen(false)}>
+                  <button role="tab" id="lib-tab-ref" aria-controls="lib-vista" aria-selected={!claseOpen} tabIndex={claseOpen ? -1 : 0} className={!claseOpen ? "on" : ""} onClick={() => { setClaseOpen(false); setIrA(undefined); }}>
                     <IconBook size={16} /> Referencia
                   </button>
-                  <button role="tab" id="lib-tab-clase" aria-controls="lib-vista" aria-selected={claseOpen} tabIndex={claseOpen ? 0 : -1} className={claseOpen ? "on" : ""} onClick={() => setClaseOpen(true)}>
+                  <button role="tab" id="lib-tab-clase" aria-controls="lib-vista" aria-selected={claseOpen} tabIndex={claseOpen ? 0 : -1} className={claseOpen ? "on" : ""} onClick={() => { setClaseOpen(true); setIrA(undefined); }}>
                     <IconChalk size={16} /> {topic.clase.tab ?? "Clase"}
                   </button>
                 </div>
@@ -220,7 +241,16 @@ export function LibraryView({ lang, state, update }: Props) {
 
               <div {...(topic.clase && { id: "lib-vista", role: "tabpanel", "aria-labelledby": claseOpen ? "lib-tab-clase" : "lib-tab-ref" })}>
               {topic.clase && claseOpen ? (
-                <ClaseView clase={topic.clase} hl={topic.hl} color={topic.color} />
+                <>
+                  <ClaseView key={topic.id} clase={topic.clase} hl={topic.hl} color={topic.color} base={viewHash("library", topic.id, "clase")} irA={irA} />
+                  <nav className="clase-pie" aria-label="Otros temas">
+                    {vecinos.map((t, i) => t && (
+                      <button key={t.id} className={`clase-vecino ${i ? "siguiente" : ""}`} onClick={() => openVecino(t)}>
+                        <span>{i ? "Siguiente" : "Anterior"}</span> {t.name}
+                      </button>
+                    ))}
+                  </nav>
+                </>
               ) : (
                 <LibReferencia topic={topic} level={level} onLevel={setLevel} inReview={inReview} card={(e) => card(topic, e, { flash: flash === entryId(topic, e) })} />
               )}
