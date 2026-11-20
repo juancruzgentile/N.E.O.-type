@@ -658,6 +658,18 @@ try {
     // arranca en el comienzo: la URL no anota ninguna sección del medio
     ok((await page.locator(".lib-head h3").textContent()) === "JavaScript" && (await page.locator(".clase").count()) === 1 && /#\/biblioteca\/javascript\/clase(\/1)?$/.test(page.url()),
       "al final de la clase, Siguiente abre la clase del tema que sigue en el índice");
+    // progreso de lectura: retoma en la última sección y la última queda leída al llegar al final
+    const lect = await open(browser, seedState({ lang: "python", lectura: { python: { leidas: [1], ultima: 5 } } }));
+    await lect.page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await lect.page.locator(".lib-clase-toggle").getByRole("tab", { name: /^Clase$/ }).click();
+    const retoma = await lect.page.waitForFunction(() => location.hash.endsWith("/clase/5"), null, { timeout: 3000 }).then(() => true, () => false) && (await lect.page.locator("#clase-5").evaluate((el) => el.getBoundingClientRect().top)) < 120;
+    const n = await lect.page.locator(".clase-seccion").count();
+    await lect.page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await lect.page.waitForFunction(([k, ult]) => JSON.parse(localStorage.getItem(k) ?? "{}").lectura?.python?.leidas?.includes(ult), [KEY, n] as const, { timeout: 3000 }).catch(() => {});
+    const leidas: number[] = (await state(lect.page)).lectura.python.leidas;
+    ok(retoma && leidas.includes(1) && leidas.includes(n) && /\d+ de \d+ leídas/.test((await lect.page.locator(".clase-progreso").textContent()) ?? ""),
+      "la clase retoma en la última sección leída, y llegar al final marca la última como leída");
+    await lect.ctx.close();
     await page.evaluate(() => (location.hash = "#/biblioteca/git"));
     // la práctica de un ejemplo se cierra si la URL cambia de tema (auditoría del 16)
     await page.locator(".lib-entry").first().getByRole("button", { name: "Practicar este ejemplo" }).click();

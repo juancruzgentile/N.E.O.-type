@@ -48,6 +48,7 @@ export const initialState = (): AppState => ({
   interviews: {},
   frameworks: {},
   frameworksChecked: false,
+  lectura: {},
 });
 
 const stagesOf = (l: LangId) => stageCount(l);
@@ -84,7 +85,7 @@ function readRaw(): string | null {
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** Partes del estado que se combinan clave por clave. */
-const MAPS = ["settings", "profiles", "days", "challenges", "projects", "review", "recall", "shortcuts", "achievements", "interviewReview", "interviews", "frameworks"] as const;
+const MAPS = ["settings", "profiles", "days", "challenges", "projects", "review", "recall", "shortcuts", "achievements", "interviewReview", "interviews", "frameworks", "lectura"] as const;
 
 /**
  * Combina los cambios de esta ventana (`ours`) con los de otra (`theirs`),

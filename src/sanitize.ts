@@ -273,6 +273,13 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
   // frameworks ganados: solo ids con forma de id (los que ya no existan se ignoran al usarse)
   const frameworks: Record<string, number> = {};
   for (const [k, v] of entries(r.frameworks, /^[a-z0-9]{2,12}$/, 30)) frameworks[k] = num(v, 0, 8.64e15, 0);
+  // lectura de las clases: secciones de 1 a 200; si la clase tiene menos, las que sobran no marcan nada
+  const lectura: AppState["lectura"] = {};
+  for (const [k, v] of entries(r.lectura, /^[a-z0-9]{2,16}$/, 100)) {
+    if (!isObj(v)) continue;
+    const leidas = Array.isArray(v.leidas) ? [...new Set(v.leidas.filter((x): x is number => Number.isInteger(x) && x >= 1 && x <= 200))].sort((a, b) => a - b) : [];
+    lectura[k] = { leidas, ultima: int(v.ultima, 1, 200, 1) };
+  }
   const achievements: Record<string, number> = {};
   for (const [k, v] of entries(r.achievements, /^[a-z0-9]{1,24}$/, 100)) achievements[k] = num(v, 0, 8.64e15, 0);
 
@@ -293,5 +300,6 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     interviews,
     frameworks,
     frameworksChecked: bool(r.frameworksChecked, false),
+    lectura,
   };
 }

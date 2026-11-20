@@ -178,6 +178,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
   saltear nada. Los paquetes de Python que usa van fijados con hash.
 
 ### Cambiado
+- Clases de la Biblioteca: la app recuerda qué secciones leíste (una sección cuenta como leída cuando su final sube hasta la mitad de la pantalla) y en cuál estabas. Al volver a una clase arrancás donde quedaste. "En esta clase" muestra cuántas leíste y marca cada una con ✓.
 - Clases de la Biblioteca: tienen un índice "En esta clase" que marca la sección que estás leyendo. En pantallas anchas va en una columna a la derecha; en las más chicas y en el celular es una barra fija arriba que se despliega. La URL dice la sección (`#/biblioteca/python/clase/3`), así que un enlace o una recarga te dejan donde estabas. Al final de cada clase hay botones al tema anterior y al siguiente del índice.
 - Biblioteca: los grupos del índice (Lenguajes, Web y datos, Bases de datos…) se pliegan con un clic y la app recuerda cuáles cerraste. El grupo del tema que tenés abierto queda siempre abierto. En el celular el índice sigue siendo una fila con todos los temas.
 - Clase de Codex: los dibujos del prompt y del bucle del agente pasan al mismo estilo que las animaciones (colores de cada tema, letra IBM Plex Sans y flechas que no tapan el texto). En el celular, la curva del entrenamiento queda debajo de la red en vez de esconderse a la derecha.
