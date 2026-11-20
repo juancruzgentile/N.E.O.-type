@@ -1,81 +1,18 @@
-import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
-import type { AppState, LangId, ReviewItem } from "../types";
-import { GROUPS, SOON } from "../library/index";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { AppState, LangId } from "../types";
+import { SOON } from "../library/index";
 import { visibleTopics } from "../library/unlock";
 import { type Hit, entryId, search } from "../library/search";
-import { type Entry, type Level, LEVELS, type Topic } from "../library/types";
-import { LangEmblem } from "./LangEmblem";
-import { ClaudeBuddy, ClaudeMark } from "./ClaudeMark";
-import { CodexBuddy, CodexMark } from "./CodexMark";
+import type { Entry, Level, Topic } from "../library/types";
 import { ClaseView } from "./ClaseView";
-import { CodeBlock, fechaLarga } from "./CodeBlock";
-import { IconBook, IconChalk, IconKeyboard, IconLock, IconSearch, IconWarn } from "./icons";
+import { IconBook, IconChalk, IconLock, IconSearch } from "./icons";
 import { EntryPractice } from "./EntryPractice";
+import { EntryCard, LibReferencia } from "./LibReferencia";
+import { LibCabecera } from "./LibCabecera";
+import { LibIndice, type Selection } from "./LibIndice";
 import { tabKeys } from "./tabs";
-import { kindNote } from "../library/kind";
-import { fuenteDe } from "../library/fuentes/index";
-import { MAX_BOX, findEntry, whenText } from "../review/review";
-import { today } from "../store";
+import { findEntry } from "../review/review";
 import { readHash, viewHash, writeHash } from "../route";
-
-function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
-  if (topic.id === "claude") return <ClaudeMark size={size} />;
-  if (topic.id === "codex") return <CodexMark size={size} />;
-  if (topic.emblem) return <LangEmblem lang={topic.emblem} size={size} />;
-  return (
-    <span className="lib-badge" style={{ "--lc": topic.color, width: size, height: size, fontSize: Math.max(7, Math.round(size * 0.28)) } as CSSProperties} aria-hidden="true">
-      {topic.badge}
-    </span>
-  );
-}
-
-const levelName = (l: Level) => LEVELS.find((x) => x.id === l)!.name;
-
-function EntryCard({ topic, entry, showTopic, onOpenTopic, flash, rv, onPractice, onForget }: {
-  topic: Topic; entry: Entry; showTopic?: boolean; onOpenTopic?: () => void; flash?: boolean;
-  rv?: ReviewItem; onPractice: () => void; onForget: () => void;
-}) {
-  const kind = kindNote(topic.id, entry);
-  const fuente = fuenteDe(topic.id, entry.name);
-  return (
-    <article id={entryId(topic, entry)} className={`lib-entry ${flash ? "flash" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
-      <header>
-        <h4>{entry.name}</h4>
-        <span className={`lib-level ${entry.level}`}>{levelName(entry.level)}</span>
-        <span className="lib-cat">{entry.cat}</span>
-        {kind && <span className={`lib-kind ${kind.full ? "full" : ""}`} title={kind.note}>{kind.full ? "Programa completo" : "Fragmento"}</span>}
-        {showTopic && (
-          <button className="lib-topic-link" onClick={onOpenTopic} title={`Ver en ${topic.name}`}>
-            <TopicBadge topic={topic} size={20} /> {topic.name}
-          </button>
-        )}
-      </header>
-      <p>{entry.desc}</p>
-      <CodeBlock text={entry.code} lang={topic.hl} />
-      {kind && !kind.full && <p className="lib-note">{kind.note}</p>}
-      {fuente && (
-        <p className="lib-source">
-          <span>Fuente: <a href={fuente.url} target="_blank" rel="noopener noreferrer">{fuente.sitio}</a></span>
-          <span>Versión: {fuente.version}</span>
-          <span>Revisado: {fechaLarga(fuente.revisado)}</span>
-        </p>
-      )}
-      <footer className="lib-entry-foot">
-        <button className="btn small lib-practice" onClick={onPractice} title="Escribir este ejemplo y sumarlo a tu repaso">
-          <IconKeyboard size={16} /> Practicar este ejemplo
-        </button>
-        {rv && (
-          <span className={`lib-review ${rv.box >= MAX_BOX ? "mastered" : ""}`}>
-            {rv.box >= MAX_BOX ? "Dominada" : "En repaso"} · {whenText(rv, today())}
-            <button className="lib-forget" onClick={onForget} title="Quitar del repaso" aria-label={`Quitar ${entry.name} del repaso`}>×</button>
-          </span>
-        )}
-      </footer>
-    </article>
-  );
-}
-
-type Selection = { kind: "topic"; id: string } | { kind: "soon" };
 
 interface Props {
   lang: LangId | null;
@@ -171,7 +108,6 @@ export function LibraryView({ lang, state, update }: Props) {
     setFlash(entryId(h.topic, h.entry));
   };
 
-  const entries = topic ? topic.entries.filter((e) => level === "all" || e.level === level) : [];
   const forget = (id: string) =>
     update((s) => {
       const review = { ...s.review };
@@ -216,42 +152,19 @@ export function LibraryView({ lang, state, update }: Props) {
       </div>
 
       <div className="lib-layout">
-        <nav className="lib-nav" aria-label="Temas de la biblioteca">
-          {GROUPS.filter((g) => TOPICS.some((t) => t.group === g)).map((g) => (
-            <div key={g} className="lib-group">
-              <div className="lib-group-name">{g}</div>
-              {TOPICS.filter((t) => t.group === g).map((t) => (
-                <button
-                  key={t.id}
-                  className={sel.kind === "topic" && sel.id === t.id && !q ? "on" : ""}
-                  aria-current={sel.kind === "topic" && sel.id === t.id ? "true" : undefined}
-                  onClick={() => {
-                    setQuery("");
-                    openTopic(t.id);
-                  }}
-                >
-                  <TopicBadge topic={t} size={24} />
-                  <span>{t.name}</span>
-                  <span className="lib-count">{t.entries.length}</span>
-                </button>
-              ))}
-            </div>
-          ))}
-          <div className="lib-group">
-            <div className="lib-group-name">Próximamente</div>
-            <button
-              className={sel.kind === "soon" && !q ? "on" : ""}
-              onClick={() => {
-                setQuery("");
-                setSel({ kind: "soon" });
-              }}
-            >
-              <span className="lib-badge small" aria-hidden="true">IA</span>
-              <span>IA y herramientas</span>
-              <span className="lib-count">{SOON.length}</span>
-            </button>
-          </div>
-        </nav>
+        <LibIndice
+          topics={TOPICS}
+          sel={sel}
+          searching={!!q}
+          onTopic={(id) => {
+            setQuery("");
+            openTopic(id);
+          }}
+          onSoon={() => {
+            setQuery("");
+            setSel({ kind: "soon" });
+          }}
+        />
 
         <div className="lib-content" ref={contentRef}>
           {q ? (
@@ -287,22 +200,7 @@ export function LibraryView({ lang, state, update }: Props) {
             </>
           ) : topic ? (
             <>
-              {topic.alert && (
-                <aside className="lib-alert" role="alert">
-                  <h4><IconWarn size={20} /> {topic.alert.title}</h4>
-                  <ul>{topic.alert.items.map((t) => <li key={t}>{t}</li>)}</ul>
-                  {topic.alert.closing && <p>{topic.alert.closing}</p>}
-                </aside>
-              )}
-              <div className={`lib-head ${topic.id === "claude" ? "lib-claude" : ""} ${topic.id === "codex" ? "lib-codex" : ""}`} style={{ "--lc": topic.color } as CSSProperties}>
-                <TopicBadge topic={topic} size={56} />
-                <div>
-                  <h3>{topic.name}</h3>
-                  <p>{topic.summary}</p>
-                </div>
-                {topic.id === "claude" && <ClaudeBuddy size={84} />}
-                {topic.id === "codex" && <CodexBuddy size={84} />}
-              </div>
+              <LibCabecera topic={topic} />
 
               {topic.clase && (
                 <div className="seg lib-clase-toggle" role="tablist" aria-label="Vista" onKeyDown={tabKeys}>
@@ -319,61 +217,7 @@ export function LibraryView({ lang, state, update }: Props) {
               {topic.clase && claseOpen ? (
                 <ClaseView clase={topic.clase} hl={topic.hl} color={topic.color} />
               ) : (
-                <>
-                  <dl className="lib-facts">
-                    {topic.facts.map((f) => (
-                      <div key={f.label}>
-                        <dt>{f.label}</dt>
-                        <dd>{f.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-
-                  <div className="section"><IconBook size={18} /> MÉTODOS DE TRABAJO</div>
-                  <div className="lib-workflow">
-                    {topic.workflow.map((w) => (
-                      <div key={w.title} className="lib-tip">
-                        <h4>{w.title}</h4>
-                        <p>{w.text}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="section">
-                    COMANDOS Y CONCEPTOS
-                    {inReview > 0 && <span className="lib-in-review">{inReview} en tu repaso</span>}
-                  </div>
-                  <div className="seg lib-levels" role="tablist" aria-label="Nivel" onKeyDown={tabKeys}>
-                    {[{ id: "all" as const, name: "Todo" }, ...LEVELS].map((l) => (
-                      <button
-                        key={l.id}
-                        role="tab"
-                        id={`lib-nivel-${l.id}`}
-                        aria-controls="lib-nivel"
-                        aria-selected={level === l.id}
-                        tabIndex={level === l.id ? 0 : -1}
-                        className={level === l.id ? "on" : ""}
-                        onClick={() => setLevel(l.id)}
-                      >
-                        {l.name} ({l.id === "all" ? topic.entries.length : topic.entries.filter((e) => e.level === l.id).length})
-                      </button>
-                    ))}
-                  </div>
-                  <div id="lib-nivel" role="tabpanel" aria-labelledby={`lib-nivel-${level}`}>
-                  {LEVELS.filter((l) => level === "all" || level === l.id).map((l) => {
-                    const list = entries.filter((e) => e.level === l.id);
-                    if (!list.length) return null;
-                    return (
-                      <section key={l.id} className="lib-level-block">
-                        <h3 className={`lib-level-title ${l.id}`}>{l.name}</h3>
-                        <div className="lib-entries">
-                          {list.map((e) => card(topic, e, { flash: flash === entryId(topic, e) }))}
-                        </div>
-                      </section>
-                    );
-                  })}
-                  </div>
-                </>
+                <LibReferencia topic={topic} level={level} onLevel={setLevel} inReview={inReview} card={(e) => card(topic, e, { flash: flash === entryId(topic, e) })} />
               )}
               </div>
             </>
