@@ -10,6 +10,7 @@ import type {
 import { totalsOf } from "./engine/totals";
 import { CHAR_KEY_CODES } from "./data/layouts";
 import { NIVELES, PUESTOS } from "./interview/catalogo";
+import { GROUPS } from "./library/index";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 /** Tamaño real en bytes (UTF-8), igual que File.size. `string.length` cuenta caracteres, no bytes. */
@@ -104,6 +105,7 @@ function sanitizeSettings(v: unknown, defaults: Settings): Settings {
     distro: oneOf(s.distro, DISTRO_IDS, defaults.distro),
     dbEngine: oneOf(s.dbEngine, DB_IDS, defaults.dbEngine),
     vscodeKeys: oneOf(s.vscodeKeys, ["pc", "mac"] as const, defaults.vscodeKeys),
+    libCerrados: Array.isArray(s.libCerrados) ? [...new Set(s.libCerrados.filter((g): g is string => (GROUPS as readonly unknown[]).includes(g)))] : [],
   };
 }
 
@@ -271,6 +273,13 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
   // frameworks ganados: solo ids con forma de id (los que ya no existan se ignoran al usarse)
   const frameworks: Record<string, number> = {};
   for (const [k, v] of entries(r.frameworks, /^[a-z0-9]{2,12}$/, 30)) frameworks[k] = num(v, 0, 8.64e15, 0);
+  // lectura de las clases: secciones de 1 a 200; si la clase tiene menos, las que sobran no marcan nada
+  const lectura: AppState["lectura"] = {};
+  for (const [k, v] of entries(r.lectura, /^[a-z0-9]{2,16}$/, 100)) {
+    if (!isObj(v)) continue;
+    const leidas = Array.isArray(v.leidas) ? [...new Set(v.leidas.filter((x): x is number => Number.isInteger(x) && x >= 1 && x <= 200))].sort((a, b) => a - b) : [];
+    lectura[k] = { leidas, ultima: int(v.ultima, 1, 200, 1) };
+  }
   const achievements: Record<string, number> = {};
   for (const [k, v] of entries(r.achievements, /^[a-z0-9]{1,24}$/, 100)) achievements[k] = num(v, 0, 8.64e15, 0);
 
@@ -291,5 +300,6 @@ export function sanitizeState(raw: unknown, defaults: AppState, stagesOf: (l: La
     interviews,
     frameworks,
     frameworksChecked: bool(r.frameworksChecked, false),
+    lectura,
   };
 }

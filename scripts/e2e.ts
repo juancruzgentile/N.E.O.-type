@@ -485,6 +485,20 @@ try {
       return { abajo: b.bottom <= innerHeight + 1, pagina: window.scrollY };
     });
     ok(indice.abajo && indice.pagina === 600, "el índice de temas baja solo, sin tener que llegar al final del texto");
+    // grupos plegables: se cierran, se recuerdan al recargar, y el del tema abierto no se puede cerrar
+    const grupo = page.locator(".lib-nav").getByRole("button", { name: /Herramientas/ });
+    await grupo.click();
+    const cerrado = (await grupo.getAttribute("aria-expanded")) === "false" && !(await page.locator(".lib-nav").getByRole("button", { name: /^Git/ }).isVisible());
+    await page.reload();
+    await page.locator(".library").waitFor();
+    const recordado = (await state(page)).settings.libCerrados.includes("Herramientas") && !(await page.locator(".lib-nav").getByRole("button", { name: /^Git/ }).isVisible());
+    const fijo = (await page.locator(".lib-nav").getByRole("button", { name: /^Lenguajes/ }).count()) === 0;
+    await grupo.click();
+    ok(cerrado && recordado && fijo && (await page.locator(".lib-nav").getByRole("button", { name: /^Git/ }).isVisible()),
+      "los grupos del índice se pliegan, se recuerdan al recargar y el del tema abierto queda siempre abierto");
+    await page.setViewportSize({ width: 390, height: 844 });
+    ok(!(await grupo.isVisible()) && (await page.locator(".lib-nav .lib-tema").first().isVisible()), "en el celular el índice es una fila de temas, sin nombres de grupo");
+    await page.setViewportSize({ width: 1280, height: 720 });
     const src = page.locator(".lib-entry").first().locator(".lib-source a");
     ok(
       /^https:\/\//.test((await src.getAttribute("href")) ?? "") && (await src.getAttribute("target")) === "_blank" && /noopener/.test((await src.getAttribute("rel")) ?? ""),
@@ -495,6 +509,17 @@ try {
     await page.locator(".lib-levels").getByRole("tab", { name: /Avanzado/ }).click();
     const adv = await page.locator(".lib-entry").count();
     ok(adv > 0 && adv < all && (await page.locator(".lib-level-title").count()) === 1, "el filtro de nivel muestra solo ese nivel");
+    // referencia compacta: filas cerradas que se abren con clic, y filtro por categoría
+    const fila = page.locator(".lib-fila").first();
+    const cerradaAntes = !(await fila.locator(".lib-code").isVisible());
+    await fila.locator("summary").click();
+    ok(cerradaAntes && (await fila.locator(".lib-code").isVisible()), "cada ejemplo es una fila cerrada que muestra el código al abrirla");
+    const cat = (await fila.locator(".lib-cat").textContent()) ?? "";
+    await page.locator(".lib-levels").getByRole("tab", { name: /Todo/ }).click();
+    await page.locator(".lib-cat-filtro select").selectOption(cat);
+    const enCat = await page.locator(".lib-entry .lib-cat").allTextContents();
+    ok(enCat.length > 0 && enCat.length < all && enCat.every((c) => c === cat), "el filtro de categoría deja solo los ejemplos de esa categoría");
+    await page.locator(".lib-cat-filtro select").selectOption("");
     await page.locator(".lib-head").click();
     await page.keyboard.press("/");
     ok(await page.locator(".lib-search input[type=search]").evaluate((el) => el === document.activeElement), "/ enfoca la búsqueda");
@@ -503,7 +528,7 @@ try {
     ok((await page.locator(".lib-entry h4").first().textContent()) === "git rebase", "la búsqueda encuentra en todos los temas");
     await page.keyboard.press("Enter");
     await page.locator(".lib-entry.flash").waitFor();
-    ok((await page.locator(".lib-head h3").textContent()) === "Git" && (await page.locator(".lib-entry.flash h4").textContent()) === "git rebase", "Enter abre el primer resultado en su tema y lo resalta");
+    ok((await page.locator(".lib-head h3").textContent()) === "Git" && (await page.locator(".lib-entry.flash h4").textContent()) === "git rebase" && (await page.locator(".lib-entry.flash .lib-code").isVisible()), "Enter abre el primer resultado en su tema, con la fila abierta y resaltada");
     await page.locator(".lib-search input[type=search]").fill("funcion flecha");
     await page.waitForTimeout(100);
     ok(/flecha/i.test((await page.locator(".lib-entry").first().textContent()) ?? ""), "busca sin acentos y con varias palabras");
@@ -626,7 +651,39 @@ try {
     ok((await page.locator(".lib-head h3").textContent()) === "Git", "al recargar vuelve al mismo tema");
     await page.evaluate(() => (location.hash = "#/biblioteca/no-existe"));
     ok((await page.locator(".lib-head h3").textContent()) === "Git", "un tema que no existe en la URL no rompe nada");
+    // la URL lleva a una sección de la clase; "En esta clase" marca dónde estás y la URL la sigue
+    await page.evaluate(() => (location.hash = "#/biblioteca/python/clase/3"));
+    await page.locator("#clase-3").waitFor();
+    await page.waitForTimeout(300);
+    const marcada = page.locator(".clase-indice a[aria-current]");
+    const arriba = (id: string) => page.locator(id).evaluate((el) => Math.round(el.getBoundingClientRect().top));
+    ok(((await page.locator("#clase-3 h4").textContent()) ?? "").includes((await marcada.textContent()) ?? "-") && (await arriba("#clase-3")) < 120 && page.url().endsWith("/clase/3"),
+      "un enlace a la sección 3 de la clase la abre arriba de todo y la marca en el índice");
+    await page.locator(".clase-indice-boton").click();
+    await page.locator(".clase-indice a").nth(5).click();
+    await page.waitForTimeout(300);
+    ok(page.url().endsWith("/clase/6") && (await arriba("#clase-6")) < 120 && ((await page.locator("#clase-6 h4").textContent()) ?? "").includes((await marcada.textContent()) ?? "-"),
+      "elegir una sección en el índice baja hasta ella y la URL la sigue");
+    await page.locator(".clase-pie").getByRole("button", { name: /Siguiente/ }).click();
+    await page.waitForTimeout(300);
+    // arranca en el comienzo: la URL no anota ninguna sección del medio
+    ok((await page.locator(".lib-head h3").textContent()) === "JavaScript" && (await page.locator(".clase").count()) === 1 && /#\/biblioteca\/javascript\/clase(\/1)?$/.test(page.url()),
+      "al final de la clase, Siguiente abre la clase del tema que sigue en el índice");
+    // progreso de lectura: retoma en la última sección y la última queda leída al llegar al final
+    const lect = await open(browser, seedState({ lang: "python", lectura: { python: { leidas: [1], ultima: 5 } } }));
+    await lect.page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await lect.page.locator(".lib-clase-toggle").getByRole("tab", { name: /^Clase$/ }).click();
+    const retoma = await lect.page.waitForFunction(() => location.hash.endsWith("/clase/5"), null, { timeout: 3000 }).then(() => true, () => false) && (await lect.page.locator("#clase-5").evaluate((el) => el.getBoundingClientRect().top)) < 120;
+    const n = await lect.page.locator(".clase-seccion").count();
+    await lect.page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await lect.page.waitForFunction(([k, ult]) => JSON.parse(localStorage.getItem(k) ?? "{}").lectura?.python?.leidas?.includes(ult), [KEY, n] as const, { timeout: 3000 }).catch(() => {});
+    const leidas: number[] = (await state(lect.page)).lectura.python.leidas;
+    ok(retoma && leidas.includes(1) && leidas.includes(n) && /\d+ de \d+ leídas/.test((await lect.page.locator(".clase-progreso").textContent()) ?? ""),
+      "la clase retoma en la última sección leída, y llegar al final marca la última como leída");
+    await lect.ctx.close();
+    await page.evaluate(() => (location.hash = "#/biblioteca/git"));
     // la práctica de un ejemplo se cierra si la URL cambia de tema (auditoría del 16)
+    await page.locator(".lib-entry summary").first().click();
     await page.locator(".lib-entry").first().getByRole("button", { name: "Practicar este ejemplo" }).click();
     await page.locator(".entry-practice").waitFor();
     await page.evaluate(() => (location.hash = "#/biblioteca/python"));
@@ -710,6 +767,7 @@ try {
     await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
     const entry = page.locator(".lib-entry").first();
     const id = (await entry.getAttribute("id")) ?? "";
+    await entry.locator("summary").click();
     await entry.getByRole("button", { name: "Practicar este ejemplo" }).click();
     await page.locator(".entry-practice").waitFor();
     await page.waitForFunction(() => document.activeElement?.classList.contains("ta-hidden"));

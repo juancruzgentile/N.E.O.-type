@@ -1,9 +1,11 @@
-import type { CSSProperties, ReactNode } from "react";
-import type { LangId } from "../types";
+import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from "react";
+import type { LangId, Lectura } from "../types";
 import { tramos } from "../library/marcas";
 import type { Captura, CapturaTramo, Clase } from "../library/types";
 import { ClaseDiagrama } from "../anim";
 import { CodeBlock, fechaLarga } from "./CodeBlock";
+import { IconChevron } from "./icons";
+import { writeHash } from "../route";
 
 const ALT: Record<string, string> = {
   neurona: "Una neurona paso a paso (entradas por pesos, suma, sesgo y activación) y después la señal pasando por la red",
@@ -49,13 +51,91 @@ function CapturaVista({ c }: { c: Captura }) {
   );
 }
 
-export function ClaseView({ clase, hl, color }: { clase: Clase; hl: LangId; color: string }) {
+/**
+ * La clase con su índice "En esta clase": marca la sección que estás leyendo y la deja en la URL (base + "/3").
+ * `irA` (1, 2…) es la sección a la que hay que llevar al lector, por ejemplo al abrir un enlace; si no viene,
+ * arranca en la última que leíste. Una sección queda leída cuando llegás a su final.
+ */
+export function ClaseView({ clase, hl, color, base, irA, lectura, onLectura }: {
+  clase: Clase; hl: LangId; color: string; base: string; irA?: number;
+  lectura?: Lectura; onLectura: (cambio: (antes: Lectura) => Lectura) => void;
+}) {
+  const [actual, setActual] = useState(0);
+  const [abierto, setAbierto] = useState(false);
+  const raiz = useRef<HTMLDivElement>(null);
+  const n = clase.secciones.length;
+
+  const ir = (i: number) => {
+    setAbierto(false);
+    raiz.current?.querySelector(`#clase-${i + 1}`)?.scrollIntoView({ block: "start" });
+  };
+  const leidas = (lectura?.leidas ?? []).filter((x) => x <= n);
+  useEffect(() => {
+    const destino = irA ?? (lectura && lectura.ultima > 1 ? lectura.ultima : undefined);
+    if (destino && Number.isInteger(destino) && destino >= 1 && destino <= n) ir(destino - 1);
+    // solo al abrir la clase o cuando cambia irA: la lectura se actualiza mientras leés y no tiene que mover nada
+  }, [irA, n]);
+
+  // la sección actual es la primera que cruza la franja de arriba de la pantalla
+  useEffect(() => {
+    const secciones = [...(raiz.current?.querySelectorAll<HTMLElement>(".clase-seccion") ?? [])];
+    const visibles = new Set<number>();
+    const io = new IntersectionObserver((entradas) => {
+      for (const e of entradas) {
+        const i = secciones.indexOf(e.target as HTMLElement);
+        if (e.isIntersecting) visibles.add(i); else visibles.delete(i);
+      }
+      if (visibles.size) setActual(Math.min(...visibles));
+    }, { rootMargin: "-70px 0px -60% 0px" }); // debajo de la barra fija, en el tercio de arriba
+    secciones.forEach((s) => io.observe(s));
+    // leída: el final de la sección subió hasta la mitad de la pantalla; la última, al llegar al final de la clase
+    const marcar = (entradas: IntersectionObserverEntry[]) => {
+      const nuevas = entradas.filter((e) => e.isIntersecting).map((e) => Number((e.target as HTMLElement).dataset.n));
+      if (nuevas.length) onLecturaRef.current((l) => ({ ...l, leidas: [...new Set([...l.leidas, ...nuevas])].sort((a, b) => a - b) }));
+    };
+    const fin = new IntersectionObserver(marcar, { rootMargin: "-80px 0px -50% 0px" }); // arriba no: saltar a una sección no da por leída la anterior
+    const cierre = new IntersectionObserver(marcar);
+    raiz.current?.querySelectorAll(".clase-seccion .clase-fin").forEach((f) => fin.observe(f));
+    const ultimo = raiz.current?.querySelector(".clase > .clase-fin");
+    if (ultimo) cierre.observe(ultimo);
+    return () => { io.disconnect(); fin.disconnect(); cierre.disconnect(); };
+  }, [clase]);
+  const onLecturaRef = useRef(onLectura);
+  onLecturaRef.current = onLectura;
+  const primera = useRef(true);
+  useEffect(() => {
+    // la primera vez no: abrir la clase sin sección no tiene que cambiar la URL
+    if (primera.current) { primera.current = false; return; }
+    writeHash(`${base}/${actual + 1}`, true);
+    onLecturaRef.current((l) => ({ ...l, ultima: actual + 1 }));
+  }, [actual, base]);
+
   return (
+    <div className="clase-layout" ref={raiz}>
+    <nav className="clase-indice" aria-label="En esta clase">
+      <button className="clase-indice-boton" aria-expanded={abierto} aria-controls="clase-indice-lista" onClick={() => setAbierto((a) => !a)}>
+        <IconChevron size={14} /> En esta clase <span className="clase-indice-pos">{actual + 1} de {n}</span>
+      </button>
+      <div className="clase-indice-titulo">En esta clase</div>
+      <div className="clase-progreso">
+        <span className="clase-barra" aria-hidden="true"><i style={{ width: `${(leidas.length / n) * 100}%` }} /></span>
+        {leidas.length} de {n} leídas
+      </div>
+      <ol id="clase-indice-lista" className={abierto ? "abierto" : ""}>
+        {clase.secciones.map((s, i) => (
+          <li key={s.heading}>
+            <a href={`${base}/${i + 1}`} className={leidas.includes(i + 1) ? "leida" : undefined} aria-current={i === actual ? "location" : undefined} onClick={(e) => { e.preventDefault(); ir(i); }}>
+              {s.heading}{leidas.includes(i + 1) && <span className="clase-sr"> (leída)</span>}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
     <div className="clase" style={{ "--lc": color } as CSSProperties}>
       <h3 className="clase-titulo">{clase.titulo}</h3>
       <p className="clase-bajada"><Rico text={clase.bajada} /></p>
       {clase.secciones.map((s, i) => (
-        <section key={s.heading} className="clase-seccion">
+        <section key={s.heading} id={`clase-${i + 1}`} className="clase-seccion">
           <h4><span className="clase-num">{String(i + 1).padStart(2, "0")}</span> {s.heading}</h4>
           {s.parrafos.map((p, j) => <p key={j}><Rico text={p} /></p>)}
           {s.lista && <ul>{s.lista.map((x, j) => <li key={j}><Rico text={x} /></li>)}</ul>}
@@ -75,6 +155,7 @@ export function ClaseView({ clase, hl, color }: { clase: Clase; hl: LangId; colo
               <figcaption>{ALT[s.diagrama]}</figcaption>
             </figure>
           )}
+          <div className="clase-fin" data-n={i + 1} aria-hidden="true" />
         </section>
       ))}
       {clase.fuentes && (
@@ -83,6 +164,8 @@ export function ClaseView({ clase, hl, color }: { clase: Clase; hl: LangId; colo
           {clase.revisada && <span>Revisada: {fechaLarga(clase.revisada)}</span>}
         </p>
       )}
+      <div className="clase-fin" data-n={n} aria-hidden="true" />
+    </div>
     </div>
   );
 }

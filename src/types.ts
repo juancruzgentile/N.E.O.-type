@@ -50,6 +50,8 @@ export interface Settings {
   dbEngine: DbEngineId;
   /** atajos de VS Code que se practican: Linux/Windows o Mac */
   vscodeKeys: "pc" | "mac";
+  /** grupos del índice de la Biblioteca que cerraste */
+  libCerrados: string[];
 }
 
 /** Estadística de una tecla (un carácter). */
@@ -185,6 +187,13 @@ export interface AppState {
   frameworks: Record<string, number>;
   /** ya se revisó qué frameworks tenía ganados la persona con la regla anterior (se hace una sola vez) */
   frameworksChecked: boolean;
+  /** lectura de las clases: id del tema → secciones leídas (1, 2…) y la última en la que estuviste */
+  lectura: Record<string, Lectura>;
+}
+
+export interface Lectura {
+  leidas: number[];
+  ultima: number;
 }
 
 export interface Lesson {
