@@ -10,7 +10,8 @@ export const Movimiento = createContext(false);
 
 const MS = 2600;
 
-export function Animacion({ pasos, label, children }: { pasos: string[]; label: string; children: (paso: number) => ReactNode }) {
+/** `fases` (opcional): una etiqueta corta por paso para el chip de arriba del escenario. */
+export function Animacion({ pasos, label, fases, children }: { pasos: string[]; label: string; fases?: string[]; children: (paso: number) => ReactNode }) {
   const [paso, setPaso] = useState(0);
   // se lee del contexto y no de fxOn(): al abrir una clase directo por URL, el efecto de App todavía no corrió
   const movimiento = useContext(Movimiento);
@@ -34,8 +35,11 @@ export function Animacion({ pasos, label, children }: { pasos: string[]; label: 
   };
 
   return (
-    <div className="anim">
-      <div role="img" aria-label={`${label}. Paso ${paso + 1} de ${n}: ${pasos[paso]}`}>{children(paso)}</div>
+    <div className={`anim${movimiento ? "" : " quieto"}`}>
+      <div className="anim-escenario">
+        {fases && <span className="anim-chip" aria-hidden="true">{fases[paso]}</span>}
+        <div role="img" aria-label={`${label}. Paso ${paso + 1} de ${n}: ${pasos[paso]}`}>{children(paso)}</div>
+      </div>
       <div className="anim-controles">
         <div className="anim-botones">
           <button type="button" className="anim-btn" onClick={() => ir(-1)} aria-label="Paso anterior">
@@ -49,7 +53,9 @@ export function Animacion({ pasos, label, children }: { pasos: string[]; label: 
           </button>
         </div>
         <span className="anim-num">{paso + 1}/{n}</span>
-        <div className="anim-barra" aria-hidden="true"><i style={{ width: `${((paso + 1) / n) * 100}%` }} /></div>
+        <div className="anim-pasos" aria-hidden="true">
+          {pasos.map((_, k) => <i key={k} className={k === paso ? "ahora" : k < paso ? "hecho" : ""} />)}
+        </div>
       </div>
       {/* con la animación andando no se anuncia cada paso: sería ruido para el lector de pantalla */}
       <p className="anim-texto" aria-live={play ? "off" : "polite"}>{pasos[paso]}</p>
