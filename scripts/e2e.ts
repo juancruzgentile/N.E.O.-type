@@ -2,7 +2,7 @@
 // (dist-web/) con el argumento "web".
 // Uso: npm run build && npm run test:e2e (o npm run test:e2e:web)
 // El navegador se instala una vez con: npx playwright-core install --only-shell chromium
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { createServer } from "node:http";
@@ -142,7 +142,27 @@ try {
       await ctx.close();
     }
     const ms = Math.min(...tiempos);
-    ok(ms <= MAX_MS, `la app arranca en ${ms} ms con la CPU frenada 4× (límite ${MAX_MS} ms; medidas: ${tiempos.join(", ")})`);
+    ok(ms <= MAX_MS, `${WEB ? "la web" : "la app"} arranca en ${ms} ms con la CPU frenada 4× (límite ${MAX_MS} ms; medidas: ${tiempos.join(", ")})`);
+    if (WEB) {
+      // lo que baja la web para mostrar la primera lección: HTML, JS, CSS y las fuentes que usa
+      const MAX_INICIAL_KB = 1400;
+      const ctx = await browser.newContext({ serviceWorkers: "block" });
+      const page = await ctx.newPage();
+      await page.addInitScript(([k, v]) => localStorage.setItem(k, v), [KEY, JSON.stringify(seedState())] as const);
+      await page.goto(APP);
+      await page.locator(".code-box").waitFor();
+      await page.evaluate(() => document.fonts.ready);
+      const kb = await page.evaluate(() =>
+        [performance.getEntriesByType("navigation")[0], ...performance.getEntriesByType("resource")]
+          .reduce((n, e) => n + (e as PerformanceResourceTiming).encodedBodySize, 0) / 1024);
+      ok(kb <= MAX_INICIAL_KB, `la web baja ${kb.toFixed(0)} KB para arrancar (límite ${MAX_INICIAL_KB} KB)`);
+      await ctx.close();
+      // cada tema de la Biblioteca es un pedazo aparte: ninguno puede crecer sin que se note
+      const MAX_TEMA_KB = 100;
+      const pedazos = readdirSync("dist-web/assets").filter((f) => f.endsWith(".js") && !/^index-/.test(f))
+        .map((f) => ({ f, kb: statSync(join("dist-web/assets", f)).size / 1024 })).sort((x, y) => y.kb - x.kb);
+      ok(pedazos.length > 30 && pedazos[0].kb <= MAX_TEMA_KB, `el tema más pesado de la web es ${pedazos[0]?.f} con ${pedazos[0]?.kb.toFixed(0)} KB (límite ${MAX_TEMA_KB} KB)`);
+    }
   }
 
   // 1. carga y lección completa
