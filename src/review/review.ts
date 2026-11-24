@@ -3,7 +3,7 @@
 // tarda más en volver; si se hace mal vuelve a la primera y reaparece mañana.
 import type { LangId, Lesson, ReviewItem } from "../types";
 import { type LayoutDef, isTypeable } from "../data/layouts";
-import { ALL_TOPICS } from "../library/contenido";
+import { cargarTema, temaCargado, temaDeEntrada } from "../library/carga";
 import { entryId } from "../library/search";
 import type { Entry, Topic } from "../library/types";
 
@@ -63,15 +63,18 @@ export function whenText(item: ReviewItem, day: string): string {
 
 // ── entradas ────────────────────────────────────────────────────────────────
 
-let byId: Map<string, { topic: Topic; entry: Entry }> | null = null;
-/** Busca una entrada por su id (null si ya no existe en la Biblioteca). */
-export function findEntry(id: string) {
-  if (!byId) {
-    byId = new Map();
-    for (const topic of ALL_TOPICS) for (const entry of topic.entries) byId.set(entryId(topic, entry), { topic, entry });
-  }
-  return byId.get(id) ?? null;
+/** Busca una entrada por su id entre los temas ya cargados (null si no existe o su tema todavía no se cargó). */
+export function findEntry(id: string): { topic: Topic; entry: Entry } | null {
+  const t = temaDeEntrada(id);
+  const topic = t ? temaCargado(t) : undefined;
+  const entry = topic?.entries.find((e) => entryId(topic, e) === id);
+  return topic && entry ? { topic, entry } : null;
 }
+
+/** Carga los temas de lo que toca repasar hoy, para que el repaso intercalado los tenga a mano. Si alguno falla, esa entrada se saltea. */
+export const cargarRepaso = (review: Record<string, ReviewItem>, day: string) =>
+  Promise.allSettled([...new Set(Object.entries(review).filter(([, it]) => isDue(it, day)).map(([id]) => temaDeEntrada(id)))]
+    .flatMap((t) => (t ? [cargarTema(t)] : [])));
 
 const FOLD: Record<string, string> = {
   "…": "...", "—": "-", "–": "-", "“": '"', "”": '"', "‘": "'", "’": "'", "«": '"', "»": '"', "★": "*", "→": "->", "·": ".",
@@ -149,9 +152,9 @@ export function pickDue(review: Record<string, ReviewItem>, lang: LangId | null,
   let best: { id: string; key: [number, string, number] } | null = null;
   for (const [id, item] of Object.entries(review)) {
     if (!isDue(item, day) || skip.includes(id)) continue;
-    const found = findEntry(id);
-    if (!found) continue;
-    const key: [number, string, number] = [found.topic.id === lang ? 0 : 1, item.due, item.box];
+    const topic = temaDeEntrada(id);
+    if (!topic) continue;
+    const key: [number, string, number] = [topic === lang ? 0 : 1, item.due, item.box];
     if (!best || key[0] < best.key[0] || (key[0] === best.key[0] && (key[1] < best.key[1] || (key[1] === best.key[1] && key[2] < best.key[2])))) {
       best = { id, key };
     }
@@ -160,4 +163,4 @@ export function pickDue(review: Record<string, ReviewItem>, lang: LangId | null,
 }
 
 export const dueCount = (review: Record<string, ReviewItem>, day: string) =>
-  Object.entries(review).filter(([id, it]) => isDue(it, day) && findEntry(id)).length;
+  Object.entries(review).filter(([id, it]) => isDue(it, day) && temaDeEntrada(id)).length;

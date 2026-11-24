@@ -1,5 +1,5 @@
 import { GROUPS, SOON } from "../library/grupos";
-import type { Topic } from "../library/types";
+import type { TemaCatalogo } from "../library/types";
 import { IconChevron } from "./icons";
 import { TopicBadge } from "./TopicBadge";
 
@@ -7,7 +7,7 @@ export type Selection = { kind: "topic"; id: string } | { kind: "soon" };
 
 /** Índice de la Biblioteca: los temas por grupo y la sección de próximamente. Los grupos se pliegan, salvo el del tema abierto. */
 export function LibIndice({ topics, sel, searching, cerrados, onToggle, onTopic, onSoon }: {
-  topics: Topic[]; sel: Selection; searching: boolean; cerrados: string[]; onToggle: (grupo: string) => void;
+  topics: TemaCatalogo[]; sel: Selection; searching: boolean; cerrados: string[]; onToggle: (grupo: string) => void;
   onTopic: (id: string) => void; onSoon: () => void;
 }) {
   const actual = sel.kind === "topic" ? topics.find((t) => t.id === sel.id)?.group : undefined;
@@ -35,7 +35,7 @@ export function LibIndice({ topics, sel, searching, cerrados, onToggle, onTopic,
             >
               <TopicBadge topic={t} size={24} />
               <span>{t.name}</span>
-              <span className="lib-count">{t.entries.length}</span>
+              <span className="lib-count">{t.entradas}</span>
             </button>
           ))}
         </div>

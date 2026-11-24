@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppState, LangId } from "../types";
 import { GROUPS, SOON } from "../library/grupos";
-import { visibleTopics } from "../library/contenido";
+import { temasVisibles } from "../library/unlock";
+import { cargarTema, temaCargado } from "../library/carga";
 import { type Hit, entryId, search } from "../library/search";
 import type { Entry, Level, Topic } from "../library/types";
 import { ClaseView } from "./ClaseView";
@@ -22,8 +23,8 @@ interface Props {
 
 export function LibraryView({ lang, state, update }: Props) {
   // los frameworks solo aparecen (también en la búsqueda) una vez ganados
-  const TOPICS = useMemo(() => visibleTopics(state), [state]);
-  const totalEntries = TOPICS.reduce((n, t) => n + t.entries.length, 0);
+  const TOPICS = useMemo(() => temasVisibles(state), [state]);
+  const totalEntries = TOPICS.reduce((n, t) => n + t.entradas, 0);
   const initial = TOPICS.find((t) => t.id === lang)?.id ?? TOPICS[0].id;
   // el tema y la pestaña vienen del hash si es un tema visible (#/biblioteca/git/clase)
   // y la sección de la clase, si viene (#/biblioteca/git/clase/3); ClaseView revisa que exista
@@ -48,11 +49,32 @@ export function LibraryView({ lang, state, update }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const topic = sel.kind === "topic" ? TOPICS.find((t) => t.id === sel.id)! : null;
+  // el tema abierto se carga recién ahora; la búsqueda necesita todos los visibles
   const q = query.trim();
+  const [, setCargas] = useState(0);
+  const [fallo, setFallo] = useState(false);
+  const [intento, setIntento] = useState(0);
+  const pedidos = q ? TOPICS.map((t) => t.id) : sel.kind === "topic" ? [sel.id] : [];
+  const faltan = pedidos.filter((id) => !temaCargado(id));
+  useEffect(() => {
+    if (!faltan.length) return;
+    let vivo = true;
+    setFallo(false);
+    // shortcut: buscar carga todos los temas visibles; si en la web tarda, pasar a un índice generado aparte
+    Promise.all(faltan.map(cargarTema)).then(() => vivo && setCargas((n) => n + 1), () => vivo && setFallo(true));
+    return () => { vivo = false; };
+  }, [faltan.join(), intento]); // eslint-disable-line react-hooks/exhaustive-deps
+  const cargando = faltan.length > 0;
+  const estado = cargando && (
+    <div className="lib-cargando" role="status">
+      {fallo ? <>No se pudo cargar. <button className="btn" onClick={() => setIntento((n) => n + 1)}>Reintentar</button></> : "Cargando…"}
+    </div>
+  );
+  const ficha = sel.kind === "topic" ? TOPICS.find((t) => t.id === sel.id)! : null;
+  const topic = ficha ? temaCargado(ficha.id) ?? null : null;
   const hits: Hit[] = useMemo(
-    () => (q ? search(onlyTopic && topic ? [topic] : TOPICS, q) : []),
-    [q, onlyTopic, topic, TOPICS],
+    () => (q && !cargando ? search(onlyTopic && topic ? [topic] : TOPICS.map((t) => temaCargado(t.id)!), q) : []),
+    [q, onlyTopic, topic, TOPICS, cargando],
   );
 
   useEffect(() => {
@@ -113,10 +135,10 @@ export function LibraryView({ lang, state, update }: Props) {
 
   // anterior y siguiente en el orden del índice; si el tema tiene clase, abre la clase
   const orden = GROUPS.flatMap((g) => TOPICS.filter((t) => t.group === g));
-  const vecinos = topic ? [orden[orden.indexOf(topic) - 1], orden[orden.indexOf(topic) + 1]] : [];
+  const vecinos = ficha ? [orden[orden.indexOf(ficha) - 1], orden[orden.indexOf(ficha) + 1]] : [];
   // salta de una al comienzo (sin animar) antes de mostrar el tema nuevo: así la clase nueva no aparece a mitad de
   // página ni se recorre entera al subir
-  const openVecino = (t: Topic) => {
+  const openVecino = (t: (typeof TOPICS)[number]) => {
     contentRef.current?.scrollIntoView({ block: "start" });
     setSel({ kind: "topic", id: t.id });
     setLevel("all");
@@ -171,9 +193,9 @@ export function LibraryView({ lang, state, update }: Props) {
           }}
         />
         <kbd title="Atajo para buscar">/</kbd>
-        {topic && (
+        {ficha && (
           <label className="lib-scope">
-            <input type="checkbox" checked={onlyTopic} onChange={(e) => setOnlyTopic(e.target.checked)} /> Solo {topic.name}
+            <input type="checkbox" checked={onlyTopic} onChange={(e) => setOnlyTopic(e.target.checked)} /> Solo {ficha.name}
           </label>
         )}
       </div>
@@ -199,7 +221,7 @@ export function LibraryView({ lang, state, update }: Props) {
         />
 
         <div className="lib-content" ref={contentRef}>
-          {q ? (
+          {q && cargando ? estado : q ? (
             <>
               <div className="section">
                 {hits.length ? `${hits.length}${hits.length === 80 ? "+" : ""} resultados para "${q}"` : `Sin resultados para "${q}"`}
@@ -230,7 +252,7 @@ export function LibraryView({ lang, state, update }: Props) {
                 ))}
               </div>
             </>
-          ) : topic ? (
+          ) : ficha && !topic ? estado : topic ? (
             <>
               <LibCabecera topic={topic} />
 

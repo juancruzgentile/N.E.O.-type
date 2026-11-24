@@ -4,7 +4,7 @@ import { LangEmblem } from "./LangEmblem";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
 
-export function TopicBadge({ topic, size = 40 }: { topic: Topic; size?: number }) {
+export function TopicBadge({ topic, size = 40 }: { topic: Pick<Topic, "id" | "emblem" | "color" | "badge">; size?: number }) {
   if (topic.id === "claude") return <ClaudeMark size={size} />;
   if (topic.id === "codex") return <CodexMark size={size} />;
   if (topic.emblem) return <LangEmblem lang={topic.emblem} size={size} />;
