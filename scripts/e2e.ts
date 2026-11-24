@@ -2,7 +2,7 @@
 // (dist-web/) con el argumento "web".
 // Uso: npm run build && npm run test:e2e (o npm run test:e2e:web)
 // El navegador se instala una vez con: npx playwright-core install --only-shell chromium
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { createServer } from "node:http";
@@ -298,7 +298,7 @@ try {
     await page.getByRole("button", { name: "Ajustes" }).click();
     ok((await page.locator(".pasar-progreso").count()) === (WEB ? 1 : 0), WEB ? "la web explica cómo traer el progreso de NeonType.html" : "NeonType.html no muestra la guía de la web");
     const input = page.locator('input[type="file"][accept="application/json"]');
-    const roto = resolve(tmpdir(), "neontype-e2e-roto.json");
+    const roto = join(mkdtempSync(join(tmpdir(), "neontype-e2e-")), "roto.json");
     writeFileSync(roto, '{"version":2}');
     let bajadas = 0;
     page.on("download", () => bajadas++);
