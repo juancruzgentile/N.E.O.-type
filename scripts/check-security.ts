@@ -260,7 +260,7 @@ if (web) {
   const tiene = Object.fromEntries(csp.split(";").map((d) => d.trim()).filter(Boolean).map((d) => [d.split(/\s+/)[0], d.split(/\s+/).slice(1).join(" ")]));
   const distintas = [...new Set([...Object.keys(permitido), ...Object.keys(tiene)])].filter((k) => permitido[k] !== tiene[k]);
   ok(distintas.length === 0, `la CSP de la web abre solo el mismo sitio para scripts, estilos, fuentes, worker y manifest${distintas.length ? " — distinto: " + distintas.map((k) => `${k} ${tiene[k] ?? "(falta)"}`).join("; ") : ""}`);
-  ok(web.indexOf("Content-Security-Policy") < web.search(/<script\b|<link\b[^>]*stylesheet/), "la CSP de la web va antes que cualquier script o estilo");
+  ok(web.indexOf("Content-Security-Policy") < web.search(/<script\b|<link\b[^>]*stylesheet/i), "la CSP de la web va antes que cualquier script o estilo");
   ok(!/<script\b(?![^>]*\bsrc=)[^>]*>|<style\b|\son[a-z]+=/i.test(web), "la web no tiene scripts, estilos ni manejadores incrustados");
   ok([...web.matchAll(/\b(?:src|href)="([^"]+)"/g)].every((m) => m[1].startsWith("./") || m[1].startsWith("data:image/svg+xml,")), "la web solo carga archivos propios");
   const sw = readFileSync("dist-web/sw.js", "utf8");
