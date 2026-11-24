@@ -649,6 +649,8 @@ try {
     ok(manifest?.display === "standalone" && manifest?.icons?.length > 0 && manifest?.start_url === "./", "la web tiene manifest para instalarla");
     await page.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 15000 });
     await typeLesson(page, await lessonText(page));
+    // la lección terminada tiene que estar guardada antes de sacar la foto del progreso
+    await page.waitForFunction((k) => Object.values(JSON.parse(localStorage.getItem(k) ?? "{}").profiles ?? {}).some((p) => (p as { lessons?: unknown[] }).lessons?.length), KEY);
     const antes = JSON.stringify((await state(page)).profiles);
     await ctx.setOffline(true);
     await page.reload();
