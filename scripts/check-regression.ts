@@ -14,6 +14,10 @@ import { TRACK_ORDER } from "../src/tracks/index";
 import { TOPICS } from "../src/library/index";
 import { ALL_TOPICS } from "../src/library/contenido";
 import { textoCatalogo } from "./catalogo-texto";
+import { CATALOGO } from "../src/library/catalogo.gen";
+import { cargarTema, temaDeEntrada } from "../src/library/carga";
+import { entryId } from "../src/library/search";
+import { findEntry, reviewLesson } from "../src/review/review";
 import { isFullProgram, kindNote } from "../src/library/kind";
 import { go as goGen } from "../src/gen/lang/go";
 import { LAYOUTS } from "../src/data/layouts";
@@ -455,11 +459,28 @@ for (const t of TOPICS.filter((x) => x.clase)) {
     }
     return vistos;
   };
-  const pesados = ["src/library/index.ts", "src/library/frameworks.ts", "src/library/contenido.ts"];
-  for (const raiz of ["src/library/unlock.ts", "src/sanitize.ts", "src/interview/util.ts", "src/components/ChallengesView.tsx"]) {
-    const v = alcanzados(raiz);
-    ok(!pesados.some((p) => v.has(p)), `${raiz} no carga el contenido de los temas`);
-  }
+  // todo archivo que arma un tema o una clase: la app solo los trae con import() desde carga.ts
+  const pesados = new Set([...alcanzados("src/library/index.ts"), ...alcanzados("src/library/frameworks.ts")]
+    .filter((f) => f.startsWith("src/library/clases/") || /export const \w+: (Topic|Framework) =/.test(readFileSync(f, "utf8"))));
+  pesados.add("src/library/contenido.ts");
+  const desdeApp = alcanzados("src/main.tsx");
+  const colados = [...pesados].filter((p) => desdeApp.has(p));
+  ok(pesados.size > 40 && colados.length === 0, `la app no carga ningún tema de entrada${colados.length ? " — " + colados.join(", ") : ""}`);
+}
+
+// ── carga por tema: cada tema del catálogo se carga solo, y el repaso lo encuentra después ──
+{
+  const ids = CATALOGO.map((t) => t.id);
+  const cargados = await Promise.all(ids.map((id) => cargarTema(id)));
+  ok(cargados.every((t, i) => t === ALL_TOPICS.find((x) => x.id === ids[i])) && ids.length === ALL_TOPICS.length, "cada tema del catálogo se carga desde su archivo");
+  const malos = ALL_TOPICS.flatMap((t) => t.entries.map((e) => entryId(t, e)).filter((id) => temaDeEntrada(id) !== t.id));
+  ok(malos.length === 0, `el catálogo sabe de qué tema es cada entrada${malos.length ? " — " + malos[0] : ""}`);
+  let falló = false;
+  await cargarTema("no-existe").catch(() => (falló = true));
+  ok(falló && temaDeEntrada("lib-no-existe-x") === null, "un tema que no existe da error en vez de colgarse");
+  const py = ALL_TOPICS.find((t) => t.id === "python")!;
+  const id = entryId(py, py.entries[0]);
+  ok(findEntry(id)?.entry === py.entries[0] && reviewLesson(id)?.title === py.entries[0].name, "el repaso arma la lección de una entrada ya cargada");
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");

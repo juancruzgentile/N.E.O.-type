@@ -11,7 +11,7 @@ import {
   addTotals, applySamples, applyStep, buildLesson, canUnlock, lessonScore, nextStage, pickFocus, playableChars, stageInfos,
 } from "../engine/stats";
 import { getProfile, profileKey, streakDays, today } from "../store";
-import { PASS_ACC, grade, pickDue, reviewLesson, whenText } from "../review/review";
+import { PASS_ACC, cargarRepaso, grade, pickDue, reviewLesson, whenText } from "../review/review";
 import { sound } from "../sound";
 import { CodeView } from "./CodeView";
 import { FINGER_COLORS, Keyboard } from "./Keyboard";
@@ -63,6 +63,7 @@ export function PracticeView({ state, update, lang, challenge, onExitChallenge }
   // repaso intercalado: cada 2 a 4 lecciones, si hay algo de la Biblioteca que toca hoy
   const reviewRef = useRef(state.review);
   reviewRef.current = state.review;
+  useEffect(() => void cargarRepaso(reviewRef.current, today()), []);
   const sinceReview = useRef(0);
   const reviewGap = useRef(2 + Math.floor(rng.current() * 3));
   const nextLesson = useCallback(

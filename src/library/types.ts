@@ -51,6 +51,10 @@ export interface Topic {
 /** Lo liviano de un tema: alcanza para listarlo sin cargar su contenido. Se genera con `npm run catalogo`. */
 export interface TemaCatalogo extends Pick<Topic, "id" | "name" | "group" | "emblem" | "badge" | "color" | "hl"> {
   entradas: number;
+  /** nombre de la pestaña de la clase, si el tema tiene una */
+  clase?: string;
+  /** ids de las entradas sin el comienzo `lib-<tema>-`: el repaso sabe de qué tema es cada una sin cargarlo */
+  ids: string[];
   /** solo frameworks: lenguajes y proyectos que lo abren */
   langs?: CodeLangId[];
   projects?: string[];

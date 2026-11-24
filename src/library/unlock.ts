@@ -5,7 +5,7 @@ import { stageInfos } from "../engine/stats";
 import { PROJECTS } from "../projects/projects";
 import type { AppState, CodeLangId } from "../types";
 import { CATALOGO } from "./catalogo.gen";
-import type { FrameworkCatalogo } from "./types";
+import type { FrameworkCatalogo, TemaCatalogo } from "./types";
 
 const FRAMEWORKS = CATALOGO.filter((t): t is FrameworkCatalogo => !!t.langs);
 /** Lo que hace falta para saber si un framework está abierto. */
@@ -44,3 +44,6 @@ export const frameworkUnlocked = (s: AppState, fw: Regla) => has(s.frameworks, f
  */
 export const frameworksToGrant = (s: AppState): FrameworkCatalogo[] =>
   FRAMEWORKS.filter((fw) => !has(s.frameworks, fw.id) && (earnedNow(s, fw) || (!s.frameworksChecked && earnedBefore(s, fw))));
+
+/** Temas que se muestran: los de siempre más los frameworks ganados. */
+export const temasVisibles = (s: AppState): TemaCatalogo[] => CATALOGO.filter((t) => !t.langs || frameworkUnlocked(s, t as FrameworkCatalogo));

@@ -21,7 +21,9 @@ import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
 import { TypingSession } from "../src/engine/session";
 import { SOON, TOPICS } from "../src/library/index";
 import { frameworkUnlocked, frameworksToGrant, routeDone } from "../src/library/unlock";
-import { ALL_TOPICS, visibleTopics } from "../src/library/contenido";
+import { ALL_TOPICS } from "../src/library/contenido";
+import { temasVisibles } from "../src/library/unlock";
+import { cargarTema } from "../src/library/carga";
 import { FRAMEWORKS } from "../src/library/frameworks";
 import { entryId, normalize, search } from "../src/library/search";
 import { PROJECTS, projectUnlocked, requiredNum } from "../src/projects/projects";
@@ -32,6 +34,9 @@ import { AREAS, PREGUNTAS_POR_DURACION, PUESTOS } from "../src/interview/catalog
 import { anotarRepaso, armarEntrevista, corregirCodigo, opcionesMezcladas, repasoPendiente, resultadoDe } from "../src/interview/engine";
 import { makeRng } from "../src/gen/base";
 import { sanitizeState } from "../src/sanitize";
+
+// el repaso solo ve los temas cargados: acá se cargan todos de entrada
+await Promise.all(ALL_TOPICS.map((t) => cargarTema(t.id)));
 
 let failed = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -607,6 +612,7 @@ for (const [lang, code] of [
   ok(frameworkUnlocked({ ...route, projects: { p19: rec } }, fw("django")) && !frameworkUnlocked({ ...route, projects: { p19: rec } }, fw("fastapi")), "la ruta de Python + el blog abren Django, pero no FastAPI");
   ok(!frameworkUnlocked({ ...route, projects: { p01: rec, p02: rec } }, fw("django")), "un proyecto cualquiera en Python ya no alcanza");
   ok(!frameworkUnlocked(both, fw("react")) && !frameworkUnlocked(both, fw("spring")), "los frameworks de otros lenguajes siguen ocultos");
+  const visibleTopics = (s: AppState) => ALL_TOPICS.filter((t) => temasVisibles(s).some((v) => v.id === t.id));
   ok(!visibleTopics(base).some((t) => t.group === "Frameworks"), "al principio la Biblioteca no muestra ningún framework");
   ok(!search(visibleTopics(base), "fastapi").some((h) => h.topic.group === "Frameworks"), "la búsqueda tampoco encuentra frameworks ocultos");
   ok(visibleTopics(both).filter((t) => t.group === "Frameworks").map((t) => t.id).join() === "fastapi", "una vez ganados, aparecen en la Biblioteca");
