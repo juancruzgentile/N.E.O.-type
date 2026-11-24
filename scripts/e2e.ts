@@ -649,9 +649,7 @@ try {
     ok(manifest?.display === "standalone" && manifest?.icons?.length > 0 && manifest?.start_url === "./", "la web tiene manifest para instalarla");
     await page.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 15000 });
     await typeLesson(page, await lessonText(page));
-    // la lección terminada tiene que estar guardada antes de sacar la foto del progreso
     await page.waitForFunction((k) => Object.values(JSON.parse(localStorage.getItem(k) ?? "{}").profiles ?? {}).some((p) => (p as { lessons?: unknown[] }).lessons?.length), KEY);
-    const antes = JSON.stringify((await state(page)).profiles);
     await ctx.setOffline(true);
     await page.reload();
     await page.locator(".code-box").waitFor();
@@ -663,11 +661,19 @@ try {
     swNuevo = "\n// versión nueva\n";
     await page.evaluate(() => navigator.serviceWorker.getRegistration().then((r) => r?.update()));
     const aviso = page.locator(".aviso-version");
+    await page.evaluate(() => ((window as unknown as { sinRecargar: boolean }).sinRecargar = true));
     await aviso.waitFor({ timeout: 15000 });
-    ok(antes !== "{}" && JSON.stringify((await state(page)).profiles) === antes, "la versión nueva avisa y espera, sin recargar sola");
+    await page.waitForTimeout(1000);
+    ok(await page.evaluate(() => (window as unknown as { sinRecargar?: boolean }).sinRecargar === true), "la versión nueva avisa y espera, sin recargar sola");
+    // el guardado va con retraso: la foto se saca cuando el progreso dejó de cambiar
+    let antes = "";
+    for (let ahora = JSON.stringify((await state(page)).profiles); ahora !== antes; ahora = JSON.stringify((await state(page)).profiles)) {
+      antes = ahora;
+      await page.waitForTimeout(800);
+    }
     await Promise.all([page.waitForEvent("load"), aviso.getByRole("button", { name: "Actualizar" }).click()]);
     await page.locator(".lib-head h3", { hasText: "Rust" }).waitFor();
-    ok((await aviso.count()) === 0 && JSON.stringify((await state(page)).profiles) === antes, "al actualizar, la app recarga y el progreso queda igual");
+    ok(antes.includes("lessons") && (await aviso.count()) === 0 && JSON.stringify((await state(page)).profiles) === antes, "al actualizar, la app recarga y el progreso queda igual");
     swNuevo = "";
     ok(errors.length === 0, `web instalable sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
