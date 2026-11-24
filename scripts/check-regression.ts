@@ -416,5 +416,21 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   ok(!/from "\.\/LibraryView"/.test(clase), "ClaseView no importa LibraryView (CodeBlock vive en su propio archivo)");
 }
 
+// ── progreso guardado: una copia fija de la versión 1 se tiene que seguir leyendo entera ──
+{
+  /** `b` entra en `a`: todo lo guardado sigue igual, y una versión nueva puede sumar campos. */
+  const contiene = (a: unknown, b: unknown): boolean => {
+    if (Array.isArray(b)) return Array.isArray(a) && a.length === b.length && b.every((x, i) => contiene(a[i], x));
+    if (b && typeof b === "object") return !!a && typeof a === "object" && Object.entries(b).every(([k, v]) => contiene((a as Record<string, unknown>)[k], v));
+    return a === b;
+  };
+  const fijo = JSON.parse(readFileSync("scripts/fixtures/progreso-v1.json", "utf8")) as Record<string, unknown>;
+  const leido = parseBackup(JSON.stringify(fijo)) as unknown as Record<string, unknown>;
+  for (const k of Object.keys(fijo)) ok(contiene(leido[k], fijo[k]), `progreso v1: "${k}" se conserva al leerlo`);
+  const vacias = Object.entries(fijo).filter(([, v]) => v && typeof v === "object" && Object.keys(v).length === 0);
+  ok(vacias.length === 0, "progreso v1: la copia fija trae datos en todas sus secciones");
+  ok(contiene(parseBackup(serializeState(leido as unknown as AppState)), fijo), "progreso v1: exportar e importar no pierde nada");
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");
 process.exit(failed ? 1 : 0);

@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "settings": {
+    "layout": "it",
+    "targetWpm": 42,
+    "minSamples": 25,
+    "minAccuracy": 96,
+    "errorMode": "block",
+    "sound": false,
+    "showKeyboard": true,
+    "excludeMissing": true,
+    "dailyGoalMin": 30,
+    "userName": "Prueba",
+    "theme": "cyber",
+    "animations": false,
+    "musicVolume": 0.4,
+    "musicStation": 2,
+    "avatar": "",
+    "showSplash": false,
+    "tutorialDone": true,
+    "keymap": { "it": { "{": { "code": "BracketLeft", "shift": true, "altgr": true } } },
+    "distro": "debian",
+    "dbEngine": "postgresql",
+    "vscodeKeys": "pc",
+    "libCerrados": ["IA"]
+  },
+  "lang": "python",
+  "mode": "guided",
+  "profiles": {
+    "python:it": {
+      "stage": 0,
+      "steps": { "paso-1": { "n": 2, "w": [31, 35], "a": [0.95, 0.97] } },
+      "keys": {
+        "(": { "n": 40, "ema": 310.5, "hits": 38, "misses": 2, "recent": "1101" },
+        ")": { "n": 39, "ema": 295.25, "hits": 39, "misses": 0, "recent": "1111" }
+      },
+      "lessons": [
+        { "ts": 1795000000000, "wpm": 31, "acc": 0.95, "chars": 120, "ms": 46000, "score": 410, "kind": "drill" },
+        { "ts": 1795000100000, "wpm": 35, "acc": 0.97, "chars": 180, "ms": 61000, "score": 620, "kind": "code" }
+      ],
+      "totals": { "n": 12, "ms": 640000, "chars": 2100, "best": 44 },
+      "score": 5230
+    }
+  },
+  "days": { "2026-11-18": 900, "2026-11-19": 1260 },
+  "challenges": { "python:sprint60": { "wpm": 41, "acc": 0.96, "ts": 1795000200000 } },
+  "projects": { "p01": { "ms": 182000, "wpm": 33, "acc": 0.94, "ts": 1795000300000 } },
+  "review": { "lib-python-listas": { "box": 2, "due": "2026-11-27", "n": 4, "lapses": 1, "ts": 1795000400000 } },
+  "recall": { "linux-1-1": 1795000500000 },
+  "shortcuts": { "vim-1-1": { "stars": 3, "keys": 6, "ms": 4200 } },
+  "achievements": { "first": 1795000000000 },
+  "interviewReview": { "python-01": { "box": 1, "due": "2026-11-26", "n": 2, "lapses": 1, "ts": 1795000600000 } },
+  "interviews": {
+    "i1795000700000": {
+      "ts": 1795000700000,
+      "puesto": "general",
+      "lang": "python",
+      "nivel": "junior",
+      "minutos": 15,
+      "ms": 720000,
+      "ok": 7,
+      "total": 10,
+      "areas": { "python": [5, 7], "sql": [2, 3] }
+    }
+  },
+  "frameworks": { "react": 1795000800000 },
+  "frameworksChecked": true,
+  "lectura": { "python": { "leidas": [1, 2, 4], "ultima": 4 } }
+}
