@@ -6,6 +6,7 @@ y el versionado sigue [SemVer](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- Antes de importar un progreso se baja sola una copia del que tenés, por si querés volver atrás. En la web, Ajustes explica cómo traer el progreso de `NeonType.html`.
 - Versión **web** además de `NeonType.html`: se puede instalar, anda sin internet y cada tema de la Biblioteca se baja recién al abrirlo. Cuando sale una versión nueva avisa y se aplica recién cuando tocás Actualizar; tu progreso queda igual.
 - La pantalla y el tema de la Biblioteca quedan en la URL (por ejemplo `#/biblioteca/git/clase`): el botón Atrás del navegador vuelve al tema o a la pantalla anterior, al recargar no perdés el lugar y se puede guardar el link a un tema. Con un proyecto o una entrevista a medias, Atrás pregunta antes de salir, igual que el menú.
 - Primeras **animaciones** en la Biblioteca, en la clase de Codex: una neurona calculando paso a paso (entradas por pesos,

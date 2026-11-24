@@ -2,7 +2,7 @@
 // (dist-web/) con el argumento "web".
 // Uso: npm run build && npm run test:e2e (o npm run test:e2e:web)
 // El navegador se instala una vez con: npx playwright-core install --only-shell chromium
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { createServer } from "node:http";
@@ -289,6 +289,37 @@ try {
     await page.getByRole("button", { name: "Siguiente" }).click();
     await page.waitForTimeout(100);
     ok((await state(page)).settings.musicStation === 3, `la estación importada es el punto de partida (${title})`);
+    await ctx.close();
+  }
+
+  // 5b. pasar el progreso de NeonType.html a la web: guía en la web, copia antes de importar y nada se pierde
+  {
+    const { page, errors, ctx } = await open(browser, seedState({ settings: { userName: "Antes" } }));
+    await page.getByRole("button", { name: "Ajustes" }).click();
+    ok((await page.locator(".pasar-progreso").count()) === (WEB ? 1 : 0), WEB ? "la web explica cómo traer el progreso de NeonType.html" : "NeonType.html no muestra la guía de la web");
+    const input = page.locator('input[type="file"][accept="application/json"]');
+    const roto = join(mkdtempSync(join(tmpdir(), "neontype-e2e-")), "roto.json");
+    writeFileSync(roto, '{"version":2}');
+    let bajadas = 0;
+    page.on("download", () => bajadas++);
+    await input.setInputFiles(roto);
+    await page.getByText("No se pudo importar").waitFor({ timeout: 5000 });
+    ok(bajadas === 0 && (await state(page)).settings.userName === "Antes", "un archivo que no es una copia no toca nada ni baja copias");
+    await input.setInputFiles([]);
+    const dl = page.waitForEvent("download");
+    await input.setInputFiles(resolve("scripts/fixtures/progreso-v1.json"));
+    const copia = await dl;
+    const previo = JSON.parse(readFileSync((await copia.path())!, "utf8"));
+    await page.getByText("Progreso importado").waitFor({ timeout: 5000 });
+    ok(/antes-de-importar/.test(copia.suggestedFilename()) && previo.settings.userName === "Antes", "antes de importar se baja una copia del progreso que había");
+    const fijo = JSON.parse(readFileSync("scripts/fixtures/progreso-v1.json", "utf8"));
+    const st = await state(page);
+    ok(st.settings.userName === fijo.settings.userName && JSON.stringify(st.profiles["python:it"].lessons) === JSON.stringify(fijo.profiles["python:it"].lessons)
+      && Object.keys(fijo.review).every((k) => k in st.review), "el progreso de la versión 1 llega entero");
+    await page.reload();
+    await page.getByRole("button", { name: "Exportar progreso" }).waitFor();
+    ok((await state(page)).settings.userName === fijo.settings.userName, "y sigue ahí después de recargar");
+    ok(errors.length === 0, `pasar el progreso sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
 
