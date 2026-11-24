@@ -3,7 +3,7 @@
 // tarda más en volver; si se hace mal vuelve a la primera y reaparece mañana.
 import type { LangId, Lesson, ReviewItem } from "../types";
 import { type LayoutDef, isTypeable } from "../data/layouts";
-import { ALL_TOPICS } from "../library/unlock";
+import { ALL_TOPICS } from "../library/contenido";
 import { entryId } from "../library/search";
 import type { Entry, Topic } from "../library/types";
 

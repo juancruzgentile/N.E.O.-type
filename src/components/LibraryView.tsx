@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppState, LangId } from "../types";
-import { GROUPS, SOON } from "../library/index";
-import { visibleTopics } from "../library/unlock";
+import { GROUPS, SOON } from "../library/grupos";
+import { visibleTopics } from "../library/contenido";
 import { type Hit, entryId, search } from "../library/search";
 import type { Entry, Level, Topic } from "../library/types";
 import { ClaseView } from "./ClaseView";

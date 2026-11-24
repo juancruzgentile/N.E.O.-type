@@ -5,7 +5,7 @@ import type { Challenge } from "./PracticeView";
 import { PROJECTS, formatTime, projectLines, projectUnlocked, requiredNum } from "../projects/projects";
 import { IconLock } from "./icons";
 import { RECALL, levelDone, levelOpen } from "../recall/exercises";
-import { TOPICS } from "../library/index";
+import { CATALOGO } from "../library/catalogo.gen";
 import { SHORTCUT_SETS, levelDone as scLevelDone, levelOpen as scLevelOpen } from "../shortcuts/exercises";
 import { TAUGHT_ONLY } from "../shortcuts/vscode";
 
@@ -93,7 +93,7 @@ export function ChallengesView({ state, lang, onStart, onProject, onRecall, onSh
       </div>
       <div className="recall-topics">
         {RECALL.map((t) => {
-          const lib = TOPICS.find((x) => x.id === t.id);
+          const lib = CATALOGO.find((x) => x.id === t.id);
           return (
             <div key={t.id} className="recall-topic" style={{ "--tc": lib?.color ?? "var(--cyan)" } as CSSProperties}>
               <h3>{t.name}</h3>
