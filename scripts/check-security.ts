@@ -240,5 +240,34 @@ if (html) {
   ok(scripts.length === (html.match(/<\/script>/g) ?? []).length, "cada <script> tiene exactamente un cierre");
 }
 
+// ── Content Security Policy de la web (dist-web/) ──
+// La lista es exacta a propósito: abrir cualquier otra cosa (un dominio, unsafe-inline, connect-src…) hace fallar
+// esta prueba, y hay que cambiarla acá a conciencia.
+let web = "";
+try {
+  web = readFileSync("dist-web/index.html", "utf8");
+} catch {
+  ok(false, "existe dist-web/index.html (correr npm run build antes)");
+}
+if (web) {
+  const csp = web.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/)?.[1] ?? "";
+  const permitido: Record<string, string> = {
+    "default-src": "'none'", "script-src": "'self'", "style-src": "'self'", "img-src": "'self' data: blob:", "font-src": "'self'",
+    "media-src": "blob:", "connect-src": "'none'", "worker-src": "'self'", "object-src": "'none'", "frame-src": "'none'",
+    "manifest-src": "'self'", "base-uri": "'none'", "form-action": "'none'", "require-trusted-types-for": "'script'",
+    "trusted-types": "neo-sw",
+  };
+  const tiene = Object.fromEntries(csp.split(";").map((d) => d.trim()).filter(Boolean).map((d) => [d.split(/\s+/)[0], d.split(/\s+/).slice(1).join(" ")]));
+  const distintas = [...new Set([...Object.keys(permitido), ...Object.keys(tiene)])].filter((k) => permitido[k] !== tiene[k]);
+  ok(distintas.length === 0, `la CSP de la web abre solo el mismo sitio para scripts, estilos, fuentes, worker y manifest${distintas.length ? " — distinto: " + distintas.map((k) => `${k} ${tiene[k] ?? "(falta)"}`).join("; ") : ""}`);
+  ok(web.indexOf("Content-Security-Policy") < web.search(/<script\b|<link\b[^>]*stylesheet/), "la CSP de la web va antes que cualquier script o estilo");
+  ok(!/<script\b(?![^>]*\bsrc=)[^>]*>|<style\b|\son[a-z]+=/i.test(web), "la web no tiene scripts, estilos ni manejadores incrustados");
+  ok([...web.matchAll(/\b(?:src|href)="([^"]+)"/g)].every((m) => m[1].startsWith("./") || m[1].startsWith("data:image/svg+xml,")), "la web solo carga archivos propios");
+  const sw = readFileSync("dist-web/sw.js", "utf8");
+  ok(/origin !== location\.origin\) return;/.test(sw) && !/https?:\/\//.test(sw) && !/localStorage|indexedDB/.test(sw), "el service worker solo atiende el mismo sitio y no toca el progreso");
+  const registro = readFileSync("src/web.ts", "utf8");
+  ok(/createPolicy\("neo-sw"/.test(registro) && /if \(u !== "\.\/sw\.js"\) throw/.test(registro), "la política de Trusted Types de la web solo deja pasar ./sw.js");
+}
+
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de seguridad pasaron");
 process.exit(failed ? 1 : 0);
