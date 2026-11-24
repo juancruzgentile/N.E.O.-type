@@ -11,6 +11,9 @@ import "@fontsource/chakra-petch/latin-600.css";
 import "@fontsource/chakra-petch/latin-700.css";
 import "./styles.css";
 import App from "./App";
+import { registrarWeb } from "./web";
+
+if (import.meta.env.MODE === "web") registrarWeb();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

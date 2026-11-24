@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { AvisoVersion } from "./components/AvisoVersion";
 import type { LangId, View } from "./types";
 import { useAppState } from "./store";
 import { onReducedMotionChange, reducedMotion, setFxEnabled } from "./fx/fx";
@@ -348,6 +349,7 @@ export default function App() {
           }}
         />
       )}
+      {import.meta.env.MODE === "web" && <AvisoVersion />}
       <div className="toasts" aria-live="polite">
         {toasts.map((t) => {
           const a = ACHIEVEMENTS.find((x) => x.id === t.id);

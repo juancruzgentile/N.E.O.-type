@@ -172,3 +172,8 @@ html.calm .splash-grid { animation: none; }
 .lang-card .progress > span { background: linear-gradient(90deg, color-mix(in srgb, var(--lc) 60%, transparent), var(--lc)); box-shadow: 0 0 10px var(--lc); }
 .lang-card .go { color: var(--lc); }
 .pill .lang-emblem { flex-shrink: 0; }
+/* web: aviso de versión nueva, abajo al centro y sin tapar la lección */
+.aviso-version {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 75; display: flex; gap: 12px; align-items: center;
+  padding: 10px 14px; max-width: calc(100vw - 32px); flex-wrap: wrap; background: var(--panel2); border: 1px solid var(--cyan); color: var(--text);
+}
