@@ -273,6 +273,7 @@ button.pill:hover { border-color: var(--cyan); background: var(--cyan-soft); }
 .setting { padding: 16px 18px; background: var(--panel2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
 .setting label { font-weight: 700; letter-spacing: 1px; font-size: 16px; }
 .setting .help { color: var(--muted); font-size: 16px; line-height: 1.35; }
+.pasar-progreso ol { margin: 6px 0; padding-left: 22px; }
 .setting select, .setting input[type="number"], .setting input[type="text"], .setting textarea {
   background: var(--input-bg); color: var(--text); border: 1px solid var(--line2); padding: 8px 10px; font-family: var(--mono); font-size: 16px;
 }

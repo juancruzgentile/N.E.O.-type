@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import type { AppState, ErrorMode, LayoutId, Settings, ThemeId } from "../types";
 import { LANGS } from "../data/curriculum";
 import { LAYOUTS, comboText, layoutFor } from "../data/layouts";
-import { DEFAULT_SETTINGS, profileKey, today } from "../store";
+import { DEFAULT_SETTINGS, parseBackup, profileKey, today } from "../store";
 import { AvatarPicker } from "./Avatar";
 import { KeyCalibration } from "./KeyCalibration";
 import { MAX_IMPORT_BYTES } from "../sanitize";
@@ -36,20 +36,22 @@ export function SettingsView({ state, update, exportJson, importJson, onTutorial
   const layout = layoutFor(s);
   const learned = Object.keys(s.keymap[s.layout] ?? {});
 
-  const download = () => {
+  /** Baja el progreso actual como archivo. Devuelve false si no se pudo. */
+  const download = (nombre = `neo-type-progreso-${today()}.json`) => {
     let json: string;
     try {
       json = exportJson();
     } catch (e) {
       setMsg("No se pudo exportar: " + (e as Error).message);
-      return;
+      return false;
     }
     const blob = new Blob([json], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `neo-type-progreso-${today()}.json`;
+    a.download = nombre;
     a.click();
     URL.revokeObjectURL(a.href);
+    return true;
   };
   const onFile = async (f: File | undefined) => {
     if (!f) return;
@@ -57,13 +59,20 @@ export function SettingsView({ state, update, exportJson, importJson, onTutorial
       setMsg("No se pudo importar: el archivo es demasiado grande.");
       return;
     }
-    if (!confirm("Importar reemplaza todo tu progreso actual por el del archivo. ¿Continuar?")) return;
+    let json: string;
     try {
-      importJson(await f.text());
-      setMsg("Progreso importado.");
+      json = await f.text();
+      parseBackup(json); // se revisa antes de tocar nada
     } catch (e) {
       setMsg("No se pudo importar: " + (e as Error).message);
+      return;
     }
+    if (!confirm("Importar reemplaza todo tu progreso actual por el del archivo. Antes se baja una copia de tu progreso actual. ¿Continuar?")) return;
+    // la copia va primero: si no se puede bajar, no se importa
+    const copia = `neo-type-progreso-antes-de-importar-${today()}.json`;
+    if (!download(copia)) return;
+    importJson(json);
+    setMsg(`Progreso importado. Tu progreso anterior quedó en ${copia}.`);
   };
   const resetLang = () => {
     if (!state.lang) return;
@@ -212,11 +221,21 @@ export function SettingsView({ state, update, exportJson, importJson, onTutorial
         <div className="setting">
           <label>Copia de seguridad</label>
           <div className="seg">
-            <button onClick={download}>Exportar progreso</button>
+            <button onClick={() => download()}>Exportar progreso</button>
             <button onClick={() => fileRef.current?.click()}>Importar progreso</button>
             <input ref={fileRef} type="file" accept="application/json" hidden onChange={(e) => onFile(e.target.files?.[0])} />
           </div>
           <div className="help">Útil para pasar tu progreso entre computadoras o navegadores.</div>
+          {import.meta.env.MODE === "web" && (
+            <div className="help pasar-progreso">
+              <b>¿Venís de NeonType.html?</b> Tu progreso quedó guardado en ese archivo, no acá. Para traerlo:
+              <ol>
+                <li>Abrí NeonType.html, entrá a Ajustes y tocá <b>Exportar progreso</b>.</li>
+                <li>Volvé acá, tocá <b>Importar progreso</b> y elegí ese archivo.</li>
+              </ol>
+              Antes de importar se baja sola una copia de lo que tenés acá, por si querés volver atrás.
+            </div>
+          )}
         </div>
 
         <div className="setting">
