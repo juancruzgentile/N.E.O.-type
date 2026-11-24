@@ -20,7 +20,8 @@ import { KeyLearner, LAYOUTS, comboMap, comboText, isTypeable, layoutFor, readKe
 import type { AppState, KeyStat, LessonResult, Profile } from "../src/types";
 import { TypingSession } from "../src/engine/session";
 import { SOON, TOPICS } from "../src/library/index";
-import { ALL_TOPICS, frameworkUnlocked, frameworksToGrant, routeDone, visibleTopics } from "../src/library/unlock";
+import { frameworkUnlocked, frameworksToGrant, routeDone } from "../src/library/unlock";
+import { ALL_TOPICS, visibleTopics } from "../src/library/contenido";
 import { FRAMEWORKS } from "../src/library/frameworks";
 import { entryId, normalize, search } from "../src/library/search";
 import { PROJECTS, projectUnlocked, requiredNum } from "../src/projects/projects";

@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { transformSync } from "esbuild";
 import ts from "typescript";
-import { ALL_TOPICS as TOPICS } from "../src/library/unlock";
+import { ALL_TOPICS as TOPICS } from "../src/library/contenido";
 import { entryId } from "../src/library/search";
 import { SHELL_COMMAND, isFullProgram } from "../src/library/kind";
 import type { Entry } from "../src/library/types";

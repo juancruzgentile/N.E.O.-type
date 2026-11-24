@@ -2,7 +2,7 @@
 // Sin red: cada ejemplo tiene fuente, los links son https y no hay nombres que sobren.
 // Con FUENTES_RED=1: además abre cada link y comprueba que la página exista y que el ancla (#...) esté en ella.
 //   FUENTES_RED=1 npm run test:fuentes
-import { ALL_TOPICS } from "../src/library/unlock";
+import { ALL_TOPICS } from "../src/library/contenido";
 import { FUENTES } from "../src/library/fuentes/index";
 
 let problems = 0;

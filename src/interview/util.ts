@@ -1,11 +1,11 @@
 import type { LangId } from "../types";
-import { ALL_TOPICS } from "../library/unlock";
+import { CATALOGO } from "../library/catalogo.gen";
 import type { Formato, Pregunta } from "./types";
 
 /** Lenguaje para resaltar el código de una pregunta (el de la pregunta, o el de su área). */
 export function hlDe(q: Pregunta): LangId {
   const id = q.lang === "bash" || q.lang === "shell" ? "linux" : (q.lang ?? q.area);
-  return ALL_TOPICS.find((t) => t.id === id)?.hl ?? "python";
+  return CATALOGO.find((t) => t.id === id)?.hl ?? "python";
 }
 
 export const FORMATOS: { id: Formato; nombre: string }[] = [

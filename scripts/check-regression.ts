@@ -1,6 +1,7 @@
 // Tests de regresión de los errores encontrados en las auditorías (ver correcciones.txt).
 // Uso: npm run test:regression
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { TypingSession } from "../src/engine/session";
 import { MAX_IMPORT_BYTES, byteLength } from "../src/sanitize";
 import { initialState, parseBackup, serializeState } from "../src/store";
@@ -11,7 +12,8 @@ import { makeRng } from "../src/gen/base";
 import { LANG_ORDER } from "../src/data/curriculum";
 import { TRACK_ORDER } from "../src/tracks/index";
 import { TOPICS } from "../src/library/index";
-import { ALL_TOPICS } from "../src/library/unlock";
+import { ALL_TOPICS } from "../src/library/contenido";
+import { textoCatalogo } from "./catalogo-texto";
 import { isFullProgram, kindNote } from "../src/library/kind";
 import { go as goGen } from "../src/gen/lang/go";
 import { LAYOUTS } from "../src/data/layouts";
@@ -430,6 +432,34 @@ for (const t of TOPICS.filter((x) => x.clase)) {
   const vacias = Object.entries(fijo).filter(([, v]) => v && typeof v === "object" && Object.keys(v).length === 0);
   ok(vacias.length === 0, "progreso v1: la copia fija trae datos en todas sus secciones");
   ok(contiene(parseBackup(serializeState(leido as unknown as AppState)), fijo), "progreso v1: exportar e importar no pierde nada");
+}
+
+// ── catálogo: lo liviano de cada tema, sin arrastrar el contenido ──
+{
+  ok(readFileSync("src/library/catalogo.gen.ts", "utf8") === textoCatalogo(), "el catálogo está al día con los temas (si no, correr npm run catalogo)");
+  const archivo = (desde: string, ruta: string) => {
+    const base = join(dirname(desde), ruta);
+    return [`${base}.ts`, `${base}.tsx`, base].find((f) => existsSync(f) && /\.tsx?$/.test(f));
+  };
+  const alcanzados = (raiz: string) => {
+    const vistos = new Set<string>();
+    const pila = [raiz];
+    while (pila.length) {
+      const f = pila.pop()!;
+      if (vistos.has(f)) continue;
+      vistos.add(f);
+      for (const m of readFileSync(f, "utf8").matchAll(/^(?:import|export) (?!type )[^;]*?from "(\.[^"]+)"/gm)) {
+        const sig = archivo(f, m[1]);
+        if (sig) pila.push(sig);
+      }
+    }
+    return vistos;
+  };
+  const pesados = ["src/library/index.ts", "src/library/frameworks.ts", "src/library/contenido.ts"];
+  for (const raiz of ["src/library/unlock.ts", "src/sanitize.ts", "src/interview/util.ts", "src/components/ChallengesView.tsx"]) {
+    const v = alcanzados(raiz);
+    ok(!pesados.some((p) => v.has(p)), `${raiz} no carga el contenido de los temas`);
+  }
 }
 
 console.log(failed ? `\n${failed} test(s) fallaron` : "\nTodos los tests de regresión pasaron");

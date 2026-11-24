@@ -1,6 +1,6 @@
 // Biblioteca: referencia rápida de cada lenguaje y herramienta de la app.
 // Para sumar un tema: crear su archivo con un objeto Topic y agregarlo a TOPICS.
-import type { Soon, Topic } from "./types";
+import type { Topic } from "./types";
 import { python } from "./python";
 import { javascript } from "./javascript";
 import { typescript } from "./typescript";
@@ -45,11 +45,6 @@ export const TOPICS: Topic[] = [
   claude, codex, opencode, antigravity, hermes, gemini, chatgpt, cursor,
 ];
 
-export const GROUPS: Topic["group"][] = ["Lenguajes", "Web y datos", "Bases de datos", "Herramientas", "IA", "Frameworks"];
-
-/** Lo que viene: inteligencia artificial y herramientas para programar con ella. */
-export const SOON: Soon[] = [
-  { id: "ia", name: "IA: conceptos", desc: "Modelos de lenguaje, tokens, ventana de contexto, prompts, agentes, RAG y cómo evaluar respuestas." },
-];
+export { GROUPS, SOON } from "./grupos";
 
 export const totalEntries = TOPICS.reduce((n, t) => n + t.entries.length, 0);

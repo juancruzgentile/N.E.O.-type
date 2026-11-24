@@ -1,4 +1,4 @@
-import type { LangId } from "../types";
+import type { CodeLangId, LangId } from "../types";
 
 export type Level = "basico" | "intermedio" | "avanzado";
 
@@ -47,6 +47,16 @@ export interface Topic {
   /** clase completa aparte (teoría + práctica), si el tema tiene una */
   clase?: Clase;
 }
+
+/** Lo liviano de un tema: alcanza para listarlo sin cargar su contenido. Se genera con `npm run catalogo`. */
+export interface TemaCatalogo extends Pick<Topic, "id" | "name" | "group" | "emblem" | "badge" | "color" | "hl"> {
+  entradas: number;
+  /** solo frameworks: lenguajes y proyectos que lo abren */
+  langs?: CodeLangId[];
+  projects?: string[];
+}
+
+export type FrameworkCatalogo = TemaCatalogo & { langs: CodeLangId[]; projects: string[] };
 
 /** Temas que se van a sumar. */
 export interface Soon {

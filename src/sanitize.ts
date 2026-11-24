@@ -10,7 +10,7 @@ import type {
 import { totalsOf } from "./engine/totals";
 import { CHAR_KEY_CODES } from "./data/layouts";
 import { NIVELES, PUESTOS } from "./interview/catalogo";
-import { GROUPS } from "./library/index";
+import { GROUPS } from "./library/grupos";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 /** Tamaño real en bytes (UTF-8), igual que File.size. `string.length` cuenta caracteres, no bytes. */

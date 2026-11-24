@@ -1,4 +1,4 @@
-import { GROUPS, SOON } from "../library/index";
+import { GROUPS, SOON } from "../library/grupos";
 import type { Topic } from "../library/types";
 import { IconChevron } from "./icons";
 import { TopicBadge } from "./TopicBadge";
