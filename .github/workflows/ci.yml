@@ -44,6 +44,8 @@ jobs:
         run: npx playwright-core install --with-deps --only-shell chromium
       - name: Pruebas en navegador
         run: npm run test:e2e
+      - name: Pruebas en navegador sobre la web en varios archivos
+        run: npm run test:e2e:web
 
   ejemplos:
     # compila y prueba los proyectos, y revisa la sintaxis de los ejemplos de la Biblioteca,
