@@ -137,6 +137,21 @@ try {
     await ctx.close();
   }
 
+  // 1b. un progreso guardado de la versión 1 sobrevive a abrir la app y a guardar encima
+  {
+    const fijo = JSON.parse(readFileSync(resolve("scripts/fixtures/progreso-v1.json"), "utf8")) as Record<string, unknown> & ReturnType<typeof seedState>;
+    const { page, errors, ctx } = await open(browser, fijo);
+    await focusPractice(page);
+    await typeLesson(page, await lessonText(page));
+    await page.locator(".panel-foot .last").waitFor({ timeout: 5000 });
+    const st = await state(page);
+    ok(st.profiles["python:it"]?.lessons?.length === 3, "progreso v1: la lección nueva se suma a las guardadas");
+    for (const k of ["challenges", "projects", "review", "recall", "shortcuts", "interviewReview", "interviews", "lectura"])
+      ok(JSON.stringify(st[k]) === JSON.stringify(fijo[k]), `progreso v1: "${k}" sigue igual después de guardar`);
+    ok(errors.length === 0, `progreso v1: abre sin errores${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
   // 2. pegar no cuenta como tecleo; Tab libera el foco
   {
     const { page, ctx } = await open(browser);

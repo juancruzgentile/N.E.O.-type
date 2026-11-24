@@ -9,6 +9,7 @@
     "dev": "vite --open",
     "build": "tsc -b && vite build && node scripts/copy-build.mjs",
     "preview": "vite preview",
+    "peso": "node scripts/peso.mjs",
     "check": "esbuild scripts/check-generators.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check.mjs --log-level=warning && node node_modules/.cache/check.mjs",
     "audit": "npm audit --audit-level=moderate && npm audit signatures",
     "test": "npm run check && npm run test:logic && npm run test:regression && npm run test:security && npm run test:examples && npm run test:projects && npm run test:generated && npm run test:fuentes && npm run test:preguntas && npm run test:e2e",
