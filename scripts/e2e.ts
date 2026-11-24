@@ -2,7 +2,7 @@
 // (dist-web/) con el argumento "web".
 // Uso: npm run build && npm run test:e2e (o npm run test:e2e:web)
 // El navegador se instala una vez con: npx playwright-core install --only-shell chromium
-import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { createServer } from "node:http";
@@ -29,8 +29,13 @@ const server = createServer((req, res) => {
   if (!WEB) return void res.writeHead(200, { "content-type": TIPOS[".html"] }).end(html);
   const ruta = normalize(decodeURIComponent(new URL(req.url ?? "/", "http://x").pathname)).replace(/^(\.\.[/\\])+/, "");
   const f = join(resolve("dist-web"), ruta === "/" ? "index.html" : ruta);
-  if (!f.startsWith(resolve("dist-web")) || !existsSync(f) || !statSync(f).isFile()) return void res.writeHead(404).end();
-  const cuerpo = readFileSync(f);
+  let cuerpo: Buffer;
+  try {
+    if (!f.startsWith(resolve("dist-web"))) throw new Error("fuera de dist-web");
+    cuerpo = readFileSync(f); // una carpeta o un archivo que no está tiran error
+  } catch {
+    return void res.writeHead(404).end();
+  }
   res.writeHead(200, { "content-type": TIPOS[extname(f)] ?? "application/octet-stream" }).end(ruta === "/sw.js" ? cuerpo + swNuevo : cuerpo);
 }).listen(0, "127.0.0.1");
 await once(server, "listening");
