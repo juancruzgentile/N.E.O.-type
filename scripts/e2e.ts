@@ -23,6 +23,8 @@ const TIPOS: Record<string, string> = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".woff": "font/woff",
   ".json": "application/json", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png",
 };
+// para probar una actualización: el servidor le agrega esto al service worker, como si hubiera un build nuevo
+let swNuevo = "";
 const server = createServer((req, res) => {
   if (!WEB) return void res.writeHead(200, { "content-type": TIPOS[".html"] }).end(html);
   const ruta = normalize(decodeURIComponent(new URL(req.url ?? "/", "http://x").pathname)).replace(/^(\.\.[/\\])+/, "");
@@ -34,7 +36,7 @@ const server = createServer((req, res) => {
   } catch {
     return void res.writeHead(404).end();
   }
-  res.writeHead(200, { "content-type": TIPOS[extname(f)] ?? "application/octet-stream" }).end(cuerpo);
+  res.writeHead(200, { "content-type": TIPOS[extname(f)] ?? "application/octet-stream" }).end(ruta === "/sw.js" ? cuerpo + swNuevo : cuerpo);
 }).listen(0, "127.0.0.1");
 await once(server, "listening");
 const APP = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
@@ -63,9 +65,11 @@ const seedState = (extra: Seed = {}) => ({
 async function open(
   browser: Browser,
   seed = seedState(),
-  opts: { reducedMotion?: "reduce" | "no-preference"; viewport?: { width: number; height: number }; clock?: boolean } = {},
+  opts: { reducedMotion?: "reduce" | "no-preference"; viewport?: { width: number; height: number }; clock?: boolean; sw?: boolean } = {},
 ) {
   const ctx = await browser.newContext({
+    // el service worker solo se prende en su prueba: con él, page.route no ve los pedidos que contesta desde la caché
+    serviceWorkers: opts.sw ? "allow" : "block",
     reducedMotion: opts.reducedMotion ?? "no-preference",
     acceptDownloads: true,
     ...(opts.viewport ? { viewport: opts.viewport } : {}),
@@ -635,6 +639,43 @@ try {
     await page.locator(".lib-entry", { hasText: "git rebase" }).first().waitFor();
     ok(await bajo("tools"), "la búsqueda baja lo que le falta y encuentra en todos los temas");
     ok(errors.filter((e) => !/Failed to (load resource|fetch dynamically imported module)/.test(e)).length === 0, `biblioteca web sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 11a'. web instalable: anda sin internet y una versión nueva se aplica recién al tocar Actualizar, sin tocar el progreso
+  if (WEB) {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "go" }), { sw: true });
+    const manifest = await (await ctx.request.get(new URL((await page.locator('link[rel="manifest"]').getAttribute("href"))!, APP).href)).json().catch(() => null);
+    ok(manifest?.display === "standalone" && manifest?.icons?.length > 0 && manifest?.start_url === "./", "la web tiene manifest para instalarla");
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 15000 });
+    await typeLesson(page, await lessonText(page));
+    await page.waitForFunction((k) => Object.values(JSON.parse(localStorage.getItem(k) ?? "{}").profiles ?? {}).some((p) => (p as { lessons?: unknown[] }).lessons?.length), KEY);
+    await ctx.setOffline(true);
+    await page.reload();
+    await page.locator(".code-box").waitFor();
+    await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await page.locator(".lib-nav").getByRole("button", { name: /Rust/ }).click();
+    await page.locator(".lib-head h3", { hasText: "Rust" }).waitFor();
+    ok(true, "sin internet la web abre, practica y carga cualquier tema de la Biblioteca");
+    await ctx.setOffline(false);
+    swNuevo = "\n// versión nueva\n";
+    await page.evaluate(() => navigator.serviceWorker.getRegistration().then((r) => r?.update()));
+    const aviso = page.locator(".aviso-version");
+    await page.evaluate(() => ((window as unknown as { sinRecargar: boolean }).sinRecargar = true));
+    await aviso.waitFor({ timeout: 15000 });
+    await page.waitForTimeout(1000);
+    ok(await page.evaluate(() => (window as unknown as { sinRecargar?: boolean }).sinRecargar === true), "la versión nueva avisa y espera, sin recargar sola");
+    // el guardado va con retraso: la foto se saca cuando el progreso dejó de cambiar
+    let antes = "";
+    for (let ahora = JSON.stringify((await state(page)).profiles); ahora !== antes; ahora = JSON.stringify((await state(page)).profiles)) {
+      antes = ahora;
+      await page.waitForTimeout(800);
+    }
+    await Promise.all([page.waitForEvent("load"), aviso.getByRole("button", { name: "Actualizar" }).click()]);
+    await page.locator(".lib-head h3", { hasText: "Rust" }).waitFor();
+    ok(antes.includes("lessons") && (await aviso.count()) === 0 && JSON.stringify((await state(page)).profiles) === antes, "al actualizar, la app recarga y el progreso queda igual");
+    swNuevo = "";
+    ok(errors.length === 0, `web instalable sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
 
