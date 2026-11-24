@@ -7,10 +7,10 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 
 /**
  * Agrega una Content Security Policy estricta al HTML final.
- * Solo se permiten el script y el estilo incrustados (por su hash SHA-256): cualquier
- * otro código queda bloqueado. La app no necesita red, así que toda conexión está prohibida.
+ * En NeonType.html solo se permiten el script y el estilo incrustados (por su hash SHA-256). En la web, los archivos
+ * del mismo sitio ('self'). Cualquier otro código queda bloqueado y toda conexión está prohibida.
  */
-function contentSecurityPolicy(): Plugin {
+function contentSecurityPolicy(web: boolean): Plugin {
   const sha = (s: string) => `'sha256-${createHash("sha256").update(s, "utf8").digest("base64")}'`;
   return {
     name: "neo-csp",
@@ -18,8 +18,11 @@ function contentSecurityPolicy(): Plugin {
     enforce: "post",
     // se aplica sobre el archivo ya escrito, cuando el JS y el CSS ya están incrustados
     closeBundle() {
-      const file = resolve(__dirname, "dist/index.html");
+      const file = resolve(__dirname, web ? "dist-web/index.html" : "dist/index.html");
       let src = readFileSync(file, "utf8");
+      // solo cuentan las etiquetas reales (no el texto que hay dentro del JS)
+      const tags = src.replace(/(<script\b[^>]*>)[\s\S]*?<\/script[^>]*>/gi, "$1</script>");
+      if (web && /<script\b(?![^>]*\bsrc=)[^>]*>|<style\b/i.test(tags)) throw new Error("CSP: en la web no tiene que haber script ni estilo incrustado");
       // Dentro de un <script> incrustado, las secuencias "<!--" y "<script" cambian cómo el
       // navegador busca el cierre (estado "script data escaped"): si aparecen las dos, el
       // </script> real deja de cerrar el elemento. Los ejercicios de HTML las contienen como
@@ -29,15 +32,13 @@ function contentSecurityPolicy(): Plugin {
       );
       const scripts = [...src.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((m) => sha(m[1]));
       const styles = [...src.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => sha(m[1]));
-      // solo cuentan las etiquetas reales (no el texto que hay dentro del JS)
-      const tags = src.replace(/(<script\b[^>]*>)[\s\S]*?<\/script>/g, "$1</script>");
-      if (/<script\b[^>]*\bsrc=/.test(tags)) throw new Error("CSP: se esperaba que todos los scripts estén incrustados");
+      if (!web && /<script\b[^>]*\bsrc=/.test(tags)) throw new Error("CSP: se esperaba que todos los scripts estén incrustados");
       const policy = [
         "default-src 'none'",
-        `script-src ${scripts.join(" ")}`,
-        `style-src ${styles.join(" ")}`,
-        "img-src data: blob:",
-        "font-src data:",
+        `script-src ${web ? "'self'" : scripts.join(" ")}`,
+        `style-src ${web ? "'self'" : styles.join(" ")}`,
+        `img-src ${web ? "'self' " : ""}data: blob:`,
+        `font-src ${web ? "'self'" : "data:"}`,
         "media-src blob:",
         "connect-src 'none'",
         "worker-src 'none'",
@@ -58,16 +59,19 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
-// El build genera un único index.html autocontenido (JS, CSS y fuentes
-// incrustados) que se abre con doble clic, sin servidor ni internet.
+// Dos builds del mismo código. El de siempre genera un único index.html autocontenido (JS, CSS y fuentes
+// incrustados) que se abre con doble clic, sin servidor ni internet. Con --mode web sale la web en varios
+// archivos (dist-web/): cada tema de la Biblioteca es un pedazo aparte que se baja al abrirlo.
 const pkg = JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf8")) as { version: string };
 
-export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
-  base: "./",
-  plugins: [react(), viteSingleFile(), contentSecurityPolicy()],
-  build: {
-    assetsInlineLimit: 100_000_000,
-    chunkSizeWarningLimit: 5_000,
-  },
+export default defineConfig(({ mode }) => {
+  const web = mode === "web";
+  return {
+    define: { __APP_VERSION__: JSON.stringify(pkg.version) },
+    base: "./",
+    plugins: [react(), ...(web ? [] : [viteSingleFile()]), contentSecurityPolicy(web)],
+    build: web
+      ? { outDir: "dist-web", chunkSizeWarningLimit: 1_200 }
+      : { assetsInlineLimit: 100_000_000, chunkSizeWarningLimit: 5_000 },
+  };
 });

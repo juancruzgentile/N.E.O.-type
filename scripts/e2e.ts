@@ -1,8 +1,9 @@
-// Pruebas en un navegador real (Chromium headless) sobre el build NeonType.html.
-// Uso: npm run build && npm run test:e2e
+// Pruebas en un navegador real (Chromium headless) sobre el build NeonType.html, o sobre la web en varios archivos
+// (dist-web/) con el argumento "web".
+// Uso: npm run build && npm run test:e2e (o npm run test:e2e:web)
 // El navegador se instala una vez con: npx playwright-core install --only-shell chromium
 import { readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { extname, join, normalize, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
@@ -16,8 +17,25 @@ import { BANCO } from "../src/interview/bank/index";
 
 // Se sirve por http local y no se abre como file://: con file:// Chromium no garantiza que todas las páginas
 // del contexto lean el mismo localStorage, y en el CI la recarga o una segunda ventana arrancaban vacías a veces.
-const html = readFileSync(resolve("NeonType.html"));
-const server = createServer((_, res) => res.writeHead(200, { "content-type": "text/html; charset=utf-8" }).end(html)).listen(0, "127.0.0.1");
+const WEB = process.argv.includes("web");
+const html = readFileSync(resolve(WEB ? "dist-web/index.html" : "NeonType.html"));
+const TIPOS: Record<string, string> = {
+  ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".woff": "font/woff",
+  ".json": "application/json", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png",
+};
+const server = createServer((req, res) => {
+  if (!WEB) return void res.writeHead(200, { "content-type": TIPOS[".html"] }).end(html);
+  const ruta = normalize(decodeURIComponent(new URL(req.url ?? "/", "http://x").pathname)).replace(/^(\.\.[/\\])+/, "");
+  const f = join(resolve("dist-web"), ruta === "/" ? "index.html" : ruta);
+  let cuerpo: Buffer;
+  try {
+    if (!f.startsWith(resolve("dist-web"))) throw new Error("fuera de dist-web");
+    cuerpo = readFileSync(f); // una carpeta o un archivo que no está tiran error
+  } catch {
+    return void res.writeHead(404).end();
+  }
+  res.writeHead(200, { "content-type": TIPOS[extname(f)] ?? "application/octet-stream" }).end(cuerpo);
+}).listen(0, "127.0.0.1");
 await once(server, "listening");
 const APP = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
 const KEY = "neontype:v1";
@@ -104,7 +122,7 @@ try {
   {
     const MAX_MB = 3;
     const mb = html.length / 2 ** 20;
-    ok(mb <= MAX_MB, `NeonType.html pesa ${mb.toFixed(2)} MB (límite ${MAX_MB} MB)`);
+    if (!WEB) ok(mb <= MAX_MB, `NeonType.html pesa ${mb.toFixed(2)} MB (límite ${MAX_MB} MB)`);
     // arranque con la CPU frenada 4×, como un celular modesto; el mejor de tres para no depender de un pico del CI
     const MAX_MS = 2500;
     const tiempos: number[] = [];
@@ -592,6 +610,31 @@ try {
     ok((await page.locator(".clase-seccion").count()) >= 9 && (await page.locator(".clase .lib-code").count()) >= 3 && (await page.locator(".clase-tabla table").count()) >= 2, "la clase de Python muestra secciones, código resaltado y tablas");
     ok((await page.locator(".clase-fuentes a").count()) >= 1, "la clase de Python lista sus fuentes oficiales");
     ok(errors.length === 0, `biblioteca sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
+    await ctx.close();
+  }
+
+  // 11a. web en varios archivos: abrir un tema baja solo ese tema, un tema que no baja se puede reintentar y la búsqueda
+  // sigue completa
+  if (WEB) {
+    const { page, errors, ctx } = await open(browser, seedState({ lang: "go" }));
+    const pedazo = (n: string) => new RegExp(`/assets/${n}-[\\w-]{8}\\.js$`);
+    const bajados = () => page.evaluate(() => performance.getEntriesByType("resource").map((e) => e.name));
+    const bajo = async (n: string) => (await bajados()).some((u) => pedazo(n).test(u));
+    ok(!(await bajo("go")) && !(await bajo("python")), "la web arranca sin bajar ningún tema");
+    await page.locator(".nav").getByRole("button", { name: "Biblioteca" }).click();
+    await page.locator(".lib-head h3", { hasText: "Go" }).waitFor();
+    ok((await bajo("go")) && !(await bajo("python")) && !(await bajo("rust")), "abrir un tema baja solo ese tema");
+    await page.route(pedazo("rust"), (r) => r.abort());
+    await page.locator(".lib-nav").getByRole("button", { name: /Rust/ }).click();
+    await page.locator(".lib-cargando", { hasText: "No se pudo cargar" }).waitFor();
+    await page.unroute(pedazo("rust"));
+    await page.locator(".lib-cargando").getByRole("button", { name: "Reintentar" }).click();
+    await page.locator(".lib-head h3", { hasText: "Rust" }).waitFor();
+    ok(true, "si un tema no baja, avisa y se puede reintentar");
+    await page.getByRole("searchbox", { name: "Buscar en la biblioteca" }).fill("rebase");
+    await page.locator(".lib-entry", { hasText: "git rebase" }).first().waitFor();
+    ok(await bajo("tools"), "la búsqueda baja lo que le falta y encuentra en todos los temas");
+    ok(errors.filter((e) => !/Failed to (load resource|fetch dynamically imported module)/.test(e)).length === 0, `biblioteca web sin errores de consola${errors.length ? ": " + errors[0] : ""}`);
     await ctx.close();
   }
 
