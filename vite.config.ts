@@ -20,8 +20,9 @@ function contentSecurityPolicy(web: boolean): Plugin {
     closeBundle() {
       const file = resolve(__dirname, web ? "dist-web/index.html" : "dist/index.html");
       let src = readFileSync(file, "utf8");
-      const tags = src.replace(/(<script\b[^>]*>)[\s\S]*?<\/script>/g, "$1</script>");
-      if (web && /<script\b(?![^>]*\bsrc=)[^>]*>|<style\b/.test(tags)) throw new Error("CSP: en la web no tiene que haber script ni estilo incrustado");
+      // solo cuentan las etiquetas reales (no el texto que hay dentro del JS)
+      const tags = src.replace(/(<script\b[^>]*>)[\s\S]*?<\/script[^>]*>/gi, "$1</script>");
+      if (web && /<script\b(?![^>]*\bsrc=)[^>]*>|<style\b/i.test(tags)) throw new Error("CSP: en la web no tiene que haber script ni estilo incrustado");
       // Dentro de un <script> incrustado, las secuencias "<!--" y "<script" cambian cómo el
       // navegador busca el cierre (estado "script data escaped"): si aparecen las dos, el
       // </script> real deja de cerrar el elemento. Los ejercicios de HTML las contienen como
@@ -31,7 +32,6 @@ function contentSecurityPolicy(web: boolean): Plugin {
       );
       const scripts = [...src.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((m) => sha(m[1]));
       const styles = [...src.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => sha(m[1]));
-      // solo cuentan las etiquetas reales (no el texto que hay dentro del JS)
       if (!web && /<script\b[^>]*\bsrc=/.test(tags)) throw new Error("CSP: se esperaba que todos los scripts estén incrustados");
       const policy = [
         "default-src 'none'",
